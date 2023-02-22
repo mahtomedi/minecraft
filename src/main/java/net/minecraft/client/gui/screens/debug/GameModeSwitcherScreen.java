@@ -13,7 +13,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -77,7 +76,6 @@ public class GameModeSwitcherScreen extends Screen {
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         if (!this.checkToClose()) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             param0.pushPose();
             RenderSystem.enableBlend();
             RenderSystem.setShaderTexture(0, GAMEMODE_SWITCHER_LOCATION);
@@ -168,8 +166,8 @@ public class GameModeSwitcherScreen extends Screen {
             this.renderStack = param2;
         }
 
-        void drawIcon(ItemRenderer param0, int param1, int param2) {
-            param0.renderAndDecorateItem(this.renderStack, param1, param2);
+        void drawIcon(PoseStack param0, ItemRenderer param1, int param2, int param3) {
+            param1.renderAndDecorateItem(param0, this.renderStack, param2, param3);
         }
 
         Component getName() {
@@ -223,7 +221,7 @@ public class GameModeSwitcherScreen extends Screen {
         public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
             Minecraft var0 = Minecraft.getInstance();
             this.drawSlot(param0, var0.getTextureManager());
-            this.icon.drawIcon(GameModeSwitcherScreen.this.itemRenderer, this.getX() + 5, this.getY() + 5);
+            this.icon.drawIcon(param0, GameModeSwitcherScreen.this.itemRenderer, this.getX() + 5, this.getY() + 5);
             if (this.isSelected) {
                 this.drawSelection(param0, var0.getTextureManager());
             }
@@ -245,7 +243,6 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         private void drawSlot(PoseStack param0, TextureManager param1) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((float)this.getX(), (float)this.getY(), 0.0F);
@@ -254,7 +251,6 @@ public class GameModeSwitcherScreen extends Screen {
         }
 
         private void drawSelection(PoseStack param0, TextureManager param1) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, GameModeSwitcherScreen.GAMEMODE_SWITCHER_LOCATION);
             param0.pushPose();
             param0.translate((float)this.getX(), (float)this.getY(), 0.0F);

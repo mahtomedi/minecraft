@@ -31,7 +31,7 @@ public final class BelowZeroRetrogen {
     private static final Codec<ChunkStatus> NON_EMPTY_CHUNK_STATUS = BuiltInRegistries.CHUNK_STATUS
         .byNameCodec()
         .comapFlatMap(
-            param0 -> param0 == ChunkStatus.EMPTY ? DataResult.error("target_status cannot be empty") : DataResult.success(param0), Function.identity()
+            param0 -> param0 == ChunkStatus.EMPTY ? DataResult.error(() -> "target_status cannot be empty") : DataResult.success(param0), Function.identity()
         );
     public static final Codec<BelowZeroRetrogen> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(

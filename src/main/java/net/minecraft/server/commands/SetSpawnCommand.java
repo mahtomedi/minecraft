@@ -23,7 +23,7 @@ public class SetSpawnCommand {
                     param0x -> setSpawn(
                             param0x.getSource(),
                             Collections.singleton(param0x.getSource().getPlayerOrException()),
-                            new BlockPos(param0x.getSource().getPosition()),
+                            BlockPos.containing(param0x.getSource().getPosition()),
                             0.0F
                         )
                 )
@@ -31,7 +31,10 @@ public class SetSpawnCommand {
                     Commands.argument("targets", EntityArgument.players())
                         .executes(
                             param0x -> setSpawn(
-                                    param0x.getSource(), EntityArgument.getPlayers(param0x, "targets"), new BlockPos(param0x.getSource().getPosition()), 0.0F
+                                    param0x.getSource(),
+                                    EntityArgument.getPlayers(param0x, "targets"),
+                                    BlockPos.containing(param0x.getSource().getPosition()),
+                                    0.0F
                                 )
                         )
                         .then(

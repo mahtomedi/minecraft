@@ -25,7 +25,7 @@ public class RandomSpreadStructurePlacement extends StructurePlacement {
                     .apply(param0, RandomSpreadStructurePlacement::new)
         )
         .flatXmap(
-            param0 -> param0.spacing <= param0.separation ? DataResult.error("Spacing has to be larger than separation") : DataResult.success(param0),
+            param0 -> param0.spacing <= param0.separation ? DataResult.error(() -> "Spacing has to be larger than separation") : DataResult.success(param0),
             DataResult::success
         )
         .codec();

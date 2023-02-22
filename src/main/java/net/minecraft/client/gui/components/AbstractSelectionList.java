@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.AbstractList;
@@ -215,33 +214,24 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
         int var3 = this.getRowLeft();
         int var4 = this.y0 + 4 - (int)this.getScrollAmount();
+        this.enableScissor();
         if (this.renderHeader) {
             this.renderHeader(param0, var3, var4);
         }
 
         this.renderList(param0, param1, param2, param3);
+        disableScissor();
         if (this.renderTopAndBottom) {
             RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.enableDepthTest();
-            RenderSystem.depthFunc(519);
             int var5 = 32;
             int var6 = -100;
             RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
             blit(param0, this.x0, 0, -100, 0.0F, 0.0F, this.width, this.y0, 32, 32);
             blit(param0, this.x0, this.y1, -100, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.depthFunc(515);
-            RenderSystem.disableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ZERO,
-                GlStateManager.DestFactor.ONE
-            );
             int var7 = 4;
-            this.fillGradient(param0, this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
-            this.fillGradient(param0, this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
+            fillGradient(param0, this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
+            fillGradient(param0, this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
         }
 
         int var8 = this.getMaxScroll();
@@ -260,6 +250,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
         this.renderDecorations(param0, param1, param2);
         RenderSystem.disableBlend();
+    }
+
+    protected void enableScissor() {
+        enableScissor(this.x0, this.y0, this.x1, this.y1);
     }
 
     protected void centerScrollOn(E param0) {
@@ -449,6 +443,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     protected void renderItem(PoseStack param0, int param1, int param2, float param3, int param4, int param5, int param6, int param7, int param8) {
         E var0 = this.getEntry(param4);
+        var0.renderBack(param0, param4, param6, param5, param7, param8, param1, param2, Objects.equals(this.hovered, var0), param3);
         if (this.renderSelection && this.isSelectedItem(param4)) {
             int var1 = this.isFocused() ? -1 : -8355712;
             this.renderSelection(param0, param6, param7, param8, var1, -16777216);
@@ -544,6 +539,11 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         }
 
         public abstract void render(PoseStack var1, int var2, int var3, int var4, int var5, int var6, int var7, int var8, boolean var9, float var10);
+
+        public void renderBack(
+            PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+        ) {
+        }
 
         @Override
         public boolean isMouseOver(double param0, double param1) {

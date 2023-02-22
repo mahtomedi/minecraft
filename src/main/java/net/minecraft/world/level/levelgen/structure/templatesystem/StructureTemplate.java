@@ -161,7 +161,7 @@ public class StructureTemplate {
             if (var1 instanceof Painting) {
                 var4 = ((Painting)var1).getPos().subtract(param1);
             } else {
-                var4 = new BlockPos(var2);
+                var4 = BlockPos.containing(var2);
             }
 
             this.entityInfoList.add(new StructureTemplate.StructureEntityInfo(var2, var4, var3.copy()));
@@ -409,7 +409,7 @@ public class StructureTemplate {
                     var0x += param6x.mirror(param2) - param6x.getYRot();
                     param6x.moveTo(var4.x, var4.y, var4.z, var0x, param6x.getXRot());
                     if (param6 && param6x instanceof Mob) {
-                        ((Mob)param6x).finalizeSpawn(param0, param0.getCurrentDifficultyAt(new BlockPos(var4)), MobSpawnType.STRUCTURE, null, var2);
+                        ((Mob)param6x).finalizeSpawn(param0, param0.getCurrentDifficultyAt(BlockPos.containing(var4)), MobSpawnType.STRUCTURE, null, var2);
                     }
 
                     param0.addFreshEntityWithPassengers(param6x);

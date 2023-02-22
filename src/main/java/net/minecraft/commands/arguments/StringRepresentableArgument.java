@@ -39,7 +39,10 @@ public class StringRepresentableArgument<T extends Enum<T> & StringRepresentable
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> param0, SuggestionsBuilder param1) {
         return SharedSuggestionProvider.suggest(
-            Arrays.<Enum>stream((Enum[])this.values.get()).map(param0x -> ((StringRepresentable)param0x).getSerializedName()).collect(Collectors.toList()),
+            Arrays.<Enum>stream((Enum[])this.values.get())
+                .map(param0x -> ((StringRepresentable)param0x).getSerializedName())
+                .map(this::convertId)
+                .collect(Collectors.toList()),
             param1
         );
     }
@@ -48,7 +51,12 @@ public class StringRepresentableArgument<T extends Enum<T> & StringRepresentable
     public Collection<String> getExamples() {
         return Arrays.<Enum>stream((Enum[])this.values.get())
             .map(param0 -> ((StringRepresentable)param0).getSerializedName())
+            .map(this::convertId)
             .limit(2L)
             .collect(Collectors.toList());
+    }
+
+    protected String convertId(String param0x) {
+        return param0x;
     }
 }

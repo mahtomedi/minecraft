@@ -19,7 +19,7 @@ public class TelemetryEventType {
     static final Map<String, TelemetryEventType> REGISTRY = new Object2ObjectLinkedOpenHashMap<>();
     public static final Codec<TelemetryEventType> CODEC = Codec.STRING.comapFlatMap(param0 -> {
         TelemetryEventType var0 = REGISTRY.get(param0);
-        return var0 != null ? DataResult.success(var0) : DataResult.error("No TelemetryEventType with key: '" + param0 + "'");
+        return var0 != null ? DataResult.success(var0) : DataResult.error(() -> "No TelemetryEventType with key: '" + param0 + "'");
     }, TelemetryEventType::id);
     private static final List<TelemetryProperty<?>> GLOBAL_PROPERTIES = List.of(
         TelemetryProperty.USER_ID,

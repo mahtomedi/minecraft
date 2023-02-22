@@ -47,7 +47,7 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
             var0 = Mth.floor(this.mob.getY() + 0.5);
         }
 
-        BlockPos var4 = new BlockPos(this.mob.getX(), (double)var0, this.mob.getZ());
+        BlockPos var4 = BlockPos.containing(this.mob.getX(), (double)var0, this.mob.getZ());
         if (!this.canStartAt(var4)) {
             for(BlockPos var5 : this.iteratePathfindingStartNodeCandidatePositions(this.mob)) {
                 if (this.canStartAt(var5)) {
@@ -345,10 +345,10 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
         boolean var2 = var1.getSize() < 1.0;
         if (!var2) {
             return List.of(
-                new BlockPos(var1.minX, (double)param0.getBlockY(), var1.minZ),
-                new BlockPos(var1.minX, (double)param0.getBlockY(), var1.maxZ),
-                new BlockPos(var1.maxX, (double)param0.getBlockY(), var1.minZ),
-                new BlockPos(var1.maxX, (double)param0.getBlockY(), var1.maxZ)
+                BlockPos.containing(var1.minX, (double)param0.getBlockY(), var1.minZ),
+                BlockPos.containing(var1.minX, (double)param0.getBlockY(), var1.maxZ),
+                BlockPos.containing(var1.maxX, (double)param0.getBlockY(), var1.minZ),
+                BlockPos.containing(var1.maxX, (double)param0.getBlockY(), var1.maxZ)
             );
         } else {
             double var3 = Math.max(0.0, (1.5 - var1.getZsize()) / 2.0);

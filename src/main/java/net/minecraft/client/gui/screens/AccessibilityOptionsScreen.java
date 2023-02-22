@@ -17,6 +17,8 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
         return new OptionInstance[]{
             param0.narrator(),
             param0.showSubtitles(),
+            param0.highContrast(),
+            param0.autoJump(),
             param0.textBackgroundOpacity(),
             param0.backgroundForChatOnly(),
             param0.chatOpacity(),
@@ -32,9 +34,8 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
             param0.glintSpeed(),
             param0.glintStrength(),
             param0.hideLightningFlash(),
-            param0.autoJump(),
-            param0.panoramaSpeed(),
-            param0.darkMojangStudiosBackground()
+            param0.darkMojangStudiosBackground(),
+            param0.panoramaSpeed()
         };
     }
 

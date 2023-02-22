@@ -104,7 +104,7 @@ public class CommandBlockEditScreen extends AbstractCommandBlockEditScreen {
             .getConnection()
             .send(
                 new ServerboundSetCommandBlockPacket(
-                    new BlockPos(param0.getPosition()), this.commandEdit.getValue(), this.mode, param0.isTrackOutput(), this.conditional, this.autoexec
+                    BlockPos.containing(param0.getPosition()), this.commandEdit.getValue(), this.mode, param0.isTrackOutput(), this.conditional, this.autoexec
                 )
             );
     }

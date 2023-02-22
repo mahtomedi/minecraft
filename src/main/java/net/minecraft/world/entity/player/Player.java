@@ -513,11 +513,6 @@ public abstract class Player extends LivingEntity {
         this.inventory.tick();
         this.oBob = this.bob;
         super.aiStep();
-        this.flyingSpeed = 0.02F;
-        if (this.isSprinting()) {
-            this.flyingSpeed += 0.006F;
-        }
-
         this.setSpeed((float)this.getAttributeValue(Attributes.MOVEMENT_SPEED));
         float var1;
         if (this.onGround && !this.isDeadOrDying() && !this.isSwimming()) {
@@ -1061,7 +1056,7 @@ public abstract class Player extends LivingEntity {
             double var1 = param0.z;
             double var2 = 0.05;
 
-            while(var0 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), 0.0))) {
+            while(var0 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep()), 0.0))) {
                 if (var0 < 0.05 && var0 >= -0.05) {
                     var0 = 0.0;
                 } else if (var0 > 0.0) {
@@ -1071,7 +1066,7 @@ public abstract class Player extends LivingEntity {
                 }
             }
 
-            while(var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(-this.maxUpStep), var1))) {
+            while(var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(-this.maxUpStep()), var1))) {
                 if (var1 < 0.05 && var1 >= -0.05) {
                     var1 = 0.0;
                 } else if (var1 > 0.0) {
@@ -1081,7 +1076,7 @@ public abstract class Player extends LivingEntity {
                 }
             }
 
-            while(var0 != 0.0 && var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep), var1))) {
+            while(var0 != 0.0 && var1 != 0.0 && this.level.noCollision(this, this.getBoundingBox().move(var0, (double)(-this.maxUpStep()), var1))) {
                 if (var0 < 0.05 && var0 >= -0.05) {
                     var0 = 0.0;
                 } else if (var0 > 0.0) {
@@ -1107,8 +1102,8 @@ public abstract class Player extends LivingEntity {
 
     private boolean isAboveGround() {
         return this.onGround
-            || this.fallDistance < this.maxUpStep
-                && !this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(this.fallDistance - this.maxUpStep), 0.0));
+            || this.fallDistance < this.maxUpStep()
+                && !this.level.noCollision(this, this.getBoundingBox().move(0.0, (double)(this.fallDistance - this.maxUpStep()), 0.0));
     }
 
     public void attack(Entity param0) {
@@ -1467,7 +1462,7 @@ public abstract class Player extends LivingEntity {
             double var4 = var3 < -0.2 ? 0.085 : 0.06;
             if (var3 <= 0.0
                 || this.jumping
-                || !this.level.getBlockState(new BlockPos(this.getX(), this.getY() + 1.0 - 0.1, this.getZ())).getFluidState().isEmpty()) {
+                || !this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() + 1.0 - 0.1, this.getZ())).getFluidState().isEmpty()) {
                 Vec3 var5 = this.getDeltaMovement();
                 this.setDeltaMovement(var5.add(0.0, (var3 - var5.y) * var4, 0.0));
             }
@@ -1475,12 +1470,9 @@ public abstract class Player extends LivingEntity {
 
         if (this.abilities.flying && !this.isPassenger()) {
             double var6 = this.getDeltaMovement().y;
-            float var7 = this.flyingSpeed;
-            this.flyingSpeed = this.abilities.getFlyingSpeed() * (float)(this.isSprinting() ? 2 : 1);
             super.travel(param0);
-            Vec3 var8 = this.getDeltaMovement();
-            this.setDeltaMovement(var8.x, var6 * 0.6, var8.z);
-            this.flyingSpeed = var7;
+            Vec3 var7 = this.getDeltaMovement();
+            this.setDeltaMovement(var7.x, var6 * 0.6, var7.z);
             this.resetFallDistance();
             this.setSharedFlag(7, false);
         } else {
@@ -2143,6 +2135,15 @@ public abstract class Player extends LivingEntity {
     @Override
     public boolean canSprint() {
         return true;
+    }
+
+    @Override
+    protected float getFlyingSpeed() {
+        if (this.abilities.flying && !this.isPassenger()) {
+            return this.isSprinting() ? this.abilities.getFlyingSpeed() * 2.0F : this.abilities.getFlyingSpeed();
+        } else {
+            return this.isSprinting() ? 0.025999999F : 0.02F;
+        }
     }
 
     public static enum BedSleepingProblem {

@@ -350,7 +350,7 @@ public class GameTestHelper {
         List<? extends Entity> var0 = this.getLevel().getEntities(param0, new AABB(param1, param2), Entity::isAlive);
         if (var0.isEmpty()) {
             throw new GameTestAssertPosException(
-                "Expected " + param0.toShortString() + " between ", new BlockPos(param1), new BlockPos(param2), this.testInfo.getTick()
+                "Expected " + param0.toShortString() + " between ", BlockPos.containing(param1), BlockPos.containing(param2), this.testInfo.getTick()
             );
         }
     }

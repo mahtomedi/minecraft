@@ -983,6 +983,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         this.screen = param0;
+        if (this.screen != null) {
+            this.screen.added();
+        }
+
         BufferUploader.reset();
         if (param0 != null) {
             this.mouseHandler.releaseMouse();
@@ -1115,9 +1119,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
         }
 
-        PoseStack var8 = RenderSystem.getModelViewStack();
-        var8.pushPose();
-        RenderSystem.applyModelViewMatrix();
         RenderSystem.clear(16640, ON_OSX);
         this.mainRenderTarget.bindWrite(true);
         FogRenderer.setupNoFog();
@@ -1127,8 +1128,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         if (!this.noRender) {
             this.profiler.popPush("gameRenderer");
             this.gameRenderer.render(this.pause ? this.pausePartialTick : this.timer.partialTick, var0, param0);
-            this.profiler.popPush("toasts");
-            this.toast.render(new PoseStack());
             this.profiler.pop();
         }
 
@@ -1140,22 +1139,17 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         this.profiler.push("blit");
         this.mainRenderTarget.unbindWrite();
-        var8.popPose();
-        var8.pushPose();
-        RenderSystem.applyModelViewMatrix();
         this.mainRenderTarget.blitToScreen(this.window.getWidth(), this.window.getHeight());
         this.frameTimeNs = Util.getNanos() - var5;
         if (var7) {
             TimerQuery.getInstance().ifPresent(param0x -> this.currentFrameProfile = param0x.endProfile());
         }
 
-        var8.popPose();
-        RenderSystem.applyModelViewMatrix();
         this.profiler.popPush("updateDisplay");
         this.window.updateDisplay();
-        int var9 = this.getFramerateLimit();
-        if (var9 < 260) {
-            RenderSystem.limitDisplayFPS(var9);
+        int var8 = this.getFramerateLimit();
+        if (var8 < 260) {
+            RenderSystem.limitDisplayFPS(var8);
         }
 
         this.profiler.popPush("yield");
@@ -1163,38 +1157,38 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.pop();
         this.window.setErrorSection("Post render");
         ++this.frames;
-        boolean var10 = this.hasSingleplayerServer()
+        boolean var9 = this.hasSingleplayerServer()
             && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen())
             && !this.singleplayerServer.isPublished();
-        if (this.pause != var10) {
+        if (this.pause != var9) {
             if (this.pause) {
                 this.pausePartialTick = this.timer.partialTick;
             } else {
                 this.timer.partialTick = this.pausePartialTick;
             }
 
-            this.pause = var10;
+            this.pause = var9;
         }
 
-        long var11 = Util.getNanos();
-        long var12 = var11 - this.lastNanoTime;
+        long var10 = Util.getNanos();
+        long var11 = var10 - this.lastNanoTime;
         if (var7) {
-            this.savedCpuDuration = var12;
+            this.savedCpuDuration = var11;
         }
 
-        this.frameTimer.logFrameDuration(var12);
-        this.lastNanoTime = var11;
+        this.frameTimer.logFrameDuration(var11);
+        this.lastNanoTime = var10;
         this.profiler.push("fpsUpdate");
         if (this.currentFrameProfile != null && this.currentFrameProfile.isDone()) {
             this.gpuUtilization = (double)this.currentFrameProfile.get() * 100.0 / (double)this.savedCpuDuration;
         }
 
         while(Util.getMillis() >= this.lastTime + 1000L) {
-            String var13;
+            String var12;
             if (this.gpuUtilization > 0.0) {
-                var13 = " GPU: " + (this.gpuUtilization > 100.0 ? ChatFormatting.RED + "100%" : Math.round(this.gpuUtilization) + "%");
+                var12 = " GPU: " + (this.gpuUtilization > 100.0 ? ChatFormatting.RED + "100%" : Math.round(this.gpuUtilization) + "%");
             } else {
-                var13 = "";
+                var12 = "";
             }
 
             fps = this.frames;
@@ -1202,14 +1196,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 Locale.ROOT,
                 "%d fps T: %s%s%s%s B: %d%s",
                 fps,
-                var9 == 260 ? "inf" : var9,
+                var8 == 260 ? "inf" : var8,
                 this.options.enableVsync().get() ? " vsync" : "",
                 this.options.graphicsMode().get(),
                 this.options.cloudStatus().get() == CloudStatus.OFF
                     ? ""
                     : (this.options.cloudStatus().get() == CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"),
                 this.options.biomeBlendRadius().get(),
-                var13
+                var12
             );
             this.lastTime += 1000L;
             this.frames = 0;
@@ -1462,6 +1456,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         Matrix4f var2 = new Matrix4f().setOrtho(0.0F, (float)this.window.getWidth(), (float)this.window.getHeight(), 0.0F, 1000.0F, 3000.0F);
         RenderSystem.setProjectionMatrix(var2);
         PoseStack var3 = RenderSystem.getModelViewStack();
+        var3.pushPose();
         var3.setIdentity();
         var3.translate(0.0F, 0.0F, -2000.0F);
         RenderSystem.applyModelViewMatrix();
@@ -1552,6 +1547,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.font.drawShadow(param0, var31, (float)(var7 + 160 - this.font.width(var31)), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
         }
 
+        var3.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     public void stop() {

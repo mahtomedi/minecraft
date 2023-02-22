@@ -137,7 +137,7 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
             int var1 = Math.min(this.recipeButtons.size(), var0);
             int var2 = Mth.ceil((float)this.recipeButtons.size() / (float)var0);
             int var3 = 4;
-            this.blitNineSliced(param0, this.x, this.y, var1 * 25 + 8, var2 * 25 + 8, 4, 32, 32, 82, 208);
+            blitNineSliced(param0, this.x, this.y, var1 * 25 + 8, var2 * 25 + 8, 4, 32, 32, 82, 208);
             RenderSystem.disableBlend();
 
             for(OverlayRecipeComponent.OverlayRecipeButton var4 : this.recipeButtons) {
@@ -211,25 +211,22 @@ public class OverlayRecipeComponent extends GuiComponent implements Renderable, 
                 var1 += 26;
             }
 
-            this.blit(param0, this.getX(), this.getY(), var0, var1, this.width, this.height);
-            PoseStack var2 = RenderSystem.getModelViewStack();
-            var2.pushPose();
-            var2.translate((double)(this.getX() + 2), (double)(this.getY() + 2), 150.0);
+            blit(param0, this.getX(), this.getY(), var0, var1, this.width, this.height);
+            param0.pushPose();
+            param0.translate((double)(this.getX() + 2), (double)(this.getY() + 2), 150.0);
 
-            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var3 : this.ingredientPos) {
-                var2.pushPose();
-                var2.translate((double)var3.x, (double)var3.y, 0.0);
-                var2.scale(0.375F, 0.375F, 1.0F);
-                var2.translate(-8.0, -8.0, 0.0);
-                RenderSystem.applyModelViewMatrix();
+            for(OverlayRecipeComponent.OverlayRecipeButton.Pos var2 : this.ingredientPos) {
+                param0.pushPose();
+                param0.translate((double)var2.x, (double)var2.y, 0.0);
+                param0.scale(0.375F, 0.375F, 1.0F);
+                param0.translate(-8.0, -8.0, 0.0);
                 OverlayRecipeComponent.this.minecraft
                     .getItemRenderer()
-                    .renderAndDecorateItem(var3.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var3.ingredients.length], 0, 0);
-                var2.popPose();
+                    .renderAndDecorateItem(param0, var2.ingredients[Mth.floor(OverlayRecipeComponent.this.time / 30.0F) % var2.ingredients.length], 0, 0);
+                param0.popPose();
             }
 
-            var2.popPose();
-            RenderSystem.applyModelViewMatrix();
+            param0.popPose();
         }
 
         @OnlyIn(Dist.CLIENT)

@@ -19,6 +19,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
     private static final float MAX_WALK_ANIMATION_SPEED = 2.0F;
     private static final float WALK_ANIMATION_SCALE_FACTOR = 2.5F;
+    private static final float BABY_SCALE = 0.45F;
+    private static final float BABY_Y_OFFSET = 29.35F;
     private static final String SADDLE = "saddle";
     private static final String BRIDLE = "bridle";
     private static final String REINS = "reins";
@@ -160,11 +162,9 @@ public class CamelModel<T extends Camel> extends HierarchicalModel<T> {
     @Override
     public void renderToBuffer(PoseStack param0, VertexConsumer param1, int param2, int param3, float param4, float param5, float param6, float param7) {
         if (this.young) {
-            float var0 = 2.0F;
-            float var1 = 1.1F;
             param0.pushPose();
-            param0.scale(0.45454544F, 0.41322312F, 0.45454544F);
-            param0.translate(0.0F, 2.0625F, 0.0F);
+            param0.scale(0.45F, 0.45F, 0.45F);
+            param0.translate(0.0F, 1.834375F, 0.0F);
             this.root().render(param0, param1, param2, param3, param4, param5, param6, param7);
             param0.popPose();
         } else {

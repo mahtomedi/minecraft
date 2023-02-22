@@ -335,7 +335,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
     @Nullable
     private static Container getContainerAt(Level param0, double param1, double param2, double param3) {
         Container var0 = null;
-        BlockPos var1 = new BlockPos(param1, param2, param3);
+        BlockPos var1 = BlockPos.containing(param1, param2, param3);
         BlockState var2 = param0.getBlockState(var1);
         Block var3 = var2.getBlock();
         if (var3 instanceof WorldlyContainerHolder) {

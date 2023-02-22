@@ -52,12 +52,12 @@ public interface BlockGetter extends LevelHeightAccessor {
                 BlockState var0 = this.getBlockState(param1);
                 Vec3 var1x = param0x.getFrom().subtract(param0x.getTo());
                 return param0x.isTargetBlock().test(var0)
-                    ? new BlockHitResult(param0x.getTo(), Direction.getNearest(var1x.x, var1x.y, var1x.z), new BlockPos(param0x.getTo()), false)
+                    ? new BlockHitResult(param0x.getTo(), Direction.getNearest(var1x.x, var1x.y, var1x.z), BlockPos.containing(param0x.getTo()), false)
                     : null;
             },
             param0x -> {
                 Vec3 var0 = param0x.getFrom().subtract(param0x.getTo());
-                return BlockHitResult.miss(param0x.getTo(), Direction.getNearest(var0.x, var0.y, var0.z), new BlockPos(param0x.getTo()));
+                return BlockHitResult.miss(param0x.getTo(), Direction.getNearest(var0.x, var0.y, var0.z), BlockPos.containing(param0x.getTo()));
             }
         );
     }
@@ -77,7 +77,7 @@ public interface BlockGetter extends LevelHeightAccessor {
             return var8 <= var9 ? var5 : var7;
         }, param0x -> {
             Vec3 var0 = param0x.getFrom().subtract(param0x.getTo());
-            return BlockHitResult.miss(param0x.getTo(), Direction.getNearest(var0.x, var0.y, var0.z), new BlockPos(param0x.getTo()));
+            return BlockHitResult.miss(param0x.getTo(), Direction.getNearest(var0.x, var0.y, var0.z), BlockPos.containing(param0x.getTo()));
         });
     }
 

@@ -699,7 +699,7 @@ public class OverworldBiomes {
     public static Biome meadowOrCherryGrove(HolderGetter<PlacedFeature> param0, HolderGetter<ConfiguredWorldCarver<?>> param1, boolean param2) {
         BiomeGenerationSettings.Builder var0 = new BiomeGenerationSettings.Builder(param0, param1);
         MobSpawnSettings.Builder var1 = new MobSpawnSettings.Builder();
-        var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.DONKEY, 1, 1, 2))
+        var1.addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(param2 ? EntityType.PIG : EntityType.DONKEY, 1, 1, 2))
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.RABBIT, 2, 2, 6))
             .addSpawn(MobCategory.CREATURE, new MobSpawnSettings.SpawnerData(EntityType.SHEEP, 2, 2, 4));
         BiomeDefaultFeatures.commonSpawns(var1);

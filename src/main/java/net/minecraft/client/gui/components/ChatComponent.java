@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.util.ArrayList;
@@ -104,10 +103,8 @@ public class ChatComponent extends GuiComponent {
                                     }
                                 }
 
-                                RenderSystem.enableBlend();
                                 param0.translate(0.0F, 0.0F, 50.0F);
                                 this.minecraft.font.drawShadow(param0, var16.content(), 0.0F, (float)var23, 16777215 + (var19 << 24));
-                                RenderSystem.disableBlend();
                                 param0.popPose();
                             }
                         }
@@ -121,11 +118,9 @@ public class ChatComponent extends GuiComponent {
                     param0.pushPose();
                     param0.translate(0.0F, (float)var6, 50.0F);
                     fill(param0, -2, 0, var4 + 4, 9, var30 << 24);
-                    RenderSystem.enableBlend();
                     param0.translate(0.0F, 0.0F, 50.0F);
                     this.minecraft.font.drawShadow(param0, Component.translatable("chat.queue", var28), 0.0F, 1.0F, 16777215 + (var29 << 24));
                     param0.popPose();
-                    RenderSystem.disableBlend();
                 }
 
                 if (var2) {

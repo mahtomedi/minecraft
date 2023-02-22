@@ -57,7 +57,7 @@ public class AmphibiousNodeEvaluator extends WalkNodeEvaluator {
         BlockPathTypes var2 = this.getCachedBlockType(this.mob, param1.x, param1.y, param1.z);
         int var3;
         if (this.mob.getPathfindingMalus(var1) >= 0.0F && var2 != BlockPathTypes.STICKY_HONEY) {
-            var3 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
+            var3 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep()));
         } else {
             var3 = 0;
         }

@@ -26,7 +26,6 @@ import net.minecraft.client.gui.screens.LoadingDotsText;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
@@ -319,7 +318,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
                 var8 = Collections.emptyList();
             }
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, GuiComponent.GUI_ICONS_LOCATION);
             GuiComponent.blit(param0, param3 + param4 - 15, param2, (float)(var5 * 10), (float)(176 + var6 * 8), 10, 8, 256, 256);
             byte[] var22 = this.serverData.getIconBytes();
@@ -349,7 +347,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
             if (this.minecraft.options.touchscreen().get() || param8) {
                 RenderSystem.setShaderTexture(0, ServerSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 int var25 = param6 - param3;
                 int var26 = param7 - param2;
                 if (this.canJoin()) {

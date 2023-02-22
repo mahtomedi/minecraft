@@ -4,13 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class TextAndImageButton extends ImageButton {
-    private static final int TEXT_OVERFLOW_PADDING = 5;
+public class TextAndImageButton extends Button {
+    protected final ResourceLocation resourceLocation;
+    protected final int xTexStart;
+    protected final int yTexStart;
+    protected final int yDiffTex;
+    protected final int textureWidth;
+    protected final int textureHeight;
     private final int xOffset;
     private final int yOffset;
     private final int usedTextureWidth;
@@ -30,7 +34,13 @@ public class TextAndImageButton extends ImageButton {
         ResourceLocation param10,
         Button.OnPress param11
     ) {
-        super(0, 0, 150, 20, param1, param2, param5, param10, param8, param9, param11, param0);
+        super(0, 0, 150, 20, param0, param11, DEFAULT_NARRATION);
+        this.textureWidth = param8;
+        this.textureHeight = param9;
+        this.xTexStart = param1;
+        this.yTexStart = param2;
+        this.yDiffTex = param5;
+        this.resourceLocation = param10;
         this.xOffset = param3;
         this.yOffset = param4;
         this.usedTextureWidth = param6;
@@ -39,7 +49,7 @@ public class TextAndImageButton extends ImageButton {
 
     @Override
     public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-        this.renderButton(param0, param1, param2);
+        super.renderWidget(param0, param1, param2, param3);
         this.renderTexture(
             param0,
             this.resourceLocation,
@@ -56,17 +66,10 @@ public class TextAndImageButton extends ImageButton {
     }
 
     @Override
-    public void renderString(PoseStack param0, Font param1, int param2, int param3, int param4) {
-        FormattedCharSequence var0 = this.getMessage().getVisualOrderText();
-        int var1 = param1.width(var0);
-        int var2 = param2 - var1 / 2;
-        int var3 = var2 + var1;
-        int var4 = this.getX() + this.width - this.usedTextureWidth - 5;
-        if (var3 >= var4) {
-            var2 -= var3 - var4;
-        }
-
-        drawString(param0, param1, var0, var2, param3, param4);
+    public void renderString(PoseStack param0, Font param1, int param2) {
+        int var0 = this.getX() + 2;
+        int var1 = this.getX() + this.getWidth() - this.usedTextureWidth - 6;
+        renderScrollingString(param0, param1, this.getMessage(), var0, this.getY(), var1, this.getY() + this.getHeight(), param2);
     }
 
     private int getXOffset() {

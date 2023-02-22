@@ -191,8 +191,8 @@ public class SocialInteractionsScreen extends Screen {
         int var0 = this.marginX() + 3;
         super.renderBackground(param0);
         RenderSystem.setShaderTexture(0, SOCIAL_INTERACTIONS_LOCATION);
-        this.blitNineSliced(param0, var0, 64, 236, this.windowHeight() + 16, 8, 236, 34, 1, 1);
-        this.blit(param0, var0 + 10, 76, 243, 1, 12, 12);
+        blitNineSliced(param0, var0, 64, 236, this.windowHeight() + 16, 8, 236, 34, 1, 1);
+        blit(param0, var0 + 10, 76, 243, 1, 12, 12);
     }
 
     @Override

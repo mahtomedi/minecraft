@@ -39,14 +39,14 @@ public record ServerStatus(
         private static final String PREFIX = "data:image/png;base64,";
         public static final Codec<ServerStatus.Favicon> CODEC = Codec.STRING.comapFlatMap(param0 -> {
             if (!param0.startsWith("data:image/png;base64,")) {
-                return DataResult.error("Unknown format");
+                return DataResult.error(() -> "Unknown format");
             } else {
                 try {
                     String var0 = param0.substring("data:image/png;base64,".length()).replaceAll("\n", "");
                     byte[] var1 = Base64.getDecoder().decode(var0.getBytes(StandardCharsets.UTF_8));
                     return DataResult.success(new ServerStatus.Favicon(var1));
                 } catch (IllegalArgumentException var3) {
-                    return DataResult.error("Malformed base64 server icon");
+                    return DataResult.error(() -> "Malformed base64 server icon");
                 }
             }
         }, param0 -> "data:image/png;base64," + new String(Base64.getEncoder().encode(param0.iconBytes), StandardCharsets.UTF_8));

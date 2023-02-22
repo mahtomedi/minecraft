@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,7 +29,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
@@ -55,10 +53,12 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class ItemRenderer implements ResourceManagerReloadListener {
-    public static final ResourceLocation ENCHANT_GLINT_LOCATION = new ResourceLocation("textures/misc/enchanted_item_glint.png");
+    public static final ResourceLocation ENCHANTED_GLINT_ENTITY = new ResourceLocation("textures/misc/enchanted_glint_entity.png");
+    public static final ResourceLocation ENCHANTED_GLINT_ITEM = new ResourceLocation("textures/misc/enchanted_glint_item.png");
     private static final Set<Item> IGNORED = Sets.newHashSet(Items.AIR);
     private static final int GUI_SLOT_CENTER_X = 8;
     private static final int GUI_SLOT_CENTER_Y = 8;
@@ -70,7 +70,6 @@ public class ItemRenderer implements ResourceManagerReloadListener {
     public static final ModelResourceLocation TRIDENT_IN_HAND_MODEL = ModelResourceLocation.vanilla("trident_in_hand", "inventory");
     private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.vanilla("spyglass", "inventory");
     public static final ModelResourceLocation SPYGLASS_IN_HAND_MODEL = ModelResourceLocation.vanilla("spyglass_in_hand", "inventory");
-    public float blitOffset;
     private final Minecraft minecraft;
     private final ItemModelShaper itemModelShaper;
     private final TextureManager textureManager;
@@ -258,132 +257,128 @@ public class ItemRenderer implements ResourceManagerReloadListener {
         }
     }
 
-    public void renderGuiItem(ItemStack param0, int param1, int param2) {
-        this.renderGuiItem(param0, param1, param2, this.getModel(param0, null, null, 0));
+    public void renderGuiItem(PoseStack param0, ItemStack param1, int param2, int param3) {
+        this.renderGuiItem(param0, param1, param2, param3, this.getModel(param1, null, null, 0));
     }
 
-    protected void renderGuiItem(ItemStack param0, int param1, int param2, BakedModel param3) {
-        this.textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        PoseStack var0 = RenderSystem.getModelViewStack();
-        var0.pushPose();
-        var0.translate((float)param1, (float)param2, 100.0F + this.blitOffset);
-        var0.translate(8.0F, 8.0F, 0.0F);
-        var0.scale(1.0F, -1.0F, 1.0F);
-        var0.scale(16.0F, 16.0F, 16.0F);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack var1 = new PoseStack();
-        MultiBufferSource.BufferSource var2 = this.minecraft.renderBuffers().bufferSource();
-        boolean var3 = !param3.usesBlockLight();
-        if (var3) {
+    protected void renderGuiItem(PoseStack param0, ItemStack param1, int param2, int param3, BakedModel param4) {
+        param0.pushPose();
+        param0.translate((float)param2, (float)param3, 100.0F);
+        param0.translate(8.0F, 8.0F, 0.0F);
+        param0.mulPoseMatrix(new Matrix4f().scaling(1.0F, -1.0F, 1.0F));
+        param0.scale(16.0F, 16.0F, 16.0F);
+        MultiBufferSource.BufferSource var0 = this.minecraft.renderBuffers().bufferSource();
+        boolean var1 = !param4.usesBlockLight();
+        if (var1) {
             Lighting.setupForFlatItems();
         }
 
-        this.render(param0, ItemDisplayContext.GUI, false, var1, var2, 15728880, OverlayTexture.NO_OVERLAY, param3);
-        var2.endBatch();
+        this.render(param1, ItemDisplayContext.GUI, false, param0, var0, 15728880, OverlayTexture.NO_OVERLAY, param4);
+        var0.endBatch();
         RenderSystem.enableDepthTest();
-        if (var3) {
+        if (var1) {
             Lighting.setupFor3DItems();
         }
 
-        var0.popPose();
-        RenderSystem.applyModelViewMatrix();
+        param0.popPose();
     }
 
-    public void renderAndDecorateItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, 0);
+    public void renderAndDecorateItem(PoseStack param0, ItemStack param1, int param2, int param3) {
+        this.tryRenderGuiItem(param0, this.minecraft.player, this.minecraft.level, param1, param2, param3, 0);
     }
 
-    public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3) {
-        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, param3);
+    public void renderAndDecorateItem(PoseStack param0, ItemStack param1, int param2, int param3, int param4) {
+        this.tryRenderGuiItem(param0, this.minecraft.player, this.minecraft.level, param1, param2, param3, param4);
     }
 
-    public void renderAndDecorateItem(ItemStack param0, int param1, int param2, int param3, int param4) {
-        this.tryRenderGuiItem(this.minecraft.player, this.minecraft.level, param0, param1, param2, param3, param4);
+    public void renderAndDecorateItem(PoseStack param0, ItemStack param1, int param2, int param3, int param4, int param5) {
+        this.tryRenderGuiItem(param0, this.minecraft.player, this.minecraft.level, param1, param2, param3, param4, param5);
     }
 
-    public void renderAndDecorateFakeItem(ItemStack param0, int param1, int param2) {
-        this.tryRenderGuiItem(null, this.minecraft.level, param0, param1, param2, 0);
+    public void renderAndDecorateFakeItem(PoseStack param0, ItemStack param1, int param2, int param3) {
+        this.tryRenderGuiItem(param0, null, this.minecraft.level, param1, param2, param3, 0);
     }
 
-    public void renderAndDecorateItem(LivingEntity param0, ItemStack param1, int param2, int param3, int param4) {
-        this.tryRenderGuiItem(param0, param0.level, param1, param2, param3, param4);
+    public void renderAndDecorateItem(PoseStack param0, LivingEntity param1, ItemStack param2, int param3, int param4, int param5) {
+        this.tryRenderGuiItem(param0, param1, param1.level, param2, param3, param4, param5);
     }
 
-    private void tryRenderGuiItem(@Nullable LivingEntity param0, @Nullable Level param1, ItemStack param2, int param3, int param4, int param5) {
-        this.tryRenderGuiItem(param0, param1, param2, param3, param4, param5, 0);
+    private void tryRenderGuiItem(PoseStack param0, @Nullable LivingEntity param1, @Nullable Level param2, ItemStack param3, int param4, int param5, int param6) {
+        this.tryRenderGuiItem(param0, param1, param2, param3, param4, param5, param6, 0);
     }
 
-    private void tryRenderGuiItem(@Nullable LivingEntity param0, @Nullable Level param1, ItemStack param2, int param3, int param4, int param5, int param6) {
-        if (!param2.isEmpty()) {
-            BakedModel var0 = this.getModel(param2, param1, param0, param5);
-            this.blitOffset = var0.isGui3d() ? this.blitOffset + 50.0F + (float)param6 : this.blitOffset + 50.0F;
+    private void tryRenderGuiItem(
+        PoseStack param0, @Nullable LivingEntity param1, @Nullable Level param2, ItemStack param3, int param4, int param5, int param6, int param7
+    ) {
+        if (!param3.isEmpty()) {
+            BakedModel var0 = this.getModel(param3, param2, param1, param6);
+            param0.pushPose();
+            param0.translate(0.0F, 0.0F, (float)(50 + (var0.isGui3d() ? param7 : 0)));
 
             try {
-                this.renderGuiItem(param2, param3, param4, var0);
-            } catch (Throwable var12) {
-                CrashReport var2 = CrashReport.forThrowable(var12, "Rendering item");
+                this.renderGuiItem(param0, param3, param4, param5, var0);
+            } catch (Throwable var13) {
+                CrashReport var2 = CrashReport.forThrowable(var13, "Rendering item");
                 CrashReportCategory var3 = var2.addCategory("Item being rendered");
-                var3.setDetail("Item Type", () -> String.valueOf(param2.getItem()));
-                var3.setDetail("Item Damage", () -> String.valueOf(param2.getDamageValue()));
-                var3.setDetail("Item NBT", () -> String.valueOf(param2.getTag()));
-                var3.setDetail("Item Foil", () -> String.valueOf(param2.hasFoil()));
+                var3.setDetail("Item Type", () -> String.valueOf(param3.getItem()));
+                var3.setDetail("Item Damage", () -> String.valueOf(param3.getDamageValue()));
+                var3.setDetail("Item NBT", () -> String.valueOf(param3.getTag()));
+                var3.setDetail("Item Foil", () -> String.valueOf(param3.hasFoil()));
                 throw new ReportedException(var2);
             }
 
-            this.blitOffset = var0.isGui3d() ? this.blitOffset - 50.0F - (float)param6 : this.blitOffset - 50.0F;
+            param0.popPose();
         }
     }
 
-    public void renderGuiItemDecorations(Font param0, ItemStack param1, int param2, int param3) {
-        this.renderGuiItemDecorations(param0, param1, param2, param3, null);
+    public void renderGuiItemDecorations(PoseStack param0, Font param1, ItemStack param2, int param3, int param4) {
+        this.renderGuiItemDecorations(param0, param1, param2, param3, param4, null);
     }
 
-    public void renderGuiItemDecorations(Font param0, ItemStack param1, int param2, int param3, @Nullable String param4) {
-        if (!param1.isEmpty()) {
-            PoseStack var0 = new PoseStack();
-            if (param1.getCount() != 1 || param4 != null) {
-                String var1 = param4 == null ? String.valueOf(param1.getCount()) : param4;
-                var0.translate(0.0F, 0.0F, this.blitOffset + 200.0F);
-                MultiBufferSource.BufferSource var2 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-                param0.drawInBatch(
-                    var1,
-                    (float)(param2 + 19 - 2 - param0.width(var1)),
-                    (float)(param3 + 6 + 3),
+    public void renderGuiItemDecorations(PoseStack param0, Font param1, ItemStack param2, int param3, int param4, @Nullable String param5) {
+        if (!param2.isEmpty()) {
+            param0.pushPose();
+            if (param2.getCount() != 1 || param5 != null) {
+                String var0 = param5 == null ? String.valueOf(param2.getCount()) : param5;
+                param0.translate(0.0F, 0.0F, 200.0F);
+                MultiBufferSource.BufferSource var1 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+                param1.drawInBatch(
+                    var0,
+                    (float)(param3 + 19 - 2 - param1.width(var0)),
+                    (float)(param4 + 6 + 3),
                     16777215,
                     true,
-                    var0.last().pose(),
-                    var2,
+                    param0.last().pose(),
+                    var1,
                     Font.DisplayMode.NORMAL,
                     0,
                     15728880
                 );
-                var2.endBatch();
+                var1.endBatch();
             }
 
-            if (param1.isBarVisible()) {
+            if (param2.isBarVisible()) {
                 RenderSystem.disableDepthTest();
-                int var3 = param1.getBarWidth();
-                int var4 = param1.getBarColor();
-                int var5 = param2 + 2;
-                int var6 = param3 + 13;
-                GuiComponent.fill(var0, var5, var6, var5 + 13, var6 + 2, -16777216);
-                GuiComponent.fill(var0, var5, var6, var5 + var3, var6 + 1, var4 | 0xFF000000);
+                int var2 = param2.getBarWidth();
+                int var3 = param2.getBarColor();
+                int var4 = param3 + 2;
+                int var5 = param4 + 13;
+                GuiComponent.fill(param0, var4, var5, var4 + 13, var5 + 2, -16777216);
+                GuiComponent.fill(param0, var4, var5, var4 + var2, var5 + 1, var3 | 0xFF000000);
                 RenderSystem.enableDepthTest();
             }
 
-            LocalPlayer var7 = this.minecraft.player;
-            float var8 = var7 == null ? 0.0F : var7.getCooldowns().getCooldownPercent(param1.getItem(), this.minecraft.getFrameTime());
-            if (var8 > 0.0F) {
+            LocalPlayer var6 = this.minecraft.player;
+            float var7 = var6 == null ? 0.0F : var6.getCooldowns().getCooldownPercent(param2.getItem(), this.minecraft.getFrameTime());
+            if (var7 > 0.0F) {
                 RenderSystem.disableDepthTest();
-                int var9 = param3 + Mth.floor(16.0F * (1.0F - var8));
-                int var10 = var9 + Mth.ceil(16.0F * var8);
-                GuiComponent.fill(var0, param2, var9, param2 + 16, var10, Integer.MAX_VALUE);
+                int var8 = param4 + Mth.floor(16.0F * (1.0F - var7));
+                int var9 = var8 + Mth.ceil(16.0F * var7);
+                GuiComponent.fill(param0, param3, var8, param3 + 16, var9, Integer.MAX_VALUE);
                 RenderSystem.enableDepthTest();
             }
 
+            param0.popPose();
         }
     }
 

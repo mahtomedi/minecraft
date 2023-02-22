@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -35,27 +34,26 @@ public class BrewingStandScreen extends AbstractContainerScreen<BrewingStandMenu
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BREWING_STAND_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         int var2 = this.menu.getFuel();
         int var3 = Mth.clamp((18 * var2 + 20 - 1) / 20, 0, 18);
         if (var3 > 0) {
-            this.blit(param0, var0 + 60, var1 + 44, 176, 29, var3, 4);
+            blit(param0, var0 + 60, var1 + 44, 176, 29, var3, 4);
         }
 
         int var4 = this.menu.getBrewingTicks();
         if (var4 > 0) {
             int var5 = (int)(28.0F * (1.0F - (float)var4 / 400.0F));
             if (var5 > 0) {
-                this.blit(param0, var0 + 97, var1 + 16, 176, 0, 9, var5);
+                blit(param0, var0 + 97, var1 + 16, 176, 0, 9, var5);
             }
 
             var5 = BUBBLELENGTHS[var4 / 2 % 7];
             if (var5 > 0) {
-                this.blit(param0, var0 + 63, var1 + 14 + 29 - var5, 185, 29 - var5, 12, var5);
+                blit(param0, var0 + 63, var1 + 14 + 29 - var5, 185, 29 - var5, 12, var5);
             }
         }
 

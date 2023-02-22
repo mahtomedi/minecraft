@@ -13,7 +13,7 @@ public class SetWorldSpawnCommand {
         param0.register(
             Commands.literal("setworldspawn")
                 .requires(param0x -> param0x.hasPermission(2))
-                .executes(param0x -> setSpawn(param0x.getSource(), new BlockPos(param0x.getSource().getPosition()), 0.0F))
+                .executes(param0x -> setSpawn(param0x.getSource(), BlockPos.containing(param0x.getSource().getPosition()), 0.0F))
                 .then(
                     Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(param0x -> setSpawn(param0x.getSource(), BlockPosArgument.getSpawnablePos(param0x, "pos"), 0.0F))

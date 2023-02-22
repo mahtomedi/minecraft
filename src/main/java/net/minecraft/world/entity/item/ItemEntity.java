@@ -132,7 +132,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 float var2 = 0.98F;
                 if (this.onGround) {
-                    var2 = this.level.getBlockState(new BlockPos(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
+                    var2 = this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
                 }
 
                 this.setDeltaMovement(this.getDeltaMovement().multiply((double)var2, 0.98, (double)var2));

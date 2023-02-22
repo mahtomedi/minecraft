@@ -53,24 +53,23 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
                 this.menu.exit();
             } else {
                 int var1 = this.minecraft.getWindow().getGuiScaledWidth() / 2;
-                int var2 = this.getBlitOffset();
-                this.setBlitOffset(-90);
-                int var3 = Mth.floor((float)this.minecraft.getWindow().getGuiScaledHeight() - 22.0F * var0);
-                SpectatorPage var4 = this.menu.getCurrentPage();
-                this.renderPage(param0, var0, var1, var3, var4);
-                this.setBlitOffset(var2);
+                param0.pushPose();
+                param0.translate(0.0F, 0.0F, -90.0F);
+                int var2 = Mth.floor((float)this.minecraft.getWindow().getGuiScaledHeight() - 22.0F * var0);
+                SpectatorPage var3 = this.menu.getCurrentPage();
+                this.renderPage(param0, var0, var1, var2, var3);
+                param0.popPose();
             }
         }
     }
 
     protected void renderPage(PoseStack param0, float param1, int param2, int param3, SpectatorPage param4) {
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, param1);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        this.blit(param0, param2 - 91, param3, 0, 0, 182, 22);
+        blit(param0, param2 - 91, param3, 0, 0, 182, 22);
         if (param4.getSelectedSlot() >= 0) {
-            this.blit(param0, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
+            blit(param0, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -113,10 +112,7 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
             if (var2 != null) {
                 int var3 = (this.minecraft.getWindow().getGuiScaledWidth() - this.minecraft.font.width(var2)) / 2;
                 int var4 = this.minecraft.getWindow().getGuiScaledHeight() - 35;
-                RenderSystem.enableBlend();
-                RenderSystem.defaultBlendFunc();
                 this.minecraft.font.drawShadow(param0, var2, (float)var3, (float)var4, 16777215 + (var0 << 24));
-                RenderSystem.disableBlend();
             }
         }
 

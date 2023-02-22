@@ -276,7 +276,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             BufferBuilder var6 = var5.getBuilder();
             RenderSystem.disableCull();
             RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
             RenderSystem.enableDepthTest();
             int var7 = 5;
             if (Minecraft.useFancyGraphics()) {
@@ -421,7 +420,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         if (!(var0 <= 0.0F)) {
             RandomSource var1 = RandomSource.create((long)this.ticks * 312987231L);
             LevelReader var2 = this.minecraft.level;
-            BlockPos var3 = new BlockPos(param0.getPosition());
+            BlockPos var3 = BlockPos.containing(param0.getPosition());
             BlockPos var4 = null;
             int var5 = (int)(100.0F * var0 * var0) / (this.minecraft.options.particles().get() == ParticleStatus.DECREASED ? 2 : 1);
 
@@ -580,6 +579,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             );
             this.entityTarget.blitToScreen(this.minecraft.getWindow().getWidth(), this.minecraft.getWindow().getHeight(), false);
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
         }
 
     }
@@ -1096,7 +1096,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                                 break;
                             }
 
-                            ChunkRenderDispatcher.RenderChunk var16 = this.viewArea.getRenderChunkAt(new BlockPos(var13.x, var13.y, var13.z));
+                            ChunkRenderDispatcher.RenderChunk var16 = this.viewArea.getRenderChunkAt(BlockPos.containing(var13.x, var13.y, var13.z));
                             if (var16 == null || param1.get(var16) == null) {
                                 var15 = false;
                                 break;
@@ -1517,14 +1517,20 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             double var1 = param3 - this.yTransparentOld;
             double var2 = param4 - this.zTransparentOld;
             if (var0 * var0 + var1 * var1 + var2 * var2 > 1.0) {
+                int var3 = SectionPos.posToSectionCoord(param2);
+                int var4 = SectionPos.posToSectionCoord(param3);
+                int var5 = SectionPos.posToSectionCoord(param4);
+                boolean var6 = var3 != SectionPos.posToSectionCoord(this.xTransparentOld)
+                    || var5 != SectionPos.posToSectionCoord(this.zTransparentOld)
+                    || var4 != SectionPos.posToSectionCoord(this.yTransparentOld);
                 this.xTransparentOld = param2;
                 this.yTransparentOld = param3;
                 this.zTransparentOld = param4;
-                int var3 = 0;
+                int var7 = 0;
 
-                for(LevelRenderer.RenderChunkInfo var4 : this.renderChunksInFrustum) {
-                    if (var3 < 15 && var4.chunk.resortTransparency(param0, this.chunkRenderDispatcher)) {
-                        ++var3;
+                for(LevelRenderer.RenderChunkInfo var8 : this.renderChunksInFrustum) {
+                    if (var7 < 15 && (var6 || var8.isAxisAlignedWith(var3, var4, var5)) && var8.chunk.resortTransparency(param0, this.chunkRenderDispatcher)) {
+                        ++var7;
                     }
                 }
             }
@@ -1534,88 +1540,88 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         this.minecraft.getProfiler().push("filterempty");
         this.minecraft.getProfiler().popPush(() -> "render_" + param0);
-        boolean var5 = param0 != RenderType.translucent();
-        ObjectListIterator<LevelRenderer.RenderChunkInfo> var6 = this.renderChunksInFrustum.listIterator(var5 ? 0 : this.renderChunksInFrustum.size());
-        ShaderInstance var7 = RenderSystem.getShader();
+        boolean var9 = param0 != RenderType.translucent();
+        ObjectListIterator<LevelRenderer.RenderChunkInfo> var10 = this.renderChunksInFrustum.listIterator(var9 ? 0 : this.renderChunksInFrustum.size());
+        ShaderInstance var11 = RenderSystem.getShader();
 
-        for(int var8 = 0; var8 < 12; ++var8) {
-            int var9 = RenderSystem.getShaderTexture(var8);
-            var7.setSampler("Sampler" + var8, var9);
+        for(int var12 = 0; var12 < 12; ++var12) {
+            int var13 = RenderSystem.getShaderTexture(var12);
+            var11.setSampler("Sampler" + var12, var13);
         }
 
-        if (var7.MODEL_VIEW_MATRIX != null) {
-            var7.MODEL_VIEW_MATRIX.set(param1.last().pose());
+        if (var11.MODEL_VIEW_MATRIX != null) {
+            var11.MODEL_VIEW_MATRIX.set(param1.last().pose());
         }
 
-        if (var7.PROJECTION_MATRIX != null) {
-            var7.PROJECTION_MATRIX.set(param5);
+        if (var11.PROJECTION_MATRIX != null) {
+            var11.PROJECTION_MATRIX.set(param5);
         }
 
-        if (var7.COLOR_MODULATOR != null) {
-            var7.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
+        if (var11.COLOR_MODULATOR != null) {
+            var11.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
         }
 
-        if (var7.GLINT_ALPHA != null) {
-            var7.GLINT_ALPHA.set(RenderSystem.getShaderGlintAlpha());
+        if (var11.GLINT_ALPHA != null) {
+            var11.GLINT_ALPHA.set(RenderSystem.getShaderGlintAlpha());
         }
 
-        if (var7.FOG_START != null) {
-            var7.FOG_START.set(RenderSystem.getShaderFogStart());
+        if (var11.FOG_START != null) {
+            var11.FOG_START.set(RenderSystem.getShaderFogStart());
         }
 
-        if (var7.FOG_END != null) {
-            var7.FOG_END.set(RenderSystem.getShaderFogEnd());
+        if (var11.FOG_END != null) {
+            var11.FOG_END.set(RenderSystem.getShaderFogEnd());
         }
 
-        if (var7.FOG_COLOR != null) {
-            var7.FOG_COLOR.set(RenderSystem.getShaderFogColor());
+        if (var11.FOG_COLOR != null) {
+            var11.FOG_COLOR.set(RenderSystem.getShaderFogColor());
         }
 
-        if (var7.FOG_SHAPE != null) {
-            var7.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
+        if (var11.FOG_SHAPE != null) {
+            var11.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
         }
 
-        if (var7.TEXTURE_MATRIX != null) {
-            var7.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
+        if (var11.TEXTURE_MATRIX != null) {
+            var11.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
         }
 
-        if (var7.GAME_TIME != null) {
-            var7.GAME_TIME.set(RenderSystem.getShaderGameTime());
+        if (var11.GAME_TIME != null) {
+            var11.GAME_TIME.set(RenderSystem.getShaderGameTime());
         }
 
-        RenderSystem.setupShaderLights(var7);
-        var7.apply();
-        Uniform var10 = var7.CHUNK_OFFSET;
+        RenderSystem.setupShaderLights(var11);
+        var11.apply();
+        Uniform var14 = var11.CHUNK_OFFSET;
 
         while(true) {
-            if (var5) {
-                if (!var6.hasNext()) {
+            if (var9) {
+                if (!var10.hasNext()) {
                     break;
                 }
-            } else if (!var6.hasPrevious()) {
+            } else if (!var10.hasPrevious()) {
                 break;
             }
 
-            LevelRenderer.RenderChunkInfo var11 = var5 ? var6.next() : var6.previous();
-            ChunkRenderDispatcher.RenderChunk var12 = var11.chunk;
-            if (!var12.getCompiledChunk().isEmpty(param0)) {
-                VertexBuffer var13 = var12.getBuffer(param0);
-                BlockPos var14 = var12.getOrigin();
-                if (var10 != null) {
-                    var10.set((float)((double)var14.getX() - param2), (float)((double)var14.getY() - param3), (float)((double)var14.getZ() - param4));
-                    var10.upload();
+            LevelRenderer.RenderChunkInfo var15 = var9 ? var10.next() : var10.previous();
+            ChunkRenderDispatcher.RenderChunk var16 = var15.chunk;
+            if (!var16.getCompiledChunk().isEmpty(param0)) {
+                VertexBuffer var17 = var16.getBuffer(param0);
+                BlockPos var18 = var16.getOrigin();
+                if (var14 != null) {
+                    var14.set((float)((double)var18.getX() - param2), (float)((double)var18.getY() - param3), (float)((double)var18.getZ() - param4));
+                    var14.upload();
                 }
 
-                var13.bind();
-                var13.draw();
+                var17.bind();
+                var17.draw();
             }
         }
 
-        if (var10 != null) {
-            var10.set(0.0F, 0.0F, 0.0F);
+        if (var14 != null) {
+            var14.set(0.0F, 0.0F, 0.0F);
         }
 
-        var7.clear();
+        var11.clear();
         VertexBuffer.unbind();
         this.minecraft.getProfiler().pop();
         param0.clearRenderState();
@@ -1816,7 +1822,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
     private void renderEndSky(PoseStack param0) {
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(false);
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         RenderSystem.setShaderTexture(0, END_SKY_LOCATION);
@@ -1880,7 +1885,6 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     this.skyBuffer.drawWithShader(param0.last().pose(), param1, var6);
                     VertexBuffer.unbind();
                     RenderSystem.enableBlend();
-                    RenderSystem.defaultBlendFunc();
                     float[] var7 = this.level.effects().getSunriseColor(this.level.getTimeOfDay(param2), param2);
                     if (var7 != null) {
                         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -1954,6 +1958,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.disableBlend();
+                    RenderSystem.defaultBlendFunc();
                     param0.popPose();
                     RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
                     double var29 = this.minecraft.player.getEyePosition(param2).y - this.level.getLevelData().getHorizonHeight(this.level);
@@ -2066,6 +2071,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             param0.popPose();
             RenderSystem.enableCull();
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
         }
     }
 
@@ -2424,6 +2430,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             RenderSystem.polygonOffset(0.0F, 0.0F);
             RenderSystem.disablePolygonOffset();
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
             var7.popPose();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -3508,6 +3515,11 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
 
         public boolean hasSourceDirections() {
             return this.sourceDirections != 0;
+        }
+
+        public boolean isAxisAlignedWith(int param0, int param1, int param2) {
+            BlockPos var0 = this.chunk.getOrigin();
+            return param0 == var0.getX() / 16 || param2 == var0.getZ() / 16 || param1 == var0.getY() / 16;
         }
 
         @Override

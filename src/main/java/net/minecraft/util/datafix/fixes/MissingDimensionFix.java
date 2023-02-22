@@ -10,7 +10,6 @@ import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.templates.CompoundList.CompoundListType;
-import com.mojang.datafixers.types.templates.TaggedChoice.TaggedChoiceType;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
@@ -40,7 +39,7 @@ public class MissingDimensionFix extends DataFix {
     @Override
     protected TypeRewriteRule makeRule() {
         Schema var0 = this.getInputSchema();
-        TaggedChoiceType<String> var1 = new TaggedChoiceType<>(
+        Type<?> var1 = DSL.taggedChoiceType(
             "type",
             DSL.string(),
             ImmutableMap.of(

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
@@ -71,7 +72,7 @@ public class SystemToast implements Toast {
         RenderSystem.setShaderTexture(0, TEXTURE);
         int var0 = this.width();
         if (var0 == 160 && this.messageLines.size() <= 1) {
-            param1.blit(param0, 0, 0, 0, 64, var0, this.height());
+            GuiComponent.blit(param0, 0, 0, 0, 64, var0, this.height());
         } else {
             int var1 = this.height();
             int var2 = 28;
@@ -103,13 +104,13 @@ public class SystemToast implements Toast {
     private void renderBackgroundRow(PoseStack param0, ToastComponent param1, int param2, int param3, int param4, int param5) {
         int var0 = param3 == 0 ? 20 : 5;
         int var1 = Math.min(60, param2 - var0);
-        param1.blit(param0, 0, param4, 0, 64 + param3, var0, param5);
+        GuiComponent.blit(param0, 0, param4, 0, 64 + param3, var0, param5);
 
         for(int var2 = var0; var2 < param2 - var1; var2 += 64) {
-            param1.blit(param0, var2, param4, 32, 64 + param3, Math.min(64, param2 - var2 - var1), param5);
+            GuiComponent.blit(param0, var2, param4, 32, 64 + param3, Math.min(64, param2 - var2 - var1), param5);
         }
 
-        param1.blit(param0, param2 - var1, param4, 160 - var1, 64 + param3, var1, param5);
+        GuiComponent.blit(param0, param2 - var1, param4, 160 - var1, 64 + param3, var1, param5);
     }
 
     public void reset(Component param0, @Nullable Component param1) {

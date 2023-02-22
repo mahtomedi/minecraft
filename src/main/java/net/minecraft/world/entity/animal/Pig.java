@@ -76,17 +76,15 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
     @Nullable
     @Override
-    public Entity getControllingPassenger() {
-        Entity var0 = this.getFirstPassenger();
-        return var0 != null && this.canBeControlledBy(var0) ? var0 : null;
-    }
-
-    private boolean canBeControlledBy(Entity param0) {
-        if (this.isSaddled() && param0 instanceof Player var0) {
-            return var0.getMainHandItem().is(Items.CARROT_ON_A_STICK) || var0.getOffhandItem().is(Items.CARROT_ON_A_STICK);
-        } else {
-            return false;
+    public LivingEntity getControllingPassenger() {
+        if (this.isSaddled()) {
+            Entity var2 = this.getFirstPassenger();
+            if (var2 instanceof Player var0 && (var0.getMainHandItem().is(Items.CARROT_ON_A_STICK) || var0.getOffhandItem().is(Items.CARROT_ON_A_STICK))) {
+                return var0;
+            }
         }
+
+        return null;
     }
 
     @Override
@@ -242,18 +240,21 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    public void travel(Vec3 param0) {
-        this.travel(this, this.steering, param0);
+    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+        super.tickRidden(param0, param1);
+        this.setRot(param0.getYRot(), param0.getXRot() * 0.5F);
+        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        this.steering.tickBoost();
     }
 
     @Override
-    public float getSteeringSpeed() {
-        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) * 0.225F;
+    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+        return new Vec3(0.0, 0.0, 1.0);
     }
 
     @Override
-    public void travelWithInput(Vec3 param0) {
-        super.travel(param0);
+    protected float getRiddenSpeed(LivingEntity param0) {
+        return super.getRiddenSpeed(param0) * 0.225F * this.steering.boostFactor();
     }
 
     @Override

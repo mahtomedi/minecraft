@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
@@ -21,7 +19,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
-import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.Difficulty;
 import net.minecraftforge.api.distmarker.Dist;
@@ -68,9 +65,8 @@ public class OptionsScreen extends Screen {
             this.openScreenButton(
                 RESOURCEPACK,
                 () -> new PackSelectionScreen(
-                        this,
                         this.minecraft.getResourcePackRepository(),
-                        this::updatePackList,
+                        this::applyPacks,
                         this.minecraft.getResourcePackDirectory(),
                         Component.translatable("resourcePack.title")
                     )
@@ -86,6 +82,11 @@ public class OptionsScreen extends Screen {
         var0.arrangeElements();
         FrameLayout.alignInRectangle(var0, 0, this.height / 6 - 12, this.width, this.height, 0.5F, 0.0F);
         var0.visitWidgets(this::addRenderableWidget);
+    }
+
+    private void applyPacks(PackRepository param0) {
+        this.options.updateResourcePacks(param0);
+        this.minecraft.setScreen(this);
     }
 
     private LayoutElement createOnlineButton() {
@@ -138,28 +139,6 @@ public class OptionsScreen extends Screen {
                 Component.translatable(param2),
                 (param1x, param2x) -> param3.getConnection().send(new ServerboundChangeDifficultyPacket(param2x))
             );
-    }
-
-    private void updatePackList(PackRepository param0) {
-        List<String> var0 = ImmutableList.copyOf(this.options.resourcePacks);
-        this.options.resourcePacks.clear();
-        this.options.incompatibleResourcePacks.clear();
-
-        for(Pack var1 : param0.getSelectedPacks()) {
-            if (!var1.isFixedPosition()) {
-                this.options.resourcePacks.add(var1.getId());
-                if (!var1.getCompatibility().isCompatible()) {
-                    this.options.incompatibleResourcePacks.add(var1.getId());
-                }
-            }
-        }
-
-        this.options.save();
-        List<String> var2 = ImmutableList.copyOf(this.options.resourcePacks);
-        if (!var2.equals(var0)) {
-            this.minecraft.reloadResourcePacks();
-        }
-
     }
 
     private void lockCallback(boolean param0) {

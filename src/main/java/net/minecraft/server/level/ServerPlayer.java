@@ -258,7 +258,7 @@ public class ServerPlayer extends Player {
         this.server = param0;
         this.stats = param0.getPlayerList().getPlayerStats(this);
         this.advancements = param0.getPlayerList().getPlayerAdvancements(this);
-        this.maxUpStep = 1.0F;
+        this.setMaxUpStep(1.0F);
         this.fudgeSpawnLocation(param1);
     }
 
@@ -781,7 +781,7 @@ public class ServerPlayer extends Player {
                 if (var1 == Level.OVERWORLD && param0.dimension() == Level.NETHER) {
                     this.enteredNetherPosition = this.position();
                 } else if (param0.dimension() == Level.END) {
-                    this.createEndPlatform(param0, new BlockPos(var4.pos));
+                    this.createEndPlatform(param0, BlockPos.containing(var4.pos));
                 }
 
                 var0.getProfiler().pop();
@@ -948,38 +948,9 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    public boolean startRiding(Entity param0, boolean param1) {
-        Entity var0 = this.getVehicle();
-        if (!super.startRiding(param0, param1)) {
-            return false;
-        } else {
-            Entity var1 = this.getVehicle();
-            if (var1 != var0 && this.connection != null) {
-                this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-            }
-
-            return true;
-        }
-    }
-
-    @Override
-    public void stopRiding() {
-        Entity var0 = this.getVehicle();
-        super.stopRiding();
-        Entity var1 = this.getVehicle();
-        if (var1 != var0 && this.connection != null) {
-            this.connection.dismount(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
-        }
-
-    }
-
-    @Override
     public void dismountTo(double param0, double param1, double param2) {
         this.removeVehicle();
-        if (this.connection != null) {
-            this.connection.dismount(param0, param1, param2, this.getYRot(), this.getXRot());
-        }
-
+        this.setPos(param0, param1, param2);
     }
 
     @Override
@@ -1267,7 +1238,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public boolean teleportTo(ServerLevel param0, double param1, double param2, double param3, Set<RelativeMovement> param4, float param5, float param6) {
-        ChunkPos var0 = new ChunkPos(new BlockPos(param1, param2, param3));
+        ChunkPos var0 = new ChunkPos(BlockPos.containing(param1, param2, param3));
         param0.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, var0, 1, this.getId());
         this.stopRiding();
         if (this.isSleeping()) {

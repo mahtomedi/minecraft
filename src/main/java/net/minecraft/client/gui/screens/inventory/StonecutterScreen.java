@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,18 +47,17 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         this.renderBackground(param0);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         int var2 = (int)(41.0F * this.scrollOffs);
-        this.blit(param0, var0 + 119, var1 + 15 + var2, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
+        blit(param0, var0 + 119, var1 + 15 + var2, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
         int var3 = this.leftPos + 52;
         int var4 = this.topPos + 14;
         int var5 = this.startIndex + 12;
         this.renderButtons(param0, param2, param3, var3, var4, var5);
-        this.renderRecipes(var3, var4, var5);
+        this.renderRecipes(param0, var3, var4, var5);
     }
 
     @Override
@@ -96,20 +94,20 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
                 var5 += 36;
             }
 
-            this.blit(param0, var2, var4 - 1, 0, var5, 16, 18);
+            blit(param0, var2, var4 - 1, 0, var5, 16, 18);
         }
 
     }
 
-    private void renderRecipes(int param0, int param1, int param2) {
+    private void renderRecipes(PoseStack param0, int param1, int param2, int param3) {
         List<StonecutterRecipe> var0 = this.menu.getRecipes();
 
-        for(int var1 = this.startIndex; var1 < param2 && var1 < this.menu.getNumRecipes(); ++var1) {
+        for(int var1 = this.startIndex; var1 < param3 && var1 < this.menu.getNumRecipes(); ++var1) {
             int var2 = var1 - this.startIndex;
-            int var3 = param0 + var2 % 4 * 16;
+            int var3 = param1 + var2 % 4 * 16;
             int var4 = var2 / 4;
-            int var5 = param1 + var4 * 18 + 2;
-            this.minecraft.getItemRenderer().renderAndDecorateItem(var0.get(var1).getResultItem(this.minecraft.level.registryAccess()), var3, var5);
+            int var5 = param2 + var4 * 18 + 2;
+            this.minecraft.getItemRenderer().renderAndDecorateItem(param0, var0.get(var1).getResultItem(this.minecraft.level.registryAccess()), var3, var5);
         }
 
     }

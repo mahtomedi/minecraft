@@ -15,7 +15,7 @@ public class SnifferSoundInstance extends AbstractTickableSoundInstance {
     public SnifferSoundInstance(Sniffer param0) {
         super(SoundEvents.SNIFFER_DIGGING, SoundSource.NEUTRAL, SoundInstance.createUnseededRandom());
         this.sniffer = param0;
-        this.attenuation = SoundInstance.Attenuation.NONE;
+        this.attenuation = SoundInstance.Attenuation.LINEAR;
         this.looping = false;
         this.delay = 0;
     }

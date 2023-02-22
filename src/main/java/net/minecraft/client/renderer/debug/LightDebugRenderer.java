@@ -25,7 +25,7 @@ public class LightDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         Level var0 = this.minecraft.level;
-        BlockPos var1 = new BlockPos(param2, param3, param4);
+        BlockPos var1 = BlockPos.containing(param2, param3, param4);
         LongSet var2 = new LongOpenHashSet();
 
         for(BlockPos var3 : BlockPos.betweenClosed(var1.offset(-10, -10, -10), var1.offset(10, 10, 10))) {

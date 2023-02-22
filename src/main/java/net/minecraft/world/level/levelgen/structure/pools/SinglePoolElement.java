@@ -43,7 +43,9 @@ public class SinglePoolElement extends StructurePoolElement {
 
     private static <T> DataResult<T> encodeTemplate(Either<ResourceLocation, StructureTemplate> param0, DynamicOps<T> param1, T param2) {
         Optional<ResourceLocation> var0 = param0.left();
-        return !var0.isPresent() ? DataResult.error("Can not serialize a runtime pool element") : ResourceLocation.CODEC.encode(var0.get(), param1, param2);
+        return !var0.isPresent()
+            ? DataResult.error(() -> "Can not serialize a runtime pool element")
+            : ResourceLocation.CODEC.encode(var0.get(), param1, param2);
     }
 
     protected static <E extends SinglePoolElement> RecordCodecBuilder<E, Holder<StructureProcessorList>> processorsCodec() {

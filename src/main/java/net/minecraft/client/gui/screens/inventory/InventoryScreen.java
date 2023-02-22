@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
@@ -20,6 +19,7 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 @OnlyIn(Dist.CLIENT)
@@ -103,64 +103,61 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, INVENTORY_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         renderEntityInInventoryFollowsMouse(
-            var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player
+            param0, var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player
         );
     }
 
-    public static void renderEntityInInventoryFollowsMouse(int param0, int param1, int param2, float param3, float param4, LivingEntity param5) {
-        float var0 = (float)Math.atan((double)(param3 / 40.0F));
-        float var1 = (float)Math.atan((double)(param4 / 40.0F));
+    public static void renderEntityInInventoryFollowsMouse(
+        PoseStack param0, int param1, int param2, int param3, float param4, float param5, LivingEntity param6
+    ) {
+        float var0 = (float)Math.atan((double)(param4 / 40.0F));
+        float var1 = (float)Math.atan((double)(param5 / 40.0F));
         Quaternionf var2 = new Quaternionf().rotateZ((float) Math.PI);
         Quaternionf var3 = new Quaternionf().rotateX(var1 * 20.0F * (float) (Math.PI / 180.0));
         var2.mul(var3);
-        float var4 = param5.yBodyRot;
-        float var5 = param5.getYRot();
-        float var6 = param5.getXRot();
-        float var7 = param5.yHeadRotO;
-        float var8 = param5.yHeadRot;
-        param5.yBodyRot = 180.0F + var0 * 20.0F;
-        param5.setYRot(180.0F + var0 * 40.0F);
-        param5.setXRot(-var1 * 20.0F);
-        param5.yHeadRot = param5.getYRot();
-        param5.yHeadRotO = param5.getYRot();
-        renderEntityInInventory(param0, param1, param2, var2, var3, param5);
-        param5.yBodyRot = var4;
-        param5.setYRot(var5);
-        param5.setXRot(var6);
-        param5.yHeadRotO = var7;
-        param5.yHeadRot = var8;
+        float var4 = param6.yBodyRot;
+        float var5 = param6.getYRot();
+        float var6 = param6.getXRot();
+        float var7 = param6.yHeadRotO;
+        float var8 = param6.yHeadRot;
+        param6.yBodyRot = 180.0F + var0 * 20.0F;
+        param6.setYRot(180.0F + var0 * 40.0F);
+        param6.setXRot(-var1 * 20.0F);
+        param6.yHeadRot = param6.getYRot();
+        param6.yHeadRotO = param6.getYRot();
+        renderEntityInInventory(param0, param1, param2, param3, var2, var3, param6);
+        param6.yBodyRot = var4;
+        param6.setYRot(var5);
+        param6.setXRot(var6);
+        param6.yHeadRotO = var7;
+        param6.yHeadRot = var8;
     }
 
-    public static void renderEntityInInventory(int param0, int param1, int param2, Quaternionf param3, @Nullable Quaternionf param4, LivingEntity param5) {
-        PoseStack var0 = RenderSystem.getModelViewStack();
-        var0.pushPose();
-        var0.translate((float)param0, (float)param1, 1050.0F);
-        var0.scale(1.0F, 1.0F, -1.0F);
-        RenderSystem.applyModelViewMatrix();
-        PoseStack var1 = new PoseStack();
-        var1.translate(0.0F, 0.0F, 1000.0F);
-        var1.scale((float)param2, (float)param2, (float)param2);
-        var1.mulPose(param3);
+    public static void renderEntityInInventory(
+        PoseStack param0, int param1, int param2, int param3, Quaternionf param4, @Nullable Quaternionf param5, LivingEntity param6
+    ) {
+        param0.pushPose();
+        param0.translate((float)param1, (float)param2, 50.0F);
+        param0.mulPoseMatrix(new Matrix4f().scaling((float)param3, (float)param3, (float)(-param3)));
+        param0.mulPose(param4);
         Lighting.setupForEntityInInventory();
-        EntityRenderDispatcher var2 = Minecraft.getInstance().getEntityRenderDispatcher();
-        if (param4 != null) {
-            param4.conjugate();
-            var2.overrideCameraOrientation(param4);
+        EntityRenderDispatcher var0 = Minecraft.getInstance().getEntityRenderDispatcher();
+        if (param5 != null) {
+            param5.conjugate();
+            var0.overrideCameraOrientation(param5);
         }
 
-        var2.setRenderShadow(false);
-        MultiBufferSource.BufferSource var3 = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> var2.render(param5, 0.0, 0.0, 0.0, 0.0F, 1.0F, var1, var3, 15728880));
-        var3.endBatch();
-        var2.setRenderShadow(true);
-        var0.popPose();
-        RenderSystem.applyModelViewMatrix();
+        var0.setRenderShadow(false);
+        MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
+        RenderSystem.runAsFancy(() -> var0.render(param6, 0.0, 0.0, 0.0, 0.0F, 1.0F, param0, var1, 15728880));
+        var1.endBatch();
+        var0.setRenderShadow(true);
+        param0.popPose();
         Lighting.setupFor3DItems();
     }
 

@@ -60,8 +60,8 @@ public class RegistryOps<T> extends DelegatingOps<T> {
                         ? var0x.lookupProvider
                             .lookup(param0)
                             .map(param0x -> DataResult.success(param0x.getter(), param0x.elementsLifecycle()))
-                            .orElseGet(() -> DataResult.error("Unknown registry: " + param0))
-                        : DataResult.error("Not a registry ops")
+                            .orElseGet(() -> DataResult.error(() -> "Unknown registry: " + param0))
+                        : DataResult.error(() -> "Not a registry ops")
             )
             .forGetter(param0x -> null);
     }
@@ -74,8 +74,8 @@ public class RegistryOps<T> extends DelegatingOps<T> {
                             .lookup(var0)
                             .flatMap(param1x -> param1x.getter().get(param0))
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("Can't find value: " + param0))
-                        : DataResult.error("Not a registry ops")
+                            .orElseGet(() -> DataResult.error(() -> "Can't find value: " + param0))
+                        : DataResult.error(() -> "Not a registry ops")
             )
             .forGetter(param0x -> null);
     }

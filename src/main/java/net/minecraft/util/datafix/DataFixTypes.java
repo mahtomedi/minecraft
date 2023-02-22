@@ -3,6 +3,7 @@ package net.minecraft.util.datafix;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.serialization.Dynamic;
+import java.util.Set;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -22,14 +23,11 @@ public enum DataFixTypes {
     WORLD_GEN_SETTINGS(References.WORLD_GEN_SETTINGS),
     ENTITY_CHUNK(References.ENTITY_CHUNK);
 
+    public static final Set<TypeReference> TYPES_FOR_LEVEL_LIST;
     private final TypeReference type;
 
     private DataFixTypes(TypeReference param0) {
         this.type = param0;
-    }
-
-    public TypeReference getType() {
-        return this.type;
     }
 
     private static int currentVersion() {
@@ -50,5 +48,9 @@ public enum DataFixTypes {
 
     public CompoundTag updateToCurrentVersion(DataFixer param0, CompoundTag param1, int param2) {
         return this.update(param0, param1, param2, currentVersion());
+    }
+
+    static {
+        TYPES_FOR_LEVEL_LIST = Set.of(LEVEL.type);
     }
 }

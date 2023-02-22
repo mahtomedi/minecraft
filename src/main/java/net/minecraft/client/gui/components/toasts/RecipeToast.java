@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -34,9 +34,8 @@ public class RecipeToast implements Toast {
         if (this.recipes.isEmpty()) {
             return Toast.Visibility.HIDE;
         } else {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, TEXTURE);
-            param1.blit(param0, 0, 0, 0, 32, this.width(), this.height());
+            GuiComponent.blit(param0, 0, 0, 0, 32, this.width(), this.height());
             param1.getMinecraft().font.draw(param0, TITLE_TEXT, 30.0F, 7.0F, -11534256);
             param1.getMinecraft().font.draw(param0, DESCRIPTION_TEXT, 30.0F, 18.0F, -16777216);
             Recipe<?> var0 = this.recipes
@@ -48,14 +47,11 @@ public class RecipeToast implements Toast {
                     )
                 );
             ItemStack var1 = var0.getToastSymbol();
-            PoseStack var2 = RenderSystem.getModelViewStack();
-            var2.pushPose();
-            var2.scale(0.6F, 0.6F, 1.0F);
-            RenderSystem.applyModelViewMatrix();
-            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var1, 3, 3);
-            var2.popPose();
-            RenderSystem.applyModelViewMatrix();
-            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(var0.getResultItem(param1.getMinecraft().level.registryAccess()), 8, 8);
+            param0.pushPose();
+            param0.scale(0.6F, 0.6F, 1.0F);
+            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(param0, var1, 3, 3);
+            param0.popPose();
+            param1.getMinecraft().getItemRenderer().renderAndDecorateFakeItem(param0, var0.getResultItem(param1.getMinecraft().level.registryAccess()), 8, 8);
             return (double)(param2 - this.lastChanged) >= 5000.0 * param1.getNotificationDisplayTimeMultiplier()
                 ? Toast.Visibility.HIDE
                 : Toast.Visibility.SHOW;

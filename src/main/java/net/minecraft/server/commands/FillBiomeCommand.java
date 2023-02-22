@@ -125,9 +125,9 @@ public class FillBiomeCommand {
             for(ChunkAccess var11 : var6) {
                 var11.fillBiomesFromNoise(makeResolver(var10, var11, var2, param3, param4), var5.getChunkSource().randomState().sampler());
                 var11.setUnsaved(true);
-                var5.getChunkSource().chunkMap.resendChunk(var11);
             }
 
+            var5.getChunkSource().chunkMap.resendBiomesForChunks(var6);
             param0.sendSuccess(
                 Component.translatable(
                     "commands.fillbiome.success.count", var10.getValue(), var2.minX(), var2.minY(), var2.minZ(), var2.maxX(), var2.maxY(), var2.maxZ()

@@ -1227,7 +1227,7 @@ public class Items {
     );
     public static final Item SLIME_SPAWN_EGG = registerItem("slime_spawn_egg", new SpawnEggItem(EntityType.SLIME, 5349438, 8306542, new Item.Properties()));
     public static final Item SNIFFER_SPAWN_EGG = registerItem(
-        "sniffer_spawn_egg", new SpawnEggItem(EntityType.SNIFFER, 9840944, 5085536, new Item.Properties())
+        "sniffer_spawn_egg", new SpawnEggItem(EntityType.SNIFFER, 8855049, 2468720, new Item.Properties())
     );
     public static final Item SNOW_GOLEM_SPAWN_EGG = registerItem(
         "snow_golem_spawn_egg", new SpawnEggItem(EntityType.SNOW_GOLEM, 14283506, 8496292, new Item.Properties())

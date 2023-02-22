@@ -340,7 +340,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             int var0 = param2 + 12;
             int var1 = param3 - 12;
             int var2 = this.font.width(param1);
-            this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+            fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
             this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
         }
     }
@@ -474,7 +474,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
                 int var2 = var1 / this.itemHeight;
                 if (param0 >= (double)var0 && param0 < (double)this.getScrollbarPosition() && var2 >= 0 && var1 >= 0 && var2 < this.getItemCount()) {
                     this.selectItem(var2);
-                    this.itemClicked(var1, var2, param0, param1, this.width);
+                    this.itemClicked(var1, var2, param0, param1, this.width, param2);
                     if (var2 >= RealmsSelectWorldTemplateScreen.this.worldTemplateObjectSelectionList.getItemCount()) {
                         return super.mouseClicked(param0, param1, param2);
                     }

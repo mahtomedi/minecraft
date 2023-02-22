@@ -36,7 +36,9 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 
 public class Chicken extends Animal {
-    private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
+    private static final Ingredient FOOD_ITEMS = Ingredient.of(
+        Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS, Items.TORCHFLOWER_SEEDS
+    );
     public float flap;
     public float flapSpeed;
     public float oFlapSpeed;
@@ -107,11 +109,6 @@ public class Chicken extends Animal {
     @Override
     protected void onFlap() {
         this.nextFlap = this.flyDist + this.flapSpeed / 2.0F;
-    }
-
-    @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
     }
 
     @Override

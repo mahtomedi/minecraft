@@ -7,7 +7,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 
 public class BiomeTagsProvider extends TagsProvider<Biome> {
     public BiomeTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
@@ -40,9 +40,9 @@ public class BiomeTagsProvider extends TagsProvider<Biome> {
             .add(Biomes.GROVE);
         this.tag(BiomeTags.IS_SAVANNA).add(Biomes.SAVANNA).add(Biomes.SAVANNA_PLATEAU).add(Biomes.WINDSWEPT_SAVANNA);
         TagsProvider.TagAppender<Biome> var0 = this.tag(BiomeTags.IS_NETHER);
-        MultiNoiseBiomeSource.Preset.NETHER.possibleBiomes().forEach(var0::add);
+        MultiNoiseBiomeSourceParameterList.Preset.NETHER.usedBiomes().forEach(var0::add);
         TagsProvider.TagAppender<Biome> var1 = this.tag(BiomeTags.IS_OVERWORLD);
-        MultiNoiseBiomeSource.Preset.OVERWORLD.possibleBiomes().forEach(var1::add);
+        MultiNoiseBiomeSourceParameterList.Preset.OVERWORLD.usedBiomes().forEach(var1::add);
         this.tag(BiomeTags.IS_END).add(Biomes.THE_END).add(Biomes.END_HIGHLANDS).add(Biomes.END_MIDLANDS).add(Biomes.SMALL_END_ISLANDS).add(Biomes.END_BARRENS);
         this.tag(BiomeTags.HAS_BURIED_TREASURE).addTag(BiomeTags.IS_BEACH);
         this.tag(BiomeTags.HAS_DESERT_PYRAMID).add(Biomes.DESERT);

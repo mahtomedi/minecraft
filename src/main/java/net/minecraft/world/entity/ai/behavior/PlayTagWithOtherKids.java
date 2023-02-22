@@ -50,7 +50,7 @@ public class PlayTagWithOtherKids {
                                 } else {
                                     for(int var4x = 0; var4x < 10; ++var4x) {
                                         Vec3 var3x = LandRandomPos.getPos(param6, 20, 8);
-                                        if (var3x != null && param5.isVillage(new BlockPos(var3x))) {
+                                        if (var3x != null && param5.isVillage(BlockPos.containing(var3x))) {
                                             param2.set(new WalkTarget(var3x, 0.6F, 0));
                                             break;
                                         }

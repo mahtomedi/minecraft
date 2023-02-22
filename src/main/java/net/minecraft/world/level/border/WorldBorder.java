@@ -55,7 +55,7 @@ public class WorldBorder {
     }
 
     public BlockPos clampToBounds(double param0, double param1, double param2) {
-        return new BlockPos(Mth.clamp(param0, this.getMinX(), this.getMaxX()), param1, Mth.clamp(param2, this.getMinZ(), this.getMaxZ()));
+        return BlockPos.containing(Mth.clamp(param0, this.getMinX(), this.getMaxX()), param1, Mth.clamp(param2, this.getMinZ(), this.getMaxZ()));
     }
 
     public double getDistanceToBorder(Entity param0) {

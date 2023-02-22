@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screens.inventory;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSelectTradePacket;
@@ -98,11 +97,10 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        blit(param0, var0, var1, this.getBlitOffset(), 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 256);
+        blit(param0, var0, var1, 0, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 512, 256);
         MerchantOffers var2 = this.menu.getOffers();
         if (!var2.isEmpty()) {
             int var3 = this.shopItem;
@@ -113,29 +111,28 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             MerchantOffer var4 = var2.get(var3);
             if (var4.isOutOfStock()) {
                 RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
-                blit(param0, this.leftPos + 83 + 99, this.topPos + 35, this.getBlitOffset(), 311.0F, 0.0F, 28, 21, 512, 256);
+                blit(param0, this.leftPos + 83 + 99, this.topPos + 35, 0, 311.0F, 0.0F, 28, 21, 512, 256);
             }
         }
 
     }
 
     private void renderProgressBar(PoseStack param0, int param1, int param2, MerchantOffer param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         int var0 = this.menu.getTraderLevel();
         int var1 = this.menu.getTraderXp();
         if (var0 < 5) {
-            blit(param0, param1 + 136, param2 + 16, this.getBlitOffset(), 0.0F, 186.0F, 102, 5, 512, 256);
+            blit(param0, param1 + 136, param2 + 16, 0, 0.0F, 186.0F, 102, 5, 512, 256);
             int var2 = VillagerData.getMinXpPerLevel(var0);
             if (var1 >= var2 && VillagerData.canLevelUp(var0)) {
                 int var3 = 100;
                 float var4 = 100.0F / (float)(VillagerData.getMaxXpPerLevel(var0) - var2);
                 int var5 = Math.min(Mth.floor(var4 * (float)(var1 - var2)), 100);
-                blit(param0, param1 + 136, param2 + 16, this.getBlitOffset(), 0.0F, 191.0F, var5 + 1, 5, 512, 256);
+                blit(param0, param1 + 136, param2 + 16, 0, 0.0F, 191.0F, var5 + 1, 5, 512, 256);
                 int var6 = this.menu.getFutureTraderXp();
                 if (var6 > 0) {
                     int var7 = Math.min(Mth.floor((float)var6 * var4), 100 - var5);
-                    blit(param0, param1 + 136 + var5 + 1, param2 + 16 + 1, this.getBlitOffset(), 2.0F, 182.0F, var7, 3, 512, 256);
+                    blit(param0, param1 + 136 + var5 + 1, param2 + 16 + 1, 0, 2.0F, 182.0F, var7, 3, 512, 256);
                 }
 
             }
@@ -153,9 +150,9 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
                 var4 = 113;
             }
 
-            blit(param0, param1 + 94, param2 + 18 + var4, this.getBlitOffset(), 0.0F, 199.0F, 6, 27, 512, 256);
+            blit(param0, param1 + 94, param2 + 18 + var4, 0, 0.0F, 199.0F, 6, 27, 512, 256);
         } else {
-            blit(param0, param1 + 94, param2 + 18, this.getBlitOffset(), 6.0F, 199.0F, 6, 27, 512, 256);
+            blit(param0, param1 + 94, param2 + 18, 0, 6.0F, 199.0F, 6, 27, 512, 256);
         }
 
     }
@@ -170,7 +167,6 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
             int var2 = (this.height - this.imageHeight) / 2;
             int var3 = var2 + 16 + 1;
             int var4 = var1 + 5 + 5;
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
             this.renderScroller(param0, var1, var2, var0);
             int var5 = 0;
@@ -183,18 +179,19 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
                     ItemStack var8 = var6.getCostA();
                     ItemStack var9 = var6.getCostB();
                     ItemStack var10 = var6.getResult();
-                    this.itemRenderer.blitOffset = 100.0F;
+                    param0.pushPose();
+                    param0.translate(0.0F, 0.0F, 100.0F);
                     int var11 = var3 + 2;
                     this.renderAndDecorateCostA(param0, var8, var7, var4, var11);
                     if (!var9.isEmpty()) {
-                        this.itemRenderer.renderAndDecorateFakeItem(var9, var1 + 5 + 35, var11);
-                        this.itemRenderer.renderGuiItemDecorations(this.font, var9, var1 + 5 + 35, var11);
+                        this.itemRenderer.renderAndDecorateFakeItem(param0, var9, var1 + 5 + 35, var11);
+                        this.itemRenderer.renderGuiItemDecorations(param0, this.font, var9, var1 + 5 + 35, var11);
                     }
 
                     this.renderButtonArrows(param0, var6, var1, var11);
-                    this.itemRenderer.renderAndDecorateFakeItem(var10, var1 + 5 + 68, var11);
-                    this.itemRenderer.renderGuiItemDecorations(this.font, var10, var1 + 5 + 68, var11);
-                    this.itemRenderer.blitOffset = 0.0F;
+                    this.itemRenderer.renderAndDecorateFakeItem(param0, var10, var1 + 5 + 68, var11);
+                    this.itemRenderer.renderGuiItemDecorations(param0, this.font, var10, var1 + 5 + 68, var11);
+                    param0.popPose();
                     var3 += 20;
                     ++var5;
                 }
@@ -226,28 +223,27 @@ public class MerchantScreen extends AbstractContainerScreen<MerchantMenu> {
 
     private void renderButtonArrows(PoseStack param0, MerchantOffer param1, int param2, int param3) {
         RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
         if (param1.isOutOfStock()) {
-            blit(param0, param2 + 5 + 35 + 20, param3 + 3, this.getBlitOffset(), 25.0F, 171.0F, 10, 9, 512, 256);
+            blit(param0, param2 + 5 + 35 + 20, param3 + 3, 0, 25.0F, 171.0F, 10, 9, 512, 256);
         } else {
-            blit(param0, param2 + 5 + 35 + 20, param3 + 3, this.getBlitOffset(), 15.0F, 171.0F, 10, 9, 512, 256);
+            blit(param0, param2 + 5 + 35 + 20, param3 + 3, 0, 15.0F, 171.0F, 10, 9, 512, 256);
         }
 
     }
 
     private void renderAndDecorateCostA(PoseStack param0, ItemStack param1, ItemStack param2, int param3, int param4) {
-        this.itemRenderer.renderAndDecorateFakeItem(param1, param3, param4);
+        this.itemRenderer.renderAndDecorateFakeItem(param0, param1, param3, param4);
         if (param2.getCount() == param1.getCount()) {
-            this.itemRenderer.renderGuiItemDecorations(this.font, param1, param3, param4);
+            this.itemRenderer.renderGuiItemDecorations(param0, this.font, param1, param3, param4);
         } else {
-            this.itemRenderer.renderGuiItemDecorations(this.font, param2, param3, param4, param2.getCount() == 1 ? "1" : null);
-            this.itemRenderer.renderGuiItemDecorations(this.font, param1, param3 + 14, param4, param1.getCount() == 1 ? "1" : null);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            this.itemRenderer.renderGuiItemDecorations(param0, this.font, param2, param3, param4, param2.getCount() == 1 ? "1" : null);
+            this.itemRenderer.renderGuiItemDecorations(param0, this.font, param1, param3 + 14, param4, param1.getCount() == 1 ? "1" : null);
             RenderSystem.setShaderTexture(0, VILLAGER_LOCATION);
-            this.setBlitOffset(this.getBlitOffset() + 300);
-            blit(param0, param3 + 7, param4 + 12, this.getBlitOffset(), 0.0F, 176.0F, 9, 2, 512, 256);
-            this.setBlitOffset(this.getBlitOffset() - 300);
+            param0.pushPose();
+            param0.translate(0.0F, 0.0F, 300.0F);
+            blit(param0, param3 + 7, param4 + 12, 0, 0.0F, 176.0F, 9, 2, 512, 256);
+            param0.popPose();
         }
 
     }

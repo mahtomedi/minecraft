@@ -717,7 +717,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         Vec3 var0 = getCollisionHorizontalEscapeVector((double)(this.getBbWidth() * Mth.SQRT_OF_TWO), (double)param0.getBbWidth(), param0.getYRot());
         double var1 = this.getX() + var0.x;
         double var2 = this.getZ() + var0.z;
-        BlockPos var3 = new BlockPos(var1, this.getBoundingBox().maxY, var2);
+        BlockPos var3 = BlockPos.containing(var1, this.getBoundingBox().maxY, var2);
         BlockPos var4 = var3.below();
         if (!this.level.isWaterAt(var4)) {
             List<Vec3> var5 = Lists.newArrayList();
@@ -879,8 +879,9 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
 
     @Nullable
     @Override
-    public Entity getControllingPassenger() {
-        return this.getFirstPassenger();
+    public LivingEntity getControllingPassenger() {
+        Entity var2 = this.getFirstPassenger();
+        return var2 instanceof LivingEntity var0 ? var0 : null;
     }
 
     public void setInput(boolean param0, boolean param1, boolean param2, boolean param3) {

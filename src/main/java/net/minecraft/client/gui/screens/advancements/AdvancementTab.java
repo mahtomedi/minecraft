@@ -9,7 +9,6 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -74,32 +73,24 @@ public class AdvancementTab extends GuiComponent {
     }
 
     public void drawTab(PoseStack param0, int param1, int param2, boolean param3) {
-        this.type.draw(param0, this, param1, param2, param3, this.index);
+        this.type.draw(param0, param1, param2, param3, this.index);
     }
 
-    public void drawIcon(int param0, int param1, ItemRenderer param2) {
-        this.type.drawIcon(param0, param1, this.index, param2, this.icon);
+    public void drawIcon(PoseStack param0, int param1, int param2, ItemRenderer param3) {
+        this.type.drawIcon(param0, param1, param2, this.index, param3, this.icon);
     }
 
-    public void drawContents(PoseStack param0) {
+    public void drawContents(PoseStack param0, int param1, int param2) {
         if (!this.centered) {
             this.scrollX = (double)(117 - (this.maxX + this.minX) / 2);
             this.scrollY = (double)(56 - (this.maxY + this.minY) / 2);
             this.centered = true;
         }
 
+        enableScissor(param1, param2, param1 + 234, param2 + 113);
         param0.pushPose();
-        param0.translate(0.0F, 0.0F, 950.0F);
-        RenderSystem.enableDepthTest();
-        RenderSystem.colorMask(false, false, false, false);
-        fill(param0, 4680, 2260, -4680, -2260, -16777216);
-        RenderSystem.colorMask(true, true, true, true);
-        param0.translate(0.0F, 0.0F, -950.0F);
-        RenderSystem.depthFunc(518);
-        fill(param0, 234, 113, 0, 0, -16777216);
-        RenderSystem.depthFunc(515);
+        param0.translate((float)param1, (float)param2, 0.0F);
         ResourceLocation var0 = this.display.getBackground();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         if (var0 != null) {
             RenderSystem.setShaderTexture(0, var0);
         } else {
@@ -120,13 +111,8 @@ public class AdvancementTab extends GuiComponent {
         this.root.drawConnectivity(param0, var1, var2, true);
         this.root.drawConnectivity(param0, var1, var2, false);
         this.root.draw(param0, var1, var2);
-        RenderSystem.depthFunc(518);
-        param0.translate(0.0F, 0.0F, -950.0F);
-        RenderSystem.colorMask(false, false, false, false);
-        fill(param0, 4680, 2260, -4680, -2260, -16777216);
-        RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.depthFunc(515);
         param0.popPose();
+        disableScissor();
     }
 
     public void drawTooltips(PoseStack param0, int param1, int param2, int param3, int param4) {

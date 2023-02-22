@@ -51,7 +51,7 @@ public class SculkCatalystBlockEntity extends BlockEntity implements GameEventLi
                 if (!var0.wasExperienceConsumed()) {
                     int var1x = var0.getExperienceReward();
                     if (var0.shouldDropExperience() && var1x > 0) {
-                        this.sculkSpreader.addCursors(new BlockPos(param3.relative(Direction.UP, 0.5)), var1x);
+                        this.sculkSpreader.addCursors(BlockPos.containing(param3.relative(Direction.UP, 0.5)), var1x);
                         this.tryAwardItSpreadsAdvancement(var0);
                     }
 

@@ -34,6 +34,7 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.HeightmapTypeArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.ObjectiveArgument;
 import net.minecraft.commands.arguments.RangeArgument;
@@ -65,6 +66,7 @@ import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Attackable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -83,6 +85,7 @@ import net.minecraft.world.level.storage.loot.PredicateManager;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -159,6 +162,18 @@ public class ExecuteCommand {
                             }
                 
                             return var0x;
+                        })))
+                        .then(Commands.literal("over").then(Commands.argument("heightmap", HeightmapTypeArgument.heightmap()).redirect(var0, param0x -> {
+                            Vec3 var0x = param0x.getSource().getPosition();
+                            ServerLevel var1x = param0x.getSource().getLevel();
+                            double var2x = var0x.x();
+                            double var3 = var0x.z();
+                            if (!var1x.hasChunk(SectionPos.blockToSectionCoord(var2x), SectionPos.blockToSectionCoord(var3))) {
+                                throw BlockPosArgument.ERROR_NOT_LOADED.create();
+                            } else {
+                                int var4 = var1x.getHeight(HeightmapTypeArgument.getHeightmap(param0x, "heightmap"), Mth.floor(var2x), Mth.floor(var3));
+                                return param0x.getSource().withPosition(new Vec3(var2x, (double)var4, var3));
+                            }
                         })))
                 )
                 .then(

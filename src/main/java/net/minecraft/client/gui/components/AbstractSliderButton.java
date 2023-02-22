@@ -17,6 +17,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSliderButton extends AbstractWidget {
     private static final ResourceLocation SLIDER_LOCATION = new ResourceLocation("textures/gui/slider.png");
+    protected static final int TEXTURE_WIDTH = 200;
+    protected static final int TEXTURE_HEIGHT = 20;
+    protected static final int TEXTURE_BORDER = 4;
+    protected static final int TEXT_MARGIN = 2;
     private static final int HEIGHT = 20;
     private static final int HANDLE_HALF_WIDTH = 4;
     private static final int HANDLE_WIDTH = 8;
@@ -32,13 +36,7 @@ public abstract class AbstractSliderButton extends AbstractWidget {
         this.value = param5;
     }
 
-    @Override
-    protected ResourceLocation getTextureLocation() {
-        return SLIDER_LOCATION;
-    }
-
-    @Override
-    protected int getTextureY() {
+    private int getTextureY() {
         int var0 = this.isFocused() && !this.canChangeValue ? 1 : 0;
         return var0 * 20;
     }
@@ -67,10 +65,18 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     }
 
     @Override
-    protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, this.getTextureLocation());
-        int var0 = this.getHandleTextureY();
-        this.blitNineSliced(param0, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 8, 20, 4, 200, 20, 0, var0);
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+        Minecraft var0 = Minecraft.getInstance();
+        RenderSystem.setShaderTexture(0, SLIDER_LOCATION);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        blitNineSliced(param0, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 4, 200, 20, 0, this.getTextureY());
+        blitNineSliced(param0, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 8, 20, 4, 200, 20, 0, this.getHandleTextureY());
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        int var1 = this.active ? 16777215 : 10526880;
+        this.renderScrollingString(param0, var0.font, 2, var1 | Mth.ceil(this.alpha * 255.0F) << 24);
     }
 
     @Override

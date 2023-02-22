@@ -11,7 +11,7 @@ public class UpdateOneTwentyHusbandryAdvancements implements AdvancementSubProvi
     @Override
     public void generate(HolderLookup.Provider param0, Consumer<Advancement> param1) {
         Advancement var0 = AdvancementSubProvider.createPlaceholder("husbandry/breed_an_animal");
-        Stream<EntityType<?>> var1 = Stream.concat(VanillaHusbandryAdvancements.BREEDABLE_ANIMALS.stream(), Stream.of(EntityType.CAMEL));
+        Stream<EntityType<?>> var1 = Stream.concat(VanillaHusbandryAdvancements.BREEDABLE_ANIMALS.stream(), Stream.of(EntityType.CAMEL, EntityType.SNIFFER));
         VanillaHusbandryAdvancements.createBreedAllAnimalsAdvancement(var0, param1, var1, VanillaHusbandryAdvancements.INDIRECTLY_BREEDABLE_ANIMALS.stream());
     }
 }

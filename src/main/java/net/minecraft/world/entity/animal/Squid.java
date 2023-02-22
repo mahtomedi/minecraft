@@ -254,9 +254,9 @@ public class Squid extends WaterAnimal {
             if (var0 != null) {
                 Vec3 var1 = new Vec3(Squid.this.getX() - var0.getX(), Squid.this.getY() - var0.getY(), Squid.this.getZ() - var0.getZ());
                 BlockState var2 = Squid.this.level
-                    .getBlockState(new BlockPos(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
+                    .getBlockState(BlockPos.containing(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
                 FluidState var3 = Squid.this.level
-                    .getFluidState(new BlockPos(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
+                    .getFluidState(BlockPos.containing(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
                 if (var3.is(FluidTags.WATER) || var2.isAir()) {
                     double var4 = var1.length();
                     if (var4 > 0.0) {

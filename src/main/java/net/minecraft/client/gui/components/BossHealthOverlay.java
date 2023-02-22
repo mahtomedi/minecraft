@@ -60,11 +60,10 @@ public class BossHealthOverlay extends GuiComponent {
     }
 
     private void drawBar(PoseStack param0, int param1, int param2, BossEvent param3, int param4, int param5) {
-        this.blit(param0, param1, param2, 0, param3.getColor().ordinal() * 5 * 2 + param5, param4, 5);
+        blit(param0, param1, param2, 0, param3.getColor().ordinal() * 5 * 2 + param5, param4, 5);
         if (param3.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
             RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            this.blit(param0, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2 + param5, param4, 5);
+            blit(param0, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2 + param5, param4, 5);
             RenderSystem.disableBlend();
         }
 

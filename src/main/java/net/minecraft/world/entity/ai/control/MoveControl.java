@@ -99,7 +99,7 @@ public class MoveControl implements Control {
             BlockPos var14 = this.mob.blockPosition();
             BlockState var15 = this.mob.level.getBlockState(var14);
             VoxelShape var16 = var15.getCollisionShape(this.mob.level, var14);
-            if (var11 > (double)this.mob.maxUpStep && var9 * var9 + var10 * var10 < (double)Math.max(1.0F, this.mob.getBbWidth())
+            if (var11 > (double)this.mob.maxUpStep() && var9 * var9 + var10 * var10 < (double)Math.max(1.0F, this.mob.getBbWidth())
                 || !var16.isEmpty()
                     && this.mob.getY() < var16.max(Direction.Axis.Y) + (double)var14.getY()
                     && !var15.is(BlockTags.DOORS)

@@ -14,7 +14,7 @@ public class BlockPosTracker implements PositionTracker {
     }
 
     public BlockPosTracker(Vec3 param0) {
-        this.blockPos = new BlockPos(param0);
+        this.blockPos = BlockPos.containing(param0);
         this.centerPosition = param0;
     }
 

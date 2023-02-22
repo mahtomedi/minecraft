@@ -217,14 +217,14 @@ public class CreateFlatWorldScreen extends Screen {
             private void blitSlot(PoseStack param0, int param1, int param2, ItemStack param3) {
                 this.blitSlotBg(param0, param1 + 1, param2 + 1);
                 if (!param3.isEmpty()) {
-                    CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param3, param1 + 2, param2 + 2);
+                    CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param0, param3, param1 + 2, param2 + 2);
                 }
 
             }
 
             private void blitSlotBg(PoseStack param0, int param1, int param2) {
                 RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, param2, CreateFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+                GuiComponent.blit(param0, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
             }
         }
     }

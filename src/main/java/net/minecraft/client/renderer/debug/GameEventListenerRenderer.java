@@ -101,7 +101,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
                         param2x -> {
                             DebugRenderer.renderFloatingText(param0, param1, "Listener Origin", param2x.x(), param2x.y() + 1.8F, param2x.z(), -1, 0.025F);
                             DebugRenderer.renderFloatingText(
-                                param0, param1, new BlockPos(param2x).toString(), param2x.x(), param2x.y() + 1.5, param2x.z(), -6959665, 0.025F
+                                param0, param1, BlockPos.containing(param2x).toString(), param2x.x(), param2x.y() + 1.5, param2x.z(), -6959665, 0.025F
                             );
                         }
                     );

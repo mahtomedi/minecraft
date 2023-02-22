@@ -44,14 +44,14 @@ public class Crypt {
         try {
             return DataResult.success(stringToRsaPublicKey(param0));
         } catch (CryptException var2) {
-            return DataResult.error(var2.getMessage());
+            return DataResult.error(var2::getMessage);
         }
     }, Crypt::rsaPublicKeyToString);
     public static final Codec<PrivateKey> PRIVATE_KEY_CODEC = Codec.STRING.comapFlatMap(param0 -> {
         try {
             return DataResult.success(stringToPemRsaPrivateKey(param0));
         } catch (CryptException var2) {
-            return DataResult.error(var2.getMessage());
+            return DataResult.error(var2::getMessage);
         }
     }, Crypt::pemRsaPrivateKeyToString);
 

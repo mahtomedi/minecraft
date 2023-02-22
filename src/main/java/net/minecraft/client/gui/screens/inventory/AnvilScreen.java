@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -83,7 +82,6 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
 
     @Override
     protected void renderLabels(PoseStack param0, int param1, int param2) {
-        RenderSystem.disableBlend();
         super.renderLabels(param0, param1, param2);
         int var0 = this.menu.getCost();
         if (var0 > 0) {
@@ -114,7 +112,7 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         super.renderBg(param0, param1, param2, param3);
-        this.blit(param0, this.leftPos + 59, this.topPos + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
+        blit(param0, this.leftPos + 59, this.topPos + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
     }
 
     @Override
@@ -125,7 +123,7 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     @Override
     protected void renderErrorIcon(PoseStack param0, int param1, int param2) {
         if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
-            this.blit(param0, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
+            blit(param0, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
         }
 
     }

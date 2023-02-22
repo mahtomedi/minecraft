@@ -195,7 +195,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
         } else {
             Optional<LongStream> var5 = param2x.storage();
             if (var5.isEmpty()) {
-                return DataResult.error("Missing values for non-zero storage");
+                return DataResult.error(() -> "Missing values for non-zero storage");
             }
 
             long[] var6 = var5.get().toArray();
@@ -212,7 +212,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
                     var4 = new SimpleBitStorage(var3.bits(), var1, var6);
                 }
             } catch (SimpleBitStorage.InitializationException var131) {
-                return DataResult.error("Failed to read PalettedContainer: " + var131.getMessage());
+                return DataResult.error(() -> "Failed to read PalettedContainer: " + var131.getMessage());
             }
         }
 

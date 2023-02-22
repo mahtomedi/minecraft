@@ -9,7 +9,6 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -133,7 +132,6 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
                 GuiComponent.fill(param0, param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
             }
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, this.pack.getIconTexture());
             GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             FormattedCharSequence var1 = this.nameDisplayCache;
@@ -142,7 +140,6 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
                 && (this.minecraft.options.touchscreen().get() || param8 || this.parent.getSelected() == this && this.parent.isFocused())) {
                 RenderSystem.setShaderTexture(0, TransferableSelectionList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 int var3 = param6 - param3;
                 int var4 = param7 - param2;
                 if (!this.pack.getCompatibility().isCompatible()) {

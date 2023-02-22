@@ -254,7 +254,7 @@ public class RealmsBackupScreen extends RealmsScreen {
             int var0 = param2 + 12;
             int var1 = param3 - 12;
             int var2 = this.font.width(param1);
-            this.fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+            fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
             this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
         }
     }
@@ -295,7 +295,7 @@ public class RealmsBackupScreen extends RealmsScreen {
                 int var3 = var2 / this.itemHeight;
                 if (param0 >= (double)var0 && param0 <= (double)var1 && var3 >= 0 && var2 >= 0 && var3 < this.getItemCount()) {
                     this.selectItem(var3);
-                    this.itemClicked(var2, var3, param0, param1, this.width);
+                    this.itemClicked(var2, var3, param0, param1, this.width, param2);
                 }
 
                 return true;
@@ -310,7 +310,7 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public void itemClicked(int param0, int param1, double param2, double param3, int param4) {
+        public void itemClicked(int param0, int param1, double param2, double param3, int param4, int param5) {
             int var0 = this.width - 35;
             int var1 = param1 * this.itemHeight + 36 - (int)this.getScrollAmount();
             int var2 = var0 + 10;

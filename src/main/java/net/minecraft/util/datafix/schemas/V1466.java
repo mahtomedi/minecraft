@@ -34,27 +34,6 @@ public class V1466 extends NamespacedSchema {
                     )
                 )
         );
-        param0.registerType(
-            false,
-            References.STRUCTURE_FEATURE,
-            () -> DSL.optionalFields(
-                    "Children",
-                    DSL.list(
-                        DSL.optionalFields(
-                            "CA",
-                            References.BLOCK_STATE.in(param0),
-                            "CB",
-                            References.BLOCK_STATE.in(param0),
-                            "CC",
-                            References.BLOCK_STATE.in(param0),
-                            "CD",
-                            References.BLOCK_STATE.in(param0)
-                        )
-                    ),
-                    "biome",
-                    References.BIOME.in(param0)
-                )
-        );
     }
 
     @Override

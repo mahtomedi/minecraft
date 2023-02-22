@@ -477,6 +477,13 @@ public class LevelChunk extends ChunkAccess {
         });
     }
 
+    public void replaceBiomes(FriendlyByteBuf param0) {
+        for(LevelChunkSection var0 : this.sections) {
+            var0.readBiomes(param0);
+        }
+
+    }
+
     public void setLoaded(boolean param0) {
         this.loaded = param0;
     }

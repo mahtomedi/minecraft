@@ -553,22 +553,22 @@ public class DebugScreenOverlay extends GuiComponent {
         if (param4) {
             fill(param0, param2 + 1, var12 - 30 + 1, param2 + 14, var12 - 30 + 10, -1873784752);
             this.font.draw(param0, "60 FPS", (float)(param2 + 2), (float)(var12 - 30 + 2), 14737632);
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 30, -1);
+            hLine(param0, param2, param2 + var6 - 1, var12 - 30, -1);
             fill(param0, param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
             this.font.draw(param0, "30 FPS", (float)(param2 + 2), (float)(var12 - 60 + 2), 14737632);
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
+            hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
         } else {
             fill(param0, param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
             this.font.draw(param0, "20 TPS", (float)(param2 + 2), (float)(var12 - 60 + 2), 14737632);
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
+            hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
         }
 
-        this.hLine(param0, param2, param2 + var6 - 1, var12 - 1, -1);
-        this.vLine(param0, param2, var12 - 60, var12, -1);
-        this.vLine(param0, param2 + var6 - 1, var12 - 60, var12, -1);
+        hLine(param0, param2, param2 + var6 - 1, var12 - 1, -1);
+        vLine(param0, param2, var12 - 60, var12, -1);
+        vLine(param0, param2 + var6 - 1, var12 - 60, var12, -1);
         int var22 = this.minecraft.options.framerateLimit().get();
         if (param4 && var22 > 0 && var22 <= 250) {
-            this.hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var22), -16711681);
+            hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var22), -16711681);
         }
 
         String var23 = var8 + " ms min";

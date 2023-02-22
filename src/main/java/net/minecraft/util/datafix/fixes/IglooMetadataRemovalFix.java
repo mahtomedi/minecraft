@@ -1,5 +1,6 @@
 package net.minecraft.util.datafix.fixes;
 
+import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
@@ -14,15 +15,12 @@ public class IglooMetadataRemovalFix extends DataFix {
     @Override
     protected TypeRewriteRule makeRule() {
         Type<?> var0 = this.getInputSchema().getType(References.STRUCTURE_FEATURE);
-        Type<?> var1 = this.getOutputSchema().getType(References.STRUCTURE_FEATURE);
-        return this.writeFixAndRead("IglooMetadataRemovalFix", var0, var1, IglooMetadataRemovalFix::fixTag);
+        return this.fixTypeEverywhereTyped("IglooMetadataRemovalFix", var0, param0 -> param0.update(DSL.remainderFinder(), IglooMetadataRemovalFix::fixTag));
     }
 
     private static <T> Dynamic<T> fixTag(Dynamic<T> param0) {
-        boolean var0x = param0.get("Children").asStreamOpt().map(param0x -> param0x.allMatch(IglooMetadataRemovalFix::isIglooPiece)).result().orElse(false);
-        return var0x
-            ? param0.set("id", param0.createString("Igloo")).remove("Children")
-            : param0.update("Children", IglooMetadataRemovalFix::removeIglooPieces);
+        boolean var0 = param0.get("Children").asStreamOpt().map(param0x -> param0x.allMatch(IglooMetadataRemovalFix::isIglooPiece)).result().orElse(false);
+        return var0 ? param0.set("id", param0.createString("Igloo")).remove("Children") : param0.update("Children", IglooMetadataRemovalFix::removeIglooPieces);
     }
 
     private static <T> Dynamic<T> removeIglooPieces(Dynamic<T> param0x) {

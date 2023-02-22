@@ -43,18 +43,6 @@ public class BlockPos extends Vec3i {
         super(param0, param1, param2);
     }
 
-    public BlockPos(double param0, double param1, double param2) {
-        super(param0, param1, param2);
-    }
-
-    public BlockPos(Vec3 param0) {
-        this(param0.x, param0.y, param0.z);
-    }
-
-    public BlockPos(Position param0) {
-        this(param0.x(), param0.y(), param0.z());
-    }
-
     public BlockPos(Vec3i param0) {
         this(param0.getX(), param0.getY(), param0.getZ());
     }
@@ -83,6 +71,14 @@ public class BlockPos extends Vec3i {
         return new BlockPos(getX(param0), getY(param0), getZ(param0));
     }
 
+    public static BlockPos containing(double param0, double param1, double param2) {
+        return new BlockPos(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
+    }
+
+    public static BlockPos containing(Position param0) {
+        return containing(param0.x(), param0.y(), param0.z());
+    }
+
     public long asLong() {
         return asLong(this.getX(), this.getY(), this.getZ());
     }
@@ -96,12 +92,6 @@ public class BlockPos extends Vec3i {
 
     public static long getFlatIndex(long param0) {
         return param0 & -16L;
-    }
-
-    public BlockPos offset(double param0, double param1, double param2) {
-        return param0 == 0.0 && param1 == 0.0 && param2 == 0.0
-            ? this
-            : new BlockPos((double)this.getX() + param0, (double)this.getY() + param1, (double)this.getZ() + param2);
     }
 
     public BlockPos offset(int param0, int param1, int param2) {
@@ -438,11 +428,6 @@ public class BlockPos extends Vec3i {
 
         public MutableBlockPos(double param0, double param1, double param2) {
             this(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
-        }
-
-        @Override
-        public BlockPos offset(double param0, double param1, double param2) {
-            return super.offset(param0, param1, param2).immutable();
         }
 
         @Override

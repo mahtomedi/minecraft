@@ -18,10 +18,10 @@ public class TrapezoidFloat extends FloatProvider {
         .comapFlatMap(
             param0 -> {
                 if (param0.max < param0.min) {
-                    return DataResult.error("Max must be larger than min: [" + param0.min + ", " + param0.max + "]");
+                    return DataResult.error(() -> "Max must be larger than min: [" + param0.min + ", " + param0.max + "]");
                 } else {
                     return param0.plateau > param0.max - param0.min
-                        ? DataResult.error("Plateau can at most be the full span: [" + param0.min + ", " + param0.max + "]")
+                        ? DataResult.error(() -> "Plateau can at most be the full span: [" + param0.min + ", " + param0.max + "]")
                         : DataResult.success(param0);
                 }
             },

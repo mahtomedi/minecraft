@@ -31,6 +31,6 @@ public class GridLayoutTab implements Tab {
     @Override
     public void doLayout(ScreenRectangle param0) {
         this.layout.arrangeElements();
-        FrameLayout.centerInRectangle(this.layout, param0);
+        FrameLayout.alignInRectangle(this.layout, param0, 0.5F, 0.16666667F);
     }
 }

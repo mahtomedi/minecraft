@@ -88,7 +88,7 @@ public final class NaturalSpawner {
                 param2.query(ChunkPos.asLong(var5), param6 -> {
                     MobSpawnSettings.MobSpawnCost var0x = getRoughBiome(var5, param6).getMobSettings().getMobSpawnCost(var2.getType());
                     if (var0x != null) {
-                        var0.addCharge(var2.blockPosition(), var0x.getCharge());
+                        var0.addCharge(var2.blockPosition(), var0x.charge());
                     }
 
                     if (var2 instanceof Mob) {
@@ -386,7 +386,11 @@ public final class NaturalSpawner {
                                 double var18 = Mth.clamp((double)var9, (double)var3 + (double)var16, (double)var3 + 16.0 - (double)var16);
                                 if (!param0.noCollision(var5.type.getAABB(var17, (double)var15.getY(), var18))
                                     || !SpawnPlacements.checkSpawnRules(
-                                        var5.type, param0, MobSpawnType.CHUNK_GENERATION, new BlockPos(var17, (double)var15.getY(), var18), param0.getRandom()
+                                        var5.type,
+                                        param0,
+                                        MobSpawnType.CHUNK_GENERATION,
+                                        BlockPos.containing(var17, (double)var15.getY(), var18),
+                                        param0.getRandom()
                                     )) {
                                     continue;
                                 }
@@ -497,10 +501,10 @@ public final class NaturalSpawner {
                 this.lastCharge = 0.0;
                 return true;
             } else {
-                double var1 = var0.getCharge();
+                double var1 = var0.charge();
                 this.lastCharge = var1;
                 double var2 = this.spawnPotential.getPotentialEnergyChange(param1, var1);
-                return var2 <= var0.getEnergyBudget();
+                return var2 <= var0.energyBudget();
             }
         }
 
@@ -513,7 +517,7 @@ public final class NaturalSpawner {
             } else {
                 MobSpawnSettings.MobSpawnCost var3 = NaturalSpawner.getRoughBiome(var1, param1).getMobSettings().getMobSpawnCost(var0);
                 if (var3 != null) {
-                    var2 = var3.getCharge();
+                    var2 = var3.charge();
                 } else {
                     var2 = 0.0;
                 }

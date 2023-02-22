@@ -7,7 +7,6 @@ import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.client.gui.components.StateSwitchingButton;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
@@ -54,7 +53,6 @@ public class RecipeBookTabButton extends StateSwitchingButton {
         }
 
         Minecraft var1 = Minecraft.getInstance();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();
         int var2 = this.xTexStart;
@@ -72,9 +70,9 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var4 -= 2;
         }
 
-        this.blit(param0, var4, this.getY(), var2, var3, this.width, this.height);
+        blit(param0, var4, this.getY(), var2, var3, this.width, this.height);
         RenderSystem.enableDepthTest();
-        this.renderIcon(var1.getItemRenderer());
+        this.renderIcon(param0, var1.getItemRenderer());
         if (this.animationTime > 0.0F) {
             param0.popPose();
             this.animationTime -= param3;
@@ -82,14 +80,14 @@ public class RecipeBookTabButton extends StateSwitchingButton {
 
     }
 
-    private void renderIcon(ItemRenderer param0) {
+    private void renderIcon(PoseStack param0, ItemRenderer param1) {
         List<ItemStack> var0 = this.category.getIconItems();
         int var1 = this.isStateTriggered ? -2 : 0;
         if (var0.size() == 1) {
-            param0.renderAndDecorateFakeItem(var0.get(0), this.getX() + 9 + var1, this.getY() + 5);
+            param1.renderAndDecorateFakeItem(param0, var0.get(0), this.getX() + 9 + var1, this.getY() + 5);
         } else if (var0.size() == 2) {
-            param0.renderAndDecorateFakeItem(var0.get(0), this.getX() + 3 + var1, this.getY() + 5);
-            param0.renderAndDecorateFakeItem(var0.get(1), this.getX() + 14 + var1, this.getY() + 5);
+            param1.renderAndDecorateFakeItem(param0, var0.get(0), this.getX() + 3 + var1, this.getY() + 5);
+            param1.renderAndDecorateFakeItem(param0, var0.get(1), this.getX() + 14 + var1, this.getY() + 5);
         }
 
     }

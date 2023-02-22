@@ -73,6 +73,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractHorse extends Animal implements ContainerListener, HasCustomInventoryScreen, OwnableEntity, PlayerRideableJumping, Saddleable {
@@ -86,6 +87,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     private static final float MAX_JUMP_STRENGTH = (float)generateJumpStrength(() -> 1.0);
     private static final float MIN_HEALTH = generateMaxHealth(param0 -> 0);
     private static final float MAX_HEALTH = generateMaxHealth(param0 -> param0 - 1);
+    private static final float BACKWARDS_MOVE_SPEED_FACTOR = 0.25F;
+    private static final float SIDEWAYS_MOVE_SPEED_FACTOR = 0.5F;
     private static final Predicate<LivingEntity> PARENT_HORSE_SELECTOR = param0 -> param0 instanceof AbstractHorse && ((AbstractHorse)param0).isBred();
     private static final TargetingConditions MOMMY_TARGETING = TargetingConditions.forNonCombat()
         .range(16.0)
@@ -127,7 +130,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     protected AbstractHorse(EntityType<? extends AbstractHorse> param0, Level param1) {
         super(param0, param1);
-        this.maxUpStep = 1.0F;
+        this.setMaxUpStep(1.0F);
         this.createInventory();
     }
 
@@ -617,7 +620,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             this.setFlag(64, false);
         }
 
-        if ((this.isControlledByLocalInstance() || this.isEffectiveAi()) && this.standCounter > 0 && ++this.standCounter > 20) {
+        if (this.isEffectiveAi() && this.standCounter > 0 && ++this.standCounter > 20) {
             this.standCounter = 0;
             this.setStanding(false);
         }
@@ -729,7 +732,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     public void standIfPossible() {
-        if (this.canPerformRearing() && this.isControlledByLocalInstance() || this.isEffectiveAi()) {
+        if (this.canPerformRearing() && this.isEffectiveAi()) {
             this.standCounter = 1;
             this.setStanding(true);
         }
@@ -759,66 +762,60 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public void travel(Vec3 param0) {
-        if (this.isAlive()) {
-            LivingEntity var0 = this.getControllingPassenger();
-            if (this.isVehicle() && var0 != null && !this.mountIgnoresControllerInput(var0)) {
-                this.setRot(var0.getYRot(), var0.getXRot() * 0.5F);
-                this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
-                float var1 = var0.xxa * 0.5F;
-                float var2 = var0.zza;
-                if (var2 <= 0.0F) {
-                    var2 *= 0.25F;
-                    this.gallopSoundCounter = 0;
-                }
-
-                if (this.onGround && this.playerJumpPendingScale == 0.0F && this.isStanding() && !this.allowStandSliding) {
-                    var1 = 0.0F;
-                    var2 = 0.0F;
-                }
-
-                if (this.playerJumpPendingScale > 0.0F && !this.isJumping() && this.onGround) {
-                    this.executeRidersJump(this.playerJumpPendingScale, var1, var2);
-                    this.playerJumpPendingScale = 0.0F;
-                }
-
-                this.flyingSpeed = this.getSpeed() * 0.1F;
-                if (this.isControlledByLocalInstance()) {
-                    this.setSpeed(this.getDrivenMovementSpeed(var0));
-                    super.travel(new Vec3((double)var1, param0.y, (double)var2));
-                } else {
-                    this.calculateEntityAnimation(false);
-                    this.tryCheckInsideBlocks();
-                }
-
-                if (this.onGround) {
-                    this.playerJumpPendingScale = 0.0F;
-                    this.setIsJumping(false);
-                }
-
-            } else {
-                this.flyingSpeed = 0.02F;
-                super.travel(param0);
+    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+        super.tickRidden(param0, param1);
+        Vec2 var0 = this.getRiddenRotation(param0);
+        this.setRot(var0.y, var0.x);
+        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        if (this.isControlledByLocalInstance()) {
+            if (param1.z <= 0.0) {
+                this.gallopSoundCounter = 0;
             }
+
+            if (this.onGround) {
+                this.setIsJumping(false);
+                if (this.playerJumpPendingScale > 0.0F && !this.isJumping()) {
+                    this.executeRidersJump(this.playerJumpPendingScale, param1);
+                }
+
+                this.playerJumpPendingScale = 0.0F;
+            }
+        }
+
+    }
+
+    protected Vec2 getRiddenRotation(LivingEntity param0) {
+        return new Vec2(param0.getXRot() * 0.5F, param0.getYRot());
+    }
+
+    @Override
+    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+        if (this.onGround && this.playerJumpPendingScale == 0.0F && this.isStanding() && !this.allowStandSliding) {
+            return Vec3.ZERO;
+        } else {
+            float var0 = param0.xxa * 0.5F;
+            float var1 = param0.zza;
+            if (var1 <= 0.0F) {
+                var1 *= 0.25F;
+            }
+
+            return new Vec3((double)var0, 0.0, (double)var1);
         }
     }
 
-    protected float getDrivenMovementSpeed(LivingEntity param0) {
+    @Override
+    protected float getRiddenSpeed(LivingEntity param0) {
         return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED);
     }
 
-    protected boolean mountIgnoresControllerInput(LivingEntity param0) {
-        return false;
-    }
-
-    protected void executeRidersJump(float param0, float param1, float param2) {
+    protected void executeRidersJump(float param0, Vec3 param1) {
         double var0 = this.getCustomJump() * (double)param0 * (double)this.getBlockJumpFactor();
         double var1 = var0 + this.getJumpBoostPower();
         Vec3 var2 = this.getDeltaMovement();
         this.setDeltaMovement(var2.x, var1, var2.z);
         this.setIsJumping(true);
         this.hasImpulse = true;
-        if (param2 > 0.0F) {
+        if (param1.z > 0.0) {
             float var3 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0));
             float var4 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0));
             this.setDeltaMovement(this.getDeltaMovement().add((double)(-0.4F * var3 * param0), 0.0, (double)(0.4F * var4 * param0)));
@@ -1096,6 +1093,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Nullable
+    @Override
     public LivingEntity getControllingPassenger() {
         if (this.isSaddled()) {
             Entity var2 = this.getFirstPassenger();

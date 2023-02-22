@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.OptionInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
@@ -44,8 +46,12 @@ public class PackSelectionModel {
         return this.selected.stream().map(param0 -> new PackSelectionModel.SelectedPackEntry(param0));
     }
 
-    public void commit() {
+    void updateRepoSelectedList() {
         this.repository.setSelected(Lists.reverse(this.selected).stream().map(Pack::getId).collect(ImmutableList.toImmutableList()));
+    }
+
+    public void commit() {
+        this.updateRepoSelectedList();
         this.output.accept(this.repository);
     }
 
@@ -158,6 +164,16 @@ public class PackSelectionModel {
             this.getSelfList().remove(this.pack);
             this.pack.getDefaultPosition().insert(this.getOtherList(), this.pack, Function.identity(), true);
             PackSelectionModel.this.onListChanged.run();
+            PackSelectionModel.this.updateRepoSelectedList();
+            this.updateHighContrastOptionInstance();
+        }
+
+        private void updateHighContrastOptionInstance() {
+            if (this.pack.getId().equals("high_contrast")) {
+                OptionInstance<Boolean> var0 = Minecraft.getInstance().options.highContrast();
+                var0.set(!var0.get());
+            }
+
         }
 
         protected void move(int param0) {

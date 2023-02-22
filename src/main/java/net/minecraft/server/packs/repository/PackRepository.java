@@ -4,6 +4,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +44,18 @@ public class PackRepository {
 
     public void setSelected(Collection<String> param0) {
         this.selected = this.rebuildSelected(param0);
+    }
+
+    public void addPack(String param0) {
+        List<Pack> var0 = Lists.newArrayList(this.selected);
+        var0.add(this.available.get(param0));
+        this.selected = var0;
+    }
+
+    public void removePack(String param0) {
+        List<Pack> var0 = Lists.newArrayList(this.selected);
+        var0.remove(this.available.get(param0));
+        this.selected = var0;
     }
 
     private List<Pack> rebuildSelected(Collection<String> param0) {

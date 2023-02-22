@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.util.concurrent.Runnables;
 import com.mojang.authlib.minecraft.BanDetails;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
@@ -31,7 +30,6 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
@@ -82,7 +80,7 @@ public class TitleScreen extends Screen {
     }
 
     private boolean realmsNotificationsEnabled() {
-        return this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen != null;
+        return this.realmsNotificationsScreen != null;
     }
 
     @Override
@@ -181,7 +179,7 @@ public class TitleScreen extends Screen {
             )
         );
         this.minecraft.setConnectedToRealms(false);
-        if (this.minecraft.options.realmsNotifications().get() && this.realmsNotificationsScreen == null) {
+        if (this.realmsNotificationsScreen == null) {
             this.realmsNotificationsScreen = new RealmsNotificationsScreen();
         }
 
@@ -316,10 +314,8 @@ public class TitleScreen extends Screen {
 
         float var0 = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
         this.panorama.render(param3, Mth.clamp(var0, 0.0F, 1.0F));
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, PANORAMA_OVERLAY);
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.fading ? (float)Mth.ceil(Mth.clamp(var0, 0.0F, 1.0F)) : 1.0F);
         blit(param0, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -383,6 +379,15 @@ public class TitleScreen extends Screen {
     public void removed() {
         if (this.realmsNotificationsScreen != null) {
             this.realmsNotificationsScreen.removed();
+        }
+
+    }
+
+    @Override
+    public void added() {
+        super.added();
+        if (this.realmsNotificationsScreen != null) {
+            this.realmsNotificationsScreen.added();
         }
 
     }

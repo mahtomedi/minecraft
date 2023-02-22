@@ -20,7 +20,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.inventory.Hotbar;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.core.HolderLookup;
@@ -427,7 +426,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     @Override
     protected void renderLabels(PoseStack param0, int param1, int param2) {
         if (selectedTab.showTitle()) {
-            RenderSystem.disableBlend();
             this.font.draw(param0, selectedTab.getDisplayName(), 8.0F, 6.0F, 4210752);
         }
 
@@ -677,30 +675,33 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         for(CreativeModeTab var0 : CreativeModeTabs.tabs()) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, CREATIVE_TABS_LOCATION);
             if (var0 != selectedTab) {
                 this.renderTabButton(param0, var0);
             }
         }
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, new ResourceLocation("textures/gui/container/creative_inventory/tab_" + selectedTab.getBackgroundSuffix()));
-        this.blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         this.searchBox.render(param0, param2, param3, param1);
         int var1 = this.leftPos + 175;
         int var2 = this.topPos + 18;
         int var3 = var2 + 112;
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, CREATIVE_TABS_LOCATION);
         if (selectedTab.canScroll()) {
-            this.blit(param0, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
+            blit(param0, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
         }
 
         this.renderTabButton(param0, selectedTab);
         if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY) {
             InventoryScreen.renderEntityInInventoryFollowsMouse(
-                this.leftPos + 88, this.topPos + 45, 20, (float)(this.leftPos + 88 - param2), (float)(this.topPos + 45 - 30 - param3), this.minecraft.player
+                param0,
+                this.leftPos + 88,
+                this.topPos + 45,
+                20,
+                (float)(this.leftPos + 88 - param2),
+                (float)(this.topPos + 45 - 30 - param3),
+                this.minecraft.player
             );
         }
 
@@ -765,14 +766,15 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             var6 += this.imageHeight - 4;
         }
 
-        this.blit(param0, var5, var6, var3, var4, 26, 32);
-        this.itemRenderer.blitOffset = 100.0F;
+        blit(param0, var5, var6, var3, var4, 26, 32);
+        param0.pushPose();
+        param0.translate(0.0F, 0.0F, 100.0F);
         var5 += 5;
         var6 += 8 + (var1 ? 1 : -1);
         ItemStack var8 = param1.getIconItem();
-        this.itemRenderer.renderAndDecorateItem(var8, var5, var6);
-        this.itemRenderer.renderGuiItemDecorations(this.font, var8, var5, var6);
-        this.itemRenderer.blitOffset = 0.0F;
+        this.itemRenderer.renderAndDecorateItem(param0, var8, var5, var6);
+        this.itemRenderer.renderGuiItemDecorations(param0, this.font, var8, var5, var6);
+        param0.popPose();
     }
 
     public boolean isInventoryOpen() {

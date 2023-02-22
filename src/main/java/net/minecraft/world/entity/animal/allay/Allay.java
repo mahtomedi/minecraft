@@ -166,7 +166,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
 
     @Override
     public void travel(Vec3 param0) {
-        if (this.isEffectiveAi() || this.isControlledByLocalInstance()) {
+        if (this.isControlledByLocalInstance()) {
             if (this.isInWater()) {
                 this.moveRelative(0.02F, param0);
                 this.move(MoverType.SELF, this.getDeltaMovement());
@@ -188,11 +188,6 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return param1.height * 0.6F;
-    }
-
-    @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
     }
 
     @Override
@@ -643,10 +638,10 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         @Override
         public boolean handleGameEvent(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3) {
             if (param1 == GameEvent.JUKEBOX_PLAY) {
-                Allay.this.setJukeboxPlaying(new BlockPos(param3), true);
+                Allay.this.setJukeboxPlaying(BlockPos.containing(param3), true);
                 return true;
             } else if (param1 == GameEvent.JUKEBOX_STOP_PLAY) {
-                Allay.this.setJukeboxPlaying(new BlockPos(param3), false);
+                Allay.this.setJukeboxPlaying(BlockPos.containing(param3), false);
                 return true;
             } else {
                 return false;

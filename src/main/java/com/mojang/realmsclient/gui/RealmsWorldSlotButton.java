@@ -211,7 +211,6 @@ public class RealmsWorldSlotButton extends Button {
     private void renderCheckMark(PoseStack param0, int param1, int param2) {
         RenderSystem.setShaderTexture(0, CHECK_MARK_LOCATION);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         blit(param0, param1 + 67, param2 + 4, 0.0F, 0.0F, 9, 8, 9, 8);
         RenderSystem.disableBlend();
     }

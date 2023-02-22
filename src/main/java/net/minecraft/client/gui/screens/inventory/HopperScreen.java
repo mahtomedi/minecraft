@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,10 +29,9 @@ public class HopperScreen extends AbstractContainerScreen<HopperMenu> {
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, HOPPER_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
     }
 }

@@ -87,7 +87,7 @@ public class ReportReasonSelectionScreen extends Screen {
             int var5 = var2 - var1;
             int var6 = var4 - var3;
             int var7 = this.font.wordWrapHeight(var0.reason.description(), var5);
-            this.font.drawWordWrap(var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
+            this.font.drawWordWrap(param0, var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
         }
 
     }

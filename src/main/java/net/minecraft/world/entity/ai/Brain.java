@@ -95,7 +95,7 @@ public class Brain<E extends LivingEntity> {
                     private <T, U> DataResult<Brain.MemoryValue<U>> captureRead(MemoryModuleType<U> param0x, DynamicOps<T> param1x, T param2) {
                         return param0.getCodec()
                             .map(DataResult::success)
-                            .orElseGet(() -> DataResult.error("No codec for memory: " + param0))
+                            .orElseGet(() -> DataResult.error(() -> "No codec for memory: " + param0))
                             .<ExpirableValue<U>>flatMap(param2x -> param2x.parse(param1, param2))
                             .map(param1xxx -> new Brain.MemoryValue<>(param0, Optional.of(param1xxx)));
                     }

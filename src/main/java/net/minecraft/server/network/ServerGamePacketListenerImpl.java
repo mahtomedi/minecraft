@@ -1003,19 +1003,11 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         return false;
     }
 
-    public void dismount(double param0, double param1, double param2, float param3, float param4) {
-        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet(), true);
-    }
-
     public void teleport(double param0, double param1, double param2, float param3, float param4) {
-        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet(), false);
+        this.teleport(param0, param1, param2, param3, param4, Collections.emptySet());
     }
 
     public void teleport(double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5) {
-        this.teleport(param0, param1, param2, param3, param4, param5, false);
-    }
-
-    public void teleport(double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5, boolean param6) {
         double var0 = param5.contains(RelativeMovement.X) ? this.player.getX() : 0.0;
         double var1 = param5.contains(RelativeMovement.Y) ? this.player.getY() : 0.0;
         double var2 = param5.contains(RelativeMovement.Z) ? this.player.getZ() : 0.0;
@@ -1030,11 +1022,7 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         this.player.absMoveTo(param0, param1, param2, param3, param4);
         this.player
             .connection
-            .send(
-                new ClientboundPlayerPositionPacket(
-                    param0 - var0, param1 - var1, param2 - var2, param3 - var3, param4 - var4, param5, this.awaitingTeleport, param6
-                )
-            );
+            .send(new ClientboundPlayerPositionPacket(param0 - var0, param1 - var1, param2 - var2, param3 - var3, param4 - var4, param5, this.awaitingTeleport));
     }
 
     @Override

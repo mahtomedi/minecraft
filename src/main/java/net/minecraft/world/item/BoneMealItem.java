@@ -170,7 +170,7 @@ public class BoneMealItem extends Item {
                 double var11 = (double)param1.getX() + var10 + var5.nextDouble() * var1 * 2.0;
                 double var12 = (double)param1.getY() + var5.nextDouble() * var2;
                 double var13 = (double)param1.getZ() + var10 + var5.nextDouble() * var1 * 2.0;
-                if (!param0.getBlockState(new BlockPos(var11, var12, var13).below()).isAir()) {
+                if (!param0.getBlockState(BlockPos.containing(var11, var12, var13).below()).isAir()) {
                     param0.addParticle(ParticleTypes.HAPPY_VILLAGER, var11, var12, var13, var7, var8, var9);
                 }
             }

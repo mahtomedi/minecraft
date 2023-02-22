@@ -56,7 +56,7 @@ public class FancyTrunkPlacer extends TrunkPlacer {
                     double var12 = (double)(param2.nextFloat() * 2.0F) * Math.PI;
                     double var13 = var11 * Math.sin(var12) + 0.5;
                     double var14 = var11 * Math.cos(var12) + 0.5;
-                    BlockPos var15 = param4.offset(var13, (double)(var6 - 1), var14);
+                    BlockPos var15 = param4.offset(Mth.floor(var13), var6 - 1, Mth.floor(var14));
                     BlockPos var16 = var15.above(5);
                     if (this.makeLimb(param0, param1, param2, var15, var16, false, param5)) {
                         int var17 = param4.getX() - var15.getX();
@@ -104,7 +104,7 @@ public class FancyTrunkPlacer extends TrunkPlacer {
             float var4 = (float)var0.getZ() / (float)var1;
 
             for(int var5 = 0; var5 <= var1; ++var5) {
-                BlockPos var6 = param3.offset((double)(0.5F + (float)var5 * var2), (double)(0.5F + (float)var5 * var3), (double)(0.5F + (float)var5 * var4));
+                BlockPos var6 = param3.offset(Mth.floor(0.5F + (float)var5 * var2), Mth.floor(0.5F + (float)var5 * var3), Mth.floor(0.5F + (float)var5 * var4));
                 if (param5) {
                     this.placeLog(param0, param1, param2, var6, param6, param2x -> param2x.trySetValue(RotatedPillarBlock.AXIS, this.getLogAxis(param3, var6)));
                 } else if (!this.isFree(param0, var6)) {

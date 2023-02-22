@@ -2,6 +2,7 @@ package net.minecraft.world.entity.monster;
 
 import com.google.common.collect.Sets;
 import java.util.Set;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -33,6 +34,8 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.Saddleable;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
@@ -68,8 +71,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class Strider extends Animal implements ItemSteerable, Saddleable {
-    private static final float SUFFOCATE_STEERING_MODIFIER = 0.23F;
-    private static final float SUFFOCATE_SPEED_MODIFIER = 0.66F;
+    private static final UUID SUFFOCATING_MODIFIER_UUID = UUID.fromString("9e362924-01de-4ddd-a2b2-d0f7a405a174");
+    private static final AttributeModifier SUFFOCATING_MODIFIER = new AttributeModifier(
+        SUFFOCATING_MODIFIER_UUID, "Strider suffocating modifier", -0.34F, AttributeModifier.Operation.MULTIPLY_BASE
+    );
+    private static final float SUFFOCATE_STEERING_MODIFIER = 0.35F;
     private static final float STEERING_MODIFIER = 0.55F;
     private static final Ingredient FOOD_ITEMS = Ingredient.of(Items.WARPED_FUNGUS);
     private static final Ingredient TEMPT_ITEMS = Ingredient.of(Items.WARPED_FUNGUS, Items.WARPED_FUNGUS_ON_A_STICK);
@@ -156,8 +162,8 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
         this.temptGoal = new TemptGoal(this, 1.4, TEMPT_ITEMS, false);
         this.goalSelector.addGoal(3, this.temptGoal);
-        this.goalSelector.addGoal(4, new Strider.StriderGoToLavaGoal(this, 1.5));
-        this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.1));
+        this.goalSelector.addGoal(4, new Strider.StriderGoToLavaGoal(this, 1.0));
+        this.goalSelector.addGoal(5, new FollowParentGoal(this, 1.0));
         this.goalSelector.addGoal(7, new RandomStrollGoal(this, 1.0, 60));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
@@ -166,10 +172,18 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     public void setSuffocating(boolean param0) {
         this.entityData.set(DATA_SUFFOCATING, param0);
+        AttributeInstance var0 = this.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (var0 != null) {
+            var0.removeModifier(SUFFOCATING_MODIFIER_UUID);
+            if (param0) {
+                var0.addTransientModifier(SUFFOCATING_MODIFIER);
+            }
+        }
+
     }
 
     public boolean isSuffocating() {
-        return this.getVehicle() instanceof Strider ? ((Strider)this.getVehicle()).isSuffocating() : this.entityData.get(DATA_SUFFOCATING);
+        return this.entityData.get(DATA_SUFFOCATING);
     }
 
     @Override
@@ -191,18 +205,14 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Nullable
     @Override
-    public Entity getControllingPassenger() {
-        Entity var0 = this.getFirstPassenger();
-        return var0 != null && this.canBeControlledBy(var0) ? var0 : null;
-    }
-
-    private boolean canBeControlledBy(Entity param0) {
-        if (!(param0 instanceof Player)) {
-            return false;
-        } else {
-            Player var0 = (Player)param0;
-            return var0.getMainHandItem().is(Items.WARPED_FUNGUS_ON_A_STICK) || var0.getOffhandItem().is(Items.WARPED_FUNGUS_ON_A_STICK);
+    public LivingEntity getControllingPassenger() {
+        Entity var2 = this.getFirstPassenger();
+        if (var2 instanceof Player var0
+            && (var0.getMainHandItem().is(Items.WARPED_FUNGUS_ON_A_STICK) || var0.getOffhandItem().is(Items.WARPED_FUNGUS_ON_A_STICK))) {
+            return var0;
         }
+
+        return null;
     }
 
     @Override
@@ -249,23 +259,21 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    public void travel(Vec3 param0) {
-        this.setSpeed(this.getMoveSpeed());
-        this.travel(this, this.steering, param0);
-    }
-
-    public float getMoveSpeed() {
-        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) * (this.isSuffocating() ? 0.66F : 1.0F);
-    }
-
-    @Override
-    public float getSteeringSpeed() {
-        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) * (this.isSuffocating() ? 0.23F : 0.55F);
+    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+        this.setRot(param0.getYRot(), param0.getXRot() * 0.5F);
+        this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
+        this.steering.tickBoost();
+        super.tickRidden(param0, param1);
     }
 
     @Override
-    public void travelWithInput(Vec3 param0) {
-        super.travel(param0);
+    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+        return new Vec3(0.0, 0.0, 1.0);
+    }
+
+    @Override
+    protected float getRiddenSpeed(LivingEntity param0) {
+        return super.getRiddenSpeed(param0) * (this.isSuffocating() ? 0.35F : 0.55F) * this.steering.boostFactor();
     }
 
     @Override
@@ -302,10 +310,23 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
 
         if (!this.isNoAi()) {
-            BlockState var0 = this.level.getBlockState(this.blockPosition());
-            BlockState var1 = this.getBlockStateOnLegacy();
-            boolean var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
-            this.setSuffocating(!var2);
+            boolean var2;
+            boolean var10000;
+            label36: {
+                BlockState var0 = this.level.getBlockState(this.blockPosition());
+                BlockState var1 = this.getBlockStateOnLegacy();
+                var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
+                Entity var6 = this.getVehicle();
+                if (var6 instanceof Strider var3 && var3.isSuffocating()) {
+                    var10000 = true;
+                    break label36;
+                }
+
+                var10000 = false;
+            }
+
+            boolean var4 = var10000;
+            this.setSuffocating(!var2 || var4);
         }
 
         super.tick();

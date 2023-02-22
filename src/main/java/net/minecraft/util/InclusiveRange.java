@@ -27,12 +27,12 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
             param2x -> {
                 if (param2x.minInclusive().compareTo(param1) < 0) {
                     return DataResult.error(
-                        "Range limit too low, expected at least " + param1 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
+                        () -> "Range limit too low, expected at least " + param1 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
                     );
                 } else {
                     return param2x.maxInclusive().compareTo(param2) > 0
                         ? DataResult.error(
-                            "Range limit too high, expected at most " + param2 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
+                            () -> "Range limit too high, expected at most " + param2 + " [" + param2x.minInclusive() + "-" + param2x.maxInclusive() + "]"
                         )
                         : DataResult.success(param2x);
                 }
@@ -43,7 +43,7 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
     public static <T extends Comparable<T>> DataResult<InclusiveRange<T>> create(T param0x, T param1) {
         return param0x.compareTo(param1) <= 0
             ? DataResult.success(new InclusiveRange(param0x, param1))
-            : DataResult.error("min_inclusive must be less than or equal to max_inclusive");
+            : DataResult.error(() -> "min_inclusive must be less than or equal to max_inclusive");
     }
 
     public boolean isValueInRange(T param0) {

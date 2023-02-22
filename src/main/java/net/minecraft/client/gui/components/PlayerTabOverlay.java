@@ -172,7 +172,6 @@ public class PlayerTabOverlay extends GuiComponent {
             int var28 = var15 + var26 * 9;
             fill(param0, var27, var28, var27 + var13, var28 + 8, var23);
             RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
             if (var24 < var0.size()) {
                 PlayerInfo var29 = var0.get(var24);
                 GameProfile var30 = var29.getProfile();
@@ -231,9 +230,10 @@ public class PlayerTabOverlay extends GuiComponent {
             var1 = 4;
         }
 
-        this.setBlitOffset(this.getBlitOffset() + 100);
-        this.blit(param0, param2 + param1 - 11, param3, 0, 176 + var1 * 8, 10, 8);
-        this.setBlitOffset(this.getBlitOffset() - 100);
+        param0.pushPose();
+        param0.translate(0.0F, 0.0F, 100.0F);
+        blit(param0, param2 + param1 - 11, param3, 0, 176 + var1 * 8, 10, 8);
+        param0.popPose();
     }
 
     private void renderTablistScore(Objective param0, int param1, String param2, int param3, int param4, UUID param5, PoseStack param6) {
@@ -266,27 +266,27 @@ public class PlayerTabOverlay extends GuiComponent {
                 this.minecraft.font.drawShadow(param4, var7, (float)((param2 + param1 - this.minecraft.font.width(var7)) / 2), (float)param0, var6);
             } else {
                 for(int var8 = var1; var8 < var2; ++var8) {
-                    this.blit(param4, param1 + var8 * var4, param0, var3 ? 25 : 16, 0, 9, 9);
+                    blit(param4, param1 + var8 * var4, param0, var3 ? 25 : 16, 0, 9, 9);
                 }
 
                 for(int var9 = 0; var9 < var1; ++var9) {
-                    this.blit(param4, param1 + var9 * var4, param0, var3 ? 25 : 16, 0, 9, 9);
+                    blit(param4, param1 + var9 * var4, param0, var3 ? 25 : 16, 0, 9, 9);
                     if (var3) {
                         if (var9 * 2 + 1 < var0.displayedValue()) {
-                            this.blit(param4, param1 + var9 * var4, param0, 70, 0, 9, 9);
+                            blit(param4, param1 + var9 * var4, param0, 70, 0, 9, 9);
                         }
 
                         if (var9 * 2 + 1 == var0.displayedValue()) {
-                            this.blit(param4, param1 + var9 * var4, param0, 79, 0, 9, 9);
+                            blit(param4, param1 + var9 * var4, param0, 79, 0, 9, 9);
                         }
                     }
 
                     if (var9 * 2 + 1 < param5) {
-                        this.blit(param4, param1 + var9 * var4, param0, var9 >= 10 ? 160 : 52, 0, 9, 9);
+                        blit(param4, param1 + var9 * var4, param0, var9 >= 10 ? 160 : 52, 0, 9, 9);
                     }
 
                     if (var9 * 2 + 1 == param5) {
-                        this.blit(param4, param1 + var9 * var4, param0, var9 >= 10 ? 169 : 61, 0, 9, 9);
+                        blit(param4, param1 + var9 * var4, param0, var9 >= 10 ? 169 : 61, 0, 9, 9);
                     }
                 }
 

@@ -66,8 +66,8 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         float var14 = Mth.invSqrt(var8 * var8 + var10 * var10) * 0.025F / 2.0F;
         float var15 = var10 * var14;
         float var16 = var8 * var14;
-        BlockPos var17 = new BlockPos(param0.getEyePosition(param1));
-        BlockPos var18 = new BlockPos(param4.getEyePosition(param1));
+        BlockPos var17 = BlockPos.containing(param0.getEyePosition(param1));
+        BlockPos var18 = BlockPos.containing(param4.getEyePosition(param1));
         int var19 = this.getBlockLightLevel(param0, var17);
         int var20 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var18);
         int var21 = param0.level.getBrightness(LightLayer.SKY, var17);

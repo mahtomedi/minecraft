@@ -280,7 +280,7 @@ public class Block extends BlockBehaviour implements ItemLike {
 
     public static void dropResources(BlockState param0, LootContext.Builder param1) {
         ServerLevel var0 = param1.getLevel();
-        BlockPos var1 = new BlockPos(param1.getParameter(LootContextParams.ORIGIN));
+        BlockPos var1 = BlockPos.containing(param1.getParameter(LootContextParams.ORIGIN));
         param0.getDrops(param1).forEach(param2 -> popResource(var0, var1, param2));
         param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY, true);
     }

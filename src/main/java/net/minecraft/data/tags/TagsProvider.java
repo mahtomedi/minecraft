@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.minecraft.core.HolderLookup;
@@ -29,14 +31,29 @@ import org.slf4j.Logger;
 public abstract class TagsProvider<T> implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
     protected final PackOutput.PathProvider pathProvider;
-    protected final CompletableFuture<HolderLookup.Provider> lookupProvider;
+    private final CompletableFuture<HolderLookup.Provider> contentsProvider;
+    private final CompletableFuture<TagsProvider.TagLookup<T>> parentProvider;
     protected final ResourceKey<? extends Registry<T>> registryKey;
     private final Map<ResourceLocation, TagBuilder> builders = Maps.newLinkedHashMap();
 
     protected TagsProvider(PackOutput param0, ResourceKey<? extends Registry<T>> param1, CompletableFuture<HolderLookup.Provider> param2) {
+        this(param0, param1, param2, CompletableFuture.completedFuture(TagsProvider.TagLookup.empty()));
+    }
+
+    protected TagsProvider(
+        PackOutput param0,
+        ResourceKey<? extends Registry<T>> param1,
+        CompletableFuture<HolderLookup.Provider> param2,
+        CompletableFuture<TagsProvider.TagLookup<T>> param3
+    ) {
         this.pathProvider = param0.createPathProvider(PackOutput.Target.DATA_PACK, TagManager.getTagDir(param1));
-        this.lookupProvider = param2;
         this.registryKey = param1;
+        this.parentProvider = param3;
+        this.contentsProvider = param2.thenApply(param0x -> {
+            this.builders.clear();
+            this.addTags(param0x);
+            return param0x;
+        });
     }
 
     @Override
@@ -48,25 +65,24 @@ public abstract class TagsProvider<T> implements DataProvider {
 
     @Override
     public CompletableFuture<?> run(CachedOutput param0) {
-        return this.lookupProvider
+        return this.contentsProvider()
+            .thenCombineAsync(this.parentProvider, (param0x, param1) -> new CombinedData(param0x, param1))
             .thenCompose(
                 param1 -> {
-                    this.builders.clear();
-                    this.addTags(param1);
-                    HolderLookup.RegistryLookup<T> var0 = param1.lookupOrThrow(this.registryKey);
+                    HolderLookup.RegistryLookup<T> var0 = param1.contents.lookupOrThrow(this.registryKey);
                     Predicate<ResourceLocation> var1x = param1x -> var0.get(ResourceKey.create(this.registryKey, param1x)).isPresent();
+                    Predicate<ResourceLocation> var2 = param1x -> this.builders.containsKey(param1x)
+                            || param1.parent.contains(TagKey.create(this.registryKey, param1x));
                     return CompletableFuture.allOf(
                         this.builders
                             .entrySet()
                             .stream()
                             .map(
-                                param2 -> {
-                                    ResourceLocation var0x = param2.getKey();
-                                    TagBuilder var1xx = param2.getValue();
+                                param3 -> {
+                                    ResourceLocation var0x = param3.getKey();
+                                    TagBuilder var1xx = param3.getValue();
                                     List<TagEntry> var2x = var1xx.build();
-                                    List<TagEntry> var3x = var2x.stream()
-                                        .filter(param1x -> !param1x.verifyIfPresent(var1x, this.builders::containsKey))
-                                        .toList();
+                                    List<TagEntry> var3x = var2x.stream().filter(param2x -> !param2x.verifyIfPresent(var1x, var2)).toList();
                                     if (!var3x.isEmpty()) {
                                         throw new IllegalArgumentException(
                                             String.format(
@@ -80,8 +96,8 @@ public abstract class TagsProvider<T> implements DataProvider {
                                         JsonElement var4x = TagFile.CODEC
                                             .encodeStart(JsonOps.INSTANCE, new TagFile(var2x, false))
                                             .getOrThrow(false, LOGGER::error);
-                                        Path var5 = this.pathProvider.json(var0x);
-                                        return DataProvider.saveStable(param0, var4x, var5);
+                                        Path var5x = this.pathProvider.json(var0x);
+                                        return DataProvider.saveStable(param0, var4x, var5x);
                                     }
                                 }
                             )
@@ -89,6 +105,10 @@ public abstract class TagsProvider<T> implements DataProvider {
                     );
                 }
             );
+
+        record CombinedData<T>(HolderLookup.Provider contents, TagsProvider.TagLookup<T> parent) {
+        }
+
     }
 
     protected TagsProvider.TagAppender<T> tag(TagKey<T> param0) {
@@ -98,6 +118,14 @@ public abstract class TagsProvider<T> implements DataProvider {
 
     protected TagBuilder getOrCreateRawBuilder(TagKey<T> param0) {
         return this.builders.computeIfAbsent(param0.location(), param0x -> TagBuilder.create());
+    }
+
+    public CompletableFuture<TagsProvider.TagLookup<T>> contentsGetter() {
+        return this.contentsProvider().thenApply(param0 -> param0x -> Optional.ofNullable(this.builders.get(param0x.location())));
+    }
+
+    protected CompletableFuture<HolderLookup.Provider> contentsProvider() {
+        return this.contentsProvider;
     }
 
     protected static class TagAppender<T> {
@@ -134,6 +162,17 @@ public abstract class TagsProvider<T> implements DataProvider {
         public TagsProvider.TagAppender<T> addOptionalTag(ResourceLocation param0) {
             this.builder.addOptionalTag(param0);
             return this;
+        }
+    }
+
+    @FunctionalInterface
+    public interface TagLookup<T> extends Function<TagKey<T>, Optional<TagBuilder>> {
+        static <T> TagsProvider.TagLookup<T> empty() {
+            return param0 -> Optional.empty();
+        }
+
+        default boolean contains(TagKey<T> param0) {
+            return this.apply((T)param0).isPresent();
         }
     }
 }

@@ -13,11 +13,8 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
     private final float xRot;
     private final Set<RelativeMovement> relativeArguments;
     private final int id;
-    private final boolean dismountVehicle;
 
-    public ClientboundPlayerPositionPacket(
-        double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5, int param6, boolean param7
-    ) {
+    public ClientboundPlayerPositionPacket(double param0, double param1, double param2, float param3, float param4, Set<RelativeMovement> param5, int param6) {
         this.x = param0;
         this.y = param1;
         this.z = param2;
@@ -25,7 +22,6 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.xRot = param4;
         this.relativeArguments = param5;
         this.id = param6;
-        this.dismountVehicle = param7;
     }
 
     public ClientboundPlayerPositionPacket(FriendlyByteBuf param0) {
@@ -36,7 +32,6 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         this.xRot = param0.readFloat();
         this.relativeArguments = RelativeMovement.unpack(param0.readUnsignedByte());
         this.id = param0.readVarInt();
-        this.dismountVehicle = param0.readBoolean();
     }
 
     @Override
@@ -48,7 +43,6 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
         param0.writeFloat(this.xRot);
         param0.writeByte(RelativeMovement.pack(this.relativeArguments));
         param0.writeVarInt(this.id);
-        param0.writeBoolean(this.dismountVehicle);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -77,10 +71,6 @@ public class ClientboundPlayerPositionPacket implements Packet<ClientGamePacketL
 
     public int getId() {
         return this.id;
-    }
-
-    public boolean requestDismountVehicle() {
-        return this.dismountVehicle;
     }
 
     public Set<RelativeMovement> getRelativeArguments() {

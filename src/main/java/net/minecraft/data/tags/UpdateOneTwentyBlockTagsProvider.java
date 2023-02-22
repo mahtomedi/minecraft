@@ -9,8 +9,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public class UpdateOneTwentyBlockTagsProvider extends IntrinsicHolderTagsProvider<Block> {
-    public UpdateOneTwentyBlockTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1) {
-        super(param0, Registries.BLOCK, param1, param0x -> param0x.builtInRegistryHolder().key());
+    public UpdateOneTwentyBlockTagsProvider(
+        PackOutput param0, CompletableFuture<HolderLookup.Provider> param1, CompletableFuture<TagsProvider.TagLookup<Block>> param2
+    ) {
+        super(param0, Registries.BLOCK, param1, param2, param0x -> param0x.builtInRegistryHolder().key());
     }
 
     @Override
@@ -73,6 +75,8 @@ public class UpdateOneTwentyBlockTagsProvider extends IntrinsicHolderTagsProvide
                 Blocks.MUD,
                 Blocks.MUDDY_MANGROVE_ROOTS
             );
+        this.tag(BlockTags.SMALL_FLOWERS).add(Blocks.TORCHFLOWER);
+        this.tag(BlockTags.CROPS).add(Blocks.TORCHFLOWER_CROP);
         this.tag(BlockTags.CHERRY_LOGS).add(Blocks.CHERRY_LOG, Blocks.CHERRY_WOOD, Blocks.STRIPPED_CHERRY_LOG, Blocks.STRIPPED_CHERRY_WOOD);
         this.tag(BlockTags.PLANKS).add(Blocks.CHERRY_PLANKS);
         this.tag(BlockTags.WOODEN_BUTTONS).add(Blocks.CHERRY_BUTTON);

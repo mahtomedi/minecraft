@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -31,7 +30,7 @@ public class AccessibilityOnboardingTextWidget extends MultiLineTextWidget {
     }
 
     @Override
-    protected void renderBg(PoseStack param0, Minecraft param1, int param2, int param3) {
+    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
         int var0 = this.getX() - 3;
         int var1 = this.getY() - 3;
         int var2 = this.getX() + this.getWidth() + 3;
@@ -42,12 +41,6 @@ public class AccessibilityOnboardingTextWidget extends MultiLineTextWidget {
         fill(param0, var0, var1, var2, var1 - 1, var4);
         fill(param0, var0, var3, var2, var3 + 1, var4);
         fill(param0, var0, var1, var2, var3, 1426063360);
-        super.renderBg(param0, param1, param2, param3);
-    }
-
-    @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-        this.renderBg(param0, Minecraft.getInstance(), param1, param2);
         super.renderWidget(param0, param1, param2, param3);
     }
 

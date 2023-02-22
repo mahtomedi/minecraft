@@ -80,9 +80,9 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
 
         for(MobEffectInstance var1 : param3) {
             if (param4) {
-                this.blit(param0, param1, var0, 0, 166, 120, 32);
+                blit(param0, param1, var0, 0, 166, 120, 32);
             } else {
-                this.blit(param0, param1, var0, 0, 198, 32, 32);
+                blit(param0, param1, var0, 0, 198, 32, 32);
             }
 
             var0 += param2;
@@ -98,7 +98,7 @@ public abstract class EffectRenderingInventoryScreen<T extends AbstractContainer
             MobEffect var3 = var2.getEffect();
             TextureAtlasSprite var4 = var0.get(var3);
             RenderSystem.setShaderTexture(0, var4.atlasLocation());
-            blit(param0, param1 + (param4 ? 6 : 7), var1 + 7, this.getBlitOffset(), 18, 18, var4);
+            blit(param0, param1 + (param4 ? 6 : 7), var1 + 7, 0, 18, 18, var4);
             var1 += param2;
         }
 

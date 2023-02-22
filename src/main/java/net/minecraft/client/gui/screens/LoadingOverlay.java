@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
@@ -111,9 +110,7 @@ public class LoadingOverlay extends Overlay {
         int var19 = (int)(var18 * 0.5);
         RenderSystem.setShaderTexture(0, MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
-        RenderSystem.blendEquation(32774);
         RenderSystem.blendFunc(770, 1);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var6);
         blit(param0, var14 - var19, var15 - var17, var19, (int)var16, -0.0625F, 0.0F, 120, 60, 120, 120);
         blit(param0, var14, var15 - var17, var19, (int)var16, 0.0625F, 60.0F, 120, 60, 120, 120);

@@ -22,7 +22,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.searchtree.SearchRegistry;
@@ -249,11 +248,10 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
         if (this.isVisible()) {
             param0.pushPose();
             param0.translate(0.0F, 0.0F, 100.0F);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
             int var0 = (this.width - 147) / 2 - this.xOffset;
             int var1 = (this.height - 166) / 2;
-            this.blit(param0, var0, var1, 1, 1, 147, 166);
+            blit(param0, var0, var1, 1, 1, 147, 166);
             this.searchBox.render(param0, param1, param2, param3);
 
             for(RecipeBookTabButton var2 : this.tabButtons) {

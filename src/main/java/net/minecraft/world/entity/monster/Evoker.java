@@ -187,7 +187,7 @@ public class Evoker extends SpellcasterIllager {
         }
 
         private void createSpellEntity(double param0, double param1, double param2, double param3, float param4, int param5) {
-            BlockPos var0 = new BlockPos(param0, param3, param1);
+            BlockPos var0 = BlockPos.containing(param0, param3, param1);
             boolean var1 = false;
             double var2 = 0.0;
 

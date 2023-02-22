@@ -55,7 +55,7 @@ public class DemoIntroScreen extends Screen {
         RenderSystem.setShaderTexture(0, DEMO_BACKGROUND_LOCATION);
         int var0 = (this.width - 248) / 2;
         int var1 = (this.height - 166) / 2;
-        this.blit(param0, var0, var1, 0, 0, 248, 166);
+        blit(param0, var0, var1, 0, 0, 248, 166);
     }
 
     @Override

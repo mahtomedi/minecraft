@@ -63,8 +63,8 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
         } else {
             ItemStack var0 = this.items.get(param2);
             this.blit(param5, param0, param1, param7, ClientBundleTooltip.Texture.SLOT);
-            param6.renderAndDecorateItem(var0, param0 + 1, param1 + 1, param2);
-            param6.renderGuiItemDecorations(param4, var0, param0 + 1, param1 + 1);
+            param6.renderAndDecorateItem(param5, var0, param0 + 1, param1 + 1, param2);
+            param6.renderGuiItemDecorations(param5, param4, var0, param0 + 1, param1 + 1);
             if (param2 == 0) {
                 AbstractContainerScreen.renderSlotHighlight(param5, param0 + 1, param1 + 1, param7);
             }

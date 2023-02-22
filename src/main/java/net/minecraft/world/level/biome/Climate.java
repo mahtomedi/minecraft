@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +86,7 @@ public class Climate {
             "min",
             "max",
             (param0, param1) -> param0.compareTo(param1) > 0
-                    ? DataResult.error("Cannon construct interval, min > max (" + param0 + " > " + param1 + ")")
+                    ? DataResult.error(() -> "Cannon construct interval, min > max (" + param0 + " > " + param1 + ")")
                     : DataResult.success(new Climate.Parameter(Climate.quantizeCoord(param0), Climate.quantizeCoord(param1))),
             param0 -> Climate.unquantizeCoord(param0.min()),
             param0 -> Climate.unquantizeCoord(param0.max())
@@ -136,9 +137,22 @@ public class Climate {
         private final List<Pair<Climate.ParameterPoint, T>> values;
         private final Climate.RTree<T> index;
 
-        public ParameterList(List<Pair<Climate.ParameterPoint, T>> param0) {
-            this.values = param0;
-            this.index = Climate.RTree.create(param0);
+        public static <T> Codec<Climate.ParameterList<T>> codec(MapCodec<T> param0) {
+            return ExtraCodecs.nonEmptyList(
+                    RecordCodecBuilder.<Pair<Climate.ParameterPoint, T>>create(
+                            param1 -> param1.group(
+                                        Climate.ParameterPoint.CODEC.fieldOf("parameters").forGetter(Pair::getFirst), param0.forGetter(Pair::getSecond)
+                                    )
+                                    .apply(param1, Pair::of)
+                        )
+                        .listOf()
+                )
+                .xmap(Climate.ParameterList::new, Climate.ParameterList::values);
+        }
+
+        public ParameterList(List<Pair<Climate.ParameterPoint, T>> param0x) {
+            this.values = param0x;
+            this.index = Climate.RTree.create(param0x);
         }
 
         public List<Pair<Climate.ParameterPoint, T>> values() {

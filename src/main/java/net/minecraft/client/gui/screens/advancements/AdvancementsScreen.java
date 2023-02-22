@@ -11,7 +11,6 @@ import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientAdvancements;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -133,23 +132,14 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
             drawCenteredString(param0, this.font, NO_ADVANCEMENTS_LABEL, var1, param4 + 18 + 56 - 9 / 2, -1);
             drawCenteredString(param0, this.font, VERY_SAD_LABEL, var1, param4 + 18 + 113 - 9, -1);
         } else {
-            PoseStack var2 = RenderSystem.getModelViewStack();
-            var2.pushPose();
-            var2.translate((float)(param3 + 9), (float)(param4 + 18), 0.0F);
-            RenderSystem.applyModelViewMatrix();
-            var0.drawContents(param0);
-            var2.popPose();
-            RenderSystem.applyModelViewMatrix();
-            RenderSystem.depthFunc(515);
-            RenderSystem.disableDepthTest();
+            var0.drawContents(param0, param3 + 9, param4 + 18);
         }
     }
 
     public void renderWindow(PoseStack param0, int param1, int param2) {
         RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WINDOW_LOCATION);
-        this.blit(param0, param1, param2, 0, 0, 252, 140);
+        blit(param0, param1, param2, 0, 0, 252, 140);
         if (this.tabs.size() > 1) {
             RenderSystem.setShaderTexture(0, TABS_LOCATION);
 
@@ -157,13 +147,9 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
                 var0.drawTab(param0, param1, param2, var0 == this.selectedTab);
             }
 
-            RenderSystem.defaultBlendFunc();
-
             for(AdvancementTab var1 : this.tabs.values()) {
-                var1.drawIcon(param1, param2, this.itemRenderer);
+                var1.drawIcon(param0, param1, param2, this.itemRenderer);
             }
-
-            RenderSystem.disableBlend();
         }
 
         this.font.draw(param0, TITLE, (float)(param1 + 8), (float)(param2 + 6), 4210752);
@@ -171,21 +157,18 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
 
     private void renderTooltips(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (this.selectedTab != null) {
-            PoseStack var0 = RenderSystem.getModelViewStack();
-            var0.pushPose();
-            var0.translate((float)(param3 + 9), (float)(param4 + 18), 400.0F);
-            RenderSystem.applyModelViewMatrix();
+            param0.pushPose();
+            param0.translate((float)(param3 + 9), (float)(param4 + 18), 400.0F);
             RenderSystem.enableDepthTest();
             this.selectedTab.drawTooltips(param0, param1 - param3 - 9, param2 - param4 - 18, param3, param4);
             RenderSystem.disableDepthTest();
-            var0.popPose();
-            RenderSystem.applyModelViewMatrix();
+            param0.popPose();
         }
 
         if (this.tabs.size() > 1) {
-            for(AdvancementTab var1 : this.tabs.values()) {
-                if (var1.isMouseOver(param3, param4, (double)param1, (double)param2)) {
-                    this.renderTooltip(param0, var1.getTitle(), param1, param2);
+            for(AdvancementTab var0 : this.tabs.values()) {
+                if (var0.isMouseOver(param3, param4, (double)param1, (double)param2)) {
+                    this.renderTooltip(param0, var0.getTitle(), param1, param2);
                 }
             }
         }

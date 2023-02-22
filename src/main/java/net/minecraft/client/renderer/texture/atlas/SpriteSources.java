@@ -4,7 +4,6 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister;
 import net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations;
@@ -25,15 +24,13 @@ public class SpriteSources {
     public static final SpriteSourceType PALETTED_PERMUTATIONS = register("paletted_permutations", PalettedPermutations.CODEC);
     public static Codec<SpriteSourceType> TYPE_CODEC = ResourceLocation.CODEC.flatXmap(param0 -> {
         SpriteSourceType var0 = (SpriteSourceType)TYPES.get(param0);
-        return var0 != null ? DataResult.success(var0) : DataResult.error("Unknown type " + param0);
+        return var0 != null ? DataResult.success(var0) : DataResult.error(() -> "Unknown type " + param0);
     }, param0 -> {
         ResourceLocation var0 = (ResourceLocation)TYPES.inverse().get(param0);
-        return param0 != null ? DataResult.success(var0) : DataResult.error("Unknown type " + var0);
+        return param0 != null ? DataResult.success(var0) : DataResult.error(() -> "Unknown type " + var0);
     });
     public static Codec<SpriteSource> CODEC = TYPE_CODEC.dispatch(SpriteSource::type, SpriteSourceType::codec);
-    public static Codec<List<SpriteSource>> FILE_CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(CODEC.listOf().fieldOf("sources").forGetter(param0x -> param0x)).apply(param0, param0x -> param0x)
-    );
+    public static Codec<List<SpriteSource>> FILE_CODEC = CODEC.listOf().fieldOf("sources").codec();
 
     private static SpriteSourceType register(String param0, Codec<? extends SpriteSource> param1) {
         SpriteSourceType var0 = new SpriteSourceType(param1);

@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BannerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -85,29 +84,28 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         this.renderBackground(param0);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         Slot var2 = this.menu.getBannerSlot();
         Slot var3 = this.menu.getDyeSlot();
         Slot var4 = this.menu.getPatternSlot();
         Slot var5 = this.menu.getResultSlot();
         if (!var2.hasItem()) {
-            this.blit(param0, var0 + var2.x, var1 + var2.y, this.imageWidth, 0, 16, 16);
+            blit(param0, var0 + var2.x, var1 + var2.y, this.imageWidth, 0, 16, 16);
         }
 
         if (!var3.hasItem()) {
-            this.blit(param0, var0 + var3.x, var1 + var3.y, this.imageWidth + 16, 0, 16, 16);
+            blit(param0, var0 + var3.x, var1 + var3.y, this.imageWidth + 16, 0, 16, 16);
         }
 
         if (!var4.hasItem()) {
-            this.blit(param0, var0 + var4.x, var1 + var4.y, this.imageWidth + 32, 0, 16, 16);
+            blit(param0, var0 + var4.x, var1 + var4.y, this.imageWidth + 32, 0, 16, 16);
         }
 
         int var6 = (int)(41.0F * this.scrollOffs);
-        this.blit(param0, var0 + 119, var1 + 13 + var6, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
+        blit(param0, var0 + 119, var1 + 13 + var6, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
         Lighting.setupForFlatItems();
         if (this.resultBannerPatterns != null && !this.hasMaxPatterns) {
             MultiBufferSource.BufferSource var7 = this.minecraft.renderBuffers().bufferSource();
@@ -125,7 +123,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             param0.popPose();
             var7.endBatch();
         } else if (this.hasMaxPatterns) {
-            this.blit(param0, var0 + var5.x - 2, var1 + var5.y - 2, this.imageWidth, 17, 17, 16);
+            blit(param0, var0 + var5.x - 2, var1 + var5.y - 2, this.imageWidth, 17, 17, 16);
         }
 
         if (this.displayPatterns) {
@@ -155,7 +153,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
                         var19 = this.imageHeight;
                     }
 
-                    this.blit(param0, var16, var17, 0, var19, 14, 14);
+                    blit(param0, var16, var17, 0, var19, 14, 14);
                     this.renderPattern(var11.get(var15), var16, var17);
                 }
             }

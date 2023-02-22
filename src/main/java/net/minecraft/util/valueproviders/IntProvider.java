@@ -27,10 +27,10 @@ public abstract class IntProvider {
             param2,
             param2x -> {
                 if (param2x.getMinValue() < param0) {
-                    return DataResult.error("Value provider too low: " + param0 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]");
+                    return DataResult.error(() -> "Value provider too low: " + param0 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]");
                 } else {
                     return param2x.getMaxValue() > param1
-                        ? DataResult.error("Value provider too high: " + param1 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]")
+                        ? DataResult.error(() -> "Value provider too high: " + param1 + " [" + param2x.getMinValue() + "-" + param2x.getMaxValue() + "]")
                         : DataResult.success(param2x);
                 }
             }

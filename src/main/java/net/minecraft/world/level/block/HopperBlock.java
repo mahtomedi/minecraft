@@ -123,7 +123,7 @@ public class HopperBlock extends BaseEntityBlock {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param3.is(param0.getBlock())) {
-            this.checkPoweredState(param1, param2, param0);
+            this.checkPoweredState(param1, param2, param0, 2);
         }
     }
 
@@ -144,13 +144,13 @@ public class HopperBlock extends BaseEntityBlock {
 
     @Override
     public void neighborChanged(BlockState param0, Level param1, BlockPos param2, Block param3, BlockPos param4, boolean param5) {
-        this.checkPoweredState(param1, param2, param0);
+        this.checkPoweredState(param1, param2, param0, 4);
     }
 
-    private void checkPoweredState(Level param0, BlockPos param1, BlockState param2) {
+    private void checkPoweredState(Level param0, BlockPos param1, BlockState param2, int param3) {
         boolean var0 = !param0.hasNeighborSignal(param1);
         if (var0 != param2.getValue(ENABLED)) {
-            param0.setBlock(param1, param2.setValue(ENABLED, Boolean.valueOf(var0)), 4);
+            param0.setBlock(param1, param2.setValue(ENABLED, Boolean.valueOf(var0)), param3);
         }
 
     }

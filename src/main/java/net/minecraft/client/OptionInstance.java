@@ -201,7 +201,7 @@ public final class OptionInstance<T> {
                     int var0 = this.maxSupplier.getAsInt() + 1;
                     return param0.compareTo(this.minInclusive) >= 0 && param0.compareTo(var0) <= 0
                         ? DataResult.success(param0)
-                        : DataResult.error("Value " + param0 + " outside of range [" + this.minInclusive + ":" + var0 + "]", param0);
+                        : DataResult.error(() -> "Value " + param0 + " outside of range [" + this.minInclusive + ":" + var0 + "]", param0);
                 }
             );
         }

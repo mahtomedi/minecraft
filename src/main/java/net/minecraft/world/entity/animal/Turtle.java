@@ -77,7 +77,7 @@ public class Turtle extends Animal {
         this.setPathfindingMalus(BlockPathTypes.DOOR_WOOD_CLOSED, -1.0F);
         this.setPathfindingMalus(BlockPathTypes.DOOR_OPEN, -1.0F);
         this.moveControl = new Turtle.TurtleMoveControl(this);
-        this.maxUpStep = 1.0F;
+        this.setMaxUpStep(1.0F);
     }
 
     public void setHomePos(BlockPos param0) {
@@ -314,7 +314,7 @@ public class Turtle extends Animal {
 
     @Override
     public void travel(Vec3 param0) {
-        if (this.isEffectiveAi() && this.isInWater()) {
+        if (this.isControlledByLocalInstance() && this.isInWater()) {
             this.moveRelative(0.1F, param0);
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.setDeltaMovement(this.getDeltaMovement().scale(0.9));
@@ -434,7 +434,7 @@ public class Turtle extends Animal {
                     var3 = DefaultRandomPos.getPosTowards(this.turtle, 8, 7, var2, (float) (Math.PI / 2));
                 }
 
-                if (var3 != null && !var1 && !this.turtle.level.getBlockState(new BlockPos(var3)).is(Blocks.WATER)) {
+                if (var3 != null && !var1 && !this.turtle.level.getBlockState(BlockPos.containing(var3)).is(Blocks.WATER)) {
                     var3 = DefaultRandomPos.getPosTowards(this.turtle, 16, 5, var2, (float) (Math.PI / 2));
                 }
 
@@ -663,7 +663,7 @@ public class Turtle extends Animal {
                 var4 = 0;
             }
 
-            BlockPos var6 = new BlockPos((double)var3 + this.turtle.getX(), (double)var4 + this.turtle.getY(), (double)var5 + this.turtle.getZ());
+            BlockPos var6 = BlockPos.containing((double)var3 + this.turtle.getX(), (double)var4 + this.turtle.getY(), (double)var5 + this.turtle.getZ());
             this.turtle.setTravelPos(var6);
             this.turtle.setTravelling(true);
             this.stuck = false;

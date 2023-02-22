@@ -43,7 +43,6 @@ public class CubeMap {
         RenderSystem.enableBlend();
         RenderSystem.disableCull();
         RenderSystem.depthMask(false);
-        RenderSystem.defaultBlendFunc();
         int var4 = 2;
 
         for(int var5 = 0; var5 < 4; ++var5) {

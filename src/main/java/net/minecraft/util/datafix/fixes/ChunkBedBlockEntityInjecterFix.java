@@ -2,6 +2,7 @@ package net.minecraft.util.datafix.fixes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.OpticFinder;
@@ -14,7 +15,6 @@ import com.mojang.serialization.Dynamic;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class ChunkBedBlockEntityInjecterFix extends DataFix {
     public ChunkBedBlockEntityInjecterFix(Schema param0, boolean param1) {
@@ -60,30 +60,36 @@ public class ChunkBedBlockEntityInjecterFix extends DataFix {
                     for(int var6x = 0; var6x < var5x.size(); ++var6x) {
                         Dynamic<?> var7 = (Dynamic)var5x.get(var6x);
                         int var8 = var7.get("Y").asInt(0);
-                        Stream<Integer> var9 = var7.get("Blocks").asStream().map(param0x -> param0x.asInt(0));
-                        int var10 = 0;
-        
-                        for(int var11 : var9::iterator) {
-                            if (416 == (var11 & 0xFF) << 4) {
-                                int var12 = var10 & 15;
-                                int var13 = var10 >> 8 & 15;
-                                int var14 = var10 >> 4 & 15;
-                                Map<Dynamic<?>, Dynamic<?>> var15 = Maps.newHashMap();
-                                var15.put(var7.createString("id"), var7.createString("minecraft:bed"));
-                                var15.put(var7.createString("x"), var7.createInt(var12 + (var2x << 4)));
-                                var15.put(var7.createString("y"), var7.createInt(var13 + (var8 << 4)));
-                                var15.put(var7.createString("z"), var7.createInt(var14 + (var3x << 4)));
-                                var15.put(var7.createString("color"), var7.createShort((short)14));
-                                var4x.add(
-                                    var0.read(var7.createMap(var15))
-                                        .result()
-                                        .orElseThrow(() -> new IllegalStateException("Could not parse newly created bed block entity."))
-                                        .getFirst()
-                                );
-                            }
-        
-                            ++var10;
-                        }
+                        Streams.mapWithIndex(var7.get("Blocks").asIntStream(), (param4, param5) -> {
+                                if (416 == (param4 & 0xFF) << 4) {
+                                    int var0xx = (int)param5;
+                                    int var1xx = var0xx & 15;
+                                    int var2xx = var0xx >> 8 & 15;
+                                    int var3xx = var0xx >> 4 & 15;
+                                    Map<Dynamic<?>, Dynamic<?>> var4xx = Maps.newHashMap();
+                                    var4xx.put(var7.createString("id"), var7.createString("minecraft:bed"));
+                                    var4xx.put(var7.createString("x"), var7.createInt(var1xx + (var2x << 4)));
+                                    var4xx.put(var7.createString("y"), var7.createInt(var2xx + (var8 << 4)));
+                                    var4xx.put(var7.createString("z"), var7.createInt(var3xx + (var3x << 4)));
+                                    var4xx.put(var7.createString("color"), var7.createShort((short)14));
+                                    return var4xx;
+                                } else {
+                                    return null;
+                                }
+                            })
+                            .forEachOrdered(
+                                param3x -> {
+                                    if (param3x != null) {
+                                        var4x.add(
+                                            var0.read(var7.createMap(param3x))
+                                                .result()
+                                                .orElseThrow(() -> new IllegalStateException("Could not parse newly created bed block entity."))
+                                                .getFirst()
+                                        );
+                                    }
+                
+                                }
+                            );
                     }
         
                     return !var4x.isEmpty() ? param3.set(var1, var0x.set(var2, var4x)) : param3;

@@ -27,18 +27,18 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
             Optional<HolderOwner<E>> var1 = var0.owner(this.registryKey);
             if (var1.isPresent()) {
                 if (!param0.canSerializeIn(var1.get())) {
-                    return DataResult.error("Element " + param0 + " is not valid in current registry set");
+                    return DataResult.error(() -> "Element " + param0 + " is not valid in current registry set");
                 }
 
                 return param0.unwrap()
                     .map(
                         param2x -> ResourceLocation.CODEC.encode(param2x.location(), param1, param2),
-                        param0x -> DataResult.error("Elements from registry " + this.registryKey + " can't be serialized to a value")
+                        param0x -> DataResult.error(() -> "Elements from registry " + this.registryKey + " can't be serialized to a value")
                     );
             }
         }
 
-        return DataResult.error("Can't access registry " + this.registryKey);
+        return DataResult.error(() -> "Can't access registry " + this.registryKey);
     }
 
     @Override
@@ -54,7 +54,7 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
                             return var1.get()
                                 .get(ResourceKey.create(this.registryKey, var0x))
                                 .map(DataResult::success)
-                                .orElseGet(() -> DataResult.error("Failed to get element " + var0x))
+                                .orElseGet(() -> DataResult.error(() -> "Failed to get element " + var0x))
                                 .<Pair<? super Holder.Reference<E>, T>>map(param1xx -> Pair.of(param1xx, (T)param1x.getSecond()))
                                 .setLifecycle(Lifecycle.stable());
                         }
@@ -62,7 +62,7 @@ public final class RegistryFixedCodec<E> implements Codec<Holder<E>> {
             }
         }
 
-        return DataResult.error("Can't access registry " + this.registryKey);
+        return DataResult.error(() -> "Can't access registry " + this.registryKey);
     }
 
     @Override

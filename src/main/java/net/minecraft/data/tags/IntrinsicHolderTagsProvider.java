@@ -20,6 +20,17 @@ public abstract class IntrinsicHolderTagsProvider<T> extends TagsProvider<T> {
         this.keyExtractor = param3;
     }
 
+    public IntrinsicHolderTagsProvider(
+        PackOutput param0,
+        ResourceKey<? extends Registry<T>> param1,
+        CompletableFuture<HolderLookup.Provider> param2,
+        CompletableFuture<TagsProvider.TagLookup<T>> param3,
+        Function<T, ResourceKey<T>> param4
+    ) {
+        super(param0, param1, param2, param3);
+        this.keyExtractor = param4;
+    }
+
     protected IntrinsicHolderTagsProvider.IntrinsicTagAppender<T> tag(TagKey<T> param0) {
         TagBuilder var0 = this.getOrCreateRawBuilder(param0);
         return new IntrinsicHolderTagsProvider.IntrinsicTagAppender<>(var0, this.keyExtractor);

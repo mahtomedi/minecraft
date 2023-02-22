@@ -35,8 +35,8 @@ public class TutorialToast implements Toast {
     @Override
     public Toast.Visibility render(PoseStack param0, ToastComponent param1, long param2) {
         RenderSystem.setShaderTexture(0, TEXTURE);
-        param1.blit(param0, 0, 0, 0, 96, this.width(), this.height());
-        this.icon.render(param0, param1, 6, 6);
+        GuiComponent.blit(param0, 0, 0, 0, 96, this.width(), this.height());
+        this.icon.render(param0, 6, 6);
         if (this.message == null) {
             param1.getMinecraft().font.draw(param0, this.title, 30.0F, 12.0F, -11534256);
         } else {
@@ -88,10 +88,9 @@ public class TutorialToast implements Toast {
             this.y = param1;
         }
 
-        public void render(PoseStack param0, GuiComponent param1, int param2, int param3) {
+        public void render(PoseStack param0, int param1, int param2) {
             RenderSystem.enableBlend();
-            param1.blit(param0, param2, param3, 176 + this.x * 20, this.y * 20, 20, 20);
-            RenderSystem.enableBlend();
+            GuiComponent.blit(param0, param1, param2, 176 + this.x * 20, this.y * 20, 20, 20);
         }
     }
 }

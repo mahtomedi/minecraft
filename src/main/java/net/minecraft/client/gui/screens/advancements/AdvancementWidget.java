@@ -11,7 +11,6 @@ import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -121,18 +120,18 @@ public class AdvancementWidget extends GuiComponent {
             int var4 = param2 + this.y + 13;
             int var5 = param3 ? -16777216 : -1;
             if (param3) {
-                this.hLine(param0, var1, var0, var2 - 1, var5);
-                this.hLine(param0, var1 + 1, var0, var2, var5);
-                this.hLine(param0, var1, var0, var2 + 1, var5);
-                this.hLine(param0, var3, var1 - 1, var4 - 1, var5);
-                this.hLine(param0, var3, var1 - 1, var4, var5);
-                this.hLine(param0, var3, var1 - 1, var4 + 1, var5);
-                this.vLine(param0, var1 - 1, var4, var2, var5);
-                this.vLine(param0, var1 + 1, var4, var2, var5);
+                hLine(param0, var1, var0, var2 - 1, var5);
+                hLine(param0, var1 + 1, var0, var2, var5);
+                hLine(param0, var1, var0, var2 + 1, var5);
+                hLine(param0, var3, var1 - 1, var4 - 1, var5);
+                hLine(param0, var3, var1 - 1, var4, var5);
+                hLine(param0, var3, var1 - 1, var4 + 1, var5);
+                vLine(param0, var1 - 1, var4, var2, var5);
+                vLine(param0, var1 + 1, var4, var2, var5);
             } else {
-                this.hLine(param0, var1, var0, var2, var5);
-                this.hLine(param0, var3, var1, var4, var5);
-                this.vLine(param0, var1, var4, var2, var5);
+                hLine(param0, var1, var0, var2, var5);
+                hLine(param0, var3, var1, var4, var5);
+                vLine(param0, var1, var4, var2, var5);
             }
         }
 
@@ -152,10 +151,9 @@ public class AdvancementWidget extends GuiComponent {
                 var1 = AdvancementWidgetType.UNOBTAINED;
             }
 
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-            this.blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
-            this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+            blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
+            this.minecraft.getItemRenderer().renderAndDecorateFakeItem(param0, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
         }
 
         for(AdvancementWidget var3 : this.children) {
@@ -208,7 +206,6 @@ public class AdvancementWidget extends GuiComponent {
         }
 
         int var18 = this.width - var5;
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.enableBlend();
         int var19 = param2 + this.y;
@@ -222,15 +219,15 @@ public class AdvancementWidget extends GuiComponent {
         int var22 = 32 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (var3) {
-                this.blitNineSliced(param0, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
+                blitNineSliced(param0, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
             } else {
-                this.blitNineSliced(param0, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
+                blitNineSliced(param0, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
             }
         }
 
-        this.blit(param0, var20, var19, 0, var6.getIndex() * 26, var5, 26);
-        this.blit(param0, var20 + var5, var19, 200 - var18, var7.getIndex() * 26, var18, 26);
-        this.blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var8.getIndex() * 26, 26, 26);
+        blit(param0, var20, var19, 0, var6.getIndex() * 26, var5, 26);
+        blit(param0, var20 + var5, var19, 200 - var18, var7.getIndex() * 26, var18, 26);
+        blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var8.getIndex() * 26, 26, 26);
         if (var0) {
             this.minecraft.font.drawShadow(param0, this.title, (float)(var20 + 5), (float)(param2 + this.y + 9), -1);
             if (var1 != null) {
@@ -253,7 +250,7 @@ public class AdvancementWidget extends GuiComponent {
             }
         }
 
-        this.minecraft.getItemRenderer().renderAndDecorateFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+        this.minecraft.getItemRenderer().renderAndDecorateFakeItem(param0, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
     }
 
     public boolean isMouseOver(int param0, int param1, int param2, int param3) {

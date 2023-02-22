@@ -397,7 +397,11 @@ public class Slime extends Mob implements Enemy {
                 this.slime.lookAt(var0, 10.0F, 10.0F);
             }
 
-            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.slime.getYRot(), this.slime.isDealsDamage());
+            MoveControl var3 = this.slime.getMoveControl();
+            if (var3 instanceof Slime.SlimeMoveControl var1) {
+                var1.setDirection(this.slime.getYRot(), this.slime.isDealsDamage());
+            }
+
         }
     }
 
@@ -426,7 +430,11 @@ public class Slime extends Mob implements Enemy {
                 this.slime.getJumpControl().jump();
             }
 
-            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setWantedMovement(1.2);
+            MoveControl var2 = this.slime.getMoveControl();
+            if (var2 instanceof Slime.SlimeMoveControl var0) {
+                var0.setWantedMovement(1.2);
+            }
+
         }
     }
 
@@ -445,7 +453,11 @@ public class Slime extends Mob implements Enemy {
 
         @Override
         public void tick() {
-            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setWantedMovement(1.0);
+            MoveControl var2 = this.slime.getMoveControl();
+            if (var2 instanceof Slime.SlimeMoveControl var0) {
+                var0.setWantedMovement(1.0);
+            }
+
         }
     }
 
@@ -529,7 +541,11 @@ public class Slime extends Mob implements Enemy {
                 this.chosenDegrees = (float)this.slime.getRandom().nextInt(360);
             }
 
-            ((Slime.SlimeMoveControl)this.slime.getMoveControl()).setDirection(this.chosenDegrees, false);
+            MoveControl var2 = this.slime.getMoveControl();
+            if (var2 instanceof Slime.SlimeMoveControl var0) {
+                var0.setDirection(this.chosenDegrees, false);
+            }
+
         }
     }
 }

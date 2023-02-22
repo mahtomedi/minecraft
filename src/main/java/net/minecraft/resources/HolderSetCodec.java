@@ -65,7 +65,7 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
             Optional<HolderOwner<E>> var1 = var0.owner(this.registryKey);
             if (var1.isPresent()) {
                 if (!param0.canSerializeIn(var1.get())) {
-                    return DataResult.error("HolderSet " + param0 + " is not valid in current registry set");
+                    return DataResult.error(() -> "HolderSet " + param0 + " is not valid in current registry set");
                 }
 
                 return this.registryAwareCodec.encode(param0.unwrap().mapRight(List::copyOf), param1, param2);
@@ -81,7 +81,7 @@ public class HolderSetCodec<E> implements Codec<HolderSet<E>> {
 
             for(Holder<E> var1x : param0x.getFirst()) {
                 if (!(var1x instanceof Holder.Direct)) {
-                    return DataResult.error("Can't decode element " + var1x + " without registry");
+                    return DataResult.error(() -> "Can't decode element " + var1x + " without registry");
                 }
 
                 Holder.Direct<E> var2x = (Holder.Direct)var1x;

@@ -19,7 +19,7 @@ public class ClampedNormalFloat extends FloatProvider {
         )
         .comapFlatMap(
             param0 -> param0.max < param0.min
-                    ? DataResult.error("Max must be larger than min: [" + param0.min + ", " + param0.max + "]")
+                    ? DataResult.error(() -> "Max must be larger than min: [" + param0.min + ", " + param0.max + "]")
                     : DataResult.success(param0),
             Function.identity()
         );

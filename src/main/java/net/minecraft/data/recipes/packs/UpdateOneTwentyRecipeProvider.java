@@ -85,6 +85,22 @@ public class UpdateOneTwentyRecipeProvider extends RecipeProvider {
         woodenBoat(param0, Items.CHERRY_BOAT, Blocks.CHERRY_PLANKS);
         chestBoat(param0, Items.CHERRY_CHEST_BOAT, Items.CHERRY_BOAT);
         oneToOneConversionRecipe(param0, Items.PINK_DYE, Items.PINK_PETALS, "pink_dye", 1);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.BRUSH)
+            .define('X', Items.FEATHER)
+            .define('#', Items.COPPER_INGOT)
+            .define('I', Items.STICK)
+            .pattern("X")
+            .pattern("#")
+            .pattern("I")
+            .unlockedBy("has_copper_ingot", has(Items.COPPER_INGOT))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Items.DECORATED_POT)
+            .define('#', Items.BRICK)
+            .pattern(" # ")
+            .pattern("# #")
+            .pattern(" # ")
+            .unlockedBy("has_brick", has(ItemTags.DECORATED_POT_SHARDS))
+            .save(param0, "decorated_pot_simple");
         SpecialRecipeBuilder.special(RecipeSerializer.DECORATED_POT_RECIPE).save(param0, "decorated_pot");
     }
 }

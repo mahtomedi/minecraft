@@ -93,10 +93,9 @@ public class ScreenEffectRenderer {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, UNDERWATER_LOCATION);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
-        BlockPos var1 = new BlockPos(param0.player.getX(), param0.player.getEyeY(), param0.player.getZ());
+        BlockPos var1 = BlockPos.containing(param0.player.getX(), param0.player.getEyeY(), param0.player.getZ());
         float var2 = LightTexture.getBrightness(param0.player.level.dimensionType(), param0.player.level.getMaxLocalRawBrightness(var1));
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(var2, var2, var2, 0.1F);
         float var3 = 4.0F;
         float var4 = -1.0F;
@@ -123,7 +122,6 @@ public class ScreenEffectRenderer {
         RenderSystem.depthFunc(519);
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
         RenderSystem.setShaderTexture(0, var1.atlasLocation());
         float var2 = var1.getU0();

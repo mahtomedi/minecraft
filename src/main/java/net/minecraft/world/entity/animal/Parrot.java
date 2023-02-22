@@ -78,7 +78,9 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
         }
     };
     private static final Item POISONOUS_FOOD = Items.COOKIE;
-    private static final Set<Item> TAME_FOOD = Sets.newHashSet(Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS);
+    private static final Set<Item> TAME_FOOD = Sets.newHashSet(
+        Items.WHEAT_SEEDS, Items.MELON_SEEDS, Items.PUMPKIN_SEEDS, Items.BEETROOT_SEEDS, Items.TORCHFLOWER_SEEDS
+    );
     static final Map<EntityType<?>, SoundEvent> MOB_SOUND_MAP = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(EntityType.BLAZE, SoundEvents.PARROT_IMITATE_BLAZE);
         param0.put(EntityType.CAVE_SPIDER, SoundEvents.PARROT_IMITATE_SPIDER);
@@ -303,11 +305,6 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
 
     public static boolean checkParrotSpawnRules(EntityType<Parrot> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         return param1.getBlockState(param3.below()).is(BlockTags.PARROTS_SPAWNABLE_ON) && isBrightEnoughToSpawn(param1, param3);
-    }
-
-    @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
     }
 
     @Override

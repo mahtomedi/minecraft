@@ -46,7 +46,7 @@ public class FogRenderer {
         Entity var1 = param0.getEntity();
         if (var0 == FogType.WATER) {
             long var2 = Util.getMillis();
-            int var3 = param2.getBiome(new BlockPos(param0.getPosition())).value().getWaterFogColor();
+            int var3 = param2.getBiome(BlockPos.containing(param0.getPosition())).value().getWaterFogColor();
             if (biomeChangedTime < 0L) {
                 targetBiomeFog = var3;
                 previousBiomeFog = var3;

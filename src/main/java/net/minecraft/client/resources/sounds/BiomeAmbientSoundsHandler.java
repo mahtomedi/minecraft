@@ -76,7 +76,7 @@ public class BiomeAmbientSoundsHandler implements AmbientSoundHandler {
                 param0 -> {
                     Level var0x = this.player.level;
                     int var1x = param0.getBlockSearchExtent() * 2 + 1;
-                    BlockPos var2 = new BlockPos(
+                    BlockPos var2 = BlockPos.containing(
                         this.player.getX() + (double)this.random.nextInt(var1x) - (double)param0.getBlockSearchExtent(),
                         this.player.getEyeY() + (double)this.random.nextInt(var1x) - (double)param0.getBlockSearchExtent(),
                         this.player.getZ() + (double)this.random.nextInt(var1x) - (double)param0.getBlockSearchExtent()

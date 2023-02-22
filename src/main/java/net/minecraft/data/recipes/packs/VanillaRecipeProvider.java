@@ -1536,14 +1536,6 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("# ")
             .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
             .save(param0);
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.BRUSH)
-            .define('#', Items.STRING)
-            .define('I', Items.STICK)
-            .pattern("###")
-            .pattern(" I ")
-            .pattern(" I ")
-            .unlockedBy("has_string", has(Items.STRING))
-            .save(param0);
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.SHIELD)
             .define('W', ItemTags.PLANKS)
             .define('o', Items.IRON_INGOT)
@@ -2026,8 +2018,8 @@ public class VanillaRecipeProvider extends RecipeProvider {
         nineBlockStorageRecipes(param0, RecipeCategory.MISC, Items.RAW_IRON, RecipeCategory.BUILDING_BLOCKS, Items.RAW_IRON_BLOCK);
         nineBlockStorageRecipes(param0, RecipeCategory.MISC, Items.RAW_COPPER, RecipeCategory.BUILDING_BLOCKS, Items.RAW_COPPER_BLOCK);
         nineBlockStorageRecipes(param0, RecipeCategory.MISC, Items.RAW_GOLD, RecipeCategory.BUILDING_BLOCKS, Items.RAW_GOLD_BLOCK);
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.SAND), RecipeCategory.BUILDING_BLOCKS, Blocks.GLASS.asItem(), 0.1F, 200)
-            .unlockedBy("has_sand", has(ItemTags.SAND))
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ItemTags.SMELTS_TO_GLASS), RecipeCategory.BUILDING_BLOCKS, Blocks.GLASS.asItem(), 0.1F, 200)
+            .unlockedBy("has_smelts_to_glass", has(ItemTags.SMELTS_TO_GLASS))
             .save(param0);
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Blocks.SEA_PICKLE), RecipeCategory.MISC, Items.LIME_DYE, 0.1F, 200)
             .unlockedBy("has_sea_pickle", has(Blocks.SEA_PICKLE))

@@ -291,19 +291,17 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
             int var8 = var6.y();
             param0.pushPose();
             int var9 = 400;
-            float var10 = this.itemRenderer.blitOffset;
-            this.itemRenderer.blitOffset = 400.0F;
-            Tesselator var11 = Tesselator.getInstance();
-            BufferBuilder var12 = var11.getBuilder();
+            Tesselator var10 = Tesselator.getInstance();
+            BufferBuilder var11 = var10.getBuilder();
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            var12.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            Matrix4f var13 = param0.last().pose();
+            var11.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            Matrix4f var12 = param0.last().pose();
             TooltipRenderUtil.renderTooltipBackground(
                 (param0x, param1x, param2x, param3x, param4x, param5, param6, param7, param8) -> GuiComponent.fillGradient(
                         param0x, param1x, param2x, param3x, param4x, param5, param6, param7, param8
                     ),
-                var13,
                 var12,
+                var11,
                 var7,
                 var8,
                 var0,
@@ -313,29 +311,27 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
             RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
-            BufferUploader.drawWithShader(var12.end());
-            RenderSystem.disableBlend();
-            MultiBufferSource.BufferSource var14 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            BufferUploader.drawWithShader(var11.end());
+            MultiBufferSource.BufferSource var13 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
             param0.translate(0.0F, 0.0F, 400.0F);
-            int var15 = var8;
+            int var14 = var8;
 
-            for(int var16 = 0; var16 < param1.size(); ++var16) {
-                ClientTooltipComponent var17 = param1.get(var16);
-                var17.renderText(this.font, var7, var15, var13, var14);
-                var15 += var17.getHeight() + (var16 == 0 ? 2 : 0);
+            for(int var15 = 0; var15 < param1.size(); ++var15) {
+                ClientTooltipComponent var16 = param1.get(var15);
+                var16.renderText(this.font, var7, var14, var12, var13);
+                var14 += var16.getHeight() + (var15 == 0 ? 2 : 0);
             }
 
-            var14.endBatch();
+            var13.endBatch();
             param0.popPose();
-            var15 = var8;
+            var14 = var8;
 
-            for(int var18 = 0; var18 < param1.size(); ++var18) {
-                ClientTooltipComponent var19 = param1.get(var18);
-                var19.renderImage(this.font, var7, var15, param0, this.itemRenderer, 400);
-                var15 += var19.getHeight() + (var18 == 0 ? 2 : 0);
+            for(int var17 = 0; var17 < param1.size(); ++var17) {
+                ClientTooltipComponent var18 = param1.get(var17);
+                var18.renderImage(this.font, var7, var14, param0, this.itemRenderer, 400);
+                var14 += var18.getHeight() + (var17 == 0 ? 2 : 0);
             }
 
-            this.itemRenderer.blitOffset = var10;
         }
     }
 
@@ -464,9 +460,12 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     public void removed() {
     }
 
+    public void added() {
+    }
+
     public void renderBackground(PoseStack param0) {
         if (this.minecraft.level != null) {
-            this.fillGradient(param0, 0, 0, this.width, this.height, -1072689136, -804253680);
+            fillGradient(param0, 0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
             this.renderDirtBackground(param0);
         }

@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,15 +22,9 @@ public class LegacySmithingScreen extends ItemCombinerScreen<LegacySmithingMenu>
     }
 
     @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        RenderSystem.disableBlend();
-        super.renderLabels(param0, param1, param2);
-    }
-
-    @Override
     protected void renderErrorIcon(PoseStack param0, int param1, int param2) {
         if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
-            this.blit(param0, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
+            blit(param0, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
         }
 
     }

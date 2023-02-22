@@ -139,9 +139,4 @@ public class PotionItem extends Item {
     public void appendHoverText(ItemStack param0, @Nullable Level param1, List<Component> param2, TooltipFlag param3) {
         PotionUtils.addPotionTooltip(param0, param2, 1.0F);
     }
-
-    @Override
-    public boolean isFoil(ItemStack param0) {
-        return super.isFoil(param0) || !PotionUtils.getMobEffects(param0).isEmpty();
-    }
 }

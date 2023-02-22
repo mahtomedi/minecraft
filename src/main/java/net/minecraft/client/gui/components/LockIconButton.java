@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -37,7 +36,6 @@ public class LockIconButton extends Button {
 
     @Override
     public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, Button.WIDGETS_LOCATION);
         LockIconButton.Icon var0;
         if (!this.active) {
@@ -48,7 +46,7 @@ public class LockIconButton extends Button {
             var0 = this.locked ? LockIconButton.Icon.LOCKED : LockIconButton.Icon.UNLOCKED;
         }
 
-        this.blit(param0, this.getX(), this.getY(), var0.getX(), var0.getY(), this.width, this.height);
+        blit(param0, this.getX(), this.getY(), var0.getX(), var0.getY(), this.width, this.height);
     }
 
     @OnlyIn(Dist.CLIENT)

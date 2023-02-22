@@ -17,7 +17,7 @@ public class WalkTarget {
     }
 
     public WalkTarget(Vec3 param0, float param1, int param2) {
-        this(new BlockPosTracker(new BlockPos(param0)), param1, param2);
+        this(new BlockPosTracker(BlockPos.containing(param0)), param1, param2);
     }
 
     public WalkTarget(Entity param0, float param1, int param2) {

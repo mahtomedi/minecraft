@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.dto;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,6 +11,10 @@ public class GuardedSerializer {
     private final Gson gson = new Gson();
 
     public String toJson(ReflectionBasedSerialization param0) {
+        return this.gson.toJson(param0);
+    }
+
+    public String toJson(JsonElement param0) {
         return this.gson.toJson(param0);
     }
 

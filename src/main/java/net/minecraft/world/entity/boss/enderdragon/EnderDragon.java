@@ -497,7 +497,7 @@ public class EnderDragon extends Mob implements Enemy {
             if (param2 < 0.01F) {
                 return false;
             } else {
-                if (param1.getEntity() instanceof Player || param1.is(DamageTypeTags.IS_EXPLOSION)) {
+                if (param1.getEntity() instanceof Player || param1.is(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS)) {
                     float var0 = this.getHealth();
                     this.reallyHurt(param1, param2);
                     if (this.isDeadOrDying() && !this.phaseManager.getCurrentPhase().isSitting()) {
@@ -925,5 +925,10 @@ public class EnderDragon extends Mob implements Enemy {
     @Override
     public boolean canAttack(LivingEntity param0) {
         return param0.canBeSeenAsEnemy();
+    }
+
+    @Override
+    public double getPassengersRidingOffset() {
+        return (double)this.body.getBbHeight();
     }
 }

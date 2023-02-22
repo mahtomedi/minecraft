@@ -8,7 +8,6 @@ import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Transformation;
 import java.util.List;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -340,12 +339,12 @@ public class Font {
         return this.splitter.headByWidth(param0, param1, Style.EMPTY);
     }
 
-    public void drawWordWrap(FormattedText param0, int param1, int param2, int param3, int param4) {
-        Matrix4f var0 = Transformation.identity().getMatrix();
+    public void drawWordWrap(PoseStack param0, FormattedText param1, int param2, int param3, int param4, int param5) {
+        Matrix4f var0 = param0.last().pose();
 
-        for(FormattedCharSequence var1 : this.split(param0, param3)) {
-            this.drawInternal(var1, (float)param1, (float)param2, param4, var0, false);
-            param2 += 9;
+        for(FormattedCharSequence var1 : this.split(param1, param4)) {
+            this.drawInternal(var1, (float)param2, (float)param3, param5, var0, false);
+            param3 += 9;
         }
 
     }

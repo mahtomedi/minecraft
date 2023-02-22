@@ -46,7 +46,7 @@ public class WaterDropParticle extends TextureSheetParticle {
                 this.zd *= 0.7F;
             }
 
-            BlockPos var0 = new BlockPos(this.x, this.y, this.z);
+            BlockPos var0 = BlockPos.containing(this.x, this.y, this.z);
             double var1 = Math.max(
                 this.level
                     .getBlockState(var0)

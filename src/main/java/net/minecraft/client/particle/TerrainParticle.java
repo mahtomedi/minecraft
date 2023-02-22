@@ -17,7 +17,7 @@ public class TerrainParticle extends TextureSheetParticle {
     private final float vo;
 
     public TerrainParticle(ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, BlockState param7) {
-        this(param0, param1, param2, param3, param4, param5, param6, param7, new BlockPos(param1, param2, param3));
+        this(param0, param1, param2, param3, param4, param5, param6, param7, BlockPos.containing(param1, param2, param3));
     }
 
     public TerrainParticle(

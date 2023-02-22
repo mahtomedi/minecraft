@@ -30,11 +30,11 @@ public interface Registry<T> extends Keyable, IdMap<T> {
             .flatXmap(
                 param0 -> Optional.ofNullable(this.get(param0))
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown registry key in " + this.key() + ": " + param0)),
+                        .orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + this.key() + ": " + param0)),
                 param0 -> this.getResourceKey(param0)
                         .map(ResourceKey::location)
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown registry element in " + this.key() + ":" + param0))
+                        .orElseGet(() -> DataResult.error(() -> "Unknown registry element in " + this.key() + ":" + param0))
             );
         Codec<T> var1 = ExtraCodecs.idResolverCodec(param0 -> this.getResourceKey(param0).isPresent() ? this.getId(param0) : -1, this::byId, -1);
         return ExtraCodecs.overrideLifecycle(ExtraCodecs.orCompressed(var0, var1), this::lifecycle, this::lifecycle);
@@ -45,11 +45,11 @@ public interface Registry<T> extends Keyable, IdMap<T> {
             .flatXmap(
                 param0 -> this.getHolder(ResourceKey.create(this.key(), param0))
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown registry key in " + this.key() + ": " + param0)),
+                        .orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + this.key() + ": " + param0)),
                 param0 -> param0.unwrapKey()
                         .map(ResourceKey::location)
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown registry element in " + this.key() + ":" + param0))
+                        .orElseGet(() -> DataResult.error(() -> "Unknown registry element in " + this.key() + ":" + param0))
             );
         return ExtraCodecs.overrideLifecycle(var0, param0 -> this.lifecycle(param0.value()), param0 -> this.lifecycle(param0.value()));
     }

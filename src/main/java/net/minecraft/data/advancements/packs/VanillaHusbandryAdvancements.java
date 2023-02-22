@@ -152,6 +152,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .addCriterion("melon_stem", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.MELON_STEM))
             .addCriterion("beetroots", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.BEETROOTS))
             .addCriterion("nether_wart", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.NETHER_WART))
+            .addCriterion("torchflower", PlacedBlockTrigger.TriggerInstance.placedBlock(Blocks.TORCHFLOWER_CROP))
             .save(param1, "husbandry/plant_seed");
         Advancement var2 = Advancement.Builder.advancement()
             .parent(var0)

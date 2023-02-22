@@ -166,7 +166,7 @@ public class Explosion {
                         double var12 = this.z;
 
                         for(float var13 = 0.3F; var9 > 0.0F; var9 -= 0.22500001F) {
-                            BlockPos var14 = new BlockPos(var10, var11, var12);
+                            BlockPos var14 = BlockPos.containing(var10, var11, var12);
                             BlockState var15 = this.level.getBlockState(var14);
                             FluidState var16 = this.level.getFluidState(var14);
                             if (!this.level.isInWorldBounds(var14)) {

@@ -122,6 +122,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+import net.minecraft.network.protocol.game.ClientboundChunksBiomesPacket;
 import net.minecraft.network.protocol.game.ClientboundClearTitlesPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandSuggestionsPacket;
 import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
@@ -614,10 +615,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     public void handleMovePlayer(ClientboundPlayerPositionPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Player var0 = this.minecraft.player;
-        if (param0.requestDismountVehicle()) {
-            var0.removeVehicle();
-        }
-
         Vec3 var1 = var0.getDeltaMovement();
         boolean var2 = param0.getRelativeArguments().contains(RelativeMovement.X);
         boolean var3 = param0.getRelativeArguments().contains(RelativeMovement.Y);
@@ -700,6 +697,30 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         this.updateLevelChunk(param0.getX(), param0.getZ(), param0.getChunkData());
         this.queueLightUpdate(param0.getX(), param0.getZ(), param0.getLightData());
+    }
+
+    @Override
+    public void handleChunksBiomes(ClientboundChunksBiomesPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+
+        for(ClientboundChunksBiomesPacket.ChunkBiomeData var0 : param0.chunkBiomeData()) {
+            this.level.getChunkSource().replaceBiomes(var0.pos().x, var0.pos().z, var0.getReadBuffer());
+        }
+
+        for(ClientboundChunksBiomesPacket.ChunkBiomeData var1 : param0.chunkBiomeData()) {
+            this.level.onChunkLoaded(new ChunkPos(var1.pos().x, var1.pos().z));
+        }
+
+        for(ClientboundChunksBiomesPacket.ChunkBiomeData var2 : param0.chunkBiomeData()) {
+            for(int var3 = -1; var3 <= 1; ++var3) {
+                for(int var4 = -1; var4 <= 1; ++var4) {
+                    for(int var5 = this.level.getMinSection(); var5 < this.level.getMaxSection(); ++var5) {
+                        this.minecraft.levelRenderer.setSectionDirty(var2.pos().x + var3, var5, var2.pos().z + var4);
+                    }
+                }
+            }
+        }
+
     }
 
     private void updateLevelChunk(int param0, int param1, ClientboundLevelChunkPacketData param2) {

@@ -11,7 +11,6 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.network.chat.CommonComponents;
@@ -80,11 +79,10 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
         Lighting.setupForFlatItems();
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         int var2 = (int)this.minecraft.getWindow().getGuiScale();
         RenderSystem.viewport((this.width - 320) / 2 * var2, (this.height - 240) / 2 * var2, 320 * var2, 240 * var2);
         Matrix4f var3 = new Matrix4f().translation(-0.34F, 0.23F, 0.0F).perspective((float) (Math.PI / 2), 1.3333334F, 9.0F, 80.0F);
@@ -137,34 +135,32 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
         for(int var12 = 0; var12 < 3; ++var12) {
             int var13 = var0 + 60;
             int var14 = var13 + 20;
-            this.setBlitOffset(0);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, ENCHANTING_TABLE_LOCATION);
             int var15 = this.menu.costs[var12];
             if (var15 == 0) {
-                this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
+                blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
             } else {
                 String var16 = var15 + "";
                 int var17 = 86 - this.font.width(var16);
                 FormattedText var18 = EnchantmentNames.getInstance().getRandomName(this.font, var17);
                 int var19 = 6839882;
                 if ((var11 < var12 + 1 || this.minecraft.player.experienceLevel < var15) && !this.minecraft.player.getAbilities().instabuild) {
-                    this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
-                    this.blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 239, 16, 16);
-                    this.font.drawWordWrap(var18, var14, var1 + 16 + 19 * var12, var17, (var19 & 16711422) >> 1);
+                    blit(param0, var13, var1 + 14 + 19 * var12, 0, 185, 108, 19);
+                    blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 239, 16, 16);
+                    this.font.drawWordWrap(param0, var18, var14, var1 + 16 + 19 * var12, var17, (var19 & 16711422) >> 1);
                     var19 = 4226832;
                 } else {
                     int var20 = param2 - (var0 + 60);
                     int var21 = param3 - (var1 + 14 + 19 * var12);
                     if (var20 >= 0 && var21 >= 0 && var20 < 108 && var21 < 19) {
-                        this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 204, 108, 19);
+                        blit(param0, var13, var1 + 14 + 19 * var12, 0, 204, 108, 19);
                         var19 = 16777088;
                     } else {
-                        this.blit(param0, var13, var1 + 14 + 19 * var12, 0, 166, 108, 19);
+                        blit(param0, var13, var1 + 14 + 19 * var12, 0, 166, 108, 19);
                     }
 
-                    this.blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 223, 16, 16);
-                    this.font.drawWordWrap(var18, var14, var1 + 16 + 19 * var12, var17, var19);
+                    blit(param0, var13 + 1, var1 + 15 + 19 * var12, 16 * var12, 223, 16, 16);
+                    this.font.drawWordWrap(param0, var18, var14, var1 + 16 + 19 * var12, var17, var19);
                     var19 = 8453920;
                 }
 

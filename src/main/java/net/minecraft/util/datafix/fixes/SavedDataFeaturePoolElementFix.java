@@ -76,7 +76,7 @@ public class SavedDataFeaturePoolElementFix extends DataFix {
                     if (var4 >= 0 && var4 < var5.size()) {
                         var0 = new OptionalDynamic<>(param0.getOps(), DataResult.success(var5.get(var4)));
                     } else {
-                        var0 = new OptionalDynamic<>(param0.getOps(), DataResult.error("Missing id:" + var4));
+                        var0 = new OptionalDynamic<>(param0.getOps(), DataResult.error(() -> "Missing id:" + var4));
                     }
                 } else {
                     var0 = var0.get(var2);

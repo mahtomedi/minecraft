@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -122,18 +121,18 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
     @Override
     protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BEACON_LOCATION);
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        this.blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        this.itemRenderer.blitOffset = 100.0F;
-        this.itemRenderer.renderAndDecorateItem(new ItemStack(Items.NETHERITE_INGOT), var0 + 20, var1 + 109);
-        this.itemRenderer.renderAndDecorateItem(new ItemStack(Items.EMERALD), var0 + 41, var1 + 109);
-        this.itemRenderer.renderAndDecorateItem(new ItemStack(Items.DIAMOND), var0 + 41 + 22, var1 + 109);
-        this.itemRenderer.renderAndDecorateItem(new ItemStack(Items.GOLD_INGOT), var0 + 42 + 44, var1 + 109);
-        this.itemRenderer.renderAndDecorateItem(new ItemStack(Items.IRON_INGOT), var0 + 42 + 66, var1 + 109);
-        this.itemRenderer.blitOffset = 0.0F;
+        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.pushPose();
+        param0.translate(0.0F, 0.0F, 100.0F);
+        this.itemRenderer.renderAndDecorateItem(param0, new ItemStack(Items.NETHERITE_INGOT), var0 + 20, var1 + 109);
+        this.itemRenderer.renderAndDecorateItem(param0, new ItemStack(Items.EMERALD), var0 + 41, var1 + 109);
+        this.itemRenderer.renderAndDecorateItem(param0, new ItemStack(Items.DIAMOND), var0 + 41 + 22, var1 + 109);
+        this.itemRenderer.renderAndDecorateItem(param0, new ItemStack(Items.GOLD_INGOT), var0 + 42 + 44, var1 + 109);
+        this.itemRenderer.renderAndDecorateItem(param0, new ItemStack(Items.IRON_INGOT), var0 + 42 + 66, var1 + 109);
+        param0.popPose();
     }
 
     @Override
@@ -224,7 +223,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
         @Override
         protected void renderIcon(PoseStack param0) {
             RenderSystem.setShaderTexture(0, this.sprite.atlasLocation());
-            blit(param0, this.getX() + 2, this.getY() + 2, this.getBlitOffset(), 18, 18, this.sprite);
+            blit(param0, this.getX() + 2, this.getY() + 2, 0, 18, 18, this.sprite);
         }
 
         @Override
@@ -253,7 +252,6 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderTexture(0, BeaconScreen.BEACON_LOCATION);
             int var0 = 219;
             int var1 = 0;
@@ -265,7 +263,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
                 var1 += this.width * 3;
             }
 
-            this.blit(param0, this.getX(), this.getY(), var1, 219, this.width, this.height);
+            blit(param0, this.getX(), this.getY(), var1, 219, this.width, this.height);
             this.renderIcon(param0);
         }
 
@@ -298,7 +296,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         protected void renderIcon(PoseStack param0) {
-            this.blit(param0, this.getX() + 2, this.getY() + 2, this.iconX, this.iconY, 18, 18);
+            blit(param0, this.getX() + 2, this.getY() + 2, this.iconX, this.iconY, 18, 18);
         }
     }
 

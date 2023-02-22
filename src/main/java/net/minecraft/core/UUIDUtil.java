@@ -21,14 +21,14 @@ public final class UUIDUtil {
         try {
             return DataResult.success(UUID.fromString(param0), Lifecycle.stable());
         } catch (IllegalArgumentException var2) {
-            return DataResult.error("Invalid UUID " + param0 + ": " + var2.getMessage());
+            return DataResult.error(() -> "Invalid UUID " + param0 + ": " + var2.getMessage());
         }
     }, UUID::toString);
     public static Codec<UUID> AUTHLIB_CODEC = Codec.either(CODEC, Codec.STRING.comapFlatMap(param0 -> {
         try {
             return DataResult.success(UUIDTypeAdapter.fromString(param0), Lifecycle.stable());
         } catch (IllegalArgumentException var2) {
-            return DataResult.error("Invalid UUID " + param0 + ": " + var2.getMessage());
+            return DataResult.error(() -> "Invalid UUID " + param0 + ": " + var2.getMessage());
         }
     }, UUIDTypeAdapter::fromUUID)).xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::right);
     public static final int UUID_BYTES = 16;

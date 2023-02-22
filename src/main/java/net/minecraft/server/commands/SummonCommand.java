@@ -73,7 +73,7 @@ public class SummonCommand {
     }
 
     public static Entity createEntity(CommandSourceStack param0, Holder.Reference<EntityType<?>> param1, Vec3 param2, CompoundTag param3, boolean param4) throws CommandSyntaxException {
-        BlockPos var0 = new BlockPos(param2);
+        BlockPos var0 = BlockPos.containing(param2);
         if (!Level.isInSpawnableBounds(var0)) {
             throw INVALID_POSITION.create();
         } else {

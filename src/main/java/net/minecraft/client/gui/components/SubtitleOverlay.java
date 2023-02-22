@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +37,6 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
         }
 
         if (this.isListening && !this.subtitles.isEmpty()) {
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
             Vec3 var0 = new Vec3(this.minecraft.player.getX(), this.minecraft.player.getEyeY(), this.minecraft.player.getZ());
             Vec3 var1 = new Vec3(0.0, 0.0, -1.0)
                 .xRot(-this.minecraft.player.getXRot() * (float) (Math.PI / 180.0))
@@ -86,7 +83,6 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 );
                 param0.scale(1.0F, 1.0F, 1.0F);
                 fill(param0, -var16 - 1, -var18 - 1, var16 + 1, var18 + 1, this.minecraft.options.getBackgroundColor(0.8F));
-                RenderSystem.enableBlend();
                 int var23 = var22 + -16777216;
                 if (!var15) {
                     if (var13 > 0.0) {
@@ -101,7 +97,6 @@ public class SubtitleOverlay extends GuiComponent implements SoundEventListener 
                 ++var4;
             }
 
-            RenderSystem.disableBlend();
         }
     }
 

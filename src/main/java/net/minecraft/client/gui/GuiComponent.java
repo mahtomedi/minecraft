@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,9 +26,9 @@ public abstract class GuiComponent {
     public static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation("textures/gui/options_background.png");
     public static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
     public static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
-    private int blitOffset;
+    public static final ResourceLocation LIGHT_DIRT_BACKGROUND = new ResourceLocation("textures/gui/light_dirt_background.png");
 
-    protected void hLine(PoseStack param0, int param1, int param2, int param3, int param4) {
+    protected static void hLine(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (param2 < param1) {
             int var0 = param1;
             param1 = param2;
@@ -37,7 +38,7 @@ public abstract class GuiComponent {
         fill(param0, param1, param3, param2 + 1, param3 + 1, param4);
     }
 
-    protected void vLine(PoseStack param0, int param1, int param2, int param3, int param4) {
+    protected static void vLine(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (param3 < param2) {
             int var0 = param2;
             param2 = param3;
@@ -67,46 +68,41 @@ public abstract class GuiComponent {
     }
 
     public static void fill(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        innerFill(param0.last().pose(), param1, param2, param3, param4, param5, param6);
-    }
-
-    private static void innerFill(Matrix4f param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        Matrix4f var0 = param0.last().pose();
         if (param1 < param3) {
-            int var0 = param1;
+            int var1 = param1;
             param1 = param3;
-            param3 = var0;
+            param3 = var1;
         }
 
         if (param2 < param4) {
-            int var1 = param2;
+            int var2 = param2;
             param2 = param4;
-            param4 = var1;
+            param4 = var2;
         }
 
-        float var2 = (float)(param6 >> 24 & 0xFF) / 255.0F;
-        float var3 = (float)(param6 >> 16 & 0xFF) / 255.0F;
-        float var4 = (float)(param6 >> 8 & 0xFF) / 255.0F;
-        float var5 = (float)(param6 & 0xFF) / 255.0F;
-        BufferBuilder var6 = Tesselator.getInstance().getBuilder();
+        float var3 = (float)FastColor.ARGB32.alpha(param6) / 255.0F;
+        float var4 = (float)FastColor.ARGB32.red(param6) / 255.0F;
+        float var5 = (float)FastColor.ARGB32.green(param6) / 255.0F;
+        float var6 = (float)FastColor.ARGB32.blue(param6) / 255.0F;
+        BufferBuilder var7 = Tesselator.getInstance().getBuilder();
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        var6.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        var6.vertex(param0, (float)param1, (float)param4, (float)param5).color(var3, var4, var5, var2).endVertex();
-        var6.vertex(param0, (float)param3, (float)param4, (float)param5).color(var3, var4, var5, var2).endVertex();
-        var6.vertex(param0, (float)param3, (float)param2, (float)param5).color(var3, var4, var5, var2).endVertex();
-        var6.vertex(param0, (float)param1, (float)param2, (float)param5).color(var3, var4, var5, var2).endVertex();
-        BufferUploader.drawWithShader(var6.end());
+        var7.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        var7.vertex(var0, (float)param1, (float)param2, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param1, (float)param4, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param3, (float)param4, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param3, (float)param2, (float)param5).color(var4, var5, var6, var3).endVertex();
+        BufferUploader.drawWithShader(var7.end());
         RenderSystem.disableBlend();
     }
 
-    protected void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        fillGradient(param0, param1, param2, param3, param4, param5, param6, this.blitOffset);
+    protected static void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        fillGradient(param0, param1, param2, param3, param4, param5, param6, 0);
     }
 
     protected static void fillGradient(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Tesselator var0 = Tesselator.getInstance();
         BufferBuilder var1 = var0.getBuilder();
@@ -119,18 +115,18 @@ public abstract class GuiComponent {
     protected static void fillGradient(
         Matrix4f param0, BufferBuilder param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8
     ) {
-        float var0 = (float)(param7 >> 24 & 0xFF) / 255.0F;
-        float var1 = (float)(param7 >> 16 & 0xFF) / 255.0F;
-        float var2 = (float)(param7 >> 8 & 0xFF) / 255.0F;
-        float var3 = (float)(param7 & 0xFF) / 255.0F;
-        float var4 = (float)(param8 >> 24 & 0xFF) / 255.0F;
-        float var5 = (float)(param8 >> 16 & 0xFF) / 255.0F;
-        float var6 = (float)(param8 >> 8 & 0xFF) / 255.0F;
-        float var7 = (float)(param8 & 0xFF) / 255.0F;
-        param1.vertex(param0, (float)param4, (float)param3, (float)param6).color(var1, var2, var3, var0).endVertex();
+        float var0 = (float)FastColor.ARGB32.alpha(param7) / 255.0F;
+        float var1 = (float)FastColor.ARGB32.red(param7) / 255.0F;
+        float var2 = (float)FastColor.ARGB32.green(param7) / 255.0F;
+        float var3 = (float)FastColor.ARGB32.blue(param7) / 255.0F;
+        float var4 = (float)FastColor.ARGB32.alpha(param8) / 255.0F;
+        float var5 = (float)FastColor.ARGB32.red(param8) / 255.0F;
+        float var6 = (float)FastColor.ARGB32.green(param8) / 255.0F;
+        float var7 = (float)FastColor.ARGB32.blue(param8) / 255.0F;
         param1.vertex(param0, (float)param2, (float)param3, (float)param6).color(var1, var2, var3, var0).endVertex();
         param1.vertex(param0, (float)param2, (float)param5, (float)param6).color(var5, var6, var7, var4).endVertex();
         param1.vertex(param0, (float)param4, (float)param5, (float)param6).color(var5, var6, var7, var4).endVertex();
+        param1.vertex(param0, (float)param4, (float)param3, (float)param6).color(var1, var2, var3, var0).endVertex();
     }
 
     public static void drawCenteredString(PoseStack param0, Font param1, String param2, int param3, int param4, int param5) {
@@ -158,7 +154,7 @@ public abstract class GuiComponent {
         param1.drawShadow(param0, param2, (float)param3, (float)param4, param5);
     }
 
-    public void blitOutlineBlack(int param0, int param1, BiConsumer<Integer, Integer> param2) {
+    public static void blitOutlineBlack(int param0, int param1, BiConsumer<Integer, Integer> param2) {
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.ZERO,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -169,7 +165,7 @@ public abstract class GuiComponent {
         param2.accept(param0 - 1, param1);
         param2.accept(param0, param1 + 1);
         param2.accept(param0, param1 - 1);
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.defaultBlendFunc();
         param2.accept(param0, param1);
     }
 
@@ -210,25 +206,32 @@ public abstract class GuiComponent {
         );
     }
 
-    public void blit(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        blit(param0, param1, param2, this.blitOffset, (float)param3, (float)param4, param5, param6, 256, 256);
+    public static void renderOutline(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
+        fill(param0, param1, param2, param1 + param3, param2 + 1, param5);
+        fill(param0, param1, param2 + param4 - 1, param1 + param3, param2 + param4, param5);
+        fill(param0, param1, param2 + 1, param1 + 1, param2 + param4 - 1, param5);
+        fill(param0, param1 + param3 - 1, param2 + 1, param1 + param3, param2 + param4 - 1, param5);
+    }
+
+    public static void blit(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6) {
+        blit(param0, param1, param2, 0, (float)param3, (float)param4, param5, param6, 256, 256);
     }
 
     public static void blit(PoseStack param0, int param1, int param2, int param3, float param4, float param5, int param6, int param7, int param8, int param9) {
-        innerBlit(param0, param1, param1 + param6, param2, param2 + param7, param3, param6, param7, param4, param5, param8, param9);
+        blit(param0, param1, param1 + param6, param2, param2 + param7, param3, param6, param7, param4, param5, param8, param9);
     }
 
     public static void blit(
         PoseStack param0, int param1, int param2, int param3, int param4, float param5, float param6, int param7, int param8, int param9, int param10
     ) {
-        innerBlit(param0, param1, param1 + param3, param2, param2 + param4, 0, param7, param8, param5, param6, param9, param10);
+        blit(param0, param1, param1 + param3, param2, param2 + param4, 0, param7, param8, param5, param6, param9, param10);
     }
 
     public static void blit(PoseStack param0, int param1, int param2, float param3, float param4, int param5, int param6, int param7, int param8) {
         blit(param0, param1, param2, param5, param6, param3, param4, param5, param6, param7, param8);
     }
 
-    private static void innerBlit(
+    private static void blit(
         PoseStack param0,
         int param1,
         int param2,
@@ -262,10 +265,10 @@ public abstract class GuiComponent {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var0.vertex(param0, (float)param1, (float)param3, (float)param5).uv(param6, param8).endVertex();
         var0.vertex(param0, (float)param1, (float)param4, (float)param5).uv(param6, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param4, (float)param5).uv(param7, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param3, (float)param5).uv(param7, param8).endVertex();
-        var0.vertex(param0, (float)param1, (float)param3, (float)param5).uv(param6, param8).endVertex();
         BufferUploader.drawWithShader(var0.end());
     }
 
@@ -287,30 +290,23 @@ public abstract class GuiComponent {
     ) {
         RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
         RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         var0.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+        var0.vertex(param0, (float)param1, (float)param3, (float)param5).color(param10, param11, param12, param13).uv(param6, param8).endVertex();
         var0.vertex(param0, (float)param1, (float)param4, (float)param5).color(param10, param11, param12, param13).uv(param6, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param4, (float)param5).color(param10, param11, param12, param13).uv(param7, param9).endVertex();
         var0.vertex(param0, (float)param2, (float)param3, (float)param5).color(param10, param11, param12, param13).uv(param7, param8).endVertex();
-        var0.vertex(param0, (float)param1, (float)param3, (float)param5).color(param10, param11, param12, param13).uv(param6, param8).endVertex();
         BufferUploader.drawWithShader(var0.end());
         RenderSystem.disableBlend();
     }
 
-    public int getBlitOffset() {
-        return this.blitOffset;
+    public static void blitNineSliced(
+        PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
+    ) {
+        blitNineSliced(param0, param1, param2, param3, param4, param5, param5, param5, param5, param6, param7, param8, param9);
     }
 
-    public void setBlitOffset(int param0) {
-        this.blitOffset = param0;
-    }
-
-    public void blitNineSliced(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9) {
-        this.blitNineSliced(param0, param1, param2, param3, param4, param5, param5, param5, param5, param6, param7, param8, param9);
-    }
-
-    public void blitNineSliced(
+    public static void blitNineSliced(
         PoseStack param0,
         int param1,
         int param2,
@@ -326,21 +322,21 @@ public abstract class GuiComponent {
         int param12
     ) {
         if (param3 == param9 && param4 == param10) {
-            this.blit(param0, param1, param2, param11, param12, param3, param4);
+            blit(param0, param1, param2, param11, param12, param3, param4);
         } else if (param4 == param10) {
-            this.blit(param0, param1, param2, param11, param12, param5, param4);
-            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param4, param11 + param5, param12, param9 - param7 - param5, param10);
-            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param4);
+            blit(param0, param1, param2, param11, param12, param5, param4);
+            blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param4, param11 + param5, param12, param9 - param7 - param5, param10);
+            blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param4);
         } else if (param3 == param9) {
-            this.blit(param0, param1, param2, param11, param12, param3, param6);
-            this.blitRepeating(param0, param1, param2 + param6, param3, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
-            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param3, param8);
+            blit(param0, param1, param2, param11, param12, param3, param6);
+            blitRepeating(param0, param1, param2 + param6, param3, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
+            blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param3, param8);
         } else {
-            this.blit(param0, param1, param2, param11, param12, param5, param6);
-            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param10);
-            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param6);
-            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param5, param8);
-            this.blitRepeating(
+            blit(param0, param1, param2, param11, param12, param5, param6);
+            blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param10);
+            blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param6);
+            blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param5, param8);
+            blitRepeating(
                 param0,
                 param1 + param5,
                 param2 + param4 - param8,
@@ -351,9 +347,9 @@ public abstract class GuiComponent {
                 param9 - param7 - param5,
                 param10
             );
-            this.blit(param0, param1 + param3 - param7, param2 + param4 - param8, param11 + param9 - param7, param12 + param10 - param8, param7, param8);
-            this.blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
-            this.blitRepeating(
+            blit(param0, param1 + param3 - param7, param2 + param4 - param8, param11 + param9 - param7, param12 + param10 - param8, param7, param8);
+            blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
+            blitRepeating(
                 param0,
                 param1 + param5,
                 param2 + param6,
@@ -364,7 +360,7 @@ public abstract class GuiComponent {
                 param9 - param7 - param5,
                 param10 - param8 - param6
             );
-            this.blitRepeating(
+            blitRepeating(
                 param0,
                 param1 + param3 - param7,
                 param2 + param6,
@@ -378,7 +374,7 @@ public abstract class GuiComponent {
         }
     }
 
-    public void blitRepeating(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
+    public static void blitRepeating(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
         for(int var0 = 0; var0 < param3; var0 += param7) {
             int var1 = param1 + var0;
             int var2 = Math.min(param7, param3 - var0);
@@ -386,7 +382,7 @@ public abstract class GuiComponent {
             for(int var3 = 0; var3 < param4; var3 += param8) {
                 int var4 = param2 + var3;
                 int var5 = Math.min(param8, param4 - var3);
-                this.blit(param0, var1, var4, param5, param6, var2, var5);
+                blit(param0, var1, var4, param5, param6, var2, var5);
             }
         }
 

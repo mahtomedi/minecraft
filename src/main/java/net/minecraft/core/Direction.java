@@ -322,7 +322,7 @@ public enum Direction implements StringRepresentable {
     }
 
     private static DataResult<Direction> verifyVertical(Direction param0) {
-        return param0.getAxis().isVertical() ? DataResult.success(param0) : DataResult.error("Expected a vertical direction");
+        return param0.getAxis().isVertical() ? DataResult.success(param0) : DataResult.error(() -> "Expected a vertical direction");
     }
 
     public static Direction get(Direction.AxisDirection param0, Direction.Axis param1) {

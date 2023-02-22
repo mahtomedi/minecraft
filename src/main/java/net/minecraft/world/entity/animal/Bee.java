@@ -616,11 +616,6 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
-    }
-
-    @Override
     protected void checkFallDamage(double param0, boolean param1, BlockState param2, BlockPos param3) {
     }
 
@@ -1295,7 +1290,7 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
         public void start() {
             Vec3 var0 = this.findPos();
             if (var0 != null) {
-                Bee.this.navigation.moveTo(Bee.this.navigation.createPath(new BlockPos(var0), 1), 1.0);
+                Bee.this.navigation.moveTo(Bee.this.navigation.createPath(BlockPos.containing(var0), 1), 1.0);
             }
 
         }

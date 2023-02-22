@@ -782,7 +782,7 @@ public class GameRenderer implements AutoCloseable {
                     Vec3 var12 = var10.getLocation();
                     double var13 = var2.distanceToSqr(var12);
                     if (var3 && var13 > 9.0) {
-                        this.minecraft.hitResult = BlockHitResult.miss(var12, Direction.getNearest(var6.x, var6.y, var6.z), new BlockPos(var12));
+                        this.minecraft.hitResult = BlockHitResult.miss(var12, Direction.getNearest(var6.x, var6.y, var6.z), BlockPos.containing(var12));
                     } else if (var13 < var5 || this.minecraft.hitResult == null) {
                         this.minecraft.hitResult = var10;
                         if (var11 instanceof LivingEntity || var11 instanceof ItemFrame) {
@@ -1004,6 +1004,7 @@ public class GameRenderer implements AutoCloseable {
                 );
             RenderSystem.setProjectionMatrix(var3);
             PoseStack var4 = RenderSystem.getModelViewStack();
+            var4.pushPose();
             var4.setIdentity();
             var4.translate(0.0F, 0.0F, -2000.0F);
             RenderSystem.applyModelViewMatrix();
@@ -1082,6 +1083,11 @@ public class GameRenderer implements AutoCloseable {
                 }
             }
 
+            this.minecraft.getProfiler().push("toasts");
+            this.minecraft.getToasts().render(var5);
+            this.minecraft.getProfiler().pop();
+            var4.popPose();
+            RenderSystem.applyModelViewMatrix();
         }
     }
 

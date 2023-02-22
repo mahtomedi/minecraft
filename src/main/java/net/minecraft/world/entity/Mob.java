@@ -175,7 +175,8 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     public MoveControl getMoveControl() {
-        return this.isPassenger() && this.getVehicle() instanceof Mob var0 ? var0.getMoveControl() : this.moveControl;
+        Entity var2 = this.getVehicle();
+        return var2 instanceof Mob var0 ? var0.getMoveControl() : this.moveControl;
     }
 
     public JumpControl getJumpControl() {
@@ -1308,11 +1309,6 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     @Override
-    public boolean isControlledByLocalInstance() {
-        return this.hasControllingPassenger() && super.isControlledByLocalInstance();
-    }
-
-    @Override
     public boolean isEffectiveAi() {
         return super.isEffectiveAi() && !this.isNoAi();
     }
@@ -1416,7 +1412,7 @@ public abstract class Mob extends LivingEntity implements Targeting {
     protected boolean isSunBurnTick() {
         if (this.level.isDay() && !this.level.isClientSide) {
             float var0 = this.getLightLevelDependentMagicValue();
-            BlockPos var1 = new BlockPos(this.getX(), this.getEyeY(), this.getZ());
+            BlockPos var1 = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
             boolean var2 = this.isInWaterRainOrBubble() || this.isInPowderSnow || this.wasInPowderSnow;
             if (var0 > 0.5F && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F && !var2 && this.level.canSeeSky(var1)) {
                 return true;

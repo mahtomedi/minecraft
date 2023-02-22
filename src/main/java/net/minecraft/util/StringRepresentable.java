@@ -20,15 +20,19 @@ public interface StringRepresentable {
     String getSerializedName();
 
     static <E extends Enum<E> & StringRepresentable> StringRepresentable.EnumCodec<E> fromEnum(Supplier<E[]> param0) {
+        return fromEnumWithMapping(param0, param0x -> param0x);
+    }
+
+    static <E extends Enum<E> & StringRepresentable> StringRepresentable.EnumCodec<E> fromEnumWithMapping(Supplier<E[]> param0, Function<String, String> param1) {
         E[] var0 = (E[])param0.get();
         if (var0.length > 16) {
             Map<String, E> var1 = Arrays.stream(var0)
-                .collect(Collectors.toMap(param0x -> param0x.getSerializedName(), (Function<? super E, ? extends E>)(param0x -> param0x)));
-            return new StringRepresentable.EnumCodec<>(var0, param1 -> param1 == null ? null : var1.get(param1));
+                .collect(Collectors.toMap(param1x -> param1.apply(param1x.getSerializedName()), (Function<? super E, ? extends E>)(param0x -> param0x)));
+            return new StringRepresentable.EnumCodec<>(var0, param1x -> param1x == null ? null : var1.get(param1x));
         } else {
-            return new StringRepresentable.EnumCodec<>(var0, param1 -> {
+            return new StringRepresentable.EnumCodec<>(var0, param2 -> {
                 for(E var0x : var0) {
-                    if (var0x.getSerializedName().equals(param1)) {
+                    if (param1.apply(var0x.getSerializedName()).equals(param2)) {
                         return var0x;
                     }
                 }

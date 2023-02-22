@@ -82,7 +82,6 @@ public class Util {
     private static final int DEFAULT_MAX_THREADS = 255;
     private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
-    private static final ExecutorService BOOTSTRAP_EXECUTOR = makeExecutor("Bootstrap");
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
     private static final ExecutorService IO_POOL = makeIoExecutor();
     private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
@@ -173,10 +172,6 @@ public class Util {
         }
 
         return 255;
-    }
-
-    public static ExecutorService bootstrapExecutor() {
-        return BOOTSTRAP_EXECUTOR;
     }
 
     public static ExecutorService backgroundExecutor() {
@@ -386,11 +381,12 @@ public class Util {
     public static <V> CompletableFuture<List<V>> sequenceFailFastAndCancel(List<? extends CompletableFuture<? extends V>> param0) {
         CompletableFuture<List<V>> var0 = new CompletableFuture<>();
         return fallibleSequence(param0, param2 -> {
-            for(CompletableFuture<? extends V> var0x : param0) {
-                var0x.cancel(true);
+            if (var0.completeExceptionally(param2)) {
+                for(CompletableFuture<? extends V> var0x : param0) {
+                    var0x.cancel(true);
+                }
             }
 
-            var0.completeExceptionally(param2);
         }).applyToEither(var0, Function.identity());
     }
 
@@ -637,7 +633,7 @@ public class Util {
     public static DataResult<int[]> fixedSize(IntStream param0, int param1) {
         int[] var0 = param0.limit((long)(param1 + 1)).toArray();
         if (var0.length != param1) {
-            String var1 = "Input is not a list of " + param1 + " ints";
+            Supplier<String> var1 = () -> "Input is not a list of " + param1 + " ints";
             return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
         } else {
             return DataResult.success(var0);
@@ -646,7 +642,7 @@ public class Util {
 
     public static <T> DataResult<List<T>> fixedSize(List<T> param0, int param1) {
         if (param0.size() != param1) {
-            String var0 = "Input is not a list of " + param1 + " elements";
+            Supplier<String> var0 = () -> "Input is not a list of " + param1 + " elements";
             return param0.size() >= param1 ? DataResult.error(var0, param0.subList(0, param1)) : DataResult.error(var0);
         } else {
             return DataResult.success(param0);

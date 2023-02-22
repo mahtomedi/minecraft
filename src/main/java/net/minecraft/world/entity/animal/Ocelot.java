@@ -136,11 +136,6 @@ public class Ocelot extends Animal {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 10.0).add(Attributes.MOVEMENT_SPEED, 0.3F).add(Attributes.ATTACK_DAMAGE, 3.0);
     }
 
-    @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
-    }
-
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {

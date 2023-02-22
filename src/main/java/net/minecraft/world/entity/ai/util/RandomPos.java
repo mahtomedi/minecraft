@@ -32,7 +32,7 @@ public class RandomPos {
         double var4 = var2 * Math.cos(var1);
         if (!(Math.abs(var3) > (double)param1) && !(Math.abs(var4) > (double)param1)) {
             int var5 = param0.nextInt(2 * param2 + 1) - param2 + param3;
-            return new BlockPos(var3, (double)var5, var4);
+            return BlockPos.containing(var3, (double)var5, var4);
         } else {
             return null;
         }
@@ -121,6 +121,6 @@ public class RandomPos {
             }
         }
 
-        return new BlockPos((double)var0 + param0.getX(), (double)param3.getY() + param0.getY(), (double)var1 + param0.getZ());
+        return BlockPos.containing((double)var0 + param0.getX(), (double)param3.getY() + param0.getY(), (double)var1 + param0.getZ());
     }
 }

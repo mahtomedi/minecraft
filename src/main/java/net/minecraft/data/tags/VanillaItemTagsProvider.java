@@ -9,7 +9,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 public class VanillaItemTagsProvider extends ItemTagsProvider {
-    public VanillaItemTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1, TagsProvider<Block> param2) {
+    public VanillaItemTagsProvider(PackOutput param0, CompletableFuture<HolderLookup.Provider> param1, CompletableFuture<TagsProvider.TagLookup<Block>> param2) {
         super(param0, param1, param2);
     }
 
@@ -42,6 +42,7 @@ public class VanillaItemTagsProvider extends ItemTagsProvider {
         this.copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
         this.copy(BlockTags.LOGS, ItemTags.LOGS);
         this.copy(BlockTags.SAND, ItemTags.SAND);
+        this.copy(BlockTags.SMELTS_TO_GLASS, ItemTags.SMELTS_TO_GLASS);
         this.copy(BlockTags.SLABS, ItemTags.SLABS);
         this.copy(BlockTags.WALLS, ItemTags.WALLS);
         this.copy(BlockTags.STAIRS, ItemTags.STAIRS);
@@ -239,6 +240,5 @@ public class VanillaItemTagsProvider extends ItemTagsProvider {
             .addTag(ItemTags.SHOVELS)
             .addTag(ItemTags.HOES)
             .add(Items.TRIDENT);
-        this.tag(ItemTags.BREAKS_DECORATED_POTS).addTag(ItemTags.TOOLS);
     }
 }

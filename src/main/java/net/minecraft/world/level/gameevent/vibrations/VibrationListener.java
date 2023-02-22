@@ -34,6 +34,7 @@ public class VibrationListener implements GameEventListener {
     public static final Object2IntMap<GameEvent> VIBRATION_FREQUENCY_FOR_EVENT = Object2IntMaps.unmodifiable(
         Util.make(new Object2IntOpenHashMap<>(), param0 -> {
             param0.put(GameEvent.STEP, 1);
+            param0.put(GameEvent.ITEM_INTERACT_FINISH, 2);
             param0.put(GameEvent.FLAP, 2);
             param0.put(GameEvent.SWIM, 3);
             param0.put(GameEvent.ELYTRA_GLIDE, 4);
@@ -68,7 +69,6 @@ public class VibrationListener implements GameEventListener {
             param0.put(GameEvent.ENTITY_DIE, 13);
             param0.put(GameEvent.BLOCK_DESTROY, 13);
             param0.put(GameEvent.FLUID_PICKUP, 13);
-            param0.put(GameEvent.ITEM_INTERACT_FINISH, 14);
             param0.put(GameEvent.CONTAINER_CLOSE, 14);
             param0.put(GameEvent.PISTON_CONTRACT, 14);
             param0.put(GameEvent.PISTON_EXTEND, 15);
@@ -155,7 +155,7 @@ public class VibrationListener implements GameEventListener {
                         .onSignalReceive(
                             var0,
                             this,
-                            new BlockPos(this.currentVibration.pos()),
+                            BlockPos.containing(this.currentVibration.pos()),
                             this.currentVibration.gameEvent(),
                             this.currentVibration.getEntity(var0).orElse(null),
                             this.currentVibration.getProjectileOwner(var0).orElse(null),
@@ -190,7 +190,7 @@ public class VibrationListener implements GameEventListener {
                 return false;
             } else {
                 Vec3 var1 = var0.get();
-                if (!this.config.shouldListen(param0, this, new BlockPos(param3), param1, param2)) {
+                if (!this.config.shouldListen(param0, this, BlockPos.containing(param3), param1, param2)) {
                     return false;
                 } else if (isOccluded(param0, param3, var1)) {
                     return false;

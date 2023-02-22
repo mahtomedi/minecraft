@@ -181,7 +181,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
     public float yBodyRotO;
     public float yHeadRot;
     public float yHeadRotO;
-    public float flyingSpeed = 0.02F;
     @Nullable
     protected Player lastHurtByPlayer;
     protected int lastHurtByPlayerTime;
@@ -239,7 +238,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.timeOffs = (float)Math.random() * 12398.0F;
         this.setYRot((float)(Math.random() * (float) (Math.PI * 2)));
         this.yHeadRot = this.getYRot();
-        this.maxUpStep = 0.6F;
+        this.setMaxUpStep(0.6F);
         NbtOps var0 = NbtOps.INSTANCE;
         this.brain = this.makeBrain(new Dynamic<>(var0, var0.createMap(ImmutableMap.of(var0.createString("memories"), var0.emptyMap()))));
     }
@@ -351,7 +350,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
             }
 
             if (this.isEyeInFluid(FluidTags.WATER)
-                && !this.level.getBlockState(new BlockPos(this.getX(), this.getEyeY(), this.getZ())).is(Blocks.BUBBLE_COLUMN)) {
+                && !this.level.getBlockState(BlockPos.containing(this.getX(), this.getEyeY(), this.getZ())).is(Blocks.BUBBLE_COLUMN)) {
                 boolean var3 = !this.canBreatheUnderwater() && !MobEffectUtil.hasWaterBreathing(this) && (!var0 || !((Player)this).getAbilities().invulnerable);
                 if (var3) {
                     this.setAirSupply(this.decreaseAirSupply(this.getAirSupply()));
@@ -1082,7 +1081,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
             this.walkAnimation.setSpeed(1.5F);
             boolean var5 = true;
-            if ((float)this.invulnerableTime > 10.0F) {
+            if ((float)this.invulnerableTime > 10.0F && !param0.is(DamageTypeTags.BYPASSES_COOLDOWN)) {
                 if (param1 <= this.lastHurt) {
                     return false;
                 }
@@ -1519,9 +1518,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     protected int calculateFallDamage(float param0, float param1) {
-        MobEffectInstance var0 = this.getEffect(MobEffects.JUMP);
-        float var1 = var0 == null ? 0.0F : (float)(var0.getAmplifier() + 1);
-        return Mth.ceil((param0 - 3.0F - var1) * param1);
+        if (this.getType().is(EntityTypeTags.FALL_DAMAGE_IMMUNE)) {
+            return 0;
+        } else {
+            MobEffectInstance var0 = this.getEffect(MobEffects.JUMP);
+            float var1 = var0 == null ? 0.0F : (float)(var0.getAmplifier() + 1);
+            return Mth.ceil((param0 - 3.0F - var1) * param1);
+        }
     }
 
     protected void playBlockFallSound() {
@@ -2005,7 +2008,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     public void travel(Vec3 param0) {
-        if (this.isEffectiveAi() || this.isControlledByLocalInstance()) {
+        if (this.isControlledByLocalInstance()) {
             double var0 = 0.08;
             boolean var1 = this.getDeltaMovement().y <= 0.0;
             if (var1 && this.hasEffect(MobEffects.SLOW_FALLING)) {
@@ -2139,6 +2142,31 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.calculateEntityAnimation(this instanceof FlyingAnimal);
     }
 
+    private void travelRidden(LivingEntity param0, Vec3 param1) {
+        Vec3 var0 = this.getRiddenInput(param0, param1);
+        this.tickRidden(param0, var0);
+        if (this.isControlledByLocalInstance()) {
+            this.setSpeed(this.getRiddenSpeed(param0));
+            this.travel(var0);
+        } else {
+            this.calculateEntityAnimation(false);
+            this.setDeltaMovement(Vec3.ZERO);
+            this.tryCheckInsideBlocks();
+        }
+
+    }
+
+    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+    }
+
+    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+        return param1;
+    }
+
+    protected float getRiddenSpeed(LivingEntity param0) {
+        return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED);
+    }
+
     public void calculateEntityAnimation(boolean param0) {
         float var0 = (float)Mth.length(this.getX() - this.xo, param0 ? this.getY() - this.yo : 0.0, this.getZ() - this.zo);
         this.updateWalkAnimation(var0);
@@ -2195,7 +2223,11 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     private float getFrictionInfluencedSpeed(float param0) {
-        return this.onGround ? this.getSpeed() * (0.21600002F / (param0 * param0 * param0)) : this.flyingSpeed;
+        return this.onGround ? this.getSpeed() * (0.21600002F / (param0 * param0 * param0)) : this.getFlyingSpeed();
+    }
+
+    protected float getFlyingSpeed() {
+        return this.hasControllingPassenger() ? this.getSpeed() * 0.1F : 0.02F;
     }
 
     public float getSpeed() {
@@ -2542,24 +2574,33 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.zza *= 0.98F;
         this.updateFallFlying();
         AABB var12 = this.getBoundingBox();
-        this.travel(new Vec3((double)this.xxa, (double)this.yya, (double)this.zza));
+        if (this.isAlive()) {
+            LivingEntity var13 = this.getControllingPassenger();
+            Vec3 var14 = new Vec3((double)this.xxa, (double)this.yya, (double)this.zza);
+            if (var13 != null) {
+                this.travelRidden(var13, var14);
+            } else {
+                this.travel(var14);
+            }
+        }
+
         this.level.getProfiler().pop();
         this.level.getProfiler().push("freezing");
-        boolean var13 = this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES);
+        boolean var15 = this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES);
         if (!this.level.isClientSide && !this.isDeadOrDying()) {
-            int var14 = this.getTicksFrozen();
+            int var16 = this.getTicksFrozen();
             if (this.isInPowderSnow && this.canFreeze()) {
-                this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var14 + 1));
+                this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var16 + 1));
             } else {
-                this.setTicksFrozen(Math.max(0, var14 - 2));
+                this.setTicksFrozen(Math.max(0, var16 - 2));
             }
         }
 
         this.removeFrost();
         this.tryAddFrost();
         if (!this.level.isClientSide && this.tickCount % 40 == 0 && this.isFullyFrozen() && this.canFreeze()) {
-            int var15 = var13 ? 5 : 1;
-            this.hurt(this.damageSources().freeze(), (float)var15);
+            int var17 = var15 ? 5 : 1;
+            this.hurt(this.damageSources().freeze(), (float)var17);
         }
 
         this.level.getProfiler().pop();
@@ -2757,10 +2798,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
         }
 
         return this.oAttackAnim + var0 * param0;
-    }
-
-    public boolean isEffectiveAi() {
-        return !this.level.isClientSide;
     }
 
     @Override
@@ -3048,7 +3085,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
         double var2 = this.getZ();
         double var3 = param1;
         boolean var4 = false;
-        BlockPos var5 = new BlockPos(param0, param1, param2);
+        BlockPos var5 = BlockPos.containing(param0, param1, param2);
         Level var6 = this.level;
         if (var6.hasChunkAt(var5)) {
             boolean var7 = false;

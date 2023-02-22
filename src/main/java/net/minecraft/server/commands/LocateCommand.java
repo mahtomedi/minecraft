@@ -99,7 +99,7 @@ public class LocateCommand {
     private static int locateStructure(CommandSourceStack param0, ResourceOrTagKeyArgument.Result<Structure> param1) throws CommandSyntaxException {
         Registry<Structure> var0 = param0.getLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
         HolderSet<Structure> var1 = getHolders(param1, var0).orElseThrow(() -> ERROR_STRUCTURE_INVALID.create(param1.asPrintable()));
-        BlockPos var2 = new BlockPos(param0.getPosition());
+        BlockPos var2 = BlockPos.containing(param0.getPosition());
         ServerLevel var3 = param0.getLevel();
         Stopwatch var4 = Stopwatch.createStarted(Util.TICKER);
         Pair<BlockPos, Holder<Structure>> var5 = var3.getChunkSource().getGenerator().findNearestMapStructure(var3, var1, var2, 100, false);
@@ -112,7 +112,7 @@ public class LocateCommand {
     }
 
     private static int locateBiome(CommandSourceStack param0, ResourceOrTagArgument.Result<Biome> param1) throws CommandSyntaxException {
-        BlockPos var0 = new BlockPos(param0.getPosition());
+        BlockPos var0 = BlockPos.containing(param0.getPosition());
         Stopwatch var1 = Stopwatch.createStarted(Util.TICKER);
         Pair<BlockPos, Holder<Biome>> var2 = param0.getLevel().findClosestBiome3d(param1, var0, 6400, 32, 64);
         var1.stop();
@@ -124,7 +124,7 @@ public class LocateCommand {
     }
 
     private static int locatePoi(CommandSourceStack param0, ResourceOrTagArgument.Result<PoiType> param1) throws CommandSyntaxException {
-        BlockPos var0 = new BlockPos(param0.getPosition());
+        BlockPos var0 = BlockPos.containing(param0.getPosition());
         ServerLevel var1 = param0.getLevel();
         Stopwatch var2 = Stopwatch.createStarted(Util.TICKER);
         Optional<Pair<Holder<PoiType>, BlockPos>> var3 = var1.getPoiManager().findClosestWithType(param1, var0, 256, PoiManager.Occupancy.ANY);

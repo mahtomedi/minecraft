@@ -107,7 +107,12 @@ public class MultiLineEditBox extends AbstractScrollWidget {
         if (var0.isEmpty() && !this.isFocused()) {
             this.font
                 .drawWordWrap(
-                    this.placeholder, this.getX() + this.innerPadding(), this.getY() + this.innerPadding(), this.width - this.totalInnerPadding(), -857677600
+                    param0,
+                    this.placeholder,
+                    this.getX() + this.innerPadding(),
+                    this.getY() + this.innerPadding(),
+                    this.width - this.totalInnerPadding(),
+                    -857677600
                 );
         } else {
             int var1 = this.textField.cursor();

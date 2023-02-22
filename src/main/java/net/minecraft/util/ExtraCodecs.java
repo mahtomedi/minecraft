@@ -62,13 +62,13 @@ public class ExtraCodecs {
         try {
             return DataResult.success(Component.Serializer.fromJson(param0));
         } catch (JsonParseException var2) {
-            return DataResult.error(var2.getMessage());
+            return DataResult.error(var2::getMessage);
         }
     }, param0 -> {
         try {
             return DataResult.success(Component.Serializer.toJsonTree(param0));
         } catch (IllegalArgumentException var2) {
-            return DataResult.error(var2.getMessage());
+            return DataResult.error(var2::getMessage);
         }
     });
     public static final Codec<Vector3f> VECTOR3F = Codec.FLOAT
@@ -116,7 +116,7 @@ public class ExtraCodecs {
         try {
             return DataResult.success(Pattern.compile(param0));
         } catch (PatternSyntaxException var2) {
-            return DataResult.error("Invalid regex pattern '" + param0 + "': " + var2.getMessage());
+            return DataResult.error(() -> "Invalid regex pattern '" + param0 + "': " + var2.getMessage());
         }
     }, Pattern::pattern);
     public static final Codec<Instant> INSTANT_ISO8601 = instantCodec(DateTimeFormatter.ISO_INSTANT);
@@ -124,7 +124,7 @@ public class ExtraCodecs {
         try {
             return DataResult.success(Base64.getDecoder().decode(param0));
         } catch (IllegalArgumentException var2) {
-            return DataResult.error("Malformed base64 string");
+            return DataResult.error(() -> "Malformed base64 string");
         }
     }, param0 -> Base64.getEncoder().encodeToString(param0));
     public static final Codec<ExtraCodecs.TagOrElementLocation> TAG_OR_ELEMENT_ID = Codec.STRING
@@ -181,7 +181,7 @@ public class ExtraCodecs {
                 })
     );
     public static final Codec<String> NON_EMPTY_STRING = validate(
-        Codec.STRING, param0 -> param0.isEmpty() ? DataResult.error("Expected non-empty string") : DataResult.success(param0)
+        Codec.STRING, param0 -> param0.isEmpty() ? DataResult.error(() -> "Expected non-empty string") : DataResult.success(param0)
     );
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
@@ -217,7 +217,7 @@ public class ExtraCodecs {
             public <T> DataResult<Pair<A, T>> apply(DynamicOps<T> param0x, T param1, DataResult<Pair<A, T>> param2) {
                 MutableObject<String> var0 = new MutableObject<>();
                 Optional<Pair<A, T>> var1 = param2.resultOrPartial(var0::setValue);
-                return var1.isPresent() ? param2 : DataResult.error("(" + (String)var0.getValue() + " -> using default)", Pair.of(param0, param1));
+                return var1.isPresent() ? param2 : DataResult.error(() -> "(" + (String)var0.getValue() + " -> using default)", Pair.of(param0, param1));
             }
 
             @Override
@@ -237,10 +237,10 @@ public class ExtraCodecs {
             .flatXmap(
                 param1x -> Optional.ofNullable(param1.apply(param1x))
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown element id: " + param1x)),
+                        .orElseGet(() -> DataResult.error(() -> "Unknown element id: " + param1x)),
                 param2x -> {
                     int var0x = param0.applyAsInt(param2x);
-                    return var0x == param2 ? DataResult.error("Element with unknown id: " + param2x) : DataResult.success(var0x);
+                    return var0x == param2 ? DataResult.error(() -> "Element with unknown id: " + param2x) : DataResult.success(var0x);
                 }
             );
     }
@@ -250,10 +250,10 @@ public class ExtraCodecs {
             .flatXmap(
                 param1x -> Optional.ofNullable(param1.apply(param1x))
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Unknown element name:" + param1x)),
+                        .orElseGet(() -> DataResult.error(() -> "Unknown element name:" + param1x)),
                 param1x -> Optional.ofNullable(param0.apply(param1x))
                         .map(DataResult::success)
-                        .orElseGet(() -> DataResult.error("Element with unknown name: " + param1x))
+                        .orElseGet(() -> DataResult.error(() -> "Element with unknown name: " + param1x))
             );
     }
 
@@ -302,7 +302,9 @@ public class ExtraCodecs {
     private static Codec<Integer> intRangeWithMessage(int param0, int param1, Function<Integer, String> param2) {
         return validate(
             Codec.INT,
-            param3 -> param3.compareTo(param0) >= 0 && param3.compareTo(param1) <= 0 ? DataResult.success(param3) : DataResult.error(param2.apply(param3))
+            param3 -> param3.compareTo(param0) >= 0 && param3.compareTo(param1) <= 0
+                    ? DataResult.success(param3)
+                    : DataResult.error(() -> param2.apply(param3))
         );
     }
 
@@ -313,18 +315,20 @@ public class ExtraCodecs {
     private static Codec<Float> floatRangeMinExclusiveWithMessage(float param0, float param1, Function<Float, String> param2) {
         return validate(
             Codec.FLOAT,
-            param3 -> param3.compareTo(param0) > 0 && param3.compareTo(param1) <= 0 ? DataResult.success(param3) : DataResult.error(param2.apply(param3))
+            param3 -> param3.compareTo(param0) > 0 && param3.compareTo(param1) <= 0 ? DataResult.success(param3) : DataResult.error(() -> param2.apply(param3))
         );
     }
 
     public static <T> Codec<List<T>> nonEmptyList(Codec<List<T>> param0) {
-        return validate(param0, param0x -> param0x.isEmpty() ? DataResult.error("List must have contents") : DataResult.success(param0x));
+        return validate(param0, param0x -> param0x.isEmpty() ? DataResult.error(() -> "List must have contents") : DataResult.success(param0x));
     }
 
     public static <T> Codec<HolderSet<T>> nonEmptyHolderSet(Codec<HolderSet<T>> param0) {
         return validate(
             param0,
-            param0x -> param0x.unwrap().right().filter(List::isEmpty).isPresent() ? DataResult.error("List must have contents") : DataResult.success(param0x)
+            param0x -> param0x.unwrap().right().filter(List::isEmpty).isPresent()
+                    ? DataResult.error(() -> "List must have contents")
+                    : DataResult.success(param0x)
         );
     }
 
@@ -368,7 +372,7 @@ public class ExtraCodecs {
                     E var2 = (E)var0x.next();
                     T var3 = param0.apply(var2);
                     if (var3 != var1) {
-                        return DataResult.error("Mixed type list: element " + var2 + " had type " + var3 + ", but list is of type " + var1);
+                        return DataResult.error(() -> "Mixed type list: element " + var2 + " had type " + var3 + ", but list is of type " + var1);
                     }
                 }
             }
@@ -384,7 +388,7 @@ public class ExtraCodecs {
                 try {
                     return param0.decode(param0, param1);
                 } catch (Exception var4) {
-                    return DataResult.error("Cauch exception decoding " + param1 + ": " + var4.getMessage());
+                    return DataResult.error(() -> "Caught exception decoding " + param1 + ": " + var4.getMessage());
                 }
             }
         });
@@ -395,7 +399,7 @@ public class ExtraCodecs {
             try {
                 return DataResult.success(Instant.from(param0.parse(param1)));
             } catch (Exception var3) {
-                return DataResult.error(var3.getMessage());
+                return DataResult.error(var3::getMessage);
             }
         }, param0::format);
     }
@@ -408,7 +412,7 @@ public class ExtraCodecs {
         try {
             return DataResult.success(new GameProfile(param0.getFirst().orElse(null), param0.getSecond().orElse(null)));
         } catch (Throwable var2) {
-            return DataResult.error(var2.getMessage());
+            return DataResult.error(var2::getMessage);
         }
     }
 
@@ -422,10 +426,10 @@ public class ExtraCodecs {
             param2 -> {
                 int var0x = param2.length();
                 if (var0x < param0) {
-                    return DataResult.error("String \"" + param2 + "\" is too short: " + var0x + ", expected range [" + param0 + "-" + param1 + "]");
+                    return DataResult.error(() -> "String \"" + param2 + "\" is too short: " + var0x + ", expected range [" + param0 + "-" + param1 + "]");
                 } else {
                     return var0x > param1
-                        ? DataResult.error("String \"" + param2 + "\" is too long: " + var0x + ", expected range [" + param0 + "-" + param1 + "]")
+                        ? DataResult.error(() -> "String \"" + param2 + "\" is too long: " + var0x + ", expected range [" + param0 + "-" + param1 + "]")
                         : DataResult.success(param2);
                 }
             }
@@ -523,7 +527,7 @@ public class ExtraCodecs {
             Optional<Pair<Either<F, S>, T>> var3 = var1.result();
             if (var2.isPresent() && var3.isPresent()) {
                 return DataResult.error(
-                    "Both alternatives read successfully, can not pick the correct one; first: " + var2.get() + " second: " + var3.get(), var2.get()
+                    () -> "Both alternatives read successfully, can not pick the correct one; first: " + var2.get() + " second: " + var3.get(), var2.get()
                 );
             } else {
                 return var2.isPresent() ? var0 : var1;

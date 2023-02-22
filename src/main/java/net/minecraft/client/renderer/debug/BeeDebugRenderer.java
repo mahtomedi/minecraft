@@ -264,7 +264,7 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
     private static void renderTextOverMob(PoseStack param0, MultiBufferSource param1, Position param2, int param3, String param4, int param5, float param6) {
         double var0 = 2.4;
         double var1 = 0.25;
-        BlockPos var2 = new BlockPos(param2);
+        BlockPos var2 = BlockPos.containing(param2);
         double var3 = (double)var2.getX() + 0.5;
         double var4 = param2.y() + 2.4 + (double)param3 * 0.25;
         double var5 = (double)var2.getZ() + 0.5;
@@ -292,8 +292,8 @@ public class BeeDebugRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     private boolean isPlayerCloseEnoughToMob(BeeDebugRenderer.BeeInfo param0) {
         Player var0 = this.minecraft.player;
-        BlockPos var1 = new BlockPos(var0.getX(), param0.pos.y(), var0.getZ());
-        BlockPos var2 = new BlockPos(param0.pos);
+        BlockPos var1 = BlockPos.containing(var0.getX(), param0.pos.y(), var0.getZ());
+        BlockPos var2 = BlockPos.containing(param0.pos);
         return var1.closerThan(var2, 30.0);
     }
 

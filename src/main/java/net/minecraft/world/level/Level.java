@@ -616,7 +616,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         BlockPos var0 = new BlockPos(this.levelData.getXSpawn(), this.levelData.getYSpawn(), this.levelData.getZSpawn());
         if (!this.getWorldBorder().isWithinBounds(var0)) {
             var0 = this.getHeightmapPos(
-                Heightmap.Types.MOTION_BLOCKING, new BlockPos(this.getWorldBorder().getCenterX(), 0.0, this.getWorldBorder().getCenterZ())
+                Heightmap.Types.MOTION_BLOCKING, BlockPos.containing(this.getWorldBorder().getCenterX(), 0.0, this.getWorldBorder().getCenterZ())
             );
         }
 

@@ -125,7 +125,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         BlockPathTypes var2 = this.getCachedBlockType(this.mob, param1.x, param1.y + 1, param1.z);
         BlockPathTypes var3 = this.getCachedBlockType(this.mob, param1.x, param1.y, param1.z);
         if (this.mob.getPathfindingMalus(var2) >= 0.0F && var3 != BlockPathTypes.STICKY_HONEY) {
-            var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep));
+            var1 = Mth.floor(Math.max(1.0F, this.mob.maxUpStep()));
         }
 
         double var4 = this.getFloorLevel(new BlockPos(param1.x, param1.y, param1.z));
@@ -333,7 +333,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     }
 
     private double getMobJumpHeight() {
-        return Math.max(1.125, (double)this.mob.maxUpStep);
+        return Math.max(1.125, (double)this.mob.maxUpStep());
     }
 
     private Node getNodeAndUpdateCostToMax(int param0, int param1, int param2, BlockPathTypes param3, float param4) {

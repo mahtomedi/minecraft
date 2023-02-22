@@ -237,11 +237,6 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
-    }
-
-    @Override
     protected void usePlayerItem(Player param0, InteractionHand param1, ItemStack param2) {
         if (this.isFood(param2)) {
             this.playSound(SoundEvents.CAT_EAT, 1.0F, 1.0F);

@@ -230,7 +230,7 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void setPos(double param0, double param1, double param2) {
-        this.pos = new BlockPos(param0, param1, param2);
+        this.pos = BlockPos.containing(param0, param1, param2);
         this.recalculateBoundingBox();
         this.hasImpulse = true;
     }

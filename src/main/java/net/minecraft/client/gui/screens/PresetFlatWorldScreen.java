@@ -337,12 +337,12 @@ public class PresetFlatWorldScreen extends Screen {
 
             private void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
                 this.blitSlotBg(param0, param1 + 1, param2 + 1);
-                PresetFlatWorldScreen.this.itemRenderer.renderGuiItem(new ItemStack(param3), param1 + 2, param2 + 2);
+                PresetFlatWorldScreen.this.itemRenderer.renderGuiItem(param0, new ItemStack(param3), param1 + 2, param2 + 2);
             }
 
             private void blitSlotBg(PoseStack param0, int param1, int param2) {
                 RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, param2, PresetFlatWorldScreen.this.getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+                GuiComponent.blit(param0, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
             }
 
             @Override

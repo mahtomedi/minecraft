@@ -53,7 +53,6 @@ public class PackSelectionScreen extends Screen {
     private static final int RELOAD_COOLDOWN = 20;
     private static final ResourceLocation DEFAULT_ICON = new ResourceLocation("textures/misc/unknown_pack.png");
     private final PackSelectionModel model;
-    private final Screen lastScreen;
     @Nullable
     private PackSelectionScreen.Watcher watcher;
     private long ticksToReload;
@@ -63,18 +62,16 @@ public class PackSelectionScreen extends Screen {
     private Button doneButton;
     private final Map<String, ResourceLocation> packIcons = Maps.newHashMap();
 
-    public PackSelectionScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2, Path param3, Component param4) {
-        super(param4);
-        this.lastScreen = param0;
-        this.model = new PackSelectionModel(this::populateLists, this::getPackIcon, param1, param2);
-        this.packDir = param3;
-        this.watcher = PackSelectionScreen.Watcher.create(param3);
+    public PackSelectionScreen(PackRepository param0, Consumer<PackRepository> param1, Path param2, Component param3) {
+        super(param3);
+        this.model = new PackSelectionModel(this::populateLists, this::getPackIcon, param0, param1);
+        this.packDir = param2;
+        this.watcher = PackSelectionScreen.Watcher.create(param2);
     }
 
     @Override
     public void onClose() {
         this.model.commit();
-        this.minecraft.setScreen(this.lastScreen);
         this.closeWatcher();
     }
 

@@ -26,7 +26,7 @@ public class Vec3i implements Comparable<Vec3i> {
             CODEC,
             param1 -> Math.abs(param1.getX()) < param0 && Math.abs(param1.getY()) < param0 && Math.abs(param1.getZ()) < param0
                     ? DataResult.success(param1)
-                    : DataResult.error("Position out of range, expected at most " + param0 + ": " + param1)
+                    : DataResult.error(() -> "Position out of range, expected at most " + param0 + ": " + param1)
         );
     }
 
@@ -34,10 +34,6 @@ public class Vec3i implements Comparable<Vec3i> {
         this.x = param0;
         this.y = param1;
         this.z = param2;
-    }
-
-    public Vec3i(double param0, double param1, double param2) {
-        this(Mth.floor(param0), Mth.floor(param1), Mth.floor(param2));
     }
 
     @Override
@@ -96,12 +92,6 @@ public class Vec3i implements Comparable<Vec3i> {
     protected Vec3i setZ(int param0) {
         this.z = param0;
         return this;
-    }
-
-    public Vec3i offset(double param0, double param1, double param2) {
-        return param0 == 0.0 && param1 == 0.0 && param2 == 0.0
-            ? this
-            : new Vec3i((double)this.getX() + param0, (double)this.getY() + param1, (double)this.getZ() + param2);
     }
 
     public Vec3i offset(int param0, int param1, int param2) {

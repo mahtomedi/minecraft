@@ -498,11 +498,6 @@ public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob
     }
 
     @Override
-    public boolean causeFallDamage(float param0, float param1, DamageSource param2) {
-        return false;
-    }
-
-    @Override
     public boolean addEffect(MobEffectInstance param0, @Nullable Entity param1) {
         return false;
     }
