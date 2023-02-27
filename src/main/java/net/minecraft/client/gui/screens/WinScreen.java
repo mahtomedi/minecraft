@@ -242,7 +242,7 @@ public class WinScreen extends Screen {
         float var2 = -this.scroll;
         param0.pushPose();
         param0.translate(0.0F, var2, 0.0F);
-        this.logoRenderer.renderLogo(param0, this.width, param3, var1);
+        this.logoRenderer.renderLogo(param0, this.width, 1.0F, var1);
         int var3 = var1 + 100;
 
         for(int var4 = 0; var4 < this.lines.size(); ++var4) {

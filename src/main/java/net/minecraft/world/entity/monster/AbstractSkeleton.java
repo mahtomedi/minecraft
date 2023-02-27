@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -124,7 +125,8 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
     @Override
     public void rideTick() {
         super.rideTick();
-        if (this.getVehicle() instanceof PathfinderMob var0) {
+        Entity var2 = this.getControlledVehicle();
+        if (var2 instanceof PathfinderMob var0) {
             this.yBodyRot = var0.yBodyRot;
         }
 

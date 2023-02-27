@@ -1,12 +1,14 @@
 package net.minecraft.client.gui.screens.worldselection;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.client.resources.language.I18n;
+import net.minecraft.FileUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -26,9 +28,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class WorldCreationUiState {
+    private static final Component DEFAULT_WORLD_NAME = Component.translatable("selectWorld.newWorld");
     private final List<Consumer<WorldCreationUiState>> listeners = new ArrayList<>();
-    private String name = I18n.get("selectWorld.newWorld");
-    private boolean nameChanged = true;
+    private String name = DEFAULT_WORLD_NAME.getString();
     private WorldCreationUiState.SelectedGameMode gameMode = WorldCreationUiState.SelectedGameMode.SURVIVAL;
     private Difficulty difficulty = Difficulty.NORMAL;
     @Nullable
@@ -36,19 +38,23 @@ public class WorldCreationUiState {
     private String seed;
     private boolean generateStructures;
     private boolean bonusChest;
+    private final Path savesFolder;
+    private String targetFolder;
     private WorldCreationContext settings;
     private WorldCreationUiState.WorldTypeEntry worldType;
     private final List<WorldCreationUiState.WorldTypeEntry> normalPresetList = new ArrayList();
     private final List<WorldCreationUiState.WorldTypeEntry> altPresetList = new ArrayList();
     private GameRules gameRules = new GameRules();
 
-    public WorldCreationUiState(WorldCreationContext param0, Optional<ResourceKey<WorldPreset>> param1, OptionalLong param2) {
-        this.settings = param0;
-        this.worldType = new WorldCreationUiState.WorldTypeEntry(findPreset(param0, param1).orElse(null));
+    public WorldCreationUiState(Path param0, WorldCreationContext param1, Optional<ResourceKey<WorldPreset>> param2, OptionalLong param3) {
+        this.savesFolder = param0;
+        this.settings = param1;
+        this.worldType = new WorldCreationUiState.WorldTypeEntry(findPreset(param1, param2).orElse(null));
         this.updatePresetLists();
-        this.seed = param2.isPresent() ? Long.toString(param2.getAsLong()) : "";
-        this.generateStructures = param0.options().generateStructures();
-        this.bonusChest = param0.options().generateBonusChest();
+        this.seed = param3.isPresent() ? Long.toString(param3.getAsLong()) : "";
+        this.generateStructures = param1.options().generateStructures();
+        this.bonusChest = param1.options().generateBonusChest();
+        this.targetFolder = this.findResultFolder(this.name);
     }
 
     public void addListener(Consumer<WorldCreationUiState> param0) {
@@ -70,21 +76,34 @@ public class WorldCreationUiState {
             var2.accept(this);
         }
 
-        this.nameChanged = false;
     }
 
     public void setName(String param0) {
         this.name = param0;
-        this.nameChanged = true;
+        this.targetFolder = this.findResultFolder(param0);
         this.onChanged();
+    }
+
+    private String findResultFolder(String param0) {
+        String var0 = param0.trim();
+
+        try {
+            return FileUtil.findAvailableName(this.savesFolder, !var0.isEmpty() ? var0 : DEFAULT_WORLD_NAME.getString(), "");
+        } catch (Exception var5) {
+            try {
+                return FileUtil.findAvailableName(this.savesFolder, "World", "");
+            } catch (IOException var4) {
+                throw new RuntimeException("Could not create save folder", var4);
+            }
+        }
     }
 
     public String getName() {
         return this.name;
     }
 
-    public boolean nameChanged() {
-        return this.nameChanged;
+    public String getTargetFolder() {
+        return this.targetFolder;
     }
 
     public void setGameMode(WorldCreationUiState.SelectedGameMode param0) {

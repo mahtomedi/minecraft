@@ -151,15 +151,19 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     public float getPathfindingMalus(BlockPathTypes param0) {
-        Mob var0;
-        if (this.getVehicle() instanceof Mob && ((Mob)this.getVehicle()).shouldPassengersInheritMalus()) {
-            var0 = (Mob)this.getVehicle();
-        } else {
-            var0 = this;
+        Mob var1;
+        label17: {
+            Entity var4 = this.getControlledVehicle();
+            if (var4 instanceof Mob var0 && var0.shouldPassengersInheritMalus()) {
+                var1 = var0;
+                break label17;
+            }
+
+            var1 = this;
         }
 
-        Float var2 = var0.pathfindingMalus.get(param0);
-        return var2 == null ? param0.getMalus() : var2;
+        Float var3 = var1.pathfindingMalus.get(param0);
+        return var3 == null ? param0.getMalus() : var3;
     }
 
     public void setPathfindingMalus(BlockPathTypes param0, float param1) {
@@ -175,7 +179,7 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     public MoveControl getMoveControl() {
-        Entity var2 = this.getVehicle();
+        Entity var2 = this.getControlledVehicle();
         return var2 instanceof Mob var0 ? var0.getMoveControl() : this.moveControl;
     }
 
@@ -184,7 +188,21 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     public PathNavigation getNavigation() {
-        return this.isPassenger() && this.getVehicle() instanceof Mob var0 ? var0.getNavigation() : this.navigation;
+        Entity var2 = this.getControlledVehicle();
+        return var2 instanceof Mob var0 ? var0.getNavigation() : this.navigation;
+    }
+
+    @Nullable
+    @Override
+    public LivingEntity getControllingPassenger() {
+        if (!this.isNoAi()) {
+            Entity var2 = this.getFirstPassenger();
+            if (var2 instanceof Mob var0) {
+                return var0;
+            }
+        }
+
+        return null;
     }
 
     public Sensing getSensing() {

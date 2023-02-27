@@ -369,7 +369,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                     }
                 }
 
-                if (!this.level.isClientSide && this.isPassenger() && this.getVehicle() != null && !this.getVehicle().rideableUnderWater()) {
+                if (!this.level.isClientSide && this.isPassenger() && this.getVehicle() != null && this.getVehicle().dismountsUnderwater()) {
                     this.stopRiding();
                 }
             } else if (this.getAirSupply() < this.getMaxAirSupply()) {
@@ -553,11 +553,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     protected boolean isAffectedByFluids() {
         return true;
-    }
-
-    @Override
-    public boolean rideableUnderWater() {
-        return false;
     }
 
     protected void tickDeath() {
@@ -1077,6 +1072,10 @@ public abstract class LivingEntity extends Entity implements Attackable {
                 }
 
                 var1 = true;
+            }
+
+            if (param0.is(DamageTypeTags.IS_FREEZING) && this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES)) {
+                param1 *= 5.0F;
             }
 
             this.walkAnimation.setSpeed(1.5F);
@@ -2227,7 +2226,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     protected float getFlyingSpeed() {
-        return this.hasControllingPassenger() ? this.getSpeed() * 0.1F : 0.02F;
+        return this.getControllingPassenger() instanceof Player ? this.getSpeed() * 0.1F : 0.02F;
     }
 
     public float getSpeed() {
@@ -2586,21 +2585,19 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
         this.level.getProfiler().pop();
         this.level.getProfiler().push("freezing");
-        boolean var15 = this.getType().is(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES);
         if (!this.level.isClientSide && !this.isDeadOrDying()) {
-            int var16 = this.getTicksFrozen();
+            int var15 = this.getTicksFrozen();
             if (this.isInPowderSnow && this.canFreeze()) {
-                this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var16 + 1));
+                this.setTicksFrozen(Math.min(this.getTicksRequiredToFreeze(), var15 + 1));
             } else {
-                this.setTicksFrozen(Math.max(0, var16 - 2));
+                this.setTicksFrozen(Math.max(0, var15 - 2));
             }
         }
 
         this.removeFrost();
         this.tryAddFrost();
         if (!this.level.isClientSide && this.tickCount % 40 == 0 && this.isFullyFrozen() && this.canFreeze()) {
-            int var17 = var15 ? 5 : 1;
-            this.hurt(this.damageSources().freeze(), (float)var17);
+            this.hurt(this.damageSources().freeze(), 1.0F);
         }
 
         this.level.getProfiler().pop();
@@ -3399,6 +3396,12 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     public boolean canDisableShield() {
         return this.getMainHandItem().getItem() instanceof AxeItem;
+    }
+
+    @Override
+    public float maxUpStep() {
+        float var0 = super.maxUpStep();
+        return this.getControllingPassenger() instanceof Player ? Math.max(var0, 1.0F) : var0;
     }
 
     public static record Fallsounds(SoundEvent small, SoundEvent big) {

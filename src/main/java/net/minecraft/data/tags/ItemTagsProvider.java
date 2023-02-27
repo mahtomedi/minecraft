@@ -36,8 +36,8 @@ public abstract class ItemTagsProvider extends IntrinsicHolderTagsProvider<Item>
     }
 
     @Override
-    protected CompletableFuture<HolderLookup.Provider> contentsProvider() {
-        return super.contentsProvider().thenCombineAsync(this.blockTags, (param0, param1) -> {
+    protected CompletableFuture<HolderLookup.Provider> createContentsProvider() {
+        return super.createContentsProvider().thenCombineAsync(this.blockTags, (param0, param1) -> {
             this.tagsToCopy.forEach((param1x, param2) -> {
                 TagBuilder var0 = this.getOrCreateRawBuilder(param2);
                 Optional<TagBuilder> var1x = param1.apply(param1x);

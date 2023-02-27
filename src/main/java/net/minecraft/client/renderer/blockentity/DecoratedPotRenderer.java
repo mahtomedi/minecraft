@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
@@ -59,14 +60,20 @@ public class DecoratedPotRenderer implements BlockEntityRenderer<DecoratedPotBlo
     public static LayerDefinition createBaseLayer() {
         MeshDefinition var0 = new MeshDefinition();
         PartDefinition var1 = var0.getRoot();
+        CubeDeformation var2 = new CubeDeformation(0.2F);
+        CubeDeformation var3 = new CubeDeformation(-0.1F);
         var1.addOrReplaceChild(
             "neck",
-            CubeListBuilder.create().texOffs(0, 0).addBox(5.0F, 16.0F, 5.0F, 6.0F, 4.0F, 6.0F),
-            PartPose.offsetAndRotation(0.0F, 36.0F, 16.0F, (float) Math.PI, 0.0F, 0.0F)
+            CubeListBuilder.create()
+                .texOffs(0, 0)
+                .addBox(4.0F, 17.0F, 4.0F, 8.0F, 3.0F, 8.0F, var3)
+                .texOffs(0, 5)
+                .addBox(5.0F, 20.0F, 5.0F, 6.0F, 1.0F, 6.0F, var2),
+            PartPose.offsetAndRotation(0.0F, 37.0F, 16.0F, (float) Math.PI, 0.0F, 0.0F)
         );
-        CubeListBuilder var2 = CubeListBuilder.create().texOffs(0, 10).addBox(0.0F, 0.0F, 0.0F, 14.0F, 14.0F, 0.0F);
-        var1.addOrReplaceChild("top", var2, PartPose.offsetAndRotation(1.0F, 16.0F, 1.0F, (float) (Math.PI / 2), 0.0F, 0.0F));
-        var1.addOrReplaceChild("bottom", var2, PartPose.offsetAndRotation(15.0F, 0.0F, 1.0F, (float) (Math.PI / 2), 0.0F, (float) Math.PI));
+        CubeListBuilder var4 = CubeListBuilder.create().texOffs(-14, 13).addBox(0.0F, 0.0F, 0.0F, 14.0F, 0.0F, 14.0F);
+        var1.addOrReplaceChild("top", var4, PartPose.offsetAndRotation(1.0F, 16.0F, 1.0F, 0.0F, 0.0F, 0.0F));
+        var1.addOrReplaceChild("bottom", var4, PartPose.offsetAndRotation(1.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F));
         return LayerDefinition.create(var0, 32, 32);
     }
 

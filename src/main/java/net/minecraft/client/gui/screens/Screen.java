@@ -323,15 +323,15 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
             }
 
             var13.endBatch();
-            param0.popPose();
             var14 = var8;
 
             for(int var17 = 0; var17 < param1.size(); ++var17) {
                 ClientTooltipComponent var18 = param1.get(var17);
-                var18.renderImage(this.font, var7, var14, param0, this.itemRenderer, 400);
+                var18.renderImage(this.font, var7, var14, param0, this.itemRenderer);
                 var14 += var18.getHeight() + (var17 == 0 ? 2 : 0);
             }
 
+            param0.popPose();
         }
     }
 

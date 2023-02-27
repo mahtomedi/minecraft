@@ -32,6 +32,6 @@ public interface ClientTooltipComponent {
     default void renderText(Font param0, int param1, int param2, Matrix4f param3, MultiBufferSource.BufferSource param4) {
     }
 
-    default void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4, int param5) {
+    default void renderImage(Font param0, int param1, int param2, PoseStack param3, ItemRenderer param4) {
     }
 }

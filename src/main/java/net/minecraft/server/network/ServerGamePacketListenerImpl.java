@@ -1168,9 +1168,9 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
     @Override
     public void handlePaddleBoat(ServerboundPaddleBoatPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.getLevel());
-        Entity var0 = this.player.getVehicle();
-        if (var0 instanceof Boat) {
-            ((Boat)var0).setPaddleState(param0.getLeft(), param0.getRight());
+        Entity var0 = this.player.getControlledVehicle();
+        if (var0 instanceof Boat var1) {
+            var1.setPaddleState(param0.getLeft(), param0.getRight());
         }
 
     }
@@ -1431,15 +1431,17 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                 }
                 break;
             case START_RIDING_JUMP:
-                if (this.player.getVehicle() instanceof PlayerRideableJumping var0) {
+                Entity var7 = this.player.getControlledVehicle();
+                if (var7 instanceof PlayerRideableJumping var0) {
                     int var1 = param0.getData();
-                    if (var0.canJump(this.player) && var1 > 0) {
+                    if (var0.canJump() && var1 > 0) {
                         var0.handleStartJump(var1);
                     }
                 }
                 break;
             case STOP_RIDING_JUMP:
-                if (this.player.getVehicle() instanceof PlayerRideableJumping var2) {
+                Entity var6 = this.player.getControlledVehicle();
+                if (var6 instanceof PlayerRideableJumping var2) {
                     var2.handleStopJump();
                 }
                 break;

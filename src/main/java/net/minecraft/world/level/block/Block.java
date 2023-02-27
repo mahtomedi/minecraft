@@ -310,10 +310,10 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     public static void popResource(Level param0, BlockPos param1, ItemStack param2) {
-        float var0 = EntityType.ITEM.getHeight() / 2.0F;
-        double var1 = (double)((float)param1.getX() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25);
-        double var2 = (double)((float)param1.getY() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25) - (double)var0;
-        double var3 = (double)((float)param1.getZ() + 0.5F) + Mth.nextDouble(param0.random, -0.25, 0.25);
+        double var0 = (double)EntityType.ITEM.getHeight() / 2.0;
+        double var1 = (double)param1.getX() + 0.5 + Mth.nextDouble(param0.random, -0.25, 0.25);
+        double var2 = (double)param1.getY() + 0.5 + Mth.nextDouble(param0.random, -0.25, 0.25) - var0;
+        double var3 = (double)param1.getZ() + 0.5 + Mth.nextDouble(param0.random, -0.25, 0.25);
         popResource(param0, () -> new ItemEntity(param0, var1, var2, var3, param2), param2);
     }
 
@@ -321,13 +321,11 @@ public class Block extends BlockBehaviour implements ItemLike {
         int var0 = param2.getStepX();
         int var1 = param2.getStepY();
         int var2 = param2.getStepZ();
-        float var3 = EntityType.ITEM.getWidth() / 2.0F;
-        float var4 = EntityType.ITEM.getHeight() / 2.0F;
-        double var5 = (double)((float)param1.getX() + 0.5F) + (var0 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var0 * (0.5F + var3)));
-        double var6 = (double)((float)param1.getY() + 0.5F)
-            + (var1 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var1 * (0.5F + var4)))
-            - (double)var4;
-        double var7 = (double)((float)param1.getZ() + 0.5F) + (var2 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)((float)var2 * (0.5F + var3)));
+        double var3 = (double)EntityType.ITEM.getWidth() / 2.0;
+        double var4 = (double)EntityType.ITEM.getHeight() / 2.0;
+        double var5 = (double)param1.getX() + 0.5 + (var0 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)var0 * (0.5 + var3));
+        double var6 = (double)param1.getY() + 0.5 + (var1 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)var1 * (0.5 + var4)) - var4;
+        double var7 = (double)param1.getZ() + 0.5 + (var2 == 0 ? Mth.nextDouble(param0.random, -0.25, 0.25) : (double)var2 * (0.5 + var3));
         double var8 = var0 == 0 ? Mth.nextDouble(param0.random, -0.1, 0.1) : (double)var0 * 0.1;
         double var9 = var1 == 0 ? Mth.nextDouble(param0.random, 0.0, 0.1) : (double)var1 * 0.1 + 0.1;
         double var10 = var2 == 0 ? Mth.nextDouble(param0.random, -0.1, 0.1) : (double)var2 * 0.1;

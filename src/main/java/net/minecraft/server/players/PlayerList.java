@@ -236,9 +236,9 @@ public abstract class PlayerList {
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
         this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(param1)));
+        this.sendLevelInfo(param1, var7);
         var7.addNewPlayer(param1);
         this.server.getCustomBossEvents().onPlayerConnect(param1);
-        this.sendLevelInfo(param1, var7);
         this.server.getServerResourcePack().ifPresent(param1x -> param1.sendTexturePack(param1x.url(), param1x.hash(), param1x.isRequired(), param1x.prompt()));
 
         for(MobEffectInstance var18 : param1.getActiveEffects()) {

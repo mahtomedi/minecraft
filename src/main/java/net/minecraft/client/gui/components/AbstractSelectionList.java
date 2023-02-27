@@ -224,28 +224,27 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         if (this.renderTopAndBottom) {
             RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
             int var5 = 32;
-            int var6 = -100;
             RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
-            blit(param0, this.x0, 0, -100, 0.0F, 0.0F, this.width, this.y0, 32, 32);
-            blit(param0, this.x0, this.y1, -100, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
+            blit(param0, this.x0, 0, 0.0F, 0.0F, this.width, this.y0, 32, 32);
+            blit(param0, this.x0, this.y1, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            int var7 = 4;
+            int var6 = 4;
             fillGradient(param0, this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
             fillGradient(param0, this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
         }
 
-        int var8 = this.getMaxScroll();
-        if (var8 > 0) {
-            int var9 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            var9 = Mth.clamp(var9, 32, this.y1 - this.y0 - 8);
-            int var10 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var9) / var8 + this.y0;
-            if (var10 < this.y0) {
-                var10 = this.y0;
+        int var7 = this.getMaxScroll();
+        if (var7 > 0) {
+            int var8 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            var8 = Mth.clamp(var8, 32, this.y1 - this.y0 - 8);
+            int var9 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var8) / var7 + this.y0;
+            if (var9 < this.y0) {
+                var9 = this.y0;
             }
 
             fill(param0, var0, this.y0, var1, this.y1, -16777216);
-            fill(param0, var0, var10, var1, var10 + var9, -8355712);
-            fill(param0, var0, var10, var1 - 1, var10 + var9 - 1, -4144960);
+            fill(param0, var0, var9, var1, var9 + var8, -8355712);
+            fill(param0, var0, var9, var1 - 1, var9 + var8 - 1, -4144960);
         }
 
         this.renderDecorations(param0, param1, param2);

@@ -544,7 +544,9 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         .setScreen(
                             new ConfirmScreen(
                                 param3 -> this.minecraft
-                                        .setScreen((Screen)(param3 ? CreateWorldScreen.createFromExisting(this.screen, var2, var3, var4) : this.screen)),
+                                        .setScreen(
+                                            (Screen)(param3 ? CreateWorldScreen.createFromExisting(this.minecraft, this.screen, var2, var3, var4) : this.screen)
+                                        ),
                                 Component.translatable("selectWorld.recreate.customized.title"),
                                 Component.translatable("selectWorld.recreate.customized.text"),
                                 CommonComponents.GUI_PROCEED,
@@ -552,7 +554,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                             )
                         );
                 } else {
-                    this.minecraft.setScreen(CreateWorldScreen.createFromExisting(this.screen, var2, var3, var4));
+                    this.minecraft.setScreen(CreateWorldScreen.createFromExisting(this.minecraft, this.screen, var2, var3, var4));
                 }
             } catch (Exception var8) {
                 WorldSelectionList.LOGGER.error("Unable to recreate world", (Throwable)var8);

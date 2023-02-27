@@ -31,7 +31,8 @@ import org.slf4j.Logger;
 public abstract class TagsProvider<T> implements DataProvider {
     private static final Logger LOGGER = LogUtils.getLogger();
     protected final PackOutput.PathProvider pathProvider;
-    private final CompletableFuture<HolderLookup.Provider> contentsProvider;
+    private final CompletableFuture<HolderLookup.Provider> lookupProvider;
+    private final CompletableFuture<Void> contentsDone = new CompletableFuture<>();
     private final CompletableFuture<TagsProvider.TagLookup<T>> parentProvider;
     protected final ResourceKey<? extends Registry<T>> registryKey;
     private final Map<ResourceLocation, TagBuilder> builders = Maps.newLinkedHashMap();
@@ -49,11 +50,7 @@ public abstract class TagsProvider<T> implements DataProvider {
         this.pathProvider = param0.createPathProvider(PackOutput.Target.DATA_PACK, TagManager.getTagDir(param1));
         this.registryKey = param1;
         this.parentProvider = param3;
-        this.contentsProvider = param2.thenApply(param0x -> {
-            this.builders.clear();
-            this.addTags(param0x);
-            return param0x;
-        });
+        this.lookupProvider = param2;
     }
 
     @Override
@@ -65,7 +62,11 @@ public abstract class TagsProvider<T> implements DataProvider {
 
     @Override
     public CompletableFuture<?> run(CachedOutput param0) {
-        return this.contentsProvider()
+        return this.createContentsProvider()
+            .thenApply(param0x -> {
+                this.contentsDone.complete(null);
+                return param0x;
+            })
             .thenCombineAsync(this.parentProvider, (param0x, param1) -> new CombinedData(param0x, param1))
             .thenCompose(
                 param1 -> {
@@ -121,11 +122,15 @@ public abstract class TagsProvider<T> implements DataProvider {
     }
 
     public CompletableFuture<TagsProvider.TagLookup<T>> contentsGetter() {
-        return this.contentsProvider().thenApply(param0 -> param0x -> Optional.ofNullable(this.builders.get(param0x.location())));
+        return this.contentsDone.thenApply(param0 -> param0x -> Optional.ofNullable(this.builders.get(param0x.location())));
     }
 
-    protected CompletableFuture<HolderLookup.Provider> contentsProvider() {
-        return this.contentsProvider;
+    protected CompletableFuture<HolderLookup.Provider> createContentsProvider() {
+        return this.lookupProvider.thenApply(param0 -> {
+            this.builders.clear();
+            this.addTags(param0);
+            return param0;
+        });
     }
 
     protected static class TagAppender<T> {

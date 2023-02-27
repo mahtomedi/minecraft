@@ -392,8 +392,20 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             var0.resetUses();
         }
 
+        this.resendOffersToTradingPlayer();
         this.lastRestockGameTime = this.level.getGameTime();
         ++this.numberOfRestocksToday;
+    }
+
+    private void resendOffersToTradingPlayer() {
+        MerchantOffers var0 = this.getOffers();
+        Player var1 = this.getTradingPlayer();
+        if (var1 != null && !var0.isEmpty()) {
+            var1.sendMerchantOffers(
+                var1.containerMenu.containerId, var0, this.getVillagerData().getLevel(), this.getVillagerXp(), this.showProgressBar(), this.canRestock()
+            );
+        }
+
     }
 
     private boolean needsToRestock() {
@@ -442,6 +454,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
             this.updateDemand();
         }
 
+        this.resendOffersToTradingPlayer();
     }
 
     private void updateDemand() {

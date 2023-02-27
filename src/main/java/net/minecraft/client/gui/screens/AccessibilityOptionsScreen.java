@@ -3,7 +3,9 @@ package net.minecraft.client.gui.screens;
 import net.minecraft.Util;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -41,6 +43,17 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
 
     public AccessibilityOptionsScreen(Screen param0, Options param1) {
         super(param0, param1, Component.translatable("options.accessibility.title"), options(param1));
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        AbstractWidget var0 = this.list.findOption(this.options.highContrast());
+        if (var0 != null && !this.minecraft.getResourcePackRepository().getAvailableIds().contains("high_contrast")) {
+            var0.active = false;
+            var0.setTooltip(Tooltip.create(Component.translatable("options.accessibility.high_contrast.error.tooltip")));
+        }
+
     }
 
     @Override

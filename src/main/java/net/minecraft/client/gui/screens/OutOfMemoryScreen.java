@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,7 +19,7 @@ public class OutOfMemoryScreen extends Screen {
     @Override
     protected void init() {
         this.addRenderableWidget(
-            Button.builder(Component.translatable("gui.toTitle"), param0 -> this.minecraft.setScreen(new TitleScreen()))
+            Button.builder(CommonComponents.GUI_TO_TITLE, param0 -> this.minecraft.setScreen(new TitleScreen()))
                 .bounds(this.width / 2 - 155, this.height / 4 + 120 + 12, 150, 20)
                 .build()
         );

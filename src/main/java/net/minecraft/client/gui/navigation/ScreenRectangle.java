@@ -1,5 +1,6 @@
 package net.minecraft.client.gui.navigation;
 
+import javax.annotation.Nullable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -60,6 +61,15 @@ public record ScreenRectangle(ScreenPosition position, int width, int height) {
 
     public int getCenterInAxis(ScreenAxis param0) {
         return (this.getBoundInDirection(param0.getPositive()) + this.getBoundInDirection(param0.getNegative())) / 2;
+    }
+
+    @Nullable
+    public ScreenRectangle intersection(ScreenRectangle param0) {
+        int var0 = Math.max(this.left(), param0.left());
+        int var1 = Math.max(this.top(), param0.top());
+        int var2 = Math.min(this.right(), param0.right());
+        int var3 = Math.min(this.bottom(), param0.bottom());
+        return var0 < var2 && var1 < var3 ? new ScreenRectangle(var0, var1, var2 - var0, var3 - var1) : null;
     }
 
     public int top() {

@@ -200,15 +200,11 @@ public class ItemProperties {
                     ? 1.0F
                     : 0.0F
         );
-        register(
-            Items.CROSSBOW, new ResourceLocation("charged"), (param0, param1, param2, param3) -> param2 != null && CrossbowItem.isCharged(param0) ? 1.0F : 0.0F
-        );
+        register(Items.CROSSBOW, new ResourceLocation("charged"), (param0, param1, param2, param3) -> CrossbowItem.isCharged(param0) ? 1.0F : 0.0F);
         register(
             Items.CROSSBOW,
             new ResourceLocation("firework"),
-            (param0, param1, param2, param3) -> param2 != null
-                        && CrossbowItem.isCharged(param0)
-                        && CrossbowItem.containsChargedProjectile(param0, Items.FIREWORK_ROCKET)
+            (param0, param1, param2, param3) -> CrossbowItem.isCharged(param0) && CrossbowItem.containsChargedProjectile(param0, Items.FIREWORK_ROCKET)
                     ? 1.0F
                     : 0.0F
         );

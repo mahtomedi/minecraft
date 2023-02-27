@@ -3,6 +3,7 @@ package net.minecraft.client.gui.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +28,7 @@ public class DatapackLoadFailureScreen extends Screen {
                 .build()
         );
         this.addRenderableWidget(
-            Button.builder(Component.translatable("gui.toTitle"), param0 -> this.minecraft.setScreen(null))
+            Button.builder(CommonComponents.GUI_TO_TITLE, param0 -> this.minecraft.setScreen(null))
                 .bounds(this.width / 2 - 155 + 160, this.height / 6 + 96, 150, 20)
                 .build()
         );

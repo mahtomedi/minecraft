@@ -130,11 +130,6 @@ public class SkeletonHorse extends AbstractHorse {
     }
 
     @Override
-    public boolean rideableUnderWater() {
-        return true;
-    }
-
-    @Override
     protected float getWaterSlowDown() {
         return 0.96F;
     }

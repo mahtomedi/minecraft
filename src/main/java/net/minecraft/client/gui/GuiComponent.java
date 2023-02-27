@@ -9,14 +9,22 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.math.Divisor;
+import it.unimi.dsi.fastutil.ints.IntIterator;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Objects;
 import java.util.function.BiConsumer;
+import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
@@ -27,6 +35,7 @@ public abstract class GuiComponent {
     public static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
     public static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
     public static final ResourceLocation LIGHT_DIRT_BACKGROUND = new ResourceLocation("textures/gui/light_dirt_background.png");
+    private static final GuiComponent.ScissorStack SCISSOR_STACK = new GuiComponent.ScissorStack();
 
     protected static void hLine(PoseStack param0, int param1, int param2, int param3, int param4) {
         if (param2 < param1) {
@@ -49,18 +58,27 @@ public abstract class GuiComponent {
     }
 
     public static void enableScissor(int param0, int param1, int param2, int param3) {
-        Window var0 = Minecraft.getInstance().getWindow();
-        int var1 = var0.getHeight();
-        double var2 = var0.getGuiScale();
-        double var3 = (double)param0 * var2;
-        double var4 = (double)var1 - (double)param3 * var2;
-        double var5 = (double)(param2 - param0) * var2;
-        double var6 = (double)(param3 - param1) * var2;
-        RenderSystem.enableScissor((int)var3, (int)var4, Math.max(0, (int)var5), Math.max(0, (int)var6));
+        applyScissor(SCISSOR_STACK.push(new ScreenRectangle(param0, param1, param2 - param0, param3 - param1)));
     }
 
     public static void disableScissor() {
-        RenderSystem.disableScissor();
+        applyScissor(SCISSOR_STACK.pop());
+    }
+
+    private static void applyScissor(@Nullable ScreenRectangle param0) {
+        if (param0 != null) {
+            Window var0 = Minecraft.getInstance().getWindow();
+            int var1 = var0.getHeight();
+            double var2 = var0.getGuiScale();
+            double var3 = (double)param0.left() * var2;
+            double var4 = (double)var1 - (double)param0.bottom() * var2;
+            double var5 = (double)param0.width() * var2;
+            double var6 = (double)param0.height() * var2;
+            RenderSystem.enableScissor((int)var3, (int)var4, Math.max(0, (int)var5), Math.max(0, (int)var6));
+        } else {
+            RenderSystem.disableScissor();
+        }
+
     }
 
     public static void fill(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
@@ -307,6 +325,12 @@ public abstract class GuiComponent {
     }
 
     public static void blitNineSliced(
+        PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10
+    ) {
+        blitNineSliced(param0, param1, param2, param3, param4, param5, param6, param5, param6, param7, param8, param9, param10);
+    }
+
+    public static void blitNineSliced(
         PoseStack param0,
         int param1,
         int param2,
@@ -321,6 +345,10 @@ public abstract class GuiComponent {
         int param11,
         int param12
     ) {
+        param5 = Math.min(param5, param3 / 2);
+        param7 = Math.min(param7, param3 / 2);
+        param6 = Math.min(param6, param4 / 2);
+        param8 = Math.min(param8, param4 / 2);
         if (param3 == param9 && param4 == param10) {
             blit(param0, param1, param2, param11, param12, param3, param4);
         } else if (param4 == param10) {
@@ -333,7 +361,7 @@ public abstract class GuiComponent {
             blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param3, param8);
         } else {
             blit(param0, param1, param2, param11, param12, param5, param6);
-            blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param10);
+            blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param6);
             blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param6);
             blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param5, param8);
             blitRepeating(
@@ -345,10 +373,10 @@ public abstract class GuiComponent {
                 param11 + param5,
                 param12 + param10 - param8,
                 param9 - param7 - param5,
-                param10
+                param8
             );
             blit(param0, param1 + param3 - param7, param2 + param4 - param8, param11 + param9 - param7, param12 + param10 - param8, param7, param8);
-            blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
+            blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param5, param10 - param8 - param6);
             blitRepeating(
                 param0,
                 param1 + param5,
@@ -368,23 +396,60 @@ public abstract class GuiComponent {
                 param4 - param8 - param6,
                 param11 + param9 - param7,
                 param12 + param6,
-                param9,
+                param7,
                 param10 - param8 - param6
             );
         }
     }
 
     public static void blitRepeating(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
-        for(int var0 = 0; var0 < param3; var0 += param7) {
-            int var1 = param1 + var0;
-            int var2 = Math.min(param7, param3 - var0);
+        int var0 = param1;
 
-            for(int var3 = 0; var3 < param4; var3 += param8) {
-                int var4 = param2 + var3;
-                int var5 = Math.min(param8, param4 - var3);
-                blit(param0, var1, var4, param5, param6, var2, var5);
+        int var2;
+        for(IntIterator var1 = slices(param3, param7); var1.hasNext(); var0 += var2) {
+            var2 = var1.nextInt();
+            int var3 = (param7 - var2) / 2;
+            int var4 = param2;
+
+            int var6;
+            for(IntIterator var5 = slices(param4, param8); var5.hasNext(); var4 += var6) {
+                var6 = var5.nextInt();
+                int var7 = (param8 - var6) / 2;
+                blit(param0, var0, var4, param5 + var3, param6 + var7, var2, var6);
             }
         }
 
+    }
+
+    private static IntIterator slices(int param0, int param1) {
+        int var0 = Mth.positiveCeilDiv(param0, param1);
+        return new Divisor(param0, var0);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static class ScissorStack {
+        private final Deque<ScreenRectangle> stack = new ArrayDeque();
+
+        public ScreenRectangle push(ScreenRectangle param0) {
+            ScreenRectangle var0 = (ScreenRectangle)this.stack.peekLast();
+            if (var0 != null) {
+                ScreenRectangle var1 = (ScreenRectangle)Objects.requireNonNullElse(param0.intersection(var0), ScreenRectangle.empty());
+                this.stack.addLast(var1);
+                return var1;
+            } else {
+                this.stack.addLast(param0);
+                return param0;
+            }
+        }
+
+        @Nullable
+        public ScreenRectangle pop() {
+            if (this.stack.isEmpty()) {
+                throw new IllegalStateException("Scissor stack underflow");
+            } else {
+                this.stack.removeLast();
+                return (ScreenRectangle)this.stack.peekLast();
+            }
+        }
     }
 }
