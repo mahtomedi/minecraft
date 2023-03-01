@@ -19,6 +19,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -373,29 +374,26 @@ public class EnderMan extends Monster implements NeutralMob {
     public boolean hurt(DamageSource param0, float param1) {
         if (this.isInvulnerableTo(param0)) {
             return false;
-        } else if (param0.isIndirect()) {
-            Entity var5 = param0.getDirectEntity();
-            boolean var1;
-            if (var5 instanceof ThrownPotion var0) {
-                var1 = this.hurtWithCleanWater(param0, var0, param1);
-            } else {
-                var1 = false;
-            }
-
-            for(int var3 = 0; var3 < 64; ++var3) {
-                if (this.teleport()) {
-                    return true;
-                }
-            }
-
-            return var1;
         } else {
-            boolean var4 = super.hurt(param0, param1);
-            if (!this.level.isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
-                this.teleport();
-            }
+            boolean var0 = param0.getDirectEntity() instanceof ThrownPotion;
+            if (!param0.is(DamageTypeTags.IS_PROJECTILE) && !var0) {
+                boolean var3 = super.hurt(param0, param1);
+                if (!this.level.isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
+                    this.teleport();
+                }
 
-            return var4;
+                return var3;
+            } else {
+                boolean var1 = var0 && this.hurtWithCleanWater(param0, (ThrownPotion)param0.getDirectEntity(), param1);
+
+                for(int var2 = 0; var2 < 64; ++var2) {
+                    if (this.teleport()) {
+                        return true;
+                    }
+                }
+
+                return var1;
+            }
         }
     }
 

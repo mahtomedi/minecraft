@@ -181,7 +181,7 @@ public final class OptionInstance<T> {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static record ClampingLazyMaxIntRange(int minInclusive, IntSupplier maxSupplier)
+    public static record ClampingLazyMaxIntRange(int minInclusive, IntSupplier maxSupplier, int encodableMaxInclusive)
         implements OptionInstance.IntRangeBase,
         OptionInstance.SliderableOrCyclableValueSet<Integer> {
         public Optional<Integer> validateValue(Integer param0) {
@@ -198,7 +198,7 @@ public final class OptionInstance<T> {
             return ExtraCodecs.validate(
                 Codec.INT,
                 param0 -> {
-                    int var0 = this.maxSupplier.getAsInt() + 1;
+                    int var0 = this.encodableMaxInclusive + 1;
                     return param0.compareTo(this.minInclusive) >= 0 && param0.compareTo(var0) <= 0
                         ? DataResult.success(param0)
                         : DataResult.error(() -> "Value " + param0 + " outside of range [" + this.minInclusive + ":" + var0 + "]", param0);

@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.ClipboardManager;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.TextureUtil;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.Locale;
 import javax.annotation.Nullable;
@@ -25,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -134,8 +137,8 @@ public class KeyboardHandler {
                     if (this.minecraft.player.isReducedDebugInfo()) {
                         return false;
                     } else {
-                        ClientPacketListener var3 = this.minecraft.player.connection;
-                        if (var3 == null) {
+                        ClientPacketListener var5 = this.minecraft.player.connection;
+                        if (var5 == null) {
                             return false;
                         }
 
@@ -215,9 +218,18 @@ public class KeyboardHandler {
                     var2.addMessage(Component.translatable("debug.creative_spectator.help"));
                     var2.addMessage(Component.translatable("debug.pause_focus.help"));
                     var2.addMessage(Component.translatable("debug.help.help"));
+                    var2.addMessage(Component.translatable("debug.dump_dynamic_textures.help"));
                     var2.addMessage(Component.translatable("debug.reload_resourcepacks.help"));
                     var2.addMessage(Component.translatable("debug.pause.help"));
                     var2.addMessage(Component.translatable("debug.gamemodes.help"));
+                    return true;
+                case 83:
+                    Path var3 = TextureUtil.getDebugTexturePath(this.minecraft.gameDirectory.toPath()).toAbsolutePath();
+                    this.minecraft.getTextureManager().dumpAllSheets(var3);
+                    Component var4 = Component.literal(var3.toString())
+                        .withStyle(ChatFormatting.UNDERLINE)
+                        .withStyle(param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var3.toFile().toString())));
+                    this.debugFeedbackTranslated("debug.dump_dynamic_textures", var4);
                     return true;
                 case 84:
                     this.debugFeedbackTranslated("debug.reload_resourcepacks.message");

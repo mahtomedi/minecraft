@@ -3,6 +3,7 @@ package net.minecraft.world.damagesource;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -119,6 +120,10 @@ public class DamageSource {
     }
 
     public boolean is(TagKey<DamageType> param0) {
+        return this.type.is(param0);
+    }
+
+    public boolean is(ResourceKey<DamageType> param0) {
         return this.type.is(param0);
     }
 

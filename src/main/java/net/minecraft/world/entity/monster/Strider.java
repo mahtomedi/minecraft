@@ -273,7 +273,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     protected float getRiddenSpeed(LivingEntity param0) {
-        return super.getRiddenSpeed(param0) * (this.isSuffocating() ? 0.35F : 0.55F) * this.steering.boostFactor();
+        return (float)(this.getAttributeValue(Attributes.MOVEMENT_SPEED) * (double)(this.isSuffocating() ? 0.35F : 0.55F) * (double)this.steering.boostFactor());
     }
 
     @Override

@@ -3,8 +3,11 @@ package net.minecraft.client.gui.components.tabs;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -31,7 +34,7 @@ public class TabManager {
 
     }
 
-    public void setCurrentTab(Tab param0) {
+    public void setCurrentTab(Tab param0, boolean param1) {
         if (!Objects.equals(this.currentTab, param0)) {
             if (this.currentTab != null) {
                 this.currentTab.visitChildren(this.removeWidget);
@@ -41,6 +44,10 @@ public class TabManager {
             param0.visitChildren(this.addWidget);
             if (this.tabArea != null) {
                 param0.doLayout(this.tabArea);
+            }
+
+            if (param1) {
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
         }
 

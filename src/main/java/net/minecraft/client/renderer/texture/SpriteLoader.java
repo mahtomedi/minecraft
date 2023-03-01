@@ -34,14 +34,18 @@ public class SpriteLoader {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final ResourceLocation location;
     private final int maxSupportedTextureSize;
+    private final int minWidth;
+    private final int minHeight;
 
-    public SpriteLoader(ResourceLocation param0, int param1) {
+    public SpriteLoader(ResourceLocation param0, int param1, int param2, int param3) {
         this.location = param0;
         this.maxSupportedTextureSize = param1;
+        this.minWidth = param2;
+        this.minHeight = param3;
     }
 
     public static SpriteLoader create(TextureAtlas param0) {
-        return new SpriteLoader(param0.location(), param0.maxSupportedTextureSize());
+        return new SpriteLoader(param0.location(), param0.maxSupportedTextureSize(), param0.getWidth(), param0.getHeight());
     }
 
     public SpriteLoader.Preparations stitch(List<SpriteContents> param0, int param1, Executor param2) {
@@ -75,12 +79,12 @@ public class SpriteLoader {
 
         try {
             var1.stitch();
-        } catch (StitcherException var141) {
-            CrashReport var11 = CrashReport.forThrowable(var141, "Stitching");
+        } catch (StitcherException var161) {
+            CrashReport var11 = CrashReport.forThrowable(var161, "Stitching");
             CrashReportCategory var12 = var11.addCategory("Stitcher");
             var12.setDetail(
                 "Sprites",
-                var141.getAllSprites()
+                var161.getAllSprites()
                     .stream()
                     .map(param0x -> String.format(Locale.ROOT, "%s[%dx%d]", param0x.name(), param0x.width(), param0x.height()))
                     .collect(Collectors.joining(","))
@@ -89,16 +93,18 @@ public class SpriteLoader {
             throw new ReportedException(var11);
         }
 
-        Map<ResourceLocation, TextureAtlasSprite> var13 = this.getStitchedSprites(var1);
-        TextureAtlasSprite var14 = var13.get(MissingTextureAtlasSprite.getLocation());
-        CompletableFuture<Void> var15;
+        int var13 = Math.max(var1.getWidth(), this.minWidth);
+        int var14 = Math.max(var1.getHeight(), this.minHeight);
+        Map<ResourceLocation, TextureAtlasSprite> var15 = this.getStitchedSprites(var1, var13, var14);
+        TextureAtlasSprite var16 = var15.get(MissingTextureAtlasSprite.getLocation());
+        CompletableFuture<Void> var17;
         if (var8 > 0) {
-            var15 = CompletableFuture.runAsync(() -> var13.values().forEach(param1x -> param1x.contents().increaseMipLevel(var8)), param2);
+            var17 = CompletableFuture.runAsync(() -> var15.values().forEach(param1x -> param1x.contents().increaseMipLevel(var8)), param2);
         } else {
-            var15 = CompletableFuture.completedFuture(null);
+            var17 = CompletableFuture.completedFuture(null);
         }
 
-        return new SpriteLoader.Preparations(var1.getWidth(), var1.getHeight(), var8, var14, var13, var15);
+        return new SpriteLoader.Preparations(var13, var14, var8, var16, var15, var17);
     }
 
     public static CompletableFuture<List<SpriteContents>> runSpriteSuppliers(List<Supplier<SpriteContents>> param0, Executor param1) {
@@ -140,11 +146,9 @@ public class SpriteLoader {
         }
     }
 
-    private Map<ResourceLocation, TextureAtlasSprite> getStitchedSprites(Stitcher<SpriteContents> param0) {
+    private Map<ResourceLocation, TextureAtlasSprite> getStitchedSprites(Stitcher<SpriteContents> param0, int param1, int param2) {
         Map<ResourceLocation, TextureAtlasSprite> var0 = new HashMap<>();
-        int var1 = param0.getWidth();
-        int var2 = param0.getHeight();
-        param0.gatherSprites((param3, param4, param5) -> var0.put(param3.name(), new TextureAtlasSprite(this.location, param3, var1, var2, param4, param5)));
+        param0.gatherSprites((param3, param4, param5) -> var0.put(param3.name(), new TextureAtlasSprite(this.location, param3, param1, param2, param4, param5)));
         return var0;
     }
 

@@ -52,8 +52,6 @@ public class Stitcher<T extends Stitcher.Entry> {
             }
         }
 
-        this.storageX = Mth.smallestEncompassingPowerOfTwo(this.storageX);
-        this.storageY = Mth.smallestEncompassingPowerOfTwo(this.storageY);
     }
 
     public void gatherSprites(Stitcher.SpriteLoader<T> param0) {
@@ -99,14 +97,14 @@ public class Stitcher<T extends Stitcher.Entry> {
             Stitcher.Region<T> var10;
             if (var8) {
                 if (this.storageY == 0) {
-                    this.storageY = param0.height;
+                    this.storageY = var3;
                 }
 
-                var10 = new Stitcher.Region<>(this.storageX, 0, param0.width, this.storageY);
-                this.storageX += param0.width;
+                var10 = new Stitcher.Region<>(this.storageX, 0, var2 - this.storageX, this.storageY);
+                this.storageX = var2;
             } else {
-                var10 = new Stitcher.Region<>(0, this.storageY, this.storageX, param0.height);
-                this.storageY += param0.height;
+                var10 = new Stitcher.Region<>(0, this.storageY, this.storageX, var3 - this.storageY);
+                this.storageY = var3;
             }
 
             var10.add(param0);

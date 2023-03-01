@@ -154,6 +154,10 @@ public class Brain<E extends LivingEntity> {
         return this.checkMemory(param0, MemoryStatus.VALUE_PRESENT);
     }
 
+    public void clearMemories() {
+        this.memories.keySet().forEach(param0 -> this.memories.put(param0, Optional.empty()));
+    }
+
     public <U> void eraseMemory(MemoryModuleType<U> param0) {
         this.setMemory(param0, Optional.empty());
     }

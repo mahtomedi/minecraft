@@ -66,16 +66,16 @@ public class WitherSkull extends AbstractHurtingProjectile {
                 var3 = var0.hurt(this.damageSources().magic(), 5.0F);
             }
 
-            if (var3 && var0 instanceof LivingEntity) {
-                int var5 = 0;
+            if (var3 && var0 instanceof LivingEntity var5) {
+                int var6 = 0;
                 if (this.level.getDifficulty() == Difficulty.NORMAL) {
-                    var5 = 10;
+                    var6 = 10;
                 } else if (this.level.getDifficulty() == Difficulty.HARD) {
-                    var5 = 40;
+                    var6 = 40;
                 }
 
-                if (var5 > 0) {
-                    ((LivingEntity)var0).addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var5, 1), this.getEffectSource());
+                if (var6 > 0) {
+                    var5.addEffect(new MobEffectInstance(MobEffects.WITHER, 20 * var6, 1), this.getEffectSource());
                 }
             }
 
