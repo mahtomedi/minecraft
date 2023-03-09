@@ -13,8 +13,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
-    private static final String GUIDE_LINK = "https://aka.ms/MinecraftJavaAccessibility";
-
     private static OptionInstance<?>[] options(Options param0) {
         return new OptionInstance[]{
             param0.narrator(),

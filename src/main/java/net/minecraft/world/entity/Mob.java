@@ -560,9 +560,15 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     public ItemStack equipItemIfPossible(ItemStack param0) {
-        EquipmentSlot var0 = this.getEquipmentSlotForItemStack(param0);
+        EquipmentSlot var0 = getEquipmentSlotForItem(param0);
         ItemStack var1 = this.getItemBySlot(var0);
         boolean var2 = this.canReplaceCurrentItem(param0, var1);
+        if (var0.isArmor() && !var2) {
+            var0 = EquipmentSlot.MAINHAND;
+            var1 = this.getItemBySlot(var0);
+            var2 = this.canReplaceCurrentItem(param0, var1);
+        }
+
         if (var2 && this.canHoldItem(param0)) {
             double var3 = (double)this.getEquipmentDropChance(var0);
             if (!var1.isEmpty() && (double)Math.max(this.random.nextFloat() - 0.1F, 0.0F) < var3) {
@@ -580,12 +586,6 @@ public abstract class Mob extends LivingEntity implements Targeting {
         } else {
             return ItemStack.EMPTY;
         }
-    }
-
-    private EquipmentSlot getEquipmentSlotForItemStack(ItemStack param0) {
-        EquipmentSlot var0 = getEquipmentSlotForItem(param0);
-        boolean var1 = this.getItemBySlot(var0).isEmpty();
-        return var0.isArmor() && !var1 ? EquipmentSlot.MAINHAND : var0;
     }
 
     protected void setItemSlotAndDropWhenKilled(EquipmentSlot param0, ItemStack param1) {

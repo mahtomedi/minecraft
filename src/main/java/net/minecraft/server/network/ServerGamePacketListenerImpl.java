@@ -1327,13 +1327,15 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
             LOGGER.warn("{} sent out-of-order chat: '{}'", this.player.getName().getString(), param0);
             this.disconnect(Component.translatable("multiplayer.disconnect.out_of_order_chat"));
             return Optional.empty();
-        } else if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
-            this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
-            return Optional.empty();
         } else {
             Optional<LastSeenMessages> var0 = this.unpackAndApplyLastSeen(param2);
-            this.player.resetLastActionTime();
-            return var0;
+            if (this.player.getChatVisibility() == ChatVisiblity.HIDDEN) {
+                this.send(new ClientboundSystemChatPacket(Component.translatable("chat.disabled.options").withStyle(ChatFormatting.RED), false));
+                return Optional.empty();
+            } else {
+                this.player.resetLastActionTime();
+                return var0;
+            }
         }
     }
 

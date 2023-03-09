@@ -36,13 +36,15 @@ public class BlockColors {
         var0.register(
             (param0, param1, param2, param3) -> param1 != null && param2 != null
                     ? BiomeColors.getAverageGrassColor(param1, param0.getValue(DoublePlantBlock.HALF) == DoubleBlockHalf.UPPER ? param2.below() : param2)
-                    : -1,
+                    : GrassColor.getDefaultColor(),
             Blocks.LARGE_FERN,
             Blocks.TALL_GRASS
         );
         var0.addColoringState(DoublePlantBlock.HALF, Blocks.LARGE_FERN, Blocks.TALL_GRASS);
         var0.register(
-            (param0, param1, param2, param3) -> param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : GrassColor.get(0.5, 1.0),
+            (param0, param1, param2, param3) -> param1 != null && param2 != null
+                    ? BiomeColors.getAverageGrassColor(param1, param2)
+                    : GrassColor.getDefaultColor(),
             Blocks.GRASS_BLOCK,
             Blocks.FERN,
             Blocks.GRASS,
@@ -50,7 +52,7 @@ public class BlockColors {
         );
         var0.register((param0, param1, param2, param3) -> {
             if (param3 != 0) {
-                return param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : GrassColor.get(0.5, 1.0);
+                return param1 != null && param2 != null ? BiomeColors.getAverageGrassColor(param1, param2) : GrassColor.getDefaultColor();
             } else {
                 return -1;
             }

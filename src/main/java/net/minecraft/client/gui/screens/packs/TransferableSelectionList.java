@@ -235,32 +235,36 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
 
         @Override
         public boolean mouseClicked(double param0, double param1, int param2) {
-            double var0 = param0 - (double)this.parent.getRowLeft();
-            double var1 = param1 - (double)this.parent.getRowTop(this.parent.children().indexOf(this));
-            if (this.showHoverOverlay() && var0 <= 32.0) {
-                this.parent.screen.clearSelected();
-                if (this.pack.canSelect()) {
-                    this.handlePackSelection();
-                    return true;
+            if (param2 != 0) {
+                return false;
+            } else {
+                double var0 = param0 - (double)this.parent.getRowLeft();
+                double var1 = param1 - (double)this.parent.getRowTop(this.parent.children().indexOf(this));
+                if (this.showHoverOverlay() && var0 <= 32.0) {
+                    this.parent.screen.clearSelected();
+                    if (this.pack.canSelect()) {
+                        this.handlePackSelection();
+                        return true;
+                    }
+
+                    if (var0 < 16.0 && this.pack.canUnselect()) {
+                        this.pack.unselect();
+                        return true;
+                    }
+
+                    if (var0 > 16.0 && var1 < 16.0 && this.pack.canMoveUp()) {
+                        this.pack.moveUp();
+                        return true;
+                    }
+
+                    if (var0 > 16.0 && var1 > 16.0 && this.pack.canMoveDown()) {
+                        this.pack.moveDown();
+                        return true;
+                    }
                 }
 
-                if (var0 < 16.0 && this.pack.canUnselect()) {
-                    this.pack.unselect();
-                    return true;
-                }
-
-                if (var0 > 16.0 && var1 < 16.0 && this.pack.canMoveUp()) {
-                    this.pack.moveUp();
-                    return true;
-                }
-
-                if (var0 > 16.0 && var1 > 16.0 && this.pack.canMoveDown()) {
-                    this.pack.moveDown();
-                    return true;
-                }
+                return false;
             }
-
-            return false;
         }
     }
 }

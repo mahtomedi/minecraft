@@ -84,7 +84,7 @@ public abstract class AbstractLayout implements Layout {
         public void setY(int param0, int param1) {
             float var0 = (float)this.layoutSettings.paddingTop;
             float var1 = (float)(param1 - this.child.getHeight() - this.layoutSettings.paddingBottom);
-            int var2 = (int)Mth.lerp(this.layoutSettings.yAlignment, var0, var1);
+            int var2 = Math.round(Mth.lerp(this.layoutSettings.yAlignment, var0, var1));
             this.child.setY(var2 + param0);
         }
     }

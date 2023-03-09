@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Transformation;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Camera;
@@ -44,7 +45,9 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
         super.render(param0, param1, param2, param3, param4, var2);
         param3.pushPose();
         param3.mulPose(this.calculateOrientation(param0));
-        param3.mulPoseMatrix(param0.transformation(var0).getMatrix());
+        Transformation var3 = param0.transformation(var0);
+        param3.mulPoseMatrix(var3.getMatrix());
+        param3.last().normal().rotate(var3.getLeftRotation()).rotate(var3.getRightRotation());
         this.renderInner(param0, param3, param4, var2, var0);
         param3.popPose();
     }

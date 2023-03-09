@@ -173,10 +173,10 @@ public class Spider extends Monster {
             }
         }
 
-        if (param3 instanceof Spider.SpiderEffectsGroupData) {
-            MobEffect var2 = ((Spider.SpiderEffectsGroupData)param3).effect;
-            if (var2 != null) {
-                this.addEffect(new MobEffectInstance(var2, Integer.MAX_VALUE));
+        if (param3 instanceof Spider.SpiderEffectsGroupData var2) {
+            MobEffect var3 = var2.effect;
+            if (var3 != null) {
+                this.addEffect(new MobEffectInstance(var3, -1));
             }
         }
 

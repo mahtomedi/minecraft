@@ -19,6 +19,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.realms.RealmsScreen;
+import net.minecraft.util.CommonLinks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -44,7 +45,6 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private Component startDate = UNKNOWN;
     @Nullable
     private Subscription.SubscriptionType type;
-    private static final String PURCHASE_LINK = "https://aka.ms/ExtendJavaRealms";
 
     public RealmsSubscriptionInfoScreen(Screen param0, RealmsServer param1, Screen param2) {
         super(GameNarrator.NO_TITLE);
@@ -56,21 +56,11 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     @Override
     public void init() {
         this.getSubscription(this.serverData.id);
-        this.addRenderableWidget(
-            Button.builder(
-                    Component.translatable("mco.configure.world.subscription.extend"),
-                    param0 -> {
-                        String var0 = "https://aka.ms/ExtendJavaRealms?subscriptionId="
-                            + this.serverData.remoteSubscriptionId
-                            + "&profileId="
-                            + this.minecraft.getUser().getUuid();
-                        this.minecraft.keyboardHandler.setClipboard(var0);
-                        Util.getPlatform().openUri(var0);
-                    }
-                )
-                .bounds(this.width / 2 - 100, row(6), 200, 20)
-                .build()
-        );
+        this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.subscription.extend"), param0 -> {
+            String var0 = CommonLinks.extendRealms(this.serverData.remoteSubscriptionId, this.minecraft.getUser().getUuid());
+            this.minecraft.keyboardHandler.setClipboard(var0);
+            Util.getPlatform().openUri(var0);
+        }).bounds(this.width / 2 - 100, row(6), 200, 20).build());
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
                 .bounds(this.width / 2 - 100, row(12), 200, 20)

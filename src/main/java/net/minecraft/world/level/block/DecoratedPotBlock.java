@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -34,11 +36,25 @@ public class DecoratedPotBlock extends BaseEntityBlock {
     }
 
     @Override
+    public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
+        if (param0.getValue(WATERLOGGED)) {
+            param3.scheduleTick(param4, Fluids.WATER, Fluids.WATER.getTickDelay(param3));
+        }
+
+        return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
         FluidState var0 = param0.getLevel().getFluidState(param0.getClickedPos());
         return this.defaultBlockState()
             .setValue(HORIZONTAL_FACING, param0.getHorizontalDirection())
             .setValue(WATERLOGGED, Boolean.valueOf(var0.getType() == Fluids.WATER));
+    }
+
+    @Override
+    public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
+        return false;
     }
 
     @Override

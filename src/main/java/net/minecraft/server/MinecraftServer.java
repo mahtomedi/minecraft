@@ -869,11 +869,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.profiler.push(() -> var0 + " " + var0.dimension().location());
             if (this.tickCount % 20 == 0) {
                 this.profiler.push("timeSync");
-                this.playerList
-                    .broadcastAll(
-                        new ClientboundSetTimePacket(var0.getGameTime(), var0.getDayTime(), var0.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)),
-                        var0.dimension()
-                    );
+                this.synchronizeTime(var0);
                 this.profiler.pop();
             }
 
@@ -903,6 +899,24 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         for(int var3 = 0; var3 < this.tickables.size(); ++var3) {
             this.tickables.get(var3).run();
+        }
+
+        this.profiler.pop();
+    }
+
+    private void synchronizeTime(ServerLevel param0) {
+        this.playerList
+            .broadcastAll(
+                new ClientboundSetTimePacket(param0.getGameTime(), param0.getDayTime(), param0.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)),
+                param0.dimension()
+            );
+    }
+
+    public void forceTimeSynchronization() {
+        this.profiler.push("timeSync");
+
+        for(ServerLevel var0 : this.getAllLevels()) {
+            this.synchronizeTime(var0);
         }
 
         this.profiler.pop();

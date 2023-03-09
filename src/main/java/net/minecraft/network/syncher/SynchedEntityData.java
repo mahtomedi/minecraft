@@ -115,8 +115,12 @@ public class SynchedEntityData {
     }
 
     public <T> void set(EntityDataAccessor<T> param0, T param1) {
+        this.set(param0, param1, false);
+    }
+
+    public <T> void set(EntityDataAccessor<T> param0, T param1, boolean param2) {
         SynchedEntityData.DataItem<T> var0 = this.getItem(param0);
-        if (ObjectUtils.notEqual(param1, var0.getValue())) {
+        if (param2 || ObjectUtils.notEqual(param1, var0.getValue())) {
             var0.setValue(param1);
             this.entity.onSyncedDataUpdated(param0);
             var0.setDirty(true);

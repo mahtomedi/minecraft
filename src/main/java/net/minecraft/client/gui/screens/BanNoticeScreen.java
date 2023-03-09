@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class BanNoticeScreen {
-    public static final String URL_MODERATION = "https://aka.ms/mcjavamoderation";
     private static final Component TEMPORARY_BAN_TITLE = Component.translatable("gui.banned.title.temporary").withStyle(ChatFormatting.BOLD);
     private static final Component PERMANENT_BAN_TITLE = Component.translatable("gui.banned.title.permanent").withStyle(ChatFormatting.BOLD);
 

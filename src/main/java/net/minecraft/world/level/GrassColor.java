@@ -14,4 +14,8 @@ public class GrassColor {
         int var2 = var1 << 8 | var0;
         return var2 >= pixels.length ? -65281 : pixels[var2];
     }
+
+    public static int getDefaultColor() {
+        return get(0.5, 1.0);
+    }
 }
