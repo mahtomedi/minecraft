@@ -614,14 +614,6 @@ public class CreateWorldScreen extends Screen {
                 var4.setValue(CreateWorldScreen.this.uiState.isAllowCheats());
                 var4.active = !CreateWorldScreen.this.uiState.isDebug() && !CreateWorldScreen.this.uiState.isHardcore();
             });
-            param0.addChild(
-                Button.builder(
-                        CreateWorldScreen.EXPERIMENTS_LABEL,
-                        param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
-                    )
-                    .width(210)
-                    .build()
-            );
         }
 
         @Override
