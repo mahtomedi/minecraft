@@ -82,7 +82,7 @@ public class ChiseledBookShelfBlockEntity extends BlockEntity implements Contain
 
     @Override
     public ItemStack removeItem(int param0, int param1) {
-        ItemStack var0 = (ItemStack)Objects.requireNonNullElse(this.items.get(param0), ItemStack.EMPTY);
+        ItemStack var0 = Objects.requireNonNullElse(this.items.get(param0), ItemStack.EMPTY);
         this.items.set(param0, ItemStack.EMPTY);
         if (!var0.isEmpty()) {
             this.updateState(param0);

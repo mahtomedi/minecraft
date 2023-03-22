@@ -65,7 +65,7 @@ public class MobSpawnSettings {
 
     @Nullable
     public MobSpawnSettings.MobSpawnCost getMobSpawnCost(EntityType<?> param0) {
-        return (MobSpawnSettings.MobSpawnCost)this.mobSpawnCosts.get(param0);
+        return this.mobSpawnCosts.get(param0);
     }
 
     public float getCreatureProbability() {

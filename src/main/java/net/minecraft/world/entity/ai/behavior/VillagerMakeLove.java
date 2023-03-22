@@ -102,7 +102,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     }
 
     private boolean canReach(Villager param0, BlockPos param1, Holder<PoiType> param2) {
-        Path var0 = param0.getNavigation().createPath(param1, ((PoiType)param2.value()).validRange());
+        Path var0 = param0.getNavigation().createPath(param1, param2.value().validRange());
         return var0 != null && var0.canReach();
     }
 

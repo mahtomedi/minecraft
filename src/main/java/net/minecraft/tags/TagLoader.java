@@ -53,7 +53,7 @@ public class TagLoader<T> {
                 try (Reader var6 = var5.openAsReader()) {
                     JsonElement var7 = JsonParser.parseReader(var6);
                     List<TagLoader.EntryWithSource> var8 = var0.computeIfAbsent(var4, param0x -> new ArrayList());
-                    TagFile var9 = (TagFile)TagFile.CODEC.parse(new Dynamic<>(JsonOps.INSTANCE, var7)).getOrThrow(false, LOGGER::error);
+                    TagFile var9 = TagFile.CODEC.parse(new Dynamic<>(JsonOps.INSTANCE, var7)).getOrThrow(false, LOGGER::error);
                     if (var9.replace()) {
                         var8.clear();
                     }
@@ -100,7 +100,7 @@ public class TagLoader<T> {
 
     private Either<Collection<TagLoader.EntryWithSource>, Collection<T>> build(TagEntry.Lookup<T> param0, List<TagLoader.EntryWithSource> param1) {
         Builder<T> var0 = ImmutableSet.builder();
-        List<TagLoader.EntryWithSource> var1 = new ArrayList();
+        List<TagLoader.EntryWithSource> var1 = new ArrayList<>();
 
         for(TagLoader.EntryWithSource var2 : param1) {
             if (!var2.entry().build(param0, var0::add)) {
@@ -160,6 +160,7 @@ public class TagLoader<T> {
     }
 
     public static record EntryWithSource(TagEntry entry, String source) {
+        @Override
         public String toString() {
             return this.entry + " (from " + this.source + ")";
         }

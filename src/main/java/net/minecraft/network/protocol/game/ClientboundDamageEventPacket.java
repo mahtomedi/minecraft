@@ -59,7 +59,7 @@ public record ClientboundDamageEventPacket(int entityId, int sourceTypeId, int s
     }
 
     public DamageSource getSource(Level param0) {
-        Holder<DamageType> var0 = (Holder)param0.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(this.sourceTypeId).get();
+        Holder<DamageType> var0 = param0.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(this.sourceTypeId).get();
         if (this.sourcePosition.isPresent()) {
             return new DamageSource(var0, this.sourcePosition.get());
         } else {

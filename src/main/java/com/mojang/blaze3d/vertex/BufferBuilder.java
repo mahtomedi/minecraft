@@ -1,10 +1,8 @@
 package com.mojang.blaze3d.vertex;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Floats;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.logging.LogUtils;
-import it.unimi.dsi.fastutil.ints.IntArrays;
 import it.unimi.dsi.fastutil.ints.IntConsumer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -36,9 +34,8 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private boolean building;
     @Nullable
     private Vector3f[] sortingPoints;
-    private float sortX = Float.NaN;
-    private float sortY = Float.NaN;
-    private float sortZ = Float.NaN;
+    @Nullable
+    private VertexSorting sorting;
     private boolean indexOnly;
 
     public BufferBuilder(int param0) {
@@ -74,22 +71,18 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         }
     }
 
-    public void setQuadSortOrigin(float param0, float param1, float param2) {
+    public void setQuadSorting(VertexSorting param0) {
         if (this.mode == VertexFormat.Mode.QUADS) {
-            if (this.sortX != param0 || this.sortY != param1 || this.sortZ != param2) {
-                this.sortX = param0;
-                this.sortY = param1;
-                this.sortZ = param2;
-                if (this.sortingPoints == null) {
-                    this.sortingPoints = this.makeQuadSortingPoints();
-                }
+            this.sorting = param0;
+            if (this.sortingPoints == null) {
+                this.sortingPoints = this.makeQuadSortingPoints();
             }
 
         }
     }
 
     public BufferBuilder.SortState getSortState() {
-        return new BufferBuilder.SortState(this.mode, this.vertices, this.sortingPoints, this.sortX, this.sortY, this.sortZ);
+        return new BufferBuilder.SortState(this.mode, this.vertices, this.sortingPoints, this.sorting);
     }
 
     public void restoreSortState(BufferBuilder.SortState param0) {
@@ -98,9 +91,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         this.vertices = param0.vertices;
         this.nextElementByte = this.renderedBufferPointer;
         this.sortingPoints = param0.sortingPoints;
-        this.sortX = param0.sortX;
-        this.sortY = param0.sortY;
-        this.sortZ = param0.sortZ;
+        this.sorting = param0.sorting;
         this.indexOnly = true;
     }
 
@@ -131,7 +122,6 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         MutableInt var0 = new MutableInt(param0);
 
         return switch(param1) {
-            case BYTE -> param1x -> this.buffer.put(var0.getAndIncrement(), (byte)param1x);
             case SHORT -> param1x -> this.buffer.putShort(var0.getAndAdd(2), (short)param1x);
             case INT -> param1x -> this.buffer.putInt(var0.getAndAdd(4), param1x);
         };
@@ -162,28 +152,22 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     }
 
     private void putSortedQuadIndices(VertexFormat.IndexType param0) {
-        float[] var0 = new float[this.sortingPoints.length];
-        int[] var1 = new int[this.sortingPoints.length];
+        if (this.sortingPoints != null && this.sorting != null) {
+            int[] var0 = this.sorting.sort(this.sortingPoints);
+            IntConsumer var1 = this.intConsumer(this.nextElementByte, param0);
 
-        for(int var2 = 0; var2 < this.sortingPoints.length; var1[var2] = var2++) {
-            float var3 = this.sortingPoints[var2].x() - this.sortX;
-            float var4 = this.sortingPoints[var2].y() - this.sortY;
-            float var5 = this.sortingPoints[var2].z() - this.sortZ;
-            var0[var2] = var3 * var3 + var4 * var4 + var5 * var5;
+            for(int var2 : var0) {
+                var1.accept(var2 * this.mode.primitiveStride + 0);
+                var1.accept(var2 * this.mode.primitiveStride + 1);
+                var1.accept(var2 * this.mode.primitiveStride + 2);
+                var1.accept(var2 * this.mode.primitiveStride + 2);
+                var1.accept(var2 * this.mode.primitiveStride + 3);
+                var1.accept(var2 * this.mode.primitiveStride + 0);
+            }
+
+        } else {
+            throw new IllegalStateException("Sorting state uninitialized");
         }
-
-        IntArrays.mergeSort(var1, (param1, param2) -> Floats.compare(var0[param2], var0[param1]));
-        IntConsumer var6 = this.intConsumer(this.nextElementByte, param0);
-
-        for(int var7 : var1) {
-            var6.accept(var7 * this.mode.primitiveStride + 0);
-            var6.accept(var7 * this.mode.primitiveStride + 1);
-            var6.accept(var7 * this.mode.primitiveStride + 2);
-            var6.accept(var7 * this.mode.primitiveStride + 2);
-            var6.accept(var7 * this.mode.primitiveStride + 3);
-            var6.accept(var7 * this.mode.primitiveStride + 0);
-        }
-
     }
 
     public boolean isCurrentBatchEmpty() {
@@ -247,9 +231,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         this.currentElement = null;
         this.elementIndex = 0;
         this.sortingPoints = null;
-        this.sortX = Float.NaN;
-        this.sortY = Float.NaN;
-        this.sortZ = Float.NaN;
+        this.sorting = null;
         this.indexOnly = false;
     }
 
@@ -486,17 +468,14 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         final int vertices;
         @Nullable
         final Vector3f[] sortingPoints;
-        final float sortX;
-        final float sortY;
-        final float sortZ;
+        @Nullable
+        final VertexSorting sorting;
 
-        SortState(VertexFormat.Mode param0, int param1, @Nullable Vector3f[] param2, float param3, float param4, float param5) {
+        SortState(VertexFormat.Mode param0, int param1, @Nullable Vector3f[] param2, @Nullable VertexSorting param3) {
             this.mode = param0;
             this.vertices = param1;
             this.sortingPoints = param2;
-            this.sortX = param3;
-            this.sortY = param4;
-            this.sortZ = param5;
+            this.sorting = param3;
         }
     }
 }

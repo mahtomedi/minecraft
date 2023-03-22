@@ -74,7 +74,7 @@ public class YieldJobSite {
             Optional<GlobalPos> var1 = param1.getBrain().getMemory(MemoryModuleType.JOB_SITE);
             VillagerProfession var2 = param1.getVillagerData().getProfession();
             if (var2.heldJobSite().test(param0)) {
-                return var1.isEmpty() ? canReachPos(param1, param2, (PoiType)param0.value()) : var1.get().pos().equals(param2);
+                return var1.isEmpty() ? canReachPos(param1, param2, param0.value()) : var1.get().pos().equals(param2);
             } else {
                 return false;
             }

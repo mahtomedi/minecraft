@@ -69,8 +69,9 @@ public class MoveToTargetSink extends Behavior<Mob> {
     protected boolean canStillUse(ServerLevel param0, Mob param1, long param2) {
         if (this.path != null && this.lastTargetPos != null) {
             Optional<WalkTarget> var0 = param1.getBrain().getMemory(MemoryModuleType.WALK_TARGET);
-            PathNavigation var1 = param1.getNavigation();
-            return !var1.isDone() && var0.isPresent() && !this.reachedTarget(param1, var0.get());
+            boolean var1 = var0.map(MoveToTargetSink::isWalkTargetSpectator).orElse(false);
+            PathNavigation var2 = param1.getNavigation();
+            return !var2.isDone() && var0.isPresent() && !this.reachedTarget(param1, var0.get()) && !var1;
         } else {
             return false;
         }
@@ -143,5 +144,10 @@ public class MoveToTargetSink extends Behavior<Mob> {
 
     private boolean reachedTarget(Mob param0, WalkTarget param1) {
         return param1.getTarget().currentBlockPosition().distManhattan(param0.blockPosition()) <= param1.getCloseEnoughDist();
+    }
+
+    private static boolean isWalkTargetSpectator(WalkTarget param0x) {
+        PositionTracker var0x = param0x.getTarget();
+        return var0x instanceof EntityTracker var1x ? var1x.getEntity().isSpectator() : false;
     }
 }

@@ -62,7 +62,7 @@ public class OceanMonumentStructure extends Structure {
             int var3 = var2.minX();
             int var4 = var2.minZ();
             Direction var5 = Direction.Plane.HORIZONTAL.getRandomDirection(var0);
-            Direction var6 = (Direction)Objects.requireNonNullElse(var1.getOrientation(), var5);
+            Direction var6 = Objects.requireNonNullElse(var1.getOrientation(), var5);
             StructurePiece var7 = new OceanMonumentPieces.MonumentBuilding(var0, var3, var4, var6);
             StructurePiecesBuilder var8 = new StructurePiecesBuilder();
             var8.addPiece(var7);

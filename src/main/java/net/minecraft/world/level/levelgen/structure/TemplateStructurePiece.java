@@ -83,26 +83,26 @@ public abstract class TemplateStructurePiece extends StructurePiece {
         this.boundingBox = this.template.getBoundingBox(this.placeSettings, this.templatePosition);
         if (this.template.placeInWorld(param0, this.templatePosition, param6, this.placeSettings, param3, 2)) {
             for(StructureTemplate.StructureBlockInfo var1 : this.template.filterBlocks(this.templatePosition, this.placeSettings, Blocks.STRUCTURE_BLOCK)) {
-                if (var1.nbt != null) {
-                    StructureMode var2 = StructureMode.valueOf(var1.nbt.getString("mode"));
+                if (var1.nbt() != null) {
+                    StructureMode var2 = StructureMode.valueOf(var1.nbt().getString("mode"));
                     if (var2 == StructureMode.DATA) {
-                        this.handleDataMarker(var1.nbt.getString("metadata"), var1.pos, param0, param3, param4);
+                        this.handleDataMarker(var1.nbt().getString("metadata"), var1.pos(), param0, param3, param4);
                     }
                 }
             }
 
             for(StructureTemplate.StructureBlockInfo var4 : this.template.filterBlocks(this.templatePosition, this.placeSettings, Blocks.JIGSAW)) {
-                if (var4.nbt != null) {
-                    String var5 = var4.nbt.getString("final_state");
+                if (var4.nbt() != null) {
+                    String var5 = var4.nbt().getString("final_state");
                     BlockState var6 = Blocks.AIR.defaultBlockState();
 
                     try {
                         var6 = BlockStateParser.parseForBlock(param0.holderLookup(Registries.BLOCK), var5, true).blockState();
                     } catch (CommandSyntaxException var15) {
-                        LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos);
+                        LOGGER.error("Error while parsing blockstate {} in jigsaw block @ {}", var5, var4.pos());
                     }
 
-                    param0.setBlock(var4.pos, var6, 3);
+                    param0.setBlock(var4.pos(), var6, 3);
                 }
             }
         }

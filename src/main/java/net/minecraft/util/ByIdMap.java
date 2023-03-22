@@ -28,7 +28,7 @@ public class ByIdMap {
 
     public static <T> IntFunction<T> sparse(ToIntFunction<T> param0, T[] param1, T param2) {
         IntFunction<T> var0 = createMap(param0, param1);
-        return param2x -> (T)Objects.requireNonNullElse(var0.apply(param2x), param2);
+        return param2x -> Objects.requireNonNullElse(var0.apply(param2x), param2);
     }
 
     private static <T> T[] createSortedArray(ToIntFunction<T> param0, T[] param1) {

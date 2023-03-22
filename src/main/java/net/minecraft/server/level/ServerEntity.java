@@ -81,8 +81,8 @@ public class ServerEntity {
         List<Entity> var0 = this.entity.getPassengers();
         if (!var0.equals(this.lastPassengers)) {
             this.broadcast.accept(new ClientboundSetPassengersPacket(this.entity));
-            this.changedPassengers(var0, this.lastPassengers).forEach(param1 -> {
-                if (param1 instanceof ServerPlayer var0x && !var0.contains(var0x)) {
+            removedPassengers(var0, this.lastPassengers).forEach(param0 -> {
+                if (param0 instanceof ServerPlayer var0x) {
                     var0x.connection.teleport(var0x.getX(), var0x.getY(), var0x.getZ(), var0x.getYRot(), var0x.getXRot());
                 }
 
@@ -215,8 +215,8 @@ public class ServerEntity {
 
     }
 
-    private Stream<Entity> changedPassengers(List<Entity> param0, List<Entity> param1) {
-        return Stream.concat(param1.stream().filter(param1x -> !param0.contains(param1x)), param0.stream().filter(param1x -> !param1.contains(param1x)));
+    private static Stream<Entity> removedPassengers(List<Entity> param0, List<Entity> param1) {
+        return param1.stream().filter(param1x -> !param0.contains(param1x));
     }
 
     public void removePairing(ServerPlayer param0) {

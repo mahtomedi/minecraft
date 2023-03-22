@@ -105,7 +105,7 @@ public class DownloadedPackSource implements RepositorySource {
                 var4 = HttpUtil.downloadTo(var3, param0, var6, 262144000, var5, var2.getProxy());
             }
 
-            this.currentDownload = var4.thenCompose(param4 -> {
+            this.currentDownload = var4.<Void>thenCompose(param4 -> {
                     if (!this.checkHash(var1, var3)) {
                         return CompletableFuture.failedFuture(new RuntimeException("Hash check failure for file " + var3 + ", see log"));
                     } else {

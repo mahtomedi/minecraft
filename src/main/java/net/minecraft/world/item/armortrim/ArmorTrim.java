@@ -13,7 +13,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
@@ -44,20 +43,20 @@ public class ArmorTrim {
         this.material = param0;
         this.pattern = param1;
         this.innerTexture = Util.memoize(param1x -> {
-            ResourceLocation var0 = ((TrimPattern)param1.value()).assetId();
+            ResourceLocation var0 = param1.value().assetId();
             String var1x = this.getColorPaletteSuffix(param1x);
             return var0.withPath(param1xx -> "trims/models/armor/" + param1xx + "_leggings_" + var1x);
         });
         this.outerTexture = Util.memoize(param1x -> {
-            ResourceLocation var0 = ((TrimPattern)param1.value()).assetId();
+            ResourceLocation var0 = param1.value().assetId();
             String var1x = this.getColorPaletteSuffix(param1x);
             return var0.withPath(param1xx -> "trims/models/armor/" + param1xx + "_" + var1x);
         });
     }
 
     private String getColorPaletteSuffix(ArmorMaterial param0) {
-        Map<ArmorMaterials, String> var0 = ((TrimMaterial)this.material.value()).overrideArmorMaterials();
-        return param0 instanceof ArmorMaterials && var0.containsKey(param0) ? var0.get(param0) : ((TrimMaterial)this.material.value()).assetName();
+        Map<ArmorMaterials, String> var0 = this.material.value().overrideArmorMaterials();
+        return param0 instanceof ArmorMaterials && var0.containsKey(param0) ? var0.get(param0) : this.material.value().assetName();
     }
 
     public boolean hasPatternAndMaterial(Holder<TrimPattern> param0, Holder<TrimMaterial> param1) {
@@ -92,7 +91,7 @@ public class ArmorTrim {
 
     public static boolean setTrim(RegistryAccess param0, ItemStack param1, ArmorTrim param2) {
         if (param1.is(ItemTags.TRIMMABLE_ARMOR)) {
-            param1.getOrCreateTag().put("Trim", (Tag)CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, param0), param2).result().orElseThrow());
+            param1.getOrCreateTag().put("Trim", CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE, param0), param2).result().orElseThrow());
             return true;
         } else {
             return false;
@@ -114,8 +113,8 @@ public class ArmorTrim {
         if (var0.isPresent()) {
             ArmorTrim var1 = var0.get();
             param2.add(UPGRADE_TITLE);
-            param2.add(CommonComponents.space().append(((TrimPattern)var1.pattern().value()).copyWithStyle(var1.material())));
-            param2.add(CommonComponents.space().append(((TrimMaterial)var1.material().value()).description()));
+            param2.add(CommonComponents.space().append(var1.pattern().value().copyWithStyle(var1.material())));
+            param2.add(CommonComponents.space().append(var1.material().value().description()));
         }
 
     }

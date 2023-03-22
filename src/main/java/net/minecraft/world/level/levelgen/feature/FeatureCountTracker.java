@@ -25,13 +25,13 @@ public class FeatureCountTracker {
         .expireAfterAccess(5L, TimeUnit.MINUTES)
         .build(new CacheLoader<ServerLevel, FeatureCountTracker.LevelData>() {
             public FeatureCountTracker.LevelData load(ServerLevel param0) {
-                return new FeatureCountTracker.LevelData(Object2IntMaps.synchronize(new Object2IntOpenHashMap()), new MutableInt(0));
+                return new FeatureCountTracker.LevelData(Object2IntMaps.synchronize(new Object2IntOpenHashMap<>()), new MutableInt(0));
             }
         });
 
     public static void chunkDecorated(ServerLevel param0) {
         try {
-            ((FeatureCountTracker.LevelData)data.get(param0)).chunksWithFeatures().increment();
+            data.get(param0).chunksWithFeatures().increment();
         } catch (Exception var2) {
             LOGGER.error("Failed to increment chunk count", (Throwable)var2);
         }
@@ -40,7 +40,7 @@ public class FeatureCountTracker {
 
     public static void featurePlaced(ServerLevel param0, ConfiguredFeature<?, ?> param1, Optional<PlacedFeature> param2) {
         try {
-            ((FeatureCountTracker.LevelData)data.get(param0))
+            data.get(param0)
                 .featureData()
                 .computeInt(new FeatureCountTracker.FeatureData(param1, param2), (param0x, param1x) -> param1x == null ? 1 : param1x + 1);
         } catch (Exception var4) {

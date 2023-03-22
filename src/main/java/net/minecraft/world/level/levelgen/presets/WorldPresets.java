@@ -63,7 +63,7 @@ public class WorldPresets {
     }
 
     public static LevelStem getNormalOverworld(RegistryAccess param0) {
-        return (LevelStem)param0.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(NORMAL).value().overworld().orElseThrow();
+        return param0.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(NORMAL).value().overworld().orElseThrow();
     }
 
     static class Bootstrap {

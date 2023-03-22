@@ -42,6 +42,7 @@ public abstract class BiomeData {
         param0.register(Biomes.ERODED_BADLANDS, OverworldBiomes.badlands(var0, var1, false));
         param0.register(Biomes.WOODED_BADLANDS, OverworldBiomes.badlands(var0, var1, true));
         param0.register(Biomes.MEADOW, OverworldBiomes.meadowOrCherryGrove(var0, var1, false));
+        param0.register(Biomes.CHERRY_GROVE, OverworldBiomes.meadowOrCherryGrove(var0, var1, true));
         param0.register(Biomes.GROVE, OverworldBiomes.grove(var0, var1));
         param0.register(Biomes.SNOWY_SLOPES, OverworldBiomes.snowySlopes(var0, var1));
         param0.register(Biomes.FROZEN_PEAKS, OverworldBiomes.frozenPeaks(var0, var1));
@@ -75,11 +76,5 @@ public abstract class BiomeData {
         param0.register(Biomes.END_MIDLANDS, EndBiomes.endMidlands(var0, var1));
         param0.register(Biomes.SMALL_END_ISLANDS, EndBiomes.smallEndIslands(var0, var1));
         param0.register(Biomes.END_BARRENS, EndBiomes.endBarrens(var0, var1));
-    }
-
-    public static void nextUpdate(BootstapContext<Biome> param0) {
-        HolderGetter<PlacedFeature> var0 = param0.lookup(Registries.PLACED_FEATURE);
-        HolderGetter<ConfiguredWorldCarver<?>> var1 = param0.lookup(Registries.CONFIGURED_CARVER);
-        param0.register(Biomes.CHERRY_GROVE, OverworldBiomes.meadowOrCherryGrove(var0, var1, true));
     }
 }

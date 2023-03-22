@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.SoundType;
 public record WoodType(
     String name, BlockSetType setType, SoundType soundType, SoundType hangingSignSoundType, SoundEvent fenceGateClose, SoundEvent fenceGateOpen
 ) {
-    private static final Set<WoodType> VALUES = new ObjectArraySet();
+    private static final Set<WoodType> VALUES = new ObjectArraySet<>();
     public static final WoodType OAK = register(new WoodType("oak", BlockSetType.OAK));
     public static final WoodType SPRUCE = register(new WoodType("spruce", BlockSetType.SPRUCE));
     public static final WoodType BIRCH = register(new WoodType("birch", BlockSetType.BIRCH));

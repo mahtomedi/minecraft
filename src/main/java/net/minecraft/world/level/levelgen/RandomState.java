@@ -26,7 +26,7 @@ public final class RandomState {
 
     public static RandomState create(HolderGetter.Provider param0, ResourceKey<NoiseGeneratorSettings> param1, long param2) {
         return create(
-            (NoiseGeneratorSettings)param0.lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(param1).value(), param0.lookupOrThrow(Registries.NOISE), param2
+            param0.<NoiseGeneratorSettings>lookupOrThrow(Registries.NOISE_SETTINGS).getOrThrow(param1).value(), param0.lookupOrThrow(Registries.NOISE), param2
         );
     }
 
@@ -73,7 +73,7 @@ public final class RandomState {
                     }
                 }
 
-                NormalNoise var4 = RandomState.this.getOrCreateNoise((ResourceKey<NormalNoise.NoiseParameters>)var0.unwrapKey().orElseThrow());
+                NormalNoise var4 = RandomState.this.getOrCreateNoise(var0.unwrapKey().orElseThrow());
                 return new DensityFunction.NoiseHolder(var0, var4);
             }
 

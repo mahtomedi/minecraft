@@ -161,11 +161,7 @@ public class JfrStatsParser {
     ) {
         List<Pair<NetworkPacketSummary.PacketIdentification, NetworkPacketSummary.PacketCountAndSize>> var0 = param1.entrySet()
             .stream()
-            .map(
-                param0x -> Pair.of(
-                        (NetworkPacketSummary.PacketIdentification)param0x.getKey(), ((JfrStatsParser.MutableCountAndSize)param0x.getValue()).toCountAndSize()
-                    )
-            )
+            .map(param0x -> Pair.of(param0x.getKey(), param0x.getValue().toCountAndSize()))
             .toList();
         return new NetworkPacketSummary(param0, var0);
     }

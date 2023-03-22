@@ -70,7 +70,6 @@ import org.slf4j.Logger;
 
 public class Allay extends PathfinderMob implements InventoryCarrier {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int VIBRATION_EVENT_LISTENER_RANGE = 16;
     private static final Vec3i ITEM_PICKUP_REACH = new Vec3i(1, 1, 1);
     private static final int LIFTING_ITEM_ANIMATION_DURATION = 5;
     private static final float DANCING_LOOP_DURATION = 55.0F;
@@ -102,7 +101,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         0.5625F, 0.625F, 0.75F, 0.9375F, 1.0F, 1.0F, 1.125F, 1.25F, 1.5F, 1.875F, 2.0F, 2.25F, 2.5F, 3.0F, 3.75F, 4.0F
     );
     private final DynamicGameEventListener<VibrationListener> dynamicVibrationListener;
-    private final VibrationListener.VibrationListenerConfig vibrationListenerConfig;
+    private final VibrationListener.Config vibrationListenerConfig;
     private final DynamicGameEventListener<Allay.JukeboxListener> dynamicJukeboxListener;
     private final SimpleContainer inventory = new SimpleContainer(1);
     @Nullable
@@ -120,7 +119,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         this.setCanPickUpLoot(this.canPickUpLoot());
         PositionSource var0 = new EntityPositionSource(this, this.getEyeHeight());
         this.vibrationListenerConfig = new Allay.AllayVibrationListenerConfig();
-        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationListener(var0, 16, this.vibrationListenerConfig));
+        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationListener(var0, this.vibrationListenerConfig));
         this.dynamicJukeboxListener = new DynamicGameEventListener<>(new Allay.JukeboxListener(var0, GameEvent.JUKEBOX_PLAY.getNotificationRadius()));
     }
 
@@ -584,7 +583,9 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
     }
 
-    class AllayVibrationListenerConfig implements VibrationListener.VibrationListenerConfig {
+    class AllayVibrationListenerConfig implements VibrationListener.Config {
+        private static final int VIBRATION_EVENT_LISTENER_RANGE = 16;
+
         @Override
         public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, GameEvent.Context param4) {
             if (Allay.this.isNoAi()) {
@@ -608,6 +609,11 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
                 AllayAi.hearNoteblock(Allay.this, new BlockPos(param2));
             }
 
+        }
+
+        @Override
+        public int getListenerRadius() {
+            return 16;
         }
 
         @Override

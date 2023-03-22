@@ -35,10 +35,10 @@ public class ChatListener {
     public void tick() {
         if (this.messageDelay != 0L) {
             if (Util.getMillis() >= this.previousMessageTime + this.messageDelay) {
-                ChatListener.Message var0 = (ChatListener.Message)this.delayedMessageQueue.poll();
+                ChatListener.Message var0 = this.delayedMessageQueue.poll();
 
                 while(var0 != null && !var0.accept()) {
-                    var0 = (ChatListener.Message)this.delayedMessageQueue.poll();
+                    var0 = this.delayedMessageQueue.poll();
                 }
             }
 
@@ -56,7 +56,7 @@ public class ChatListener {
     }
 
     public void acceptNextDelayedMessage() {
-        ((ChatListener.Message)this.delayedMessageQueue.remove()).accept();
+        this.delayedMessageQueue.remove().accept();
     }
 
     public long queueSize() {

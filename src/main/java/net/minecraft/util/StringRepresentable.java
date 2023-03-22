@@ -79,7 +79,7 @@ public interface StringRepresentable {
         }
 
         public E byName(@Nullable String param0, E param1) {
-            return (E)Objects.requireNonNullElse(this.byName(param0), param1);
+            return Objects.requireNonNullElse(this.byName(param0), param1);
         }
     }
 }

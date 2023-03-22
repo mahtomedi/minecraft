@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -51,10 +52,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class EntityRenderDispatcher implements ResourceManagerReloadListener {
     private static final RenderType SHADOW_RENDER_TYPE = RenderType.entityShadow(new ResourceLocation("textures/misc/shadow.png"));
+    private static final float MAX_SHADOW_RADIUS = 32.0F;
+    private static final float SHADOW_POWER_FALLOFF_Y = 0.5F;
     private Map<EntityType<?>, EntityRenderer<?>> renderers = ImmutableMap.of();
     private Map<String, EntityRenderer<? extends Player>> playerRenderers = ImmutableMap.of();
     public final TextureManager textureManager;
@@ -147,7 +151,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
                 double var5 = this.distanceToSqr(param0.getX(), param0.getY(), param0.getZ());
                 float var6 = (float)((1.0 - var5 / 256.0) * (double)var0.shadowStrength);
                 if (var6 > 0.0F) {
-                    renderShadow(param6, param7, param0, var6, param5, this.level, var0.shadowRadius);
+                    renderShadow(param6, param7, param0, var6, param5, this.level, Math.min(var0.shadowRadius, 32.0F));
                 }
             }
 
@@ -276,17 +280,28 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
         double var2 = Mth.lerp((double)param4, param2.xOld, param2.getX());
         double var3 = Mth.lerp((double)param4, param2.yOld, param2.getY());
         double var4 = Mth.lerp((double)param4, param2.zOld, param2.getZ());
-        int var5 = Mth.floor(var2 - (double)var0);
-        int var6 = Mth.floor(var2 + (double)var0);
-        int var7 = Mth.floor(var3 - (double)var0);
-        int var8 = Mth.floor(var3);
-        int var9 = Mth.floor(var4 - (double)var0);
-        int var10 = Mth.floor(var4 + (double)var0);
-        PoseStack.Pose var11 = param0.last();
-        VertexConsumer var12 = param1.getBuffer(SHADOW_RENDER_TYPE);
+        float var5 = Math.min(param3 / 0.5F, var0);
+        int var6 = Mth.floor(var2 - (double)var0);
+        int var7 = Mth.floor(var2 + (double)var0);
+        int var8 = Mth.floor(var3 - (double)var5);
+        int var9 = Mth.floor(var3);
+        int var10 = Mth.floor(var4 - (double)var0);
+        int var11 = Mth.floor(var4 + (double)var0);
+        PoseStack.Pose var12 = param0.last();
+        VertexConsumer var13 = param1.getBuffer(SHADOW_RENDER_TYPE);
+        BlockPos.MutableBlockPos var14 = new BlockPos.MutableBlockPos();
 
-        for(BlockPos var13 : BlockPos.betweenClosed(new BlockPos(var5, var7, var9), new BlockPos(var6, var8, var10))) {
-            renderBlockShadow(var11, var12, param5, var13, var2, var3, var4, var0, param3);
+        for(int var15 = var10; var15 <= var11; ++var15) {
+            for(int var16 = var6; var16 <= var7; ++var16) {
+                var14.set(var16, 0, var15);
+                ChunkAccess var17 = param5.getChunk(var14);
+
+                for(int var18 = var8; var18 <= var9; ++var18) {
+                    var14.setY(var18);
+                    float var19 = param3 - (float)(var3 - (double)var14.getY()) * 0.5F;
+                    renderBlockShadow(var12, var13, var17, param5, var14, var2, var3, var4, var0, var19);
+                }
+            }
         }
 
     }
@@ -294,42 +309,43 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
     private static void renderBlockShadow(
         PoseStack.Pose param0,
         VertexConsumer param1,
-        LevelReader param2,
-        BlockPos param3,
-        double param4,
+        ChunkAccess param2,
+        LevelReader param3,
+        BlockPos param4,
         double param5,
         double param6,
-        float param7,
-        float param8
+        double param7,
+        float param8,
+        float param9
     ) {
-        BlockPos var0 = param3.below();
+        BlockPos var0 = param4.below();
         BlockState var1 = param2.getBlockState(var0);
-        if (var1.getRenderShape() != RenderShape.INVISIBLE && param2.getMaxLocalRawBrightness(param3) > 3) {
+        if (var1.getRenderShape() != RenderShape.INVISIBLE && param3.getMaxLocalRawBrightness(param4) > 3) {
             if (var1.isCollisionShapeFullBlock(param2, var0)) {
-                VoxelShape var2 = var1.getShape(param2, param3.below());
+                VoxelShape var2 = var1.getShape(param2, var0);
                 if (!var2.isEmpty()) {
-                    float var3 = LightTexture.getBrightness(param2.dimensionType(), param2.getMaxLocalRawBrightness(param3));
-                    float var4 = (float)(((double)param8 - (param5 - (double)param3.getY()) / 2.0) * 0.5 * (double)var3);
+                    float var3 = LightTexture.getBrightness(param3.dimensionType(), param3.getMaxLocalRawBrightness(param4));
+                    float var4 = param9 * 0.5F * var3;
                     if (var4 >= 0.0F) {
                         if (var4 > 1.0F) {
                             var4 = 1.0F;
                         }
 
                         AABB var5 = var2.bounds();
-                        double var6 = (double)param3.getX() + var5.minX;
-                        double var7 = (double)param3.getX() + var5.maxX;
-                        double var8 = (double)param3.getY() + var5.minY;
-                        double var9 = (double)param3.getZ() + var5.minZ;
-                        double var10 = (double)param3.getZ() + var5.maxZ;
-                        float var11 = (float)(var6 - param4);
-                        float var12 = (float)(var7 - param4);
-                        float var13 = (float)(var8 - param5);
-                        float var14 = (float)(var9 - param6);
-                        float var15 = (float)(var10 - param6);
-                        float var16 = -var11 / 2.0F / param7 + 0.5F;
-                        float var17 = -var12 / 2.0F / param7 + 0.5F;
-                        float var18 = -var14 / 2.0F / param7 + 0.5F;
-                        float var19 = -var15 / 2.0F / param7 + 0.5F;
+                        double var6 = (double)param4.getX() + var5.minX;
+                        double var7 = (double)param4.getX() + var5.maxX;
+                        double var8 = (double)param4.getY() + var5.minY;
+                        double var9 = (double)param4.getZ() + var5.minZ;
+                        double var10 = (double)param4.getZ() + var5.maxZ;
+                        float var11 = (float)(var6 - param5);
+                        float var12 = (float)(var7 - param5);
+                        float var13 = (float)(var8 - param6);
+                        float var14 = (float)(var9 - param7);
+                        float var15 = (float)(var10 - param7);
+                        float var16 = -var11 / 2.0F / param8 + 0.5F;
+                        float var17 = -var12 / 2.0F / param8 + 0.5F;
+                        float var18 = -var14 / 2.0F / param8 + 0.5F;
+                        float var19 = -var15 / 2.0F / param8 + 0.5F;
                         shadowVertex(param0, param1, var4, var11, var13, var14, var16, var18);
                         shadowVertex(param0, param1, var4, var11, var13, var15, var16, var19);
                         shadowVertex(param0, param1, var4, var12, var13, var15, var17, var19);
@@ -344,13 +360,8 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
     private static void shadowVertex(
         PoseStack.Pose param0, VertexConsumer param1, float param2, float param3, float param4, float param5, float param6, float param7
     ) {
-        param1.vertex(param0.pose(), param3, param4, param5)
-            .color(1.0F, 1.0F, 1.0F, param2)
-            .uv(param6, param7)
-            .overlayCoords(OverlayTexture.NO_OVERLAY)
-            .uv2(15728880)
-            .normal(param0.normal(), 0.0F, 1.0F, 0.0F)
-            .endVertex();
+        Vector3f var0 = param0.pose().transformPosition(param3, param4, param5, new Vector3f());
+        param1.vertex(var0.x(), var0.y(), var0.z(), 1.0F, 1.0F, 1.0F, param2, param6, param7, OverlayTexture.NO_OVERLAY, 15728880, 0.0F, 1.0F, 0.0F);
     }
 
     public void setLevel(@Nullable Level param0) {

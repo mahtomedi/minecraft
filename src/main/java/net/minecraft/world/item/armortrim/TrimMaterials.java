@@ -29,9 +29,6 @@ public class TrimMaterials {
     public static final ResourceKey<TrimMaterial> AMETHYST = registryKey("amethyst");
 
     public static void bootstrap(BootstapContext<TrimMaterial> param0) {
-    }
-
-    public static void nextUpdate(BootstapContext<TrimMaterial> param0) {
         register(param0, QUARTZ, Items.QUARTZ, Style.EMPTY.withColor(14931140), 0.1F);
         register(param0, IRON, Items.IRON_INGOT, Style.EMPTY.withColor(15527148), 0.2F, Map.of(ArmorMaterials.IRON, "iron_darker"));
         register(param0, NETHERITE, Items.NETHERITE_INGOT, Style.EMPTY.withColor(6445145), 0.3F, Map.of(ArmorMaterials.NETHERITE, "netherite_darker"));
@@ -45,10 +42,7 @@ public class TrimMaterials {
     }
 
     public static Optional<Holder.Reference<TrimMaterial>> getFromIngredient(RegistryAccess param0, ItemStack param1) {
-        return param0.registryOrThrow(Registries.TRIM_MATERIAL)
-            .holders()
-            .filter(param1x -> param1.is(((TrimMaterial)param1x.value()).ingredient()))
-            .findFirst();
+        return param0.registryOrThrow(Registries.TRIM_MATERIAL).holders().filter(param1x -> param1.is(param1x.value().ingredient())).findFirst();
     }
 
     private static void register(BootstapContext<TrimMaterial> param0, ResourceKey<TrimMaterial> param1, Item param2, Style param3, float param4) {

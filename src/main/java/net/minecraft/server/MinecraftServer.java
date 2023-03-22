@@ -141,7 +141,6 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.PatrolSpawner;
 import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldOptions;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.level.storage.CommandStorage;
 import net.minecraft.world.level.storage.DerivedLevelData;
@@ -345,7 +344,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         List<CustomSpawner> var6 = ImmutableList.of(
             new PhantomSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(var0)
         );
-        LevelStem var7 = (LevelStem)var2.get(LevelStem.OVERWORLD);
+        LevelStem var7 = var2.get(LevelStem.OVERWORLD);
         ServerLevel var8 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var7, param0, var1, var5, var6, true);
         this.levels.put(Level.OVERWORLD, var8);
         DimensionDataStorage var9 = var8.getDataStorage();
@@ -384,7 +383,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 ResourceKey<Level> var15 = ResourceKey.create(Registries.DIMENSION, var14.location());
                 DerivedLevelData var16 = new DerivedLevelData(this.worldData, var0);
                 ServerLevel var17 = new ServerLevel(
-                    this, this.executor, this.storageSource, var16, var15, (LevelStem)var13.getValue(), param0, var1, var5, ImmutableList.of(), false
+                    this, this.executor, this.storageSource, var16, var15, var13.getValue(), param0, var1, var5, ImmutableList.of(), false
                 );
                 var10.addListener(new BorderChangeListener.DelegateBorderChangeListener(var17.getWorldBorder()));
                 this.levels.put(var15, var17);
@@ -437,7 +436,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                     .registry(Registries.CONFIGURED_FEATURE)
                     .flatMap(param0x -> param0x.getHolder(MiscOverworldFeatures.BONUS_CHEST))
                     .ifPresent(
-                        param3x -> ((ConfiguredFeature)param3x.value())
+                        param3x -> param3x.value()
                                 .place(param0, var0.getGenerator(), param0.random, new BlockPos(param1.getXSpawn(), param1.getYSpawn(), param1.getZSpawn()))
                     );
             }
@@ -644,7 +643,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
 
             this.nextTickTime = Util.getMillis();
-            this.statusIcon = (ServerStatus.Favicon)this.loadStatusIcon().orElse(null);
+            this.statusIcon = this.loadStatusIcon().orElse(null);
             this.status = this.buildServerStatus();
 
             while(this.running) {

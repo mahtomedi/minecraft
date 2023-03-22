@@ -43,7 +43,7 @@ public class AdvancementProvider implements DataProvider {
                 var3.generate(param1, var2);
             }
 
-            return CompletableFuture.allOf((CompletableFuture<?>[])var1x.toArray(param0x -> new CompletableFuture[param0x]));
+            return CompletableFuture.allOf(var1x.toArray(param0x -> new CompletableFuture[param0x]));
         });
     }
 

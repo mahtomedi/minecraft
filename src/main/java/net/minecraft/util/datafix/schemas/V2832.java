@@ -42,6 +42,7 @@ public class V2832 extends NamespacedSchema {
                     )
                 )
         );
+        param0.registerType(false, References.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST, () -> DSL.constType(namespacedString()));
         param0.registerType(
             false,
             References.WORLD_GEN_SETTINGS,
@@ -78,7 +79,7 @@ public class V2832 extends NamespacedSchema {
                                                     () -> DSL.fields("biome", References.BIOME.in(param0)),
                                                     "minecraft:multi_noise",
                                                     () -> DSL.or(
-                                                            DSL.fields("preset", namespacedString().template()),
+                                                            DSL.fields("preset", References.MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST.in(param0)),
                                                             DSL.list(DSL.fields("biome", References.BIOME.in(param0)))
                                                         ),
                                                     "minecraft:checkerboard",

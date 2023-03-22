@@ -260,7 +260,7 @@ public class PresetFlatWorldScreen extends Screen {
 
             for(Holder<FlatLevelGeneratorPreset> param2 : param0.registryOrThrow(Registries.FLAT_LEVEL_GENERATOR_PRESET)
                 .getTagOrEmpty(FlatLevelGeneratorPresetTags.VISIBLE)) {
-                Set<Block> var0 = ((FlatLevelGeneratorPreset)param2.value())
+                Set<Block> var0 = param2.value()
                     .settings()
                     .getLayersInfo()
                     .stream()
@@ -305,7 +305,7 @@ public class PresetFlatWorldScreen extends Screen {
             private final Component name;
 
             public Entry(Holder<FlatLevelGeneratorPreset> param1) {
-                this.preset = (FlatLevelGeneratorPreset)param1.value();
+                this.preset = param1.value();
                 this.name = param1.unwrapKey()
                     .map(param0x -> Component.translatable(param0x.location().toLanguageKey("flat_world_preset")))
                     .orElse(PresetFlatWorldScreen.UNKNOWN_PRESET);

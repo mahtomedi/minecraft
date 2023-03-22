@@ -47,7 +47,12 @@ public class MultiNoiseBiomeSourceParameterList {
         return MultiNoiseBiomeSourceParameterList.Preset.BY_NAME
             .values()
             .stream()
-            .collect(Collectors.toMap(param0 -> param0, param0 -> param0.provider().apply(param0x -> param0x)));
+            .collect(
+                Collectors.toMap(
+                    (Function<? super MultiNoiseBiomeSourceParameterList.Preset, ? extends MultiNoiseBiomeSourceParameterList.Preset>)(param0 -> param0),
+                    param0 -> param0.provider().apply(param0x -> param0x)
+                )
+            );
     }
 
     public static record Preset<T>(ResourceLocation id, MultiNoiseBiomeSourceParameterList.Preset.SourceProvider provider) {
@@ -72,31 +77,28 @@ public class MultiNoiseBiomeSourceParameterList {
             new ResourceLocation("overworld"), new MultiNoiseBiomeSourceParameterList.Preset.SourceProvider() {
                 @Override
                 public <T> Climate.ParameterList<T> apply(Function<ResourceKey<Biome>, T> param0) {
-                    return MultiNoiseBiomeSourceParameterList.Preset.generateOverworldBiomes(param0, OverworldBiomeBuilder.Modifier.NONE);
+                    return MultiNoiseBiomeSourceParameterList.Preset.generateOverworldBiomes(param0);
                 }
             }
         );
-        public static final MultiNoiseBiomeSourceParameterList.Preset OVERWORLD_UPDATE_1_20 = new MultiNoiseBiomeSourceParameterList.Preset(
-            new ResourceLocation("overworld_update_1_20"), new MultiNoiseBiomeSourceParameterList.Preset.SourceProvider() {
-                @Override
-                public <T> Climate.ParameterList<T> apply(Function<ResourceKey<Biome>, T> param0) {
-                    return MultiNoiseBiomeSourceParameterList.Preset.generateOverworldBiomes(param0, OverworldBiomeBuilder.Modifier.UPDATE_1_20);
-                }
-            }
-        );
-        static final Map<ResourceLocation, MultiNoiseBiomeSourceParameterList.Preset> BY_NAME = Stream.of((T[])(NETHER, OVERWORLD, OVERWORLD_UPDATE_1_20))
-            .collect(Collectors.toMap(MultiNoiseBiomeSourceParameterList.Preset::id, param0 -> param0));
+        static final Map<ResourceLocation, MultiNoiseBiomeSourceParameterList.Preset> BY_NAME = Stream.of(NETHER, OVERWORLD)
+            .collect(
+                Collectors.toMap(
+                    MultiNoiseBiomeSourceParameterList.Preset::id,
+                    (Function<? super MultiNoiseBiomeSourceParameterList.Preset, ? extends MultiNoiseBiomeSourceParameterList.Preset>)(param0 -> param0)
+                )
+            );
         public static final Codec<MultiNoiseBiomeSourceParameterList.Preset> CODEC = ResourceLocation.CODEC
             .flatXmap(
-                param0 -> Optional.ofNullable((MultiNoiseBiomeSourceParameterList.Preset)BY_NAME.get(param0))
+                param0 -> Optional.ofNullable(BY_NAME.get(param0))
                         .map(DataResult::success)
                         .orElseGet(() -> DataResult.error(() -> "Unknown preset: " + param0)),
-                param0 -> DataResult.success(((MultiNoiseBiomeSourceParameterList.Preset)param0).id)
+                param0 -> DataResult.success(param0.id)
             );
 
-        static <T> Climate.ParameterList<T> generateOverworldBiomes(Function<ResourceKey<Biome>, T> param0, OverworldBiomeBuilder.Modifier param1) {
+        static <T> Climate.ParameterList<T> generateOverworldBiomes(Function<ResourceKey<Biome>, T> param0) {
             Builder<Pair<Climate.ParameterPoint, T>> var0 = ImmutableList.builder();
-            new OverworldBiomeBuilder(param1).addBiomes(param2 -> var0.add(param2.mapSecond(param0)));
+            new OverworldBiomeBuilder().addBiomes(param2 -> var0.add(param2.mapSecond(param0)));
             return new Climate.ParameterList<>(var0.build());
         }
 

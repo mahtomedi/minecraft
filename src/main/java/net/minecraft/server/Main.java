@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -158,9 +157,7 @@ public class Main {
                                         var1x, param5x.dataConfiguration(), var0x, param5x.datapackWorldgen().allRegistriesLifecycle()
                                     );
                                     if (var2x != null) {
-                                        return new WorldLoader.DataLoadOutput<>(
-                                            var2x.getFirst(), ((WorldDimensions.Complete)var2x.getSecond()).dimensionsRegistryAccess()
-                                        );
+                                        return new WorldLoader.DataLoadOutput<>(var2x.getFirst(), var2x.getSecond().dimensionsRegistryAccess());
                                     } else {
                                         LevelSettings var3x;
                                         WorldOptions var4x;
@@ -246,7 +243,7 @@ public class Main {
     private static void writePidFile(Path param0) {
         try {
             long var0 = ProcessHandle.current().pid();
-            Files.writeString(param0, Long.toString(var0), new OpenOption[0]);
+            Files.writeString(param0, Long.toString(var0));
         } catch (IOException var3) {
             throw new UncheckedIOException(var3);
         }

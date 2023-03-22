@@ -41,26 +41,24 @@ public class LegacyStructureDataHandler {
         param0.put("TeSH", "Swamp_Hut");
     });
     private static final Set<String> OLD_STRUCTURE_REGISTRY_KEYS = Set.of(
-        new String[]{
-            "pillager_outpost",
-            "mineshaft",
-            "mansion",
-            "jungle_pyramid",
-            "desert_pyramid",
-            "igloo",
-            "ruined_portal",
-            "shipwreck",
-            "swamp_hut",
-            "stronghold",
-            "monument",
-            "ocean_ruin",
-            "fortress",
-            "endcity",
-            "buried_treasure",
-            "village",
-            "nether_fossil",
-            "bastion_remnant"
-        }
+        "pillager_outpost",
+        "mineshaft",
+        "mansion",
+        "jungle_pyramid",
+        "desert_pyramid",
+        "igloo",
+        "ruined_portal",
+        "shipwreck",
+        "swamp_hut",
+        "stronghold",
+        "monument",
+        "ocean_ruin",
+        "fortress",
+        "endcity",
+        "buried_treasure",
+        "village",
+        "nether_fossil",
+        "bastion_remnant"
     );
     private final boolean hasLegacyData;
     private final Map<String, Long2ObjectMap<CompoundTag>> dataMap = Maps.newHashMap();

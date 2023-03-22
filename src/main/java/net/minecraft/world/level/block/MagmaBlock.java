@@ -2,11 +2,7 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,20 +40,6 @@ public class MagmaBlock extends Block {
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
-    }
-
-    @Override
-    public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
-        BlockPos var0 = param2.above();
-        if (param1.getFluidState(param2).is(FluidTags.WATER)) {
-            param1.playSound(
-                null, param2, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
-            );
-            param1.sendParticles(
-                ParticleTypes.LARGE_SMOKE, (double)var0.getX() + 0.5, (double)var0.getY() + 0.25, (double)var0.getZ() + 0.5, 8, 0.5, 0.25, 0.5, 0.0
-            );
-        }
-
     }
 
     @Override

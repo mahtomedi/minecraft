@@ -19,7 +19,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ArmorMaterials;
@@ -58,19 +57,22 @@ public class SpawnArmorTrimsCommand {
         param0.put(Pair.of(ArmorMaterials.TURTLE, EquipmentSlot.HEAD), Items.TURTLE_HELMET);
     });
     private static final List<ResourceKey<TrimPattern>> VANILLA_TRIM_PATTERNS = List.of(
-        new ResourceKey[]{
-            TrimPatterns.SENTRY,
-            TrimPatterns.DUNE,
-            TrimPatterns.COAST,
-            TrimPatterns.WILD,
-            TrimPatterns.WARD,
-            TrimPatterns.EYE,
-            TrimPatterns.VEX,
-            TrimPatterns.TIDE,
-            TrimPatterns.SNOUT,
-            TrimPatterns.RIB,
-            TrimPatterns.SPIRE
-        }
+        TrimPatterns.SENTRY,
+        TrimPatterns.DUNE,
+        TrimPatterns.COAST,
+        TrimPatterns.WILD,
+        TrimPatterns.WARD,
+        TrimPatterns.EYE,
+        TrimPatterns.VEX,
+        TrimPatterns.TIDE,
+        TrimPatterns.SNOUT,
+        TrimPatterns.RIB,
+        TrimPatterns.SPIRE,
+        TrimPatterns.WAYFINDER,
+        TrimPatterns.SHAPER,
+        TrimPatterns.SILENCE,
+        TrimPatterns.RAISER,
+        TrimPatterns.HOST
     );
     private static final List<ResourceKey<TrimMaterial>> VANILLA_TRIM_MATERIALS = List.of(
         TrimMaterials.QUARTZ,
@@ -90,7 +92,7 @@ public class SpawnArmorTrimsCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("spawn_armor_trims")
-                .requires(param0x -> param0x.hasPermission(2) && param0x.getLevel().enabledFeatures().contains(FeatureFlags.UPDATE_1_20))
+                .requires(param0x -> param0x.hasPermission(2))
                 .executes(param0x -> spawnArmorTrims(param0x.getSource(), param0x.getSource().getPlayerOrException()))
         );
     }
@@ -101,14 +103,10 @@ public class SpawnArmorTrimsCommand {
         Registry<TrimPattern> var2 = var0.registryAccess().registryOrThrow(Registries.TRIM_PATTERN);
         Registry<TrimMaterial> var3 = var0.registryAccess().registryOrThrow(Registries.TRIM_MATERIAL);
         var2.stream()
-            .sorted(Comparator.comparing(param1x -> TRIM_PATTERN_ORDER.applyAsInt((ResourceKey<TrimPattern>)var2.getResourceKey(param1x).orElse(null))))
+            .sorted(Comparator.comparing(param1x -> TRIM_PATTERN_ORDER.applyAsInt(var2.getResourceKey(param1x).orElse(null))))
             .forEachOrdered(
                 param3 -> var3.stream()
-                        .sorted(
-                            Comparator.comparing(
-                                param1x -> TRIM_MATERIAL_ORDER.applyAsInt((ResourceKey<TrimMaterial>)var3.getResourceKey(param1x).orElse(null))
-                            )
-                        )
+                        .sorted(Comparator.comparing(param1x -> TRIM_MATERIAL_ORDER.applyAsInt(var3.getResourceKey(param1x).orElse(null))))
                         .forEachOrdered(param4 -> var1.add(new ArmorTrim(var3.wrapAsHolder(param4), var2.wrapAsHolder(param3))))
             );
         BlockPos var4 = param1.blockPosition().relative(param1.getDirection(), 5);
@@ -135,11 +133,7 @@ public class SpawnArmorTrimsCommand {
                             var14.setItemSlot(var15, var17);
                             if (var16 instanceof ArmorItem var18 && var18.getMaterial() == ArmorMaterials.TURTLE) {
                                 var14.setCustomName(
-                                    ((TrimPattern)var9.pattern().value())
-                                        .copyWithStyle(var9.material())
-                                        .copy()
-                                        .append(" ")
-                                        .append(((TrimMaterial)var9.material().value()).description())
+                                    var9.pattern().value().copyWithStyle(var9.material()).copy().append(" ").append(var9.material().value().description())
                                 );
                                 var14.setCustomNameVisible(true);
                                 continue;

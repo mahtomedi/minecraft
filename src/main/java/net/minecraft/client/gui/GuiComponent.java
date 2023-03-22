@@ -428,12 +428,12 @@ public abstract class GuiComponent {
 
     @OnlyIn(Dist.CLIENT)
     static class ScissorStack {
-        private final Deque<ScreenRectangle> stack = new ArrayDeque();
+        private final Deque<ScreenRectangle> stack = new ArrayDeque<>();
 
         public ScreenRectangle push(ScreenRectangle param0) {
-            ScreenRectangle var0 = (ScreenRectangle)this.stack.peekLast();
+            ScreenRectangle var0 = this.stack.peekLast();
             if (var0 != null) {
-                ScreenRectangle var1 = (ScreenRectangle)Objects.requireNonNullElse(param0.intersection(var0), ScreenRectangle.empty());
+                ScreenRectangle var1 = Objects.requireNonNullElse(param0.intersection(var0), ScreenRectangle.empty());
                 this.stack.addLast(var1);
                 return var1;
             } else {
@@ -448,7 +448,7 @@ public abstract class GuiComponent {
                 throw new IllegalStateException("Scissor stack underflow");
             } else {
                 this.stack.removeLast();
-                return (ScreenRectangle)this.stack.peekLast();
+                return this.stack.peekLast();
             }
         }
     }

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
@@ -16,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundSignUpdatePacket;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,39 +27,40 @@ import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractSignEditScreen extends Screen {
-    protected final SignBlockEntity sign;
-    protected final String[] messages;
+    private final SignBlockEntity sign;
+    private SignText text;
+    private final String[] messages;
+    private final boolean isFrontText;
     protected final WoodType woodType;
     private int frame;
     private int line;
+    @Nullable
     private TextFieldHelper signField;
 
-    public AbstractSignEditScreen(SignBlockEntity param0, boolean param1) {
-        this(param0, param1, Component.translatable("sign.edit"));
+    public AbstractSignEditScreen(SignBlockEntity param0, boolean param1, boolean param2) {
+        this(param0, param1, param2, Component.translatable("sign.edit"));
     }
 
-    public AbstractSignEditScreen(SignBlockEntity param0, boolean param1, Component param2) {
-        super(param2);
+    public AbstractSignEditScreen(SignBlockEntity param0, boolean param1, boolean param2, Component param3) {
+        super(param3);
+        this.sign = param0;
+        this.text = param0.getText(param1);
+        this.isFrontText = param1;
         this.woodType = SignBlock.getWoodType(param0.getBlockState().getBlock());
         this.messages = IntStream.range(0, 4)
-            .mapToObj(param2x -> param0.getMessage(param2x, param1))
+            .mapToObj(param1x -> this.text.getMessage(param1x, param2))
             .map(Component::getString)
             .toArray(param0x -> new String[param0x]);
-        this.sign = param0;
     }
 
     @Override
     protected void init() {
         this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 100, this.height / 4 + 120, 200, 20).build()
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 100, this.height / 4 + 144, 200, 20).build()
         );
-        this.sign.setEditable(false);
         this.signField = new TextFieldHelper(
             () -> this.messages[this.line],
-            param0 -> {
-                this.messages[this.line] = param0;
-                this.sign.setMessage(this.line, Component.literal(param0));
-            },
+            this::setMessage,
             TextFieldHelper.createClipboardGetter(this.minecraft),
             TextFieldHelper.createClipboardSetter(this.minecraft),
             param0 -> this.minecraft.font.width(param0) <= this.sign.getMaxTextLineWidth()
@@ -65,38 +68,19 @@ public abstract class AbstractSignEditScreen extends Screen {
     }
 
     @Override
-    public void removed() {
-        ClientPacketListener var0 = this.minecraft.getConnection();
-        if (var0 != null) {
-            var0.send(new ServerboundSignUpdatePacket(this.sign.getBlockPos(), this.messages[0], this.messages[1], this.messages[2], this.messages[3]));
-        }
-
-        this.sign.setEditable(true);
-    }
-
-    @Override
     public void tick() {
         ++this.frame;
-        if (!this.sign.getType().isValid(this.sign.getBlockState())) {
+        if (!this.isValid()) {
             this.onDone();
         }
 
     }
 
-    private void onDone() {
-        this.sign.setChanged();
-        this.minecraft.setScreen(null);
-    }
-
-    @Override
-    public boolean charTyped(char param0, int param1) {
-        this.signField.charTyped(param0);
-        return true;
-    }
-
-    @Override
-    public void onClose() {
-        this.onDone();
+    private boolean isValid() {
+        return this.minecraft == null
+            || this.minecraft.player == null
+            || !this.sign.getType().isValid(this.sign.getBlockState())
+            || !this.sign.playerIsTooFarAwayToEdit(this.minecraft.player.getUUID());
     }
 
     @Override
@@ -115,6 +99,12 @@ public abstract class AbstractSignEditScreen extends Screen {
     }
 
     @Override
+    public boolean charTyped(char param0, int param1) {
+        this.signField.charTyped(param0);
+        return true;
+    }
+
+    @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         Lighting.setupForFlatItems();
         this.renderBackground(param0);
@@ -122,6 +112,29 @@ public abstract class AbstractSignEditScreen extends Screen {
         this.renderSign(param0);
         Lighting.setupFor3DItems();
         super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void onClose() {
+        this.onDone();
+    }
+
+    @Override
+    public void removed() {
+        ClientPacketListener var0 = this.minecraft.getConnection();
+        if (var0 != null) {
+            var0.send(
+                new ServerboundSignUpdatePacket(
+                    this.sign.getBlockPos(), this.isFrontText, this.messages[0], this.messages[1], this.messages[2], this.messages[3]
+                )
+            );
+        }
+
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 
     protected abstract void renderSignBackground(PoseStack var1, MultiBufferSource.BufferSource var2, BlockState var3);
@@ -148,7 +161,7 @@ public abstract class AbstractSignEditScreen extends Screen {
         param0.translate(0.0F, 0.0F, 4.0F);
         Vector3f var0 = this.getSignTextScale();
         param0.scale(var0.x(), var0.y(), var0.z());
-        int var1 = this.sign.getColor().getTextColor();
+        int var1 = this.text.getColor().getTextColor();
         boolean var2 = this.frame / 6 % 2 == 0;
         int var3 = this.signField.getCursorPos();
         int var4 = this.signField.getSelectionPos();
@@ -215,5 +228,15 @@ public abstract class AbstractSignEditScreen extends Screen {
             }
         }
 
+    }
+
+    private void setMessage(String param0) {
+        this.messages[this.line] = param0;
+        this.text = this.text.setMessage(this.line, Component.literal(param0));
+        this.sign.setText(this.text, this.isFrontText);
+    }
+
+    private void onDone() {
+        this.minecraft.setScreen(null);
     }
 }

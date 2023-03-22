@@ -32,7 +32,7 @@ public class FontSet implements AutoCloseable {
     private BakedGlyph whiteGlyph;
     private final List<GlyphProvider> providers = Lists.newArrayList();
     private final Int2ObjectMap<BakedGlyph> glyphs = new Int2ObjectOpenHashMap<>();
-    private final Int2ObjectMap<FontSet.GlyphInfoFilter> glyphInfos = new Int2ObjectOpenHashMap();
+    private final Int2ObjectMap<FontSet.GlyphInfoFilter> glyphInfos = new Int2ObjectOpenHashMap<>();
     private final Int2ObjectMap<IntList> glyphsByWidth = new Int2ObjectOpenHashMap<>();
     private final List<FontTexture> textures = Lists.newArrayList();
 
@@ -124,7 +124,7 @@ public class FontSet implements AutoCloseable {
     }
 
     public GlyphInfo getGlyphInfo(int param0, boolean param1) {
-        return ((FontSet.GlyphInfoFilter)this.glyphInfos.computeIfAbsent(param0, this::computeGlyphInfo)).select(param1);
+        return this.glyphInfos.computeIfAbsent(param0, this::computeGlyphInfo).select(param1);
     }
 
     private BakedGlyph computeBakedGlyph(int param0) {

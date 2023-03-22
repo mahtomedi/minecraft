@@ -69,7 +69,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
         super(param0, param1);
         BuiltInRegistries.VILLAGER_PROFESSION
             .getRandom(this.random)
-            .ifPresent(param0x -> this.setVillagerData(this.getVillagerData().setProfession((VillagerProfession)param0x.value())));
+            .ifPresent(param0x -> this.setVillagerData(this.getVillagerData().setProfession(param0x.value())));
     }
 
     @Override

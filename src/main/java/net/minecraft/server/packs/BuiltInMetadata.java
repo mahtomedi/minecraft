@@ -24,6 +24,6 @@ public class BuiltInMetadata {
     }
 
     public static <T1, T2> BuiltInMetadata of(MetadataSectionSerializer<T1> param0, T1 param1, MetadataSectionSerializer<T2> param2, T2 param3) {
-        return new BuiltInMetadata(Map.of(param0, param1, param2, param3));
+        return new BuiltInMetadata(Map.of(param0, param1, param2, (T1)param3));
     }
 }

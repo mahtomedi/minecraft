@@ -163,7 +163,7 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
 
         @Override
         public Optional<TagKey<T>> unwrapKey() {
-            return Optional.of((T)this.key);
+            return Optional.of(this.key);
         }
 
         @Override

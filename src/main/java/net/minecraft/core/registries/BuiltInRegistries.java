@@ -86,6 +86,7 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
 import net.minecraft.world.level.levelgen.structure.templatesystem.PosRuleTestType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTestType;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.rule.blockentity.RuleBlockEntityModifierType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
@@ -129,6 +130,9 @@ public class BuiltInRegistries {
     public static final Registry<ResourceLocation> CUSTOM_STAT = registerSimple(Registries.CUSTOM_STAT, param0 -> Stats.JUMP);
     public static final DefaultedRegistry<ChunkStatus> CHUNK_STATUS = registerDefaulted(Registries.CHUNK_STATUS, "empty", param0 -> ChunkStatus.EMPTY);
     public static final Registry<RuleTestType<?>> RULE_TEST = registerSimple(Registries.RULE_TEST, param0 -> RuleTestType.ALWAYS_TRUE_TEST);
+    public static final Registry<RuleBlockEntityModifierType<?>> RULE_BLOCK_ENTITY_MODIFIER = registerSimple(
+        Registries.RULE_BLOCK_ENTITY_MODIFIER, param0 -> RuleBlockEntityModifierType.PASSTHROUGH
+    );
     public static final Registry<PosRuleTestType<?>> POS_RULE_TEST = registerSimple(Registries.POS_RULE_TEST, param0 -> PosRuleTestType.ALWAYS_TRUE_TEST);
     public static final Registry<MenuType<?>> MENU = registerSimple(Registries.MENU, param0 -> MenuType.ANVIL);
     public static final Registry<RecipeType<?>> RECIPE_TYPE = registerSimple(Registries.RECIPE_TYPE, param0 -> RecipeType.CRAFTING);

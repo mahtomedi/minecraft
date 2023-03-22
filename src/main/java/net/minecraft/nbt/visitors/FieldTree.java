@@ -15,7 +15,7 @@ public record FieldTree(int depth, Map<String, TagType<?>> selectedFields, Map<S
 
     public void addEntry(FieldSelector param0) {
         if (this.depth <= param0.path().size()) {
-            ((FieldTree)this.fieldsToRecurse.computeIfAbsent(param0.path().get(this.depth - 1), param0x -> new FieldTree(this.depth + 1))).addEntry(param0);
+            this.fieldsToRecurse.computeIfAbsent(param0.path().get(this.depth - 1), param0x -> new FieldTree(this.depth + 1)).addEntry(param0);
         } else {
             this.selectedFields.put(param0.name(), param0.type());
         }

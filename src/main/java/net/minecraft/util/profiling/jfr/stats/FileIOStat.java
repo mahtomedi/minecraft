@@ -21,8 +21,8 @@ public record FileIOStat(Duration duration, @Nullable String path, long bytes) {
                 .collect(Collectors.groupingBy(param0x -> param0x.path, Collectors.summingLong(param0x -> param0x.bytes)))
                 .entrySet()
                 .stream()
-                .sorted(Entry.comparingByValue().reversed())
-                .map(param0x -> Pair.of((String)param0x.getKey(), (Long)param0x.getValue()))
+                .sorted(Entry.<String, Long>comparingByValue().reversed())
+                .map(param0x -> Pair.of(param0x.getKey(), param0x.getValue()))
                 .limit(10L)
                 .toList()
         );

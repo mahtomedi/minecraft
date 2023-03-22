@@ -81,8 +81,7 @@ public abstract class StructurePlacement {
         } else if (this.frequency < 1.0F && !this.frequencyReductionMethod.shouldGenerate(param0.getLevelSeed(), this.salt, param1, param2, this.frequency)) {
             return false;
         } else {
-            return !this.exclusionZone.isPresent()
-                || !((StructurePlacement.ExclusionZone)this.exclusionZone.get()).isPlacementForbidden(param0, param1, param2);
+            return !this.exclusionZone.isPresent() || !this.exclusionZone.get().isPlacementForbidden(param0, param1, param2);
         }
     }
 

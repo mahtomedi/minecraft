@@ -20,7 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 public class RegistrySetBuilder {
-    private final List<RegistrySetBuilder.RegistryStub<?>> entries = new ArrayList();
+    private final List<RegistrySetBuilder.RegistryStub<?>> entries = new ArrayList<>();
 
     static <T> HolderGetter<T> wrapContextLookup(final HolderLookup.RegistryLookup<T> param0) {
         return new RegistrySetBuilder.EmptyTagLookup<T>(param0) {
@@ -32,7 +32,7 @@ public class RegistrySetBuilder {
     }
 
     public <T> RegistrySetBuilder add(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, RegistrySetBuilder.RegistryBootstrap<T> param2) {
-        this.entries.add(new RegistrySetBuilder.RegistryStub<T>(param0, param1, param2));
+        this.entries.add(new RegistrySetBuilder.RegistryStub<>(param0, param1, param2));
         return this;
     }
 
@@ -92,7 +92,7 @@ public class RegistrySetBuilder {
             return new BootstapContext<T>() {
                 @Override
                 public Holder.Reference<T> register(ResourceKey<T> param0, T param1, Lifecycle param2) {
-                    RegistrySetBuilder.RegisteredValue<?> var0 = (RegistrySetBuilder.RegisteredValue)BuildState.this.registeredValues
+                    RegistrySetBuilder.RegisteredValue<?> var0 = BuildState.this.registeredValues
                         .put(param0, new RegistrySetBuilder.RegisteredValue(param1, param2));
                     if (var0 != null) {
                         BuildState.this.errors
@@ -206,8 +206,8 @@ public class RegistrySetBuilder {
                     .entrySet()
                     .stream()
                     .collect(Collectors.toUnmodifiableMap(Entry::getKey, param0x -> {
-                        RegistrySetBuilder.ValueAndHolder<T> var0 = (RegistrySetBuilder.ValueAndHolder)param0x.getValue();
-                        Holder.Reference<T> var1x = var0.holder().orElseGet(() -> Holder.Reference.createStandAlone(this, (ResourceKey<T>)param0x.getKey()));
+                        RegistrySetBuilder.ValueAndHolder<T> var0 = param0x.getValue();
+                        Holder.Reference<T> var1x = var0.holder().orElseGet(() -> Holder.Reference.createStandAlone(this, param0x.getKey()));
                         var1x.bindValue(var0.value().value());
                         return var1x;
                     }));
@@ -260,7 +260,7 @@ public class RegistrySetBuilder {
                 if (var3.isFor(this.key)) {
                     RegistrySetBuilder.RegisteredValue<T> var5 = (RegistrySetBuilder.RegisteredValue)var2.getValue();
                     Holder.Reference<T> var6 = param0.lookup.holders.remove(var3);
-                    var0.put(var3, new RegistrySetBuilder.ValueAndHolder<T>(var5, Optional.ofNullable(var6)));
+                    var0.put(var3, new RegistrySetBuilder.ValueAndHolder<>(var5, Optional.ofNullable(var6)));
                     var1.remove();
                 }
             }

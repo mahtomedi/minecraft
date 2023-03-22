@@ -92,14 +92,7 @@ public class CloneCommands {
             );
         return Commands.argument("destination", BlockPosArgument.blockPos())
             .executes(
-                param3 -> clone(
-                        param3.getSource(),
-                        (CloneCommands.DimensionAndPosition)var0.apply(param3),
-                        (CloneCommands.DimensionAndPosition)var1.apply(param3),
-                        (CloneCommands.DimensionAndPosition)var2.apply(param3),
-                        param0x -> true,
-                        CloneCommands.Mode.NORMAL
-                    )
+                param3 -> clone(param3.getSource(), var0.apply(param3), var1.apply(param3), var2.apply(param3), param0x -> true, CloneCommands.Mode.NORMAL)
             )
             .then(
                 wrapWithCloneMode(
@@ -110,12 +103,7 @@ public class CloneCommands {
                     Commands.literal("replace")
                         .executes(
                             param3 -> clone(
-                                    param3.getSource(),
-                                    (CloneCommands.DimensionAndPosition)var0.apply(param3),
-                                    (CloneCommands.DimensionAndPosition)var1.apply(param3),
-                                    (CloneCommands.DimensionAndPosition)var2.apply(param3),
-                                    param0x -> true,
-                                    CloneCommands.Mode.NORMAL
+                                    param3.getSource(), var0.apply(param3), var1.apply(param3), var2.apply(param3), param0x -> true, CloneCommands.Mode.NORMAL
                                 )
                         )
                 )
@@ -129,12 +117,7 @@ public class CloneCommands {
                     Commands.literal("masked")
                         .executes(
                             param3 -> clone(
-                                    param3.getSource(),
-                                    (CloneCommands.DimensionAndPosition)var0.apply(param3),
-                                    (CloneCommands.DimensionAndPosition)var1.apply(param3),
-                                    (CloneCommands.DimensionAndPosition)var2.apply(param3),
-                                    FILTER_AIR,
-                                    CloneCommands.Mode.NORMAL
+                                    param3.getSource(), var0.apply(param3), var1.apply(param3), var2.apply(param3), FILTER_AIR, CloneCommands.Mode.NORMAL
                                 )
                         )
                 )
@@ -151,9 +134,9 @@ public class CloneCommands {
                                 .executes(
                                     param3 -> clone(
                                             param3.getSource(),
-                                            (CloneCommands.DimensionAndPosition)var0.apply(param3),
-                                            (CloneCommands.DimensionAndPosition)var1.apply(param3),
-                                            (CloneCommands.DimensionAndPosition)var2.apply(param3),
+                                            var0.apply(param3),
+                                            var1.apply(param3),
+                                            var2.apply(param3),
                                             BlockPredicateArgument.getBlockPredicate(param3, "filter"),
                                             CloneCommands.Mode.NORMAL
                                         )
@@ -175,9 +158,9 @@ public class CloneCommands {
                     .executes(
                         param4x -> clone(
                                 param4x.getSource(),
-                                (CloneCommands.DimensionAndPosition)param0.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param1.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param2.apply(param4x),
+                                param0.apply(param4x),
+                                param1.apply(param4x),
+                                param2.apply(param4x),
                                 param3.apply(param4x),
                                 CloneCommands.Mode.FORCE
                             )
@@ -188,9 +171,9 @@ public class CloneCommands {
                     .executes(
                         param4x -> clone(
                                 param4x.getSource(),
-                                (CloneCommands.DimensionAndPosition)param0.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param1.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param2.apply(param4x),
+                                param0.apply(param4x),
+                                param1.apply(param4x),
+                                param2.apply(param4x),
                                 param3.apply(param4x),
                                 CloneCommands.Mode.MOVE
                             )
@@ -201,9 +184,9 @@ public class CloneCommands {
                     .executes(
                         param4x -> clone(
                                 param4x.getSource(),
-                                (CloneCommands.DimensionAndPosition)param0.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param1.apply(param4x),
-                                (CloneCommands.DimensionAndPosition)param2.apply(param4x),
+                                param0.apply(param4x),
+                                param1.apply(param4x),
+                                param2.apply(param4x),
                                 param3.apply(param4x),
                                 CloneCommands.Mode.NORMAL
                             )

@@ -28,6 +28,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -1454,7 +1455,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         RenderSystem.clear(256, ON_OSX);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         Matrix4f var2 = new Matrix4f().setOrtho(0.0F, (float)this.window.getWidth(), (float)this.window.getHeight(), 0.0F, 1000.0F, 3000.0F);
-        RenderSystem.setProjectionMatrix(var2);
+        RenderSystem.setProjectionMatrix(var2, VertexSorting.ORTHOGRAPHIC_Z);
         PoseStack var3 = RenderSystem.getModelViewStack();
         var3.pushPose();
         var3.setIdentity();
@@ -2145,7 +2146,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     @Nullable
     public BanDetails multiplayerBan() {
-        return (BanDetails)this.userApiService.properties().bannedScopes().get("MULTIPLAYER");
+        return this.userApiService.properties().bannedScopes().get("MULTIPLAYER");
     }
 
     public boolean isBlocked(UUID param0) {

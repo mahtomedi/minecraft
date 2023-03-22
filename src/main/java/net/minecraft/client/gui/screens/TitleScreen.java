@@ -75,7 +75,7 @@ public class TitleScreen extends Screen {
     public TitleScreen(boolean param0, @Nullable LogoRenderer param1) {
         super(Component.translatable("narrator.screen.title"));
         this.fading = param0;
-        this.logoRenderer = (LogoRenderer)Objects.requireNonNullElseGet(param1, () -> new LogoRenderer(false));
+        this.logoRenderer = Objects.requireNonNullElseGet(param1, () -> new LogoRenderer(false));
     }
 
     private boolean realmsNotificationsEnabled() {

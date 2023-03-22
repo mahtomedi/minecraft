@@ -91,7 +91,7 @@ public abstract class Structure {
         Structure.GenerationContext var0 = new Structure.GenerationContext(param0, param1, param2, param3, param4, param5, param6, param8, param9);
         Optional<Structure.GenerationStub> var1 = this.findValidGenerationPoint(var0);
         if (var1.isPresent()) {
-            StructurePiecesBuilder var2 = ((Structure.GenerationStub)var1.get()).getPiecesBuilder();
+            StructurePiecesBuilder var2 = var1.get().getPiecesBuilder();
             StructureStart var3 = new StructureStart(this, param6, param7, var2.build());
             if (var3.isValid()) {
                 return var3;

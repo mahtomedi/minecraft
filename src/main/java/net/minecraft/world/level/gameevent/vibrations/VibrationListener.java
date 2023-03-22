@@ -30,102 +30,114 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class VibrationListener implements GameEventListener {
+    public static final GameEvent[] RESONANCE_EVENTS = new GameEvent[]{
+        GameEvent.RESONATE_1,
+        GameEvent.RESONATE_2,
+        GameEvent.RESONATE_3,
+        GameEvent.RESONATE_4,
+        GameEvent.RESONATE_5,
+        GameEvent.RESONATE_6,
+        GameEvent.RESONATE_7,
+        GameEvent.RESONATE_8,
+        GameEvent.RESONATE_9,
+        GameEvent.RESONATE_10,
+        GameEvent.RESONATE_11,
+        GameEvent.RESONATE_12,
+        GameEvent.RESONATE_13,
+        GameEvent.RESONATE_14,
+        GameEvent.RESONATE_15
+    };
     @VisibleForTesting
     public static final Object2IntMap<GameEvent> VIBRATION_FREQUENCY_FOR_EVENT = Object2IntMaps.unmodifiable(
         Util.make(new Object2IntOpenHashMap<>(), param0 -> {
             param0.put(GameEvent.STEP, 1);
-            param0.put(GameEvent.ITEM_INTERACT_FINISH, 2);
-            param0.put(GameEvent.FLAP, 2);
-            param0.put(GameEvent.SWIM, 3);
+            param0.put(GameEvent.SWIM, 1);
+            param0.put(GameEvent.FLAP, 1);
+            param0.put(GameEvent.PROJECTILE_LAND, 2);
+            param0.put(GameEvent.HIT_GROUND, 2);
+            param0.put(GameEvent.SPLASH, 2);
+            param0.put(GameEvent.ITEM_INTERACT_FINISH, 3);
+            param0.put(GameEvent.PROJECTILE_SHOOT, 3);
+            param0.put(GameEvent.INSTRUMENT_PLAY, 3);
+            param0.put(GameEvent.ENTITY_ROAR, 4);
+            param0.put(GameEvent.ENTITY_SHAKE, 4);
             param0.put(GameEvent.ELYTRA_GLIDE, 4);
-            param0.put(GameEvent.HIT_GROUND, 5);
-            param0.put(GameEvent.TELEPORT, 5);
-            param0.put(GameEvent.SPLASH, 6);
-            param0.put(GameEvent.ENTITY_SHAKE, 6);
-            param0.put(GameEvent.BLOCK_CHANGE, 6);
-            param0.put(GameEvent.NOTE_BLOCK_PLAY, 6);
-            param0.put(GameEvent.ENTITY_DISMOUNT, 6);
-            param0.put(GameEvent.PROJECTILE_SHOOT, 7);
-            param0.put(GameEvent.DRINK, 7);
-            param0.put(GameEvent.PRIME_FUSE, 7);
-            param0.put(GameEvent.ENTITY_MOUNT, 7);
-            param0.put(GameEvent.PROJECTILE_LAND, 8);
+            param0.put(GameEvent.ENTITY_DISMOUNT, 5);
+            param0.put(GameEvent.EQUIP, 5);
+            param0.put(GameEvent.ENTITY_INTERACT, 6);
+            param0.put(GameEvent.SHEAR, 6);
+            param0.put(GameEvent.ENTITY_MOUNT, 6);
+            param0.put(GameEvent.ENTITY_DAMAGE, 7);
+            param0.put(GameEvent.DRINK, 8);
             param0.put(GameEvent.EAT, 8);
-            param0.put(GameEvent.ENTITY_INTERACT, 8);
-            param0.put(GameEvent.ENTITY_DAMAGE, 8);
-            param0.put(GameEvent.EQUIP, 9);
-            param0.put(GameEvent.SHEAR, 9);
-            param0.put(GameEvent.ENTITY_ROAR, 9);
-            param0.put(GameEvent.BLOCK_CLOSE, 10);
-            param0.put(GameEvent.BLOCK_DEACTIVATE, 10);
-            param0.put(GameEvent.BLOCK_DETACH, 10);
-            param0.put(GameEvent.DISPENSE_FAIL, 10);
-            param0.put(GameEvent.BLOCK_OPEN, 11);
-            param0.put(GameEvent.BLOCK_ACTIVATE, 11);
-            param0.put(GameEvent.BLOCK_ATTACH, 11);
-            param0.put(GameEvent.ENTITY_PLACE, 12);
-            param0.put(GameEvent.BLOCK_PLACE, 12);
-            param0.put(GameEvent.FLUID_PLACE, 12);
-            param0.put(GameEvent.ENTITY_DIE, 13);
-            param0.put(GameEvent.BLOCK_DESTROY, 13);
-            param0.put(GameEvent.FLUID_PICKUP, 13);
-            param0.put(GameEvent.CONTAINER_CLOSE, 14);
-            param0.put(GameEvent.PISTON_CONTRACT, 14);
-            param0.put(GameEvent.PISTON_EXTEND, 15);
-            param0.put(GameEvent.CONTAINER_OPEN, 15);
+            param0.put(GameEvent.CONTAINER_CLOSE, 9);
+            param0.put(GameEvent.BLOCK_CLOSE, 9);
+            param0.put(GameEvent.BLOCK_DEACTIVATE, 9);
+            param0.put(GameEvent.BLOCK_DETACH, 9);
+            param0.put(GameEvent.CONTAINER_OPEN, 10);
+            param0.put(GameEvent.BLOCK_OPEN, 10);
+            param0.put(GameEvent.BLOCK_ACTIVATE, 10);
+            param0.put(GameEvent.BLOCK_ATTACH, 10);
+            param0.put(GameEvent.PRIME_FUSE, 10);
+            param0.put(GameEvent.NOTE_BLOCK_PLAY, 10);
+            param0.put(GameEvent.BLOCK_CHANGE, 11);
+            param0.put(GameEvent.BLOCK_DESTROY, 12);
+            param0.put(GameEvent.FLUID_PICKUP, 12);
+            param0.put(GameEvent.BLOCK_PLACE, 13);
+            param0.put(GameEvent.FLUID_PLACE, 13);
+            param0.put(GameEvent.ENTITY_PLACE, 14);
+            param0.put(GameEvent.LIGHTNING_STRIKE, 14);
+            param0.put(GameEvent.TELEPORT, 14);
+            param0.put(GameEvent.ENTITY_DIE, 15);
             param0.put(GameEvent.EXPLODE, 15);
-            param0.put(GameEvent.LIGHTNING_STRIKE, 15);
-            param0.put(GameEvent.INSTRUMENT_PLAY, 15);
+    
+            for(int var0 = 1; var0 <= 15; ++var0) {
+                param0.put(getResonanceEventByFrequency(var0), var0);
+            }
+    
         })
     );
-    protected final PositionSource listenerSource;
-    protected final int listenerRange;
-    protected final VibrationListener.VibrationListenerConfig config;
+    private final PositionSource listenerSource;
+    private final VibrationListener.Config config;
     @Nullable
-    protected VibrationInfo currentVibration;
-    protected int travelTimeInTicks;
+    private VibrationInfo currentVibration;
+    private int travelTimeInTicks;
     private final VibrationSelector selectionStrategy;
 
-    public static Codec<VibrationListener> codec(VibrationListener.VibrationListenerConfig param0) {
+    public static Codec<VibrationListener> codec(VibrationListener.Config param0) {
         return RecordCodecBuilder.create(
             param1 -> param1.group(
                         PositionSource.CODEC.fieldOf("source").forGetter(param0x -> param0x.listenerSource),
-                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("range").forGetter(param0x -> param0x.listenerRange),
                         VibrationInfo.CODEC.optionalFieldOf("event").forGetter(param0x -> Optional.ofNullable(param0x.currentVibration)),
                         VibrationSelector.CODEC.fieldOf("selector").forGetter(param0x -> param0x.selectionStrategy),
                         ExtraCodecs.NON_NEGATIVE_INT.fieldOf("event_delay").orElse(0).forGetter(param0x -> param0x.travelTimeInTicks)
                     )
-                    .apply(
-                        param1,
-                        (param1x, param2, param3, param4, param5) -> new VibrationListener(
-                                param1x, param2, param0, (VibrationInfo)param3.orElse(null), param4, param5
-                            )
-                    )
+                    .apply(param1, (param1x, param2, param3, param4) -> new VibrationListener(param1x, param0, param2.orElse(null), param3, param4))
         );
     }
 
-    private VibrationListener(
-        PositionSource param0,
-        int param1,
-        VibrationListener.VibrationListenerConfig param2,
-        @Nullable VibrationInfo param3,
-        VibrationSelector param4,
-        int param5
-    ) {
+    private VibrationListener(PositionSource param0, VibrationListener.Config param1, @Nullable VibrationInfo param2, VibrationSelector param3, int param4) {
         this.listenerSource = param0;
-        this.listenerRange = param1;
-        this.config = param2;
-        this.currentVibration = param3;
-        this.travelTimeInTicks = param5;
-        this.selectionStrategy = param4;
+        this.config = param1;
+        this.currentVibration = param2;
+        this.travelTimeInTicks = param4;
+        this.selectionStrategy = param3;
     }
 
-    public VibrationListener(PositionSource param0, int param1, VibrationListener.VibrationListenerConfig param2) {
-        this(param0, param1, param2, null, new VibrationSelector(), 0);
+    public VibrationListener(PositionSource param0, VibrationListener.Config param1) {
+        this(param0, param1, null, new VibrationSelector(), 0);
     }
 
     public static int getGameEventFrequency(GameEvent param0) {
         return VIBRATION_FREQUENCY_FOR_EVENT.getOrDefault(param0, 0);
+    }
+
+    public static GameEvent getResonanceEventByFrequency(int param0) {
+        return RESONANCE_EVENTS[param0 - 1];
+    }
+
+    public VibrationListener.Config getConfig() {
+        return this.config;
     }
 
     public void tick(Level param0) {
@@ -175,7 +187,7 @@ public class VibrationListener implements GameEventListener {
 
     @Override
     public int getListenerRadius() {
-        return this.listenerRange;
+        return this.config.getListenerRadius();
     }
 
     @Override
@@ -225,7 +237,9 @@ public class VibrationListener implements GameEventListener {
         return true;
     }
 
-    public interface VibrationListenerConfig {
+    public interface Config {
+        int getListenerRadius();
+
         default TagKey<GameEvent> getListenableEvents() {
             return GameEventTags.VIBRATIONS;
         }

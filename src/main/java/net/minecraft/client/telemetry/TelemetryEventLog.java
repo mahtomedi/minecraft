@@ -19,7 +19,7 @@ public class TelemetryEventLog implements AutoCloseable {
     private final ProcessorMailbox<Runnable> mailbox;
 
     public TelemetryEventLog(FileChannel param0, Executor param1) {
-        this.log = new JsonEventLog(TelemetryEventInstance.CODEC, param0);
+        this.log = new JsonEventLog<>(TelemetryEventInstance.CODEC, param0);
         this.mailbox = ProcessorMailbox.create(param1, "telemetry-event-log");
     }
 

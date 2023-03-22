@@ -30,7 +30,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface PresetEditor {
     Map<Optional<ResourceKey<WorldPreset>>, PresetEditor> EDITORS = Map.of(
         Optional.of(WorldPresets.FLAT),
-        (PresetEditor)(param0, param1) -> {
+        (param0, param1) -> {
             ChunkGenerator var0 = param1.selectedDimensions().overworld();
             RegistryAccess var1 = param1.worldgenLoadContext();
             HolderGetter<Biome> var2 = var1.lookupOrThrow(Registries.BIOME);
@@ -43,9 +43,7 @@ public interface PresetEditor {
             );
         },
         Optional.of(WorldPresets.SINGLE_BIOME_SURFACE),
-        (PresetEditor)(param0, param1) -> new CreateBuffetWorldScreen(
-                param0, param1, param1x -> param0.getUiState().updateDimensions(fixedBiomeConfigurator(param1x))
-            )
+        (param0, param1) -> new CreateBuffetWorldScreen(param0, param1, param1x -> param0.getUiState().updateDimensions(fixedBiomeConfigurator(param1x)))
     );
 
     Screen createEditScreen(CreateWorldScreen var1, WorldCreationContext var2);

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.math.Axis;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -33,7 +34,7 @@ public class CubeMap {
         BufferBuilder var1 = var0.getBuilder();
         Matrix4f var2 = new Matrix4f().setPerspective(1.4835298F, (float)param0.getWindow().getWidth() / (float)param0.getWindow().getHeight(), 0.05F, 10.0F);
         RenderSystem.backupProjectionMatrix();
-        RenderSystem.setProjectionMatrix(var2);
+        RenderSystem.setProjectionMatrix(var2, VertexSorting.DISTANCE_TO_ORIGIN);
         PoseStack var3 = RenderSystem.getModelViewStack();
         var3.pushPose();
         var3.setIdentity();

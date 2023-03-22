@@ -27,7 +27,7 @@ public class CollectingNeighborUpdater implements NeighborUpdater {
 
     @Override
     public void shapeUpdate(Direction param0, BlockState param1, BlockPos param2, BlockPos param3, int param4, int param5) {
-        this.addAndRun(param2, new CollectingNeighborUpdater.ShapeUpdate(param0, param1, param2.immutable(), param3.immutable(), param4));
+        this.addAndRun(param2, new CollectingNeighborUpdater.ShapeUpdate(param0, param1, param2.immutable(), param3.immutable(), param4, param5));
     }
 
     @Override
@@ -133,11 +133,11 @@ public class CollectingNeighborUpdater implements NeighborUpdater {
         boolean runNext(Level var1);
     }
 
-    static record ShapeUpdate(Direction direction, BlockState state, BlockPos pos, BlockPos neighborPos, int updateFlags)
+    static record ShapeUpdate(Direction direction, BlockState state, BlockPos pos, BlockPos neighborPos, int updateFlags, int updateLimit)
         implements CollectingNeighborUpdater.NeighborUpdates {
         @Override
         public boolean runNext(Level param0) {
-            NeighborUpdater.executeShapeUpdate(param0, this.direction, this.state, this.pos, this.neighborPos, this.updateFlags, 512);
+            NeighborUpdater.executeShapeUpdate(param0, this.direction, this.state, this.pos, this.neighborPos, this.updateFlags, this.updateLimit);
             return false;
         }
     }

@@ -63,7 +63,7 @@ public class FallbackResourceManager implements ResourceManager {
     @Override
     public Optional<Resource> getResource(ResourceLocation param0) {
         for(int var0 = this.fallbacks.size() - 1; var0 >= 0; --var0) {
-            FallbackResourceManager.PackEntry var1 = (FallbackResourceManager.PackEntry)this.fallbacks.get(var0);
+            FallbackResourceManager.PackEntry var1 = this.fallbacks.get(var0);
             PackResources var2 = var1.resources;
             if (var2 != null) {
                 IoSupplier<InputStream> var3 = var2.getResource(this.type, param0);
@@ -98,7 +98,7 @@ public class FallbackResourceManager implements ResourceManager {
         String var3 = null;
 
         for(int var4 = this.fallbacks.size() - 1; var4 >= 0; --var4) {
-            FallbackResourceManager.PackEntry var5 = (FallbackResourceManager.PackEntry)this.fallbacks.get(var4);
+            FallbackResourceManager.PackEntry var5 = this.fallbacks.get(var4);
             PackResources var6 = var5.resources;
             if (var6 != null) {
                 IoSupplier<InputStream> var7 = var6.getResource(this.type, param0);
@@ -157,7 +157,7 @@ public class FallbackResourceManager implements ResourceManager {
         int var2 = this.fallbacks.size();
 
         for(int var3 = 0; var3 < var2; ++var3) {
-            FallbackResourceManager.PackEntry var4 = (FallbackResourceManager.PackEntry)this.fallbacks.get(var3);
+            FallbackResourceManager.PackEntry var4 = this.fallbacks.get(var3);
             var4.filterAll(var0.keySet());
             var4.filterAll(var1.keySet());
             PackResources var5 = var4.resources;
@@ -179,7 +179,7 @@ public class FallbackResourceManager implements ResourceManager {
         Map<ResourceLocation, Resource> var7 = Maps.newTreeMap();
         var0.forEach((param2, param3) -> {
             ResourceLocation var0x = getMetadataLocation(param2);
-            ResourceWithSourceAndIndex var1x = (ResourceWithSourceAndIndex)var1.get(var0x);
+            ResourceWithSourceAndIndex var1x = var1.get(var0x);
             IoSupplier<ResourceMetadata> var2x;
             if (var1x != null && var1x.packIndex >= param3.packIndex) {
                 var2x = convertToMetadata(var1x.resource);
@@ -197,7 +197,7 @@ public class FallbackResourceManager implements ResourceManager {
             ResourceLocation var0 = getMetadataLocation(param0);
 
             for(int var1x = this.fallbacks.size() - 1; var1x >= param1; --var1x) {
-                FallbackResourceManager.PackEntry var2x = (FallbackResourceManager.PackEntry)this.fallbacks.get(var1x);
+                FallbackResourceManager.PackEntry var2x = this.fallbacks.get(var1x);
                 PackResources var3 = var2x.resources;
                 if (var3 != null) {
                     IoSupplier<InputStream> var4 = var3.getResource(this.type, var0);
@@ -260,15 +260,13 @@ public class FallbackResourceManager implements ResourceManager {
                             return;
                         }
     
-                        ((FallbackResourceManager.EntryStack)param3.computeIfAbsent(var0x, FallbackResourceManager.EntryStack::new))
-                            .metaSources
-                            .put(var0, param4);
+                        param3.computeIfAbsent(var0x, FallbackResourceManager.EntryStack::new).metaSources.put(var0, param4);
                     } else {
                         if (!param2.test(param3x)) {
                             return;
                         }
     
-                        ((FallbackResourceManager.EntryStack)param3.computeIfAbsent(param3x, FallbackResourceManager.EntryStack::new))
+                        param3.computeIfAbsent(param3x, FallbackResourceManager.EntryStack::new)
                             .fileSources
                             .add(new FallbackResourceManager.ResourceWithSource(var0, param4));
                     }
@@ -319,7 +317,7 @@ public class FallbackResourceManager implements ResourceManager {
         Map<PackResources, IoSupplier<InputStream>> metaSources
     ) {
         EntryStack(ResourceLocation param0) {
-            this(param0, FallbackResourceManager.getMetadataLocation(param0), new ArrayList(), new Object2ObjectArrayMap<>());
+            this(param0, FallbackResourceManager.getMetadataLocation(param0), new ArrayList<>(), new Object2ObjectArrayMap<>());
         }
     }
 

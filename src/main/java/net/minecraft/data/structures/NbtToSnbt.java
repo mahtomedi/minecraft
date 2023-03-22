@@ -68,7 +68,7 @@ public class NbtToSnbt implements DataProvider {
             );
         }
 
-        return CompletableFuture.allOf((CompletableFuture<?>[])var1.toArray(param0x -> new CompletableFuture[param0x]));
+        return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     @Override

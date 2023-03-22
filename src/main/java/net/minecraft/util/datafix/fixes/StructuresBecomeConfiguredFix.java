@@ -19,7 +19,9 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 public class StructuresBecomeConfiguredFix extends DataFix {
-    private static final Map<String, StructuresBecomeConfiguredFix.Conversion> CONVERSION_MAP = ImmutableMap.builder()
+    private static final Map<String, StructuresBecomeConfiguredFix.Conversion> CONVERSION_MAP = ImmutableMap.<String, StructuresBecomeConfiguredFix.Conversion>builder(
+            
+        )
         .put(
             "mineshaft",
             StructuresBecomeConfiguredFix.Conversion.biomeMapped(
@@ -63,22 +65,20 @@ public class StructuresBecomeConfiguredFix extends DataFix {
                     List.of("minecraft:desert"),
                     "minecraft:ruined_portal_desert",
                     List.of(
-                        new String[]{
-                            "minecraft:badlands",
-                            "minecraft:eroded_badlands",
-                            "minecraft:wooded_badlands",
-                            "minecraft:windswept_hills",
-                            "minecraft:windswept_forest",
-                            "minecraft:windswept_gravelly_hills",
-                            "minecraft:savanna_plateau",
-                            "minecraft:windswept_savanna",
-                            "minecraft:stony_shore",
-                            "minecraft:meadow",
-                            "minecraft:frozen_peaks",
-                            "minecraft:jagged_peaks",
-                            "minecraft:stony_peaks",
-                            "minecraft:snowy_slopes"
-                        }
+                        "minecraft:badlands",
+                        "minecraft:eroded_badlands",
+                        "minecraft:wooded_badlands",
+                        "minecraft:windswept_hills",
+                        "minecraft:windswept_forest",
+                        "minecraft:windswept_gravelly_hills",
+                        "minecraft:savanna_plateau",
+                        "minecraft:windswept_savanna",
+                        "minecraft:stony_shore",
+                        "minecraft:meadow",
+                        "minecraft:frozen_peaks",
+                        "minecraft:jagged_peaks",
+                        "minecraft:stony_peaks",
+                        "minecraft:snowy_slopes"
                     ),
                     "minecraft:ruined_portal_mountain",
                     List.of("minecraft:bamboo_jungle", "minecraft:jungle", "minecraft:sparse_jungle"),
@@ -178,7 +178,7 @@ public class StructuresBecomeConfiguredFix extends DataFix {
 
     private Dynamic<?> findUpdatedStructureType(Pair<Dynamic<?>, Dynamic<?>> param0, Dynamic<?> param1) {
         String var0 = param0.getFirst().asString("UNKNOWN").toLowerCase(Locale.ROOT);
-        StructuresBecomeConfiguredFix.Conversion var1 = (StructuresBecomeConfiguredFix.Conversion)CONVERSION_MAP.get(var0);
+        StructuresBecomeConfiguredFix.Conversion var1 = CONVERSION_MAP.get(var0);
         if (var1 == null) {
             throw new IllegalStateException("Found unknown structure: " + var0);
         } else {

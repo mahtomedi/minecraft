@@ -31,7 +31,7 @@ public record SignableCommand<S>(List<SignableCommand.Argument<S>> arguments) {
     }
 
     private static <S> List<SignableCommand.Argument<S>> collectArguments(String param0, CommandContextBuilder<S> param1) {
-        List<SignableCommand.Argument<S>> var0 = new ArrayList();
+        List<SignableCommand.Argument<S>> var0 = new ArrayList<>();
 
         for(ParsedCommandNode<S> var1 : param1.getNodes()) {
             CommandNode var3 = var1.getNode();
@@ -39,7 +39,7 @@ public record SignableCommand<S>(List<SignableCommand.Argument<S>> arguments) {
                 ParsedArgument<S, ?> var3x = param1.getArguments().get(var2.getName());
                 if (var3x != null) {
                     String var4 = var3x.getRange().get(param0);
-                    var0.add(new SignableCommand.Argument<S>(var2, var4));
+                    var0.add(new SignableCommand.Argument<>(var2, var4));
                 }
             }
         }

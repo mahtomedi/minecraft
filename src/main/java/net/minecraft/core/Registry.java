@@ -155,7 +155,7 @@ public interface Registry<T> extends Keyable, IdMap<T> {
     Optional<HolderSet.Named<T>> getTag(TagKey<T> var1);
 
     default Iterable<Holder<T>> getTagOrEmpty(TagKey<T> param0) {
-        return DataFixUtils.orElse(this.getTag(param0), List.of());
+        return DataFixUtils.orElse(this.getTag(param0), List.<T>of());
     }
 
     HolderSet.Named<T> getOrCreateTag(TagKey<T> var1);

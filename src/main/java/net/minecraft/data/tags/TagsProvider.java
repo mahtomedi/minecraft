@@ -67,7 +67,7 @@ public abstract class TagsProvider<T> implements DataProvider {
                 this.contentsDone.complete(null);
                 return param0x;
             })
-            .thenCombineAsync(this.parentProvider, (param0x, param1) -> new CombinedData(param0x, param1))
+            .thenCombineAsync(this.parentProvider, (param0x, param1) -> new CombinedData<>(param0x, param1))
             .thenCompose(
                 param1 -> {
                     HolderLookup.RegistryLookup<T> var0 = param1.contents.lookupOrThrow(this.registryKey);

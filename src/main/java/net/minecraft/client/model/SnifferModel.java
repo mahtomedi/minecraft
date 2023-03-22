@@ -15,8 +15,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T> {
     private static final float WALK_ANIMATION_SPEED_FACTOR = 9000.0F;
-    private static final float MAX_WALK_ANIMATION_SPEED = 1.0F;
-    private static final float PANIC_ANIMATION_FACTOR = 2.0F;
+    private static final float WALK_ANIMATION_SPEED_MAX = 2.0F;
+    private static final float SEARCHING_ANIMATION_SPEED_MAX = 1.0F;
     private final ModelPart root;
     private final ModelPart head;
 
@@ -83,12 +83,12 @@ public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T>
         var4.addOrReplaceChild(
             "left_ear",
             CubeListBuilder.create().texOffs(2, 0).addBox(0.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)),
-            PartPose.offset(6.5F, -7.5F, -4.5F)
+            PartPose.offset(6.51F, -7.5F, -4.51F)
         );
         var4.addOrReplaceChild(
             "right_ear",
             CubeListBuilder.create().texOffs(48, 0).addBox(-1.0F, 0.0F, -3.0F, 1.0F, 19.0F, 7.0F, new CubeDeformation(0.0F)),
-            PartPose.offset(-6.5F, -7.5F, -4.5F)
+            PartPose.offset(-6.51F, -7.5F, -4.51F)
         );
         var4.addOrReplaceChild(
             "nose",
@@ -107,12 +107,10 @@ public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T>
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
-        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 9000.0F, 1.0F);
-        float var1 = var0 * 2.0F;
+        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 9000.0F, 2.0F);
         this.animate(param0.walkingAnimationState, SnifferAnimation.SNIFFER_WALK, param3, var0);
-        this.animate(param0.panicAnimationState, SnifferAnimation.SNIFFER_WALK, param3, var1);
         this.animate(param0.diggingAnimationState, SnifferAnimation.SNIFFER_DIG, param3);
-        this.animate(param0.searchingAnimationState, SnifferAnimation.SNIFFER_SNIFF_SEARCH, param3, var0);
+        this.animate(param0.searchingAnimationState, SnifferAnimation.SNIFFER_SNIFF_SEARCH, param3, Math.min(var0, 1.0F));
         this.animate(param0.sniffingAnimationState, SnifferAnimation.SNIFFER_LONGSNIFF, param3);
         this.animate(param0.risingAnimationState, SnifferAnimation.SNIFFER_STAND_UP, param3);
         this.animate(param0.feelingHappyAnimationState, SnifferAnimation.SNIFFER_HAPPY, param3);

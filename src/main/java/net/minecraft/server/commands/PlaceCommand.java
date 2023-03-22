@@ -3,7 +3,6 @@ package net.minecraft.server.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -67,14 +66,14 @@ public class PlaceCommand {
                 .then(
                     Commands.literal("feature")
                         .then(
-                            ((RequiredArgumentBuilder)Commands.argument("feature", ResourceKeyArgument.key(Registries.CONFIGURED_FEATURE))
-                                    .executes(
-                                        param0x -> placeFeature(
-                                                (CommandSourceStack)param0x.getSource(),
-                                                ResourceKeyArgument.getConfiguredFeature(param0x, "feature"),
-                                                BlockPos.containing(((CommandSourceStack)param0x.getSource()).getPosition())
-                                            )
-                                    ))
+                            Commands.argument("feature", ResourceKeyArgument.key(Registries.CONFIGURED_FEATURE))
+                                .executes(
+                                    param0x -> placeFeature(
+                                            param0x.getSource(),
+                                            ResourceKeyArgument.getConfiguredFeature(param0x, "feature"),
+                                            BlockPos.containing(param0x.getSource().getPosition())
+                                        )
+                                )
                                 .then(
                                     Commands.argument("pos", BlockPosArgument.blockPos())
                                         .executes(
@@ -236,7 +235,7 @@ public class PlaceCommand {
 
     public static int placeFeature(CommandSourceStack param0, Holder.Reference<ConfiguredFeature<?, ?>> param1, BlockPos param2) throws CommandSyntaxException {
         ServerLevel var0 = param0.getLevel();
-        ConfiguredFeature<?, ?> var1 = (ConfiguredFeature)param1.value();
+        ConfiguredFeature<?, ?> var1 = param1.value();
         ChunkPos var2 = new ChunkPos(param2);
         checkLoaded(var0, new ChunkPos(var2.x - 1, var2.z - 1), new ChunkPos(var2.x + 1, var2.z + 1));
         if (!var1.place(var0, var0.getChunkSource().getGenerator(), var0.getRandom(), param2)) {

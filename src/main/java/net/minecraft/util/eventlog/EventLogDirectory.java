@@ -168,6 +168,7 @@ public class EventLogDirectory {
             }
         }
 
+        @Override
         public String toString() {
             return DATE_FORMATTER.format(this.date) + "-" + this.index;
         }

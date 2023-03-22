@@ -335,7 +335,7 @@ public abstract class ChunkGenerator {
                             List<HolderSet<PlacedFeature>> var21 = this.generationSettingsGetter.apply(var20).features();
                             if (var12 < var21.size()) {
                                 HolderSet<PlacedFeature> var22 = var21.get(var12);
-                                FeatureSorter.StepFeatureData var23 = (FeatureSorter.StepFeatureData)var5.get(var12);
+                                FeatureSorter.StepFeatureData var23 = var5.get(var12);
                                 var22.stream().map(Holder::value).forEach(param2x -> var19.add(var23.indexMapping().applyAsInt(param2x)));
                             }
                         }
@@ -343,11 +343,11 @@ public abstract class ChunkGenerator {
                         int var24 = var19.size();
                         int[] var25 = var19.toIntArray();
                         Arrays.sort(var25);
-                        FeatureSorter.StepFeatureData var26 = (FeatureSorter.StepFeatureData)var5.get(var12);
+                        FeatureSorter.StepFeatureData var26 = var5.get(var12);
 
                         for(int var27 = 0; var27 < var24; ++var27) {
                             int var28 = var25[var27];
-                            PlacedFeature var29 = (PlacedFeature)var26.features().get(var28);
+                            PlacedFeature var29 = var26.features().get(var28);
                             Supplier<String> var30 = () -> var10.getResourceKey(var29).map(Object::toString).orElseGet(var29::toString);
                             var6.setFeatureSeed(var7, var28, var12);
 
@@ -401,7 +401,7 @@ public abstract class ChunkGenerator {
 
         for(Entry<Structure, LongSet> var1 : var0.entrySet()) {
             Structure var2 = var1.getKey();
-            StructureSpawnOverride var3 = (StructureSpawnOverride)var2.spawnOverrides().get(param2);
+            StructureSpawnOverride var3 = var2.spawnOverrides().get(param2);
             if (var3 != null) {
                 MutableBoolean var4 = new MutableBoolean(false);
                 Predicate<StructureStart> var5 = var3.boundingBox() == StructureSpawnOverride.BoundingBoxType.PIECE
@@ -428,61 +428,56 @@ public abstract class ChunkGenerator {
         ChunkPos var0 = param3.getPos();
         SectionPos var1 = SectionPos.bottomOf(param3);
         RandomState var2 = param1.randomState();
-        param1.possibleStructureSets()
-            .forEach(
-                param8 -> {
-                    StructurePlacement var0x = ((StructureSet)param8.value()).placement();
-                    List<StructureSet.StructureSelectionEntry> var1x = ((StructureSet)param8.value()).structures();
-        
-                    for(StructureSet.StructureSelectionEntry var5x : var1x) {
-                        StructureStart var6x = param2.getStartForStructure(var1, var5x.structure().value(), param3);
-                        if (var6x != null && var6x.isValid()) {
+        param1.possibleStructureSets().forEach(param8 -> {
+            StructurePlacement var0x = param8.value().placement();
+            List<StructureSet.StructureSelectionEntry> var1x = param8.value().structures();
+
+            for(StructureSet.StructureSelectionEntry var5x : var1x) {
+                StructureStart var6x = param2.getStartForStructure(var1, var5x.structure().value(), param3);
+                if (var6x != null && var6x.isValid()) {
+                    return;
+                }
+            }
+
+            if (var0x.isStructureChunk(param1, var0.x, var0.z)) {
+                if (var1x.size() == 1) {
+                    this.tryGenerateStructure(var1x.get(0), param2, param0, var2, param4, param1.getLevelSeed(), param3, var0, var1);
+                } else {
+                    ArrayList<StructureSet.StructureSelectionEntry> var4 = new ArrayList<>(var1x.size());
+                    var4.addAll(var1x);
+                    WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(0L));
+                    var5.setLargeFeatureSeed(param1.getLevelSeed(), var0.x, var0.z);
+                    int var6 = 0;
+
+                    for(StructureSet.StructureSelectionEntry var7 : var4) {
+                        var6 += var7.weight();
+                    }
+
+                    while(!var4.isEmpty()) {
+                        int var8 = var5.nextInt(var6);
+                        int var9 = 0;
+
+                        for(StructureSet.StructureSelectionEntry var10 : var4) {
+                            var8 -= var10.weight();
+                            if (var8 < 0) {
+                                break;
+                            }
+
+                            ++var9;
+                        }
+
+                        StructureSet.StructureSelectionEntry var11 = var4.get(var9);
+                        if (this.tryGenerateStructure(var11, param2, param0, var2, param4, param1.getLevelSeed(), param3, var0, var1)) {
                             return;
                         }
+
+                        var4.remove(var9);
+                        var6 -= var11.weight();
                     }
-        
-                    if (var0x.isStructureChunk(param1, var0.x, var0.z)) {
-                        if (var1x.size() == 1) {
-                            this.tryGenerateStructure(
-                                (StructureSet.StructureSelectionEntry)var1x.get(0), param2, param0, var2, param4, param1.getLevelSeed(), param3, var0, var1
-                            );
-                        } else {
-                            ArrayList<StructureSet.StructureSelectionEntry> var4 = new ArrayList(var1x.size());
-                            var4.addAll(var1x);
-                            WorldgenRandom var5 = new WorldgenRandom(new LegacyRandomSource(0L));
-                            var5.setLargeFeatureSeed(param1.getLevelSeed(), var0.x, var0.z);
-                            int var6 = 0;
-        
-                            for(StructureSet.StructureSelectionEntry var7 : var4) {
-                                var6 += var7.weight();
-                            }
-        
-                            while(!var4.isEmpty()) {
-                                int var8 = var5.nextInt(var6);
-                                int var9 = 0;
-        
-                                for(StructureSet.StructureSelectionEntry var10 : var4) {
-                                    var8 -= var10.weight();
-                                    if (var8 < 0) {
-                                        break;
-                                    }
-        
-                                    ++var9;
-                                }
-        
-                                StructureSet.StructureSelectionEntry var11 = (StructureSet.StructureSelectionEntry)var4.get(var9);
-                                if (this.tryGenerateStructure(var11, param2, param0, var2, param4, param1.getLevelSeed(), param3, var0, var1)) {
-                                    return;
-                                }
-        
-                                var4.remove(var9);
-                                var6 -= var11.weight();
-                            }
-        
-                        }
-                    }
+
                 }
-            );
+            }
+        });
     }
 
     private boolean tryGenerateStructure(

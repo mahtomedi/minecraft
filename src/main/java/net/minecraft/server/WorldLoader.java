@@ -33,7 +33,7 @@ public class WorldLoader {
             LayeredRegistryAccess<RegistryLayer> var3 = loadAndReplaceLayer(var1, var2, RegistryLayer.WORLDGEN, RegistryDataLoader.WORLDGEN_REGISTRIES);
             RegistryAccess.Frozen var4 = var3.getAccessForLoading(RegistryLayer.DIMENSIONS);
             RegistryAccess.Frozen var5 = RegistryDataLoader.load(var1, var4, RegistryDataLoader.DIMENSION_REGISTRIES);
-            WorldDataConfiguration var6 = (WorldDataConfiguration)var0.getFirst();
+            WorldDataConfiguration var6 = var0.getFirst();
             WorldLoader.DataLoadOutput<D> var7 = param1.get(new WorldLoader.DataLoadContext(var1, var6, var4, var5));
             LayeredRegistryAccess<RegistryLayer> var8 = var3.replaceFrom(RegistryLayer.DIMENSIONS, var7.finalDimensions);
             RegistryAccess.Frozen var9 = var8.getAccessForLoading(RegistryLayer.RELOADABLE);

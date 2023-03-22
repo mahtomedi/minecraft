@@ -14,6 +14,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.StructureManager;
@@ -82,9 +83,10 @@ public class SinglePoolElement extends StructurePoolElement {
         List<StructureTemplate.StructureBlockInfo> var2 = Lists.newArrayList();
 
         for(StructureTemplate.StructureBlockInfo var3 : var1) {
-            if (var3.nbt != null) {
-                StructureMode var4 = StructureMode.valueOf(var3.nbt.getString("mode"));
-                if (var4 == StructureMode.DATA) {
+            CompoundTag var4 = var3.nbt();
+            if (var4 != null) {
+                StructureMode var5 = StructureMode.valueOf(var4.getString("mode"));
+                if (var5 == StructureMode.DATA) {
                     var2.add(var3);
                 }
             }

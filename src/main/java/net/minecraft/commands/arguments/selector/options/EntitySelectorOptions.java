@@ -515,7 +515,7 @@ public class EntitySelectorOptions {
     }
 
     public static EntitySelectorOptions.Modifier get(EntitySelectorParser param0, String param1, int param2) throws CommandSyntaxException {
-        EntitySelectorOptions.Option var0 = (EntitySelectorOptions.Option)OPTIONS.get(param1);
+        EntitySelectorOptions.Option var0 = OPTIONS.get(param1);
         if (var0 != null) {
             if (var0.canUse.test(param0)) {
                 return var0.modifier;
@@ -532,8 +532,8 @@ public class EntitySelectorOptions {
         String var0 = param1.getRemaining().toLowerCase(Locale.ROOT);
 
         for(Entry<String, EntitySelectorOptions.Option> var1 : OPTIONS.entrySet()) {
-            if (((EntitySelectorOptions.Option)var1.getValue()).canUse.test(param0) && var1.getKey().toLowerCase(Locale.ROOT).startsWith(var0)) {
-                param1.suggest((String)var1.getKey() + "=", ((EntitySelectorOptions.Option)var1.getValue()).description);
+            if (var1.getValue().canUse.test(param0) && var1.getKey().toLowerCase(Locale.ROOT).startsWith(var0)) {
+                param1.suggest((String)var1.getKey() + "=", var1.getValue().description);
             }
         }
 

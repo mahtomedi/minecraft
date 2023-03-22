@@ -12,7 +12,7 @@ import net.minecraft.nbt.TagType;
 public class CollectFields extends CollectToTag {
     private int fieldsToGetCount;
     private final Set<TagType<?>> wantedTypes;
-    private final Deque<FieldTree> stack = new ArrayDeque();
+    private final Deque<FieldTree> stack = new ArrayDeque<>();
 
     public CollectFields(FieldSelector... param0) {
         this.fieldsToGetCount = param0.length;
@@ -36,7 +36,7 @@ public class CollectFields extends CollectToTag {
 
     @Override
     public StreamTagVisitor.EntryResult visitEntry(TagType<?> param0) {
-        FieldTree var0 = (FieldTree)this.stack.element();
+        FieldTree var0 = this.stack.element();
         if (this.depth() > var0.depth()) {
             return super.visitEntry(param0);
         } else if (this.fieldsToGetCount <= 0) {
@@ -48,7 +48,7 @@ public class CollectFields extends CollectToTag {
 
     @Override
     public StreamTagVisitor.EntryResult visitEntry(TagType<?> param0, String param1) {
-        FieldTree var0 = (FieldTree)this.stack.element();
+        FieldTree var0 = this.stack.element();
         if (this.depth() > var0.depth()) {
             return super.visitEntry(param0, param1);
         } else if (var0.selectedFields().remove(param1, param0)) {
@@ -56,7 +56,7 @@ public class CollectFields extends CollectToTag {
             return super.visitEntry(param0, param1);
         } else {
             if (param0 == CompoundTag.TYPE) {
-                FieldTree var1 = (FieldTree)var0.fieldsToRecurse().get(param1);
+                FieldTree var1 = var0.fieldsToRecurse().get(param1);
                 if (var1 != null) {
                     this.stack.push(var1);
                     return super.visitEntry(param0, param1);
@@ -69,7 +69,7 @@ public class CollectFields extends CollectToTag {
 
     @Override
     public StreamTagVisitor.ValueResult visitContainerEnd() {
-        if (this.depth() == ((FieldTree)this.stack.element()).depth()) {
+        if (this.depth() == this.stack.element().depth()) {
             this.stack.pop();
         }
 

@@ -141,31 +141,24 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     public static void renderEntityInInventory(
         PoseStack param0, int param1, int param2, int param3, Quaternionf param4, @Nullable Quaternionf param5, LivingEntity param6
     ) {
-        double var0 = 1000.0;
-        PoseStack var1 = RenderSystem.getModelViewStack();
-        var1.pushPose();
-        var1.translate(0.0, 0.0, 1000.0);
-        RenderSystem.applyModelViewMatrix();
         param0.pushPose();
-        param0.translate((double)param1, (double)param2, -950.0);
+        param0.translate((double)param1, (double)param2, 50.0);
         param0.mulPoseMatrix(new Matrix4f().scaling((float)param3, (float)param3, (float)(-param3)));
         param0.mulPose(param4);
         Lighting.setupForEntityInInventory();
-        EntityRenderDispatcher var2 = Minecraft.getInstance().getEntityRenderDispatcher();
+        EntityRenderDispatcher var0 = Minecraft.getInstance().getEntityRenderDispatcher();
         if (param5 != null) {
             param5.conjugate();
-            var2.overrideCameraOrientation(param5);
+            var0.overrideCameraOrientation(param5);
         }
 
-        var2.setRenderShadow(false);
-        MultiBufferSource.BufferSource var3 = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> var2.render(param6, 0.0, 0.0, 0.0, 0.0F, 1.0F, param0, var3, 15728880));
-        var3.endBatch();
-        var2.setRenderShadow(true);
+        var0.setRenderShadow(false);
+        MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
+        RenderSystem.runAsFancy(() -> var0.render(param6, 0.0, 0.0, 0.0, 0.0F, 1.0F, param0, var1, 15728880));
+        var1.endBatch();
+        var0.setRenderShadow(true);
         param0.popPose();
         Lighting.setupFor3DItems();
-        var1.popPose();
-        RenderSystem.applyModelViewMatrix();
     }
 
     @Override

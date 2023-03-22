@@ -72,7 +72,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     private CreativeInventoryListener listener;
     private boolean ignoreTextInput;
     private boolean hasClickedOutside;
-    private final Set<TagKey<Item>> visibleTags = new HashSet();
+    private final Set<TagKey<Item>> visibleTags = new HashSet<>();
     private final boolean displayOperatorCreativeTab;
 
     public CreativeModeInventoryScreen(Player param0, FeatureFlagSet param1, boolean param2) {

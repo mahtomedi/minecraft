@@ -14,6 +14,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.math.Axis;
@@ -924,7 +925,7 @@ public class GameRenderer implements AutoCloseable {
     }
 
     public void resetProjectionMatrix(Matrix4f param0) {
-        RenderSystem.setProjectionMatrix(param0);
+        RenderSystem.setProjectionMatrix(param0, VertexSorting.DISTANCE_TO_ORIGIN);
     }
 
     public Matrix4f getProjectionMatrix(double param0) {
@@ -1002,7 +1003,7 @@ public class GameRenderer implements AutoCloseable {
                 .setOrtho(
                     0.0F, (float)((double)var2.getWidth() / var2.getGuiScale()), (float)((double)var2.getHeight() / var2.getGuiScale()), 0.0F, 1000.0F, 3000.0F
                 );
-            RenderSystem.setProjectionMatrix(var3);
+            RenderSystem.setProjectionMatrix(var3, VertexSorting.ORTHOGRAPHIC_Z);
             PoseStack var4 = RenderSystem.getModelViewStack();
             var4.pushPose();
             var4.setIdentity();

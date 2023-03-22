@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -13,9 +14,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BrushableBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SuspiciousSandBlockEntity;
+import net.minecraft.world.level.block.entity.BrushableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -61,12 +63,20 @@ public class BrushItem extends Item {
                 if (var4 == 1 || var4 % 10 == 0) {
                     BlockState var5 = param0.getBlockState(var3);
                     this.spawnDustParticles(param0, var2, var5, param1.getViewVector(0.0F));
-                    param0.playSound(var0, var3, SoundEvents.BRUSH_BRUSHING, SoundSource.PLAYERS);
-                    if (!param0.isClientSide() && var5.is(Blocks.SUSPICIOUS_SAND)) {
-                        BlockEntity var7 = param0.getBlockEntity(var3);
-                        if (var7 instanceof SuspiciousSandBlockEntity var6) {
-                            boolean var7x = var6.brush(param0.getGameTime(), var0, var2.getDirection());
-                            if (var7x) {
+                    Block var10 = var5.getBlock();
+                    SoundEvent var7;
+                    if (var10 instanceof BrushableBlock var6) {
+                        var7 = var6.getBrushSound();
+                    } else {
+                        var7 = SoundEvents.BRUSH_GENERIC;
+                    }
+
+                    param0.playSound(var0, var3, var7, SoundSource.PLAYERS);
+                    if (!param0.isClientSide()) {
+                        BlockEntity var14 = param0.getBlockEntity(var3);
+                        if (var14 instanceof BrushableBlockEntity var9) {
+                            boolean var10 = var9.brush(param0.getGameTime(), var0, var2.getDirection());
+                            if (var10) {
                                 param2.hurtAndBreak(1, param1, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
                             }
                         }

@@ -1,12 +1,14 @@
 package net.minecraft.world.level.block;
 
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.world.entity.Entity;
@@ -30,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
@@ -43,9 +46,16 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
-    private final int listenerRange;
+    private static final float[] RESONANCE_PITCH_BEND = Util.make(new float[16], param0 -> {
+        int[] var0 = new int[]{0, 0, 2, 4, 6, 7, 9, 10, 12, 14, 15, 18, 19, 21, 22, 24};
 
-    public SculkSensorBlock(BlockBehaviour.Properties param0, int param1) {
+        for(int var1 = 0; var1 < 16; ++var1) {
+            param0[var1] = NoteBlock.getPitchFromNote(var0[var1]);
+        }
+
+    });
+
+    public SculkSensorBlock(BlockBehaviour.Properties param0) {
         super(param0);
         this.registerDefaultState(
             this.stateDefinition
@@ -54,11 +64,6 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
                 .setValue(POWER, Integer.valueOf(0))
                 .setValue(WATERLOGGED, Boolean.valueOf(false))
         );
-        this.listenerRange = param1;
-    }
-
-    public int getListenerRange() {
-        return this.listenerRange;
     }
 
     @Nullable
@@ -91,7 +96,10 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         if (!param0.isClientSide() && canActivate(param2) && param3.getType() != EntityType.WARDEN) {
             BlockEntity var0 = param0.getBlockEntity(param1);
             if (var0 instanceof SculkSensorBlockEntity var1 && param0 instanceof ServerLevel var2) {
-                var1.getListener().forceGameEvent(var2, GameEvent.STEP, GameEvent.Context.of(param3), param3.position());
+                VibrationListener var3 = var1.getListener();
+                if (var3.getConfig().shouldListen(var2, var3, param1, GameEvent.STEP, GameEvent.Context.of(param2))) {
+                    var3.forceGameEvent(var2, GameEvent.STEP, GameEvent.Context.of(param3), param3.position());
+                }
             }
         }
 
@@ -113,7 +121,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         if (!param0.is(param3.getBlock())) {
             if (getPhase(param0) == SculkSensorPhase.ACTIVE) {
-                updateNeighbours(param1, param2);
+                updateNeighbours(param1, param2, param0);
             }
 
             super.onRemove(param0, param1, param2, param3, param4);
@@ -129,9 +137,10 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         return super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
-    private static void updateNeighbours(Level param0, BlockPos param1) {
-        param0.updateNeighborsAt(param1, Blocks.SCULK_SENSOR);
-        param0.updateNeighborsAt(param1.relative(Direction.UP.getOpposite()), Blocks.SCULK_SENSOR);
+    private static void updateNeighbours(Level param0, BlockPos param1, BlockState param2) {
+        Block var0 = param2.getBlock();
+        param0.updateNeighborsAt(param1, var0);
+        param0.updateNeighborsAt(param1.below(), var0);
     }
 
     @Nullable
@@ -143,7 +152,7 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     @Nullable
     @Override
     public <T extends BlockEntity> GameEventListener getListener(ServerLevel param0, T param1) {
-        return param1 instanceof SculkSensorBlockEntity ? ((SculkSensorBlockEntity)param1).getListener() : null;
+        return param1 instanceof SculkSensorBlockEntity var0 ? var0.getListener() : null;
     }
 
     @Nullable
@@ -189,13 +198,14 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
             param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
         }
 
-        updateNeighbours(param0, param1);
+        updateNeighbours(param0, param1, param2);
     }
 
-    public static void activate(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4) {
+    public static void activate(@Nullable Entity param0, Level param1, BlockPos param2, BlockState param3, int param4, int param5) {
         param1.setBlock(param2, param3.setValue(PHASE, SculkSensorPhase.ACTIVE).setValue(POWER, Integer.valueOf(param4)), 3);
         param1.scheduleTick(param2, param3.getBlock(), 40);
-        updateNeighbours(param1, param2);
+        updateNeighbours(param1, param2, param3);
+        tryResonateVibration(param1, param2, param5);
         param1.gameEvent(param0, GameEvent.SCULK_SENSOR_TENDRILS_CLICKING, param2);
         if (!param3.getValue(WATERLOGGED)) {
             param1.playSound(
@@ -208,6 +218,19 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
                 1.0F,
                 param1.random.nextFloat() * 0.2F + 0.8F
             );
+        }
+
+    }
+
+    public static void tryResonateVibration(Level param0, BlockPos param1, int param2) {
+        for(Direction var0 : Direction.values()) {
+            BlockPos var1 = param1.relative(var0);
+            BlockState var2 = param0.getBlockState(var1);
+            if (var2.is(BlockTags.VIBRATION_RESONATORS)) {
+                param0.gameEvent(VibrationListener.getResonanceEventByFrequency(param2), var1, GameEvent.Context.of(var2));
+                float var3 = RESONANCE_PITCH_BEND[param2];
+                param0.playSound(null, var1, SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 1.0F, var3);
+            }
         }
 
     }

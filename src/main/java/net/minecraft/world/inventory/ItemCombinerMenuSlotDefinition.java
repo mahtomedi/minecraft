@@ -28,7 +28,7 @@ public class ItemCombinerMenuSlotDefinition {
     }
 
     public ItemCombinerMenuSlotDefinition.SlotDefinition getSlot(int param0) {
-        return (ItemCombinerMenuSlotDefinition.SlotDefinition)this.slots.get(param0);
+        return this.slots.get(param0);
     }
 
     public ItemCombinerMenuSlotDefinition.SlotDefinition getResultSlot() {
@@ -52,7 +52,7 @@ public class ItemCombinerMenuSlotDefinition {
     }
 
     public static class Builder {
-        private final List<ItemCombinerMenuSlotDefinition.SlotDefinition> slots = new ArrayList();
+        private final List<ItemCombinerMenuSlotDefinition.SlotDefinition> slots = new ArrayList<>();
         private ItemCombinerMenuSlotDefinition.SlotDefinition resultSlot = ItemCombinerMenuSlotDefinition.SlotDefinition.EMPTY;
 
         public ItemCombinerMenuSlotDefinition.Builder withSlot(int param0, int param1, int param2, Predicate<ItemStack> param3) {

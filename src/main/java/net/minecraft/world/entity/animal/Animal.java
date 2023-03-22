@@ -1,5 +1,6 @@
 package net.minecraft.world.entity.animal;
 
+import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -219,29 +220,27 @@ public abstract class Animal extends AgeableMob {
     public void spawnChildFromBreeding(ServerLevel param0, Animal param1) {
         AgeableMob var0 = this.getBreedOffspring(param0, param1);
         if (var0 != null) {
-            ServerPlayer var1 = this.getLoveCause();
-            if (var1 == null && param1.getLoveCause() != null) {
-                var1 = param1.getLoveCause();
-            }
-
-            if (var1 != null) {
-                var1.awardStat(Stats.ANIMALS_BRED);
-                CriteriaTriggers.BRED_ANIMALS.trigger(var1, this, param1, var0);
-            }
-
-            this.setAge(6000);
-            param1.setAge(6000);
-            this.resetLove();
-            param1.resetLove();
             var0.setBaby(true);
             var0.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+            this.finalizeSpawnChildFromBreeding(param0, param1, var0);
             param0.addFreshEntityWithPassengers(var0);
-            param0.broadcastEntityEvent(this, (byte)18);
-            if (param0.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
-                param0.addFreshEntity(new ExperienceOrb(param0, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
-            }
-
         }
+    }
+
+    public void finalizeSpawnChildFromBreeding(ServerLevel param0, Animal param1, @Nullable AgeableMob param2) {
+        Optional.ofNullable(this.getLoveCause()).or(() -> Optional.ofNullable(param1.getLoveCause())).ifPresent(param2x -> {
+            param2x.awardStat(Stats.ANIMALS_BRED);
+            CriteriaTriggers.BRED_ANIMALS.trigger(param2x, this, param1, param2);
+        });
+        this.setAge(6000);
+        param1.setAge(6000);
+        this.resetLove();
+        param1.resetLove();
+        param0.broadcastEntityEvent(this, (byte)18);
+        if (param0.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+            param0.addFreshEntity(new ExperienceOrb(param0, this.getX(), this.getY(), this.getZ(), this.getRandom().nextInt(7) + 1));
+        }
+
     }
 
     @Override

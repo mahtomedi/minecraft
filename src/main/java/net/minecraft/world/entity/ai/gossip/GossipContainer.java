@@ -57,7 +57,7 @@ public class GossipContainer {
     }
 
     private Stream<GossipContainer.GossipEntry> unpack() {
-        return this.gossips.entrySet().stream().flatMap(param0 -> ((GossipContainer.EntityGossips)param0.getValue()).unpack((UUID)param0.getKey()));
+        return this.gossips.entrySet().stream().flatMap(param0 -> param0.getValue().unpack(param0.getKey()));
     }
 
     private Collection<GossipContainer.GossipEntry> selectGossipsForTransfer(RandomSource param0, int param1) {
@@ -69,7 +69,7 @@ public class GossipContainer {
             int var2 = 0;
 
             for(int var3 = 0; var3 < var0.size(); ++var3) {
-                GossipContainer.GossipEntry var4 = (GossipContainer.GossipEntry)var0.get(var3);
+                GossipContainer.GossipEntry var4 = var0.get(var3);
                 var2 += Math.abs(var4.weightedValue());
                 var1[var3] = var2 - 1;
             }
@@ -79,7 +79,7 @@ public class GossipContainer {
             for(int var6 = 0; var6 < param1; ++var6) {
                 int var7 = param0.nextInt(var2);
                 int var8 = Arrays.binarySearch(var1, var7);
-                var5.add((GossipContainer.GossipEntry)var0.get(var8 < 0 ? -var8 - 1 : var8));
+                var5.add(var0.get(var8 < 0 ? -var8 - 1 : var8));
             }
 
             return var5;
@@ -160,7 +160,7 @@ public class GossipContainer {
             .decode(param0)
             .resultOrPartial(param0x -> LOGGER.warn("Failed to deserialize gossips: {}", param0x))
             .stream()
-            .flatMap(param0x -> ((List)param0x.getFirst()).stream())
+            .flatMap(param0x -> param0x.getFirst().stream())
             .forEach(param0x -> this.getOrCreate(param0x.target).entries.put(param0x.type, param0x.value));
     }
 
@@ -186,10 +186,7 @@ public class GossipContainer {
         }
 
         public Stream<GossipContainer.GossipEntry> unpack(UUID param0) {
-            return this.entries
-                .object2IntEntrySet()
-                .stream()
-                .map(param1 -> new GossipContainer.GossipEntry(param0, (GossipType)param1.getKey(), param1.getIntValue()));
+            return this.entries.object2IntEntrySet().stream().map(param1 -> new GossipContainer.GossipEntry(param0, param1.getKey(), param1.getIntValue()));
         }
 
         public void decay() {

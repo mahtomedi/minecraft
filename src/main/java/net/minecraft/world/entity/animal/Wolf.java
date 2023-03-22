@@ -343,57 +343,57 @@ public class Wolf extends TamableAnimal implements NeutralMob {
         if (this.level.isClientSide) {
             boolean var2 = this.isOwnedBy(param0) || this.isTame() || var0.is(Items.BONE) && !this.isTame() && !this.isAngry();
             return var2 ? InteractionResult.CONSUME : InteractionResult.PASS;
-        } else {
-            if (this.isTame()) {
-                if (this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
-                    if (!param0.getAbilities().instabuild) {
-                        var0.shrink(1);
-                    }
-
-                    this.heal((float)var1.getFoodProperties().getNutrition());
-                    return InteractionResult.SUCCESS;
-                }
-
-                if (!(var1 instanceof DyeItem)) {
-                    InteractionResult var4 = super.mobInteract(param0, param1);
-                    if ((!var4.consumesAction() || this.isBaby()) && this.isOwnedBy(param0)) {
-                        this.setOrderedToSit(!this.isOrderedToSit());
-                        this.jumping = false;
-                        this.navigation.stop();
-                        this.setTarget(null);
-                        return InteractionResult.SUCCESS;
-                    }
-
-                    return var4;
-                }
-
-                DyeColor var3 = ((DyeItem)var1).getDyeColor();
-                if (var3 != this.getCollarColor()) {
-                    this.setCollarColor(var3);
-                    if (!param0.getAbilities().instabuild) {
-                        var0.shrink(1);
-                    }
-
-                    return InteractionResult.SUCCESS;
-                }
-            } else if (var0.is(Items.BONE) && !this.isAngry()) {
+        } else if (this.isTame()) {
+            if (this.isFood(var0) && this.getHealth() < this.getMaxHealth()) {
                 if (!param0.getAbilities().instabuild) {
                     var0.shrink(1);
                 }
 
-                if (this.random.nextInt(3) == 0) {
-                    this.tame(param0);
-                    this.navigation.stop();
-                    this.setTarget(null);
-                    this.setOrderedToSit(true);
-                    this.level.broadcastEntityEvent(this, (byte)7);
-                } else {
-                    this.level.broadcastEntityEvent(this, (byte)6);
+                this.heal((float)var1.getFoodProperties().getNutrition());
+                return InteractionResult.SUCCESS;
+            } else {
+                if (var1 instanceof DyeItem var3 && this.isOwnedBy(param0)) {
+                    DyeColor var4 = var3.getDyeColor();
+                    if (var4 != this.getCollarColor()) {
+                        this.setCollarColor(var4);
+                        if (!param0.getAbilities().instabuild) {
+                            var0.shrink(1);
+                        }
+
+                        return InteractionResult.SUCCESS;
+                    }
+
+                    return super.mobInteract(param0, param1);
                 }
 
-                return InteractionResult.SUCCESS;
+                InteractionResult var5 = super.mobInteract(param0, param1);
+                if ((!var5.consumesAction() || this.isBaby()) && this.isOwnedBy(param0)) {
+                    this.setOrderedToSit(!this.isOrderedToSit());
+                    this.jumping = false;
+                    this.navigation.stop();
+                    this.setTarget(null);
+                    return InteractionResult.SUCCESS;
+                } else {
+                    return var5;
+                }
+            }
+        } else if (var0.is(Items.BONE) && !this.isAngry()) {
+            if (!param0.getAbilities().instabuild) {
+                var0.shrink(1);
             }
 
+            if (this.random.nextInt(3) == 0) {
+                this.tame(param0);
+                this.navigation.stop();
+                this.setTarget(null);
+                this.setOrderedToSit(true);
+                this.level.broadcastEntityEvent(this, (byte)7);
+            } else {
+                this.level.broadcastEntityEvent(this, (byte)6);
+            }
+
+            return InteractionResult.SUCCESS;
+        } else {
             return super.mobInteract(param0, param1);
         }
     }

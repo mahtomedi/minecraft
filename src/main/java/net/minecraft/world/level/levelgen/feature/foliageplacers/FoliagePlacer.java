@@ -126,27 +126,45 @@ public abstract class FoliagePlacer {
     ) {
         this.placeLeavesRow(param0, param1, param2, param3, param4, param5, param6, param7);
         int var0 = param7 ? 1 : 0;
-        BlockPos.MutableBlockPos var1 = new BlockPos.MutableBlockPos();
+        BlockPos var1 = param4.below();
+        BlockPos.MutableBlockPos var2 = new BlockPos.MutableBlockPos();
 
-        for(Direction var2 : Direction.Plane.HORIZONTAL) {
-            Direction var3 = var2.getClockWise();
-            int var4 = var3.getAxisDirection() == Direction.AxisDirection.POSITIVE ? param5 + var0 : param5;
-            var1.setWithOffset(param4, 0, param6 - 1, 0).move(var3, var4).move(var2, -param5);
-            int var5 = -param5;
+        for(Direction var3 : Direction.Plane.HORIZONTAL) {
+            Direction var4 = var3.getClockWise();
+            int var5 = var4.getAxisDirection() == Direction.AxisDirection.POSITIVE ? param5 + var0 : param5;
+            var2.setWithOffset(param4, 0, param6 - 1, 0).move(var4, var5).move(var3, -param5);
+            int var6 = -param5;
 
-            while(var5 < param5 + var0) {
-                boolean var6 = param1.isSet(var1.move(Direction.UP));
-                var1.move(Direction.DOWN);
-                if (var6 && !(param2.nextFloat() > param8) && tryPlaceLeaf(param0, param1, param2, param3, var1) && !(param2.nextFloat() > param9)) {
-                    tryPlaceLeaf(param0, param1, param2, param3, var1.move(Direction.DOWN));
-                    var1.move(Direction.UP);
+            while(var6 < param5 + var0) {
+                boolean var7 = param1.isSet(var2.move(Direction.UP));
+                var2.move(Direction.DOWN);
+                if (var7 && tryPlaceExtension(param0, param1, param2, param3, param8, var1, var2)) {
+                    var2.move(Direction.DOWN);
+                    tryPlaceExtension(param0, param1, param2, param3, param9, var1, var2);
+                    var2.move(Direction.UP);
                 }
 
-                ++var5;
-                var1.move(var2);
+                ++var6;
+                var2.move(var3);
             }
         }
 
+    }
+
+    private static boolean tryPlaceExtension(
+        LevelSimulatedReader param0,
+        FoliagePlacer.FoliageSetter param1,
+        RandomSource param2,
+        TreeConfiguration param3,
+        float param4,
+        BlockPos param5,
+        BlockPos.MutableBlockPos param6
+    ) {
+        if (param6.distManhattan(param5) >= 7) {
+            return false;
+        } else {
+            return param2.nextFloat() > param4 ? false : tryPlaceLeaf(param0, param1, param2, param3, param6);
+        }
     }
 
     protected static boolean tryPlaceLeaf(

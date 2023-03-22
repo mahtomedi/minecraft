@@ -1,53 +1,74 @@
 package net.minecraft.world.level.block.entity;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.logging.LogUtils;
+import java.util.List;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.server.network.FilteredText;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 
 public class SignBlockEntity extends BlockEntity {
-    public static final int LINES = 4;
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final int MAX_TEXT_LINE_WIDTH = 90;
     private static final int TEXT_LINE_HEIGHT = 10;
-    private static final String[] RAW_TEXT_FIELD_NAMES = new String[]{"Text1", "Text2", "Text3", "Text4"};
-    private static final String[] FILTERED_TEXT_FIELD_NAMES = new String[]{"FilteredText1", "FilteredText2", "FilteredText3", "FilteredText4"};
-    private final Component[] messages = new Component[]{CommonComponents.EMPTY, CommonComponents.EMPTY, CommonComponents.EMPTY, CommonComponents.EMPTY};
-    private final Component[] filteredMessages = new Component[]{
-        CommonComponents.EMPTY, CommonComponents.EMPTY, CommonComponents.EMPTY, CommonComponents.EMPTY
-    };
-    private boolean isEditable = true;
     @Nullable
     private UUID playerWhoMayEdit;
-    @Nullable
-    private FormattedCharSequence[] renderMessages;
-    private boolean renderMessagedFiltered;
-    private DyeColor color = DyeColor.BLACK;
-    private boolean hasGlowingText;
+    private SignText frontText = this.createDefaultSignText();
+    private SignText backText = this.createDefaultSignText();
+    private boolean isWaxed;
 
     public SignBlockEntity(BlockPos param0, BlockState param1) {
-        super(BlockEntityType.SIGN, param0, param1);
+        this(BlockEntityType.SIGN, param0, param1);
     }
 
     public SignBlockEntity(BlockEntityType param0, BlockPos param1, BlockState param2) {
         super(param0, param1, param2);
+    }
+
+    protected SignText createDefaultSignText() {
+        return new SignText();
+    }
+
+    public boolean isFacingFrontText(Player param0) {
+        Block var1 = this.getBlockState().getBlock();
+        if (var1 instanceof SignBlock var0) {
+            double var1x = param0.getX() - ((double)this.getBlockPos().getX() + 0.5);
+            double var2 = param0.getZ() - ((double)this.getBlockPos().getZ() + 0.5);
+            float var3x = var0.getYRotationDegrees(this.getBlockState());
+            float var4 = (float)(Mth.atan2(var2, var1x) * 180.0F / (float)Math.PI) - 90.0F;
+            return Mth.degreesDifferenceAbs(var3x, var4) <= 90.0F;
+        } else {
+            return false;
+        }
+    }
+
+    public SignText getTextFacingPlayer(Player param0) {
+        return this.getText(this.isFacingFrontText(param0));
+    }
+
+    public SignText getText(boolean param0) {
+        return param0 ? this.frontText : this.backText;
+    }
+
+    public SignText getFrontText() {
+        return this.frontText;
+    }
+
+    public SignText getBackText() {
+        return this.backText;
     }
 
     public int getTextLineHeight() {
@@ -61,96 +82,80 @@ public class SignBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag param0) {
         super.saveAdditional(param0);
-
-        for(int var0 = 0; var0 < 4; ++var0) {
-            Component var1 = this.messages[var0];
-            String var2 = Component.Serializer.toJson(var1);
-            param0.putString(RAW_TEXT_FIELD_NAMES[var0], var2);
-            Component var3 = this.filteredMessages[var0];
-            if (!var3.equals(var1)) {
-                param0.putString(FILTERED_TEXT_FIELD_NAMES[var0], Component.Serializer.toJson(var3));
-            }
-        }
-
-        param0.putString("Color", this.color.getName());
-        param0.putBoolean("GlowingText", this.hasGlowingText);
+        SignText.DIRECT_CODEC.encodeStart(NbtOps.INSTANCE, this.frontText).resultOrPartial(LOGGER::error).ifPresent(param1 -> param0.put("front_text", param1));
+        SignText.DIRECT_CODEC.encodeStart(NbtOps.INSTANCE, this.backText).resultOrPartial(LOGGER::error).ifPresent(param1 -> param0.put("back_text", param1));
+        param0.putBoolean("is_waxed", this.isWaxed);
     }
 
     @Override
     public void load(CompoundTag param0) {
-        this.isEditable = false;
         super.load(param0);
-        this.color = DyeColor.byName(param0.getString("Color"), DyeColor.BLACK);
+        if (param0.contains("front_text")) {
+            SignText.DIRECT_CODEC
+                .parse(NbtOps.INSTANCE, param0.getCompound("front_text"))
+                .resultOrPartial(LOGGER::error)
+                .ifPresent(param0x -> this.frontText = param0x);
+        }
 
-        for(int var0 = 0; var0 < 4; ++var0) {
-            String var1 = param0.getString(RAW_TEXT_FIELD_NAMES[var0]);
-            Component var2 = this.loadLine(var1);
-            this.messages[var0] = var2;
-            String var3 = FILTERED_TEXT_FIELD_NAMES[var0];
-            if (param0.contains(var3, 8)) {
-                this.filteredMessages[var0] = this.loadLine(param0.getString(var3));
+        if (param0.contains("back_text")) {
+            SignText.DIRECT_CODEC
+                .parse(NbtOps.INSTANCE, param0.getCompound("back_text"))
+                .resultOrPartial(LOGGER::error)
+                .ifPresent(param0x -> this.backText = param0x);
+        }
+
+        this.isWaxed = param0.getBoolean("is_waxed");
+    }
+
+    public void updateSignText(Player param0, boolean param1, List<FilteredText> param2) {
+        if (!this.isWaxed() && param0.getUUID().equals(this.getPlayerWhoMayEdit())) {
+            this.updateText(param2x -> this.setMessages(param0, param2, param2x), param1);
+        } else {
+            LOGGER.warn("Player {} just tried to change non-editable sign", param0.getName().getString());
+        }
+    }
+
+    public boolean updateText(UnaryOperator<SignText> param0, boolean param1) {
+        SignText var0 = this.getText(param1);
+        return this.setText(param0.apply(var0), param1);
+    }
+
+    private SignText setMessages(Player param0, List<FilteredText> param1, SignText param2) {
+        for(int var0 = 0; var0 < param1.size(); ++var0) {
+            FilteredText var1 = param1.get(var0);
+            Style var2 = param2.getMessage(var0, param0.isTextFilteringEnabled()).getStyle();
+            if (param0.isTextFilteringEnabled()) {
+                param2 = param2.setMessage(var0, Component.literal(var1.filteredOrEmpty()).setStyle(var2));
             } else {
-                this.filteredMessages[var0] = var2;
+                param2 = param2.setMessage(var0, Component.literal(var1.raw()).setStyle(var2), Component.literal(var1.filteredOrEmpty()).setStyle(var2));
             }
         }
 
-        this.renderMessages = null;
-        this.hasGlowingText = param0.getBoolean("GlowingText");
+        return param2;
     }
 
-    private Component loadLine(String param0) {
-        Component var0 = this.deserializeTextSafe(param0);
-        if (this.level instanceof ServerLevel) {
-            try {
-                return ComponentUtils.updateForEntity(this.createCommandSourceStack(null), var0, null, 0);
-            } catch (CommandSyntaxException var4) {
-            }
+    public boolean setText(SignText param0, boolean param1) {
+        return param1 ? this.setFrontText(param0) : this.setBackText(param0);
+    }
+
+    private boolean setBackText(SignText param0) {
+        if (param0 != this.backText) {
+            this.backText = param0;
+            this.markUpdated();
+            return true;
+        } else {
+            return false;
         }
-
-        return var0;
     }
 
-    private Component deserializeTextSafe(String param0) {
-        try {
-            Component var0 = Component.Serializer.fromJson(param0);
-            if (var0 != null) {
-                return var0;
-            }
-        } catch (Exception var3) {
+    private boolean setFrontText(SignText param0) {
+        if (param0 != this.frontText) {
+            this.frontText = param0;
+            this.markUpdated();
+            return true;
+        } else {
+            return false;
         }
-
-        return CommonComponents.EMPTY;
-    }
-
-    public Component getMessage(int param0, boolean param1) {
-        return this.getMessages(param1)[param0];
-    }
-
-    public void setMessage(int param0, Component param1) {
-        this.setMessage(param0, param1, param1);
-    }
-
-    public void setMessage(int param0, Component param1, Component param2) {
-        this.messages[param0] = param1;
-        this.filteredMessages[param0] = param2;
-        this.renderMessages = null;
-    }
-
-    public FormattedCharSequence[] getRenderMessages(boolean param0, Function<Component, FormattedCharSequence> param1) {
-        if (this.renderMessages == null || this.renderMessagedFiltered != param0) {
-            this.renderMessagedFiltered = param0;
-            this.renderMessages = new FormattedCharSequence[4];
-
-            for(int var0 = 0; var0 < 4; ++var0) {
-                this.renderMessages[var0] = param1.apply(this.getMessage(var0, param0));
-            }
-        }
-
-        return this.renderMessages;
-    }
-
-    private Component[] getMessages(boolean param0) {
-        return param0 ? this.filteredMessages : this.messages;
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
@@ -167,19 +172,7 @@ public class SignBlockEntity extends BlockEntity {
         return true;
     }
 
-    public boolean isEditable() {
-        return this.isEditable;
-    }
-
-    public void setEditable(boolean param0) {
-        this.isEditable = param0;
-        if (!param0) {
-            this.playerWhoMayEdit = null;
-        }
-
-    }
-
-    public void setAllowedPlayerEditor(UUID param0) {
+    public void setAllowedPlayerEditor(@Nullable UUID param0) {
         this.playerWhoMayEdit = param0;
     }
 
@@ -188,68 +181,43 @@ public class SignBlockEntity extends BlockEntity {
         return this.playerWhoMayEdit;
     }
 
-    public boolean hasAnyClickCommands(Player param0) {
-        for(Component var0 : this.getMessages(param0.isTextFilteringEnabled())) {
-            Style var1 = var0.getStyle();
-            ClickEvent var2 = var1.getClickEvent();
-            if (var2 != null && var2.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public boolean executeClickCommands(ServerPlayer param0) {
-        for(Component var0 : this.getMessages(param0.isTextFilteringEnabled())) {
-            Style var1 = var0.getStyle();
-            ClickEvent var2 = var1.getClickEvent();
-            if (var2 != null && var2.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                param0.getServer().getCommands().performPrefixedCommand(this.createCommandSourceStack(param0), var2.getValue());
-            }
-        }
-
-        return true;
-    }
-
-    public CommandSourceStack createCommandSourceStack(@Nullable ServerPlayer param0) {
-        String var0 = param0 == null ? "Sign" : param0.getName().getString();
-        Component var1 = (Component)(param0 == null ? Component.literal("Sign") : param0.getDisplayName());
-        return new CommandSourceStack(
-            CommandSource.NULL, Vec3.atCenterOf(this.worldPosition), Vec2.ZERO, (ServerLevel)this.level, 2, var0, var1, this.level.getServer(), param0
-        );
-    }
-
-    public DyeColor getColor() {
-        return this.color;
-    }
-
-    public boolean setColor(DyeColor param0) {
-        if (param0 != this.getColor()) {
-            this.color = param0;
-            this.markUpdated();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean hasGlowingText() {
-        return this.hasGlowingText;
-    }
-
-    public boolean setHasGlowingText(boolean param0) {
-        if (this.hasGlowingText != param0) {
-            this.hasGlowingText = param0;
-            this.markUpdated();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     private void markUpdated() {
         this.setChanged();
         this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+    }
+
+    public boolean isWaxed() {
+        return this.isWaxed;
+    }
+
+    public boolean setWaxed(boolean param0) {
+        if (this.isWaxed != param0) {
+            this.isWaxed = param0;
+            this.markUpdated();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean playerIsTooFarAwayToEdit(UUID param0) {
+        Player var0 = this.level.getPlayerByUUID(param0);
+        return var0 == null
+            || var0.distanceToSqr((double)this.getBlockPos().getX(), (double)this.getBlockPos().getY(), (double)this.getBlockPos().getZ()) > 64.0;
+    }
+
+    public static void tick(Level param0, BlockPos param1, BlockState param2, SignBlockEntity param3) {
+        UUID var0 = param3.getPlayerWhoMayEdit();
+        if (var0 != null) {
+            param3.clearInvalidPlayerWhoMayEdit(param3, param0, var0);
+        }
+
+    }
+
+    private void clearInvalidPlayerWhoMayEdit(SignBlockEntity param0, Level param1, UUID param2) {
+        if (param0.playerIsTooFarAwayToEdit(param2)) {
+            param0.setAllowedPlayerEditor(null);
+        }
+
     }
 }

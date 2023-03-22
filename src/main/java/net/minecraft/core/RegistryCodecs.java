@@ -38,7 +38,7 @@ public class RegistryCodecs {
             Builder<RegistryCodecs.RegistryEntry<T>> var0x = ImmutableList.builder();
 
             for(T var1x : param0x) {
-                var0x.add(new RegistryCodecs.RegistryEntry<T>(param0x.getResourceKey((T)var1x).get(), param0x.getId((T)var1x), (T)var1x));
+                var0x.add(new RegistryCodecs.RegistryEntry<>(param0x.getResourceKey((T)var1x).get(), param0x.getId((T)var1x), (T)var1x));
             }
 
             return var0x.build();

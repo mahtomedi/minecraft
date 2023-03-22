@@ -76,7 +76,6 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.DANDELION, var2);
         param0.put(Blocks.POPPY, var2);
         param0.put(Blocks.BLUE_ORCHID, var2);
-        param0.put(Blocks.TORCHFLOWER, var2);
         param0.put(Blocks.ALLIUM, var2);
         param0.put(Blocks.AZURE_BLUET, var2);
         param0.put(Blocks.RED_TULIP, var2);
@@ -181,7 +180,10 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.END_ROD, var2);
         param0.put(Blocks.CHORUS_PLANT, var2);
         param0.put(Blocks.CHORUS_FLOWER, var2);
+        param0.put(Blocks.TORCHFLOWER, var2);
         param0.put(Blocks.TORCHFLOWER_CROP, var2);
+        param0.put(Blocks.PITCHER_PLANT, var2);
+        param0.put(Blocks.PITCHER_CROP, var2);
         param0.put(Blocks.BEETROOTS, var2);
         param0.put(Blocks.KELP, var2);
         param0.put(Blocks.KELP_PLANT, var2);
@@ -261,6 +263,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.SMALL_DRIPLEAF, var2);
         param0.put(Blocks.HANGING_ROOTS, var2);
         param0.put(Blocks.SCULK_SENSOR, var2);
+        param0.put(Blocks.CALIBRATED_SCULK_SENSOR, var2);
         param0.put(Blocks.SCULK_VEIN, var2);
         param0.put(Blocks.SCULK_SHRIEKER, var2);
         param0.put(Blocks.MANGROVE_PROPAGULE, var2);

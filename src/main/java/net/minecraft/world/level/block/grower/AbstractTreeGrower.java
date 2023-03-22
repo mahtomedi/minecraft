@@ -22,11 +22,11 @@ public abstract class AbstractTreeGrower {
         if (var0 == null) {
             return false;
         } else {
-            Holder<ConfiguredFeature<?, ?>> var1 = (Holder)param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(var0).orElse(null);
+            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(var0).orElse(null);
             if (var1 == null) {
                 return false;
             } else {
-                ConfiguredFeature<?, ?> var2 = (ConfiguredFeature)var1.value();
+                ConfiguredFeature<?, ?> var2 = var1.value();
                 BlockState var3 = param0.getFluidState(param2).createLegacyBlock();
                 param0.setBlock(param2, var3, 4);
                 if (var2.place(param0, param1, param4, param2)) {

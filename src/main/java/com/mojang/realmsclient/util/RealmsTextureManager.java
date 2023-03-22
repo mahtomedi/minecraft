@@ -28,7 +28,7 @@ public class RealmsTextureManager {
     }
 
     private static ResourceLocation getTexture(String param0, String param1) {
-        RealmsTextureManager.RealmsTexture var0 = (RealmsTextureManager.RealmsTexture)TEXTURES.get(param0);
+        RealmsTextureManager.RealmsTexture var0 = TEXTURES.get(param0);
         if (var0 != null && var0.image().equals(param1)) {
             return var0.textureId;
         } else {

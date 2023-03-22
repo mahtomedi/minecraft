@@ -19,7 +19,7 @@ public record BlockSetType(
     SoundEvent buttonClickOff,
     SoundEvent buttonClickOn
 ) {
-    private static final Set<BlockSetType> VALUES = new ObjectArraySet();
+    private static final Set<BlockSetType> VALUES = new ObjectArraySet<>();
     public static final BlockSetType IRON = register(
         new BlockSetType(
             "iron",

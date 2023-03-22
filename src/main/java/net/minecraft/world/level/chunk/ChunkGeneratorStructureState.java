@@ -44,13 +44,13 @@ public class ChunkGeneratorStructureState {
     private final List<Holder<StructureSet>> possibleStructureSets;
 
     public static ChunkGeneratorStructureState createForFlat(RandomState param0, long param1, BiomeSource param2, Stream<Holder<StructureSet>> param3) {
-        List<Holder<StructureSet>> var0 = param3.filter(param1x -> hasBiomesForStructureSet((StructureSet)param1x.value(), param2)).toList();
+        List<Holder<StructureSet>> var0 = param3.filter(param1x -> hasBiomesForStructureSet(param1x.value(), param2)).toList();
         return new ChunkGeneratorStructureState(param0, param2, param1, 0L, var0);
     }
 
     public static ChunkGeneratorStructureState createForNormal(RandomState param0, long param1, BiomeSource param2, HolderLookup<StructureSet> param3) {
         List<Holder<StructureSet>> var0 = param3.listElements()
-            .filter(param1x -> hasBiomesForStructureSet((StructureSet)param1x.value(), param2))
+            .filter(param1x -> hasBiomesForStructureSet(param1x.value(), param2))
             .collect(Collectors.toUnmodifiableList());
         return new ChunkGeneratorStructureState(param0, param2, param1, param1, var0);
     }
@@ -78,7 +78,7 @@ public class ChunkGeneratorStructureState {
     private void generatePositions() {
         Set<Holder<Biome>> var0 = this.biomeSource.possibleBiomes();
         this.possibleStructureSets().forEach(param1 -> {
-            StructureSet var0x = (StructureSet)param1.value();
+            StructureSet var0x = param1.value();
             boolean var1x = false;
 
             for(StructureSet.StructureSelectionEntry var2 : var0x.structures()) {
@@ -186,7 +186,7 @@ public class ChunkGeneratorStructureState {
     }
 
     public boolean hasStructureChunkInRange(Holder<StructureSet> param0, int param1, int param2, int param3) {
-        StructurePlacement var0 = ((StructureSet)param0.value()).placement();
+        StructurePlacement var0 = param0.value().placement();
 
         for(int var1 = param1 - param3; var1 <= param1 + param3; ++var1) {
             for(int var2 = param2 - param3; var2 <= param2 + param3; ++var2) {

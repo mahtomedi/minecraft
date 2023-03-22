@@ -68,13 +68,11 @@ public class JfrResultJsonSerializer {
 
     private JsonElement chunkGen(List<Pair<ChunkStatus, TimedStatSummary<ChunkGenStat>>> param0) {
         JsonObject var0 = new JsonObject();
-        var0.addProperty(
-            "durationNanosTotal", param0.stream().mapToDouble(param0x -> (double)((TimedStatSummary)param0x.getSecond()).totalDuration().toNanos()).sum()
-        );
+        var0.addProperty("durationNanosTotal", param0.stream().mapToDouble(param0x -> (double)param0x.getSecond().totalDuration().toNanos()).sum());
         JsonArray var1 = Util.make(new JsonArray(), param1 -> var0.add("status", param1));
 
         for(Pair<ChunkStatus, TimedStatSummary<ChunkGenStat>> var2 : param0) {
-            TimedStatSummary<ChunkGenStat> var3 = (TimedStatSummary)var2.getSecond();
+            TimedStatSummary<ChunkGenStat> var3 = var2.getSecond();
             JsonObject var4 = Util.make(new JsonObject(), var1::add);
             var4.addProperty("state", var2.getFirst().getName());
             var4.addProperty("count", var3.count());
@@ -167,8 +165,8 @@ public class JfrResultJsonSerializer {
         param0.largestSizeContributors().forEach(param1 -> {
             JsonObject var0x = new JsonObject();
             var1.add(var0x);
-            NetworkPacketSummary.PacketIdentification var1x = (NetworkPacketSummary.PacketIdentification)param1.getFirst();
-            NetworkPacketSummary.PacketCountAndSize var2x = (NetworkPacketSummary.PacketCountAndSize)param1.getSecond();
+            NetworkPacketSummary.PacketIdentification var1x = param1.getFirst();
+            NetworkPacketSummary.PacketCountAndSize var2x = param1.getSecond();
             var0x.addProperty("protocolId", var1x.protocolId());
             var0x.addProperty("packetId", var1x.packetId());
             var0x.addProperty("packetName", var1x.packetName());

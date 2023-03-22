@@ -134,9 +134,9 @@ public class JigsawPlacement {
         Optional<BlockPos> var1 = Optional.empty();
 
         for(StructureTemplate.StructureBlockInfo var2 : var0) {
-            ResourceLocation var3 = ResourceLocation.tryParse(var2.nbt.getString("name"));
+            ResourceLocation var3 = ResourceLocation.tryParse(var2.nbt().getString("name"));
             if (param1.equals(var3)) {
-                var1 = Optional.of(var2.pos);
+                var1 = Optional.of(var2.pos());
                 break;
             }
         }
@@ -187,7 +187,7 @@ public class JigsawPlacement {
         );
         Optional<Structure.GenerationStub> var5 = addPieces(var4, param1, Optional.of(param2), param3, param4, false, Optional.empty(), 128);
         if (var5.isPresent()) {
-            StructurePiecesBuilder var6 = ((Structure.GenerationStub)var5.get()).getPiecesBuilder();
+            StructurePiecesBuilder var6 = var5.get().getPiecesBuilder();
 
             for(StructurePiece var7 : var6.build().pieces()) {
                 if (var7 instanceof PoolElementStructurePiece var8) {
@@ -252,8 +252,8 @@ public class JigsawPlacement {
 
             label131:
             for(StructureTemplate.StructureBlockInfo var8 : var0.getShuffledJigsawBlocks(this.structureTemplateManager, var1, var2, this.random)) {
-                Direction var9 = JigsawBlock.getFrontFacing(var8.state);
-                BlockPos var10 = var8.pos;
+                Direction var9 = JigsawBlock.getFrontFacing(var8.state());
+                BlockPos var10 = var8.pos();
                 BlockPos var11 = var10.relative(var9);
                 int var12 = var10.getY() - var7;
                 int var13 = -1;
@@ -305,7 +305,7 @@ public class JigsawPlacement {
                                     int var27;
                                     if (param3 && var25.getYSpan() <= 16) {
                                         var27 = var24.stream().mapToInt(param1x -> {
-                                            if (!var25.isInside(param1x.pos.relative(JigsawBlock.getFrontFacing(param1x.state)))) {
+                                            if (!var25.isInside(param1x.pos().relative(JigsawBlock.getFrontFacing(param1x.state())))) {
                                                 return 0;
                                             } else {
                                                 ResourceKey<StructureTemplatePool> var0x = readPoolName(param1x);
@@ -322,14 +322,14 @@ public class JigsawPlacement {
 
                                     for(StructureTemplate.StructureBlockInfo var28 : var24) {
                                         if (JigsawBlock.canAttach(var8, var28)) {
-                                            BlockPos var29 = var28.pos;
+                                            BlockPos var29 = var28.pos();
                                             BlockPos var30 = var11.subtract(var29);
                                             BoundingBox var31 = var22.getBoundingBox(this.structureTemplateManager, var30, var23);
                                             int var32 = var31.minY();
                                             StructureTemplatePool.Projection var33 = var22.getProjection();
                                             boolean var34 = var33 == StructureTemplatePool.Projection.RIGID;
                                             int var35 = var29.getY();
-                                            int var36 = var12 - var35 + JigsawBlock.getFrontFacing(var8.state).getStepY();
+                                            int var36 = var12 - var35 + JigsawBlock.getFrontFacing(var8.state()).getStepY();
                                             int var37;
                                             if (var4 && var34) {
                                                 var37 = var7 + var36;
@@ -397,7 +397,7 @@ public class JigsawPlacement {
         }
 
         private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo param0) {
-            return ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(param0.nbt.getString("pool")));
+            return ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(param0.nbt().getString("pool")));
         }
     }
 }

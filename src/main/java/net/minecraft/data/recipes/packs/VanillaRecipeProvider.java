@@ -1957,6 +1957,13 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern("SSS")
             .unlockedBy("has_echo_shard", has(Items.ECHO_SHARD))
             .save(param0);
+        ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Items.CALIBRATED_SCULK_SENSOR)
+            .define('#', Items.AMETHYST_SHARD)
+            .define('X', Items.SCULK_SENSOR)
+            .pattern(" # ")
+            .pattern("#X#")
+            .unlockedBy("has_amethyst_shard", has(Items.AMETHYST_SHARD))
+            .save(param0);
         threeByThreePacker(param0, RecipeCategory.MISC, Items.MUSIC_DISC_5, Items.DISC_FRAGMENT_5);
         SpecialRecipeBuilder.special(RecipeSerializer.ARMOR_DYE).save(param0, "armor_dye");
         SpecialRecipeBuilder.special(RecipeSerializer.BANNER_DUPLICATE).save(param0, "banner_duplicate");
@@ -2519,14 +2526,96 @@ public class VanillaRecipeProvider extends RecipeProvider {
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES, 2);
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_TILES);
         stonecutterResultFromBase(param0, RecipeCategory.DECORATIONS, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_TILES);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, RecipeCategory.COMBAT, Items.NETHERITE_CHESTPLATE);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_LEGGINGS, RecipeCategory.COMBAT, Items.NETHERITE_LEGGINGS);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_HELMET, RecipeCategory.COMBAT, Items.NETHERITE_HELMET);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_BOOTS, RecipeCategory.COMBAT, Items.NETHERITE_BOOTS);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_SWORD, RecipeCategory.COMBAT, Items.NETHERITE_SWORD);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_AXE, RecipeCategory.TOOLS, Items.NETHERITE_AXE);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_PICKAXE, RecipeCategory.TOOLS, Items.NETHERITE_PICKAXE);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_HOE, RecipeCategory.TOOLS, Items.NETHERITE_HOE);
-        legacyNetheriteSmithing(param0, Items.DIAMOND_SHOVEL, RecipeCategory.TOOLS, Items.NETHERITE_SHOVEL);
+        trimSmithing(param0, Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE);
+        trimSmithing(param0, Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE);
+        netheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, RecipeCategory.COMBAT, Items.NETHERITE_CHESTPLATE);
+        netheriteSmithing(param0, Items.DIAMOND_LEGGINGS, RecipeCategory.COMBAT, Items.NETHERITE_LEGGINGS);
+        netheriteSmithing(param0, Items.DIAMOND_HELMET, RecipeCategory.COMBAT, Items.NETHERITE_HELMET);
+        netheriteSmithing(param0, Items.DIAMOND_BOOTS, RecipeCategory.COMBAT, Items.NETHERITE_BOOTS);
+        netheriteSmithing(param0, Items.DIAMOND_SWORD, RecipeCategory.COMBAT, Items.NETHERITE_SWORD);
+        netheriteSmithing(param0, Items.DIAMOND_AXE, RecipeCategory.TOOLS, Items.NETHERITE_AXE);
+        netheriteSmithing(param0, Items.DIAMOND_PICKAXE, RecipeCategory.TOOLS, Items.NETHERITE_PICKAXE);
+        netheriteSmithing(param0, Items.DIAMOND_HOE, RecipeCategory.TOOLS, Items.NETHERITE_HOE);
+        netheriteSmithing(param0, Items.DIAMOND_SHOVEL, RecipeCategory.TOOLS, Items.NETHERITE_SHOVEL);
+        copySmithingTemplate(param0, Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE, Items.NETHERRACK);
+        copySmithingTemplate(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.SANDSTONE);
+        copySmithingTemplate(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE, Items.MOSSY_COBBLESTONE);
+        copySmithingTemplate(param0, Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLED_DEEPSLATE);
+        copySmithingTemplate(param0, Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.END_STONE);
+        copySmithingTemplate(param0, Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLESTONE);
+        copySmithingTemplate(param0, Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.PRISMARINE);
+        copySmithingTemplate(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE, Items.BLACKSTONE);
+        copySmithingTemplate(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, Items.NETHERRACK);
+        copySmithingTemplate(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.PURPUR_BLOCK);
+        copySmithingTemplate(param0, Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, Items.COBBLED_DEEPSLATE);
+        copySmithingTemplate(param0, Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, Items.TERRACOTTA);
+        copySmithingTemplate(param0, Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE, Items.TERRACOTTA);
+        copySmithingTemplate(param0, Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE, Items.TERRACOTTA);
+        copySmithingTemplate(param0, Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE, Items.TERRACOTTA);
+        threeByThreePacker(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.BAMBOO_BLOCK, Items.BAMBOO);
+        planksFromLogs(param0, Blocks.BAMBOO_PLANKS, ItemTags.BAMBOO_BLOCKS, 2);
+        mosaicBuilder(param0, RecipeCategory.DECORATIONS, Blocks.BAMBOO_MOSAIC, Blocks.BAMBOO_SLAB);
+        woodenBoat(param0, Items.BAMBOO_RAFT, Blocks.BAMBOO_PLANKS);
+        chestBoat(param0, Items.BAMBOO_CHEST_RAFT, Items.BAMBOO_RAFT);
+        hangingSign(param0, Items.OAK_HANGING_SIGN, Blocks.STRIPPED_OAK_LOG);
+        hangingSign(param0, Items.SPRUCE_HANGING_SIGN, Blocks.STRIPPED_SPRUCE_LOG);
+        hangingSign(param0, Items.BIRCH_HANGING_SIGN, Blocks.STRIPPED_BIRCH_LOG);
+        hangingSign(param0, Items.JUNGLE_HANGING_SIGN, Blocks.STRIPPED_JUNGLE_LOG);
+        hangingSign(param0, Items.ACACIA_HANGING_SIGN, Blocks.STRIPPED_ACACIA_LOG);
+        hangingSign(param0, Items.CHERRY_HANGING_SIGN, Blocks.STRIPPED_CHERRY_LOG);
+        hangingSign(param0, Items.DARK_OAK_HANGING_SIGN, Blocks.STRIPPED_DARK_OAK_LOG);
+        hangingSign(param0, Items.MANGROVE_HANGING_SIGN, Blocks.STRIPPED_MANGROVE_LOG);
+        hangingSign(param0, Items.BAMBOO_HANGING_SIGN, Items.STRIPPED_BAMBOO_BLOCK);
+        hangingSign(param0, Items.CRIMSON_HANGING_SIGN, Blocks.STRIPPED_CRIMSON_STEM);
+        hangingSign(param0, Items.WARPED_HANGING_SIGN, Blocks.STRIPPED_WARPED_STEM);
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Blocks.CHISELED_BOOKSHELF)
+            .define('#', ItemTags.PLANKS)
+            .define('X', ItemTags.WOODEN_SLABS)
+            .pattern("###")
+            .pattern("XXX")
+            .pattern("###")
+            .unlockedBy("has_book", has(Items.BOOK))
+            .save(param0);
+        oneToOneConversionRecipe(param0, Items.ORANGE_DYE, Blocks.TORCHFLOWER, "orange_dye");
+        oneToOneConversionRecipe(param0, Items.CYAN_DYE, Blocks.PITCHER_PLANT, "cyan_dye");
+        planksFromLog(param0, Blocks.CHERRY_PLANKS, ItemTags.CHERRY_LOGS, 4);
+        woodFromLogs(param0, Blocks.CHERRY_WOOD, Blocks.CHERRY_LOG);
+        woodFromLogs(param0, Blocks.STRIPPED_CHERRY_WOOD, Blocks.STRIPPED_CHERRY_LOG);
+        woodenBoat(param0, Items.CHERRY_BOAT, Blocks.CHERRY_PLANKS);
+        chestBoat(param0, Items.CHERRY_CHEST_BOAT, Items.CHERRY_BOAT);
+        oneToOneConversionRecipe(param0, Items.PINK_DYE, Items.PINK_PETALS, "pink_dye", 1);
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Items.BRUSH)
+            .define('X', Items.FEATHER)
+            .define('#', Items.COPPER_INGOT)
+            .define('I', Items.STICK)
+            .pattern("X")
+            .pattern("#")
+            .pattern("I")
+            .unlockedBy("has_copper_ingot", has(Items.COPPER_INGOT))
+            .save(param0);
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, Items.DECORATED_POT)
+            .define('#', Items.BRICK)
+            .pattern(" # ")
+            .pattern("# #")
+            .pattern(" # ")
+            .unlockedBy("has_brick", has(ItemTags.DECORATED_POT_SHARDS))
+            .save(param0, "decorated_pot_simple");
+        SpecialRecipeBuilder.special(RecipeSerializer.DECORATED_POT_RECIPE).save(param0, "decorated_pot");
     }
 }

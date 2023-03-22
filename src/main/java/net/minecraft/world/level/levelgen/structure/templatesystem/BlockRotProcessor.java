@@ -46,8 +46,8 @@ public class BlockRotProcessor extends StructureProcessor {
         StructureTemplate.StructureBlockInfo param4,
         StructurePlaceSettings param5
     ) {
-        RandomSource var0 = param5.getRandom(param4.pos);
-        return (!this.rottableBlocks.isPresent() || param3.state.is(this.rottableBlocks.get())) && !(var0.nextFloat() <= this.integrity) ? null : param4;
+        RandomSource var0 = param5.getRandom(param4.pos());
+        return (!this.rottableBlocks.isPresent() || param3.state().is(this.rottableBlocks.get())) && !(var0.nextFloat() <= this.integrity) ? null : param4;
     }
 
     @Override

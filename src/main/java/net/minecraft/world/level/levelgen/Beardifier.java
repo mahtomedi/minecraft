@@ -34,7 +34,7 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
     public static Beardifier forStructuresInChunk(StructureManager param0, ChunkPos param1) {
         int var0 = param1.getMinBlockX();
         int var1 = param1.getMinBlockZ();
-        ObjectList<Beardifier.Rigid> var2 = new ObjectArrayList(10);
+        ObjectList<Beardifier.Rigid> var2 = new ObjectArrayList<>(10);
         ObjectList<JigsawJunction> var3 = new ObjectArrayList<>(32);
         param0.startsForStructure(param1, param0x -> param0x.terrainAdaptation() != TerrainAdjustment.NONE).forEach(param5 -> {
             TerrainAdjustment var0x = param5.getStructure().terrainAdaptation();
@@ -79,7 +79,7 @@ public class Beardifier implements DensityFunctions.BeardifierOrMarker {
         double var3;
         double var10001;
         for(var3 = 0.0; this.pieceIterator.hasNext(); var3 += var10001) {
-            Beardifier.Rigid var4 = (Beardifier.Rigid)this.pieceIterator.next();
+            Beardifier.Rigid var4 = this.pieceIterator.next();
             BoundingBox var5 = var4.box();
             int var6 = var4.groundLevelDelta();
             int var7 = Math.max(0, Math.max(var5.minX() - var0, var0 - var5.maxX()));

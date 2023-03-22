@@ -55,7 +55,7 @@ public class LanguageManager implements ResourceManagerReloadListener {
         boolean var1 = DEFAULT_LANGUAGE.bidirectional();
         var0.add("en_us");
         if (!this.currentCode.equals("en_us")) {
-            LanguageInfo var2 = (LanguageInfo)this.languages.get(this.currentCode);
+            LanguageInfo var2 = this.languages.get(this.currentCode);
             if (var2 != null) {
                 var0.add(this.currentCode);
                 var1 = var2.bidirectional();
@@ -81,6 +81,6 @@ public class LanguageManager implements ResourceManagerReloadListener {
 
     @Nullable
     public LanguageInfo getLanguage(String param0) {
-        return (LanguageInfo)this.languages.get(param0);
+        return this.languages.get(param0);
     }
 }

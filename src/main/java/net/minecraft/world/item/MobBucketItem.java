@@ -65,7 +65,7 @@ public class MobBucketItem extends BucketItem {
                 String var4 = "color.minecraft." + TropicalFish.getPatternColor(var1);
 
                 for(int var5 = 0; var5 < TropicalFish.COMMON_VARIANTS.size(); ++var5) {
-                    if (var1 == ((TropicalFish.Variant)TropicalFish.COMMON_VARIANTS.get(var5)).getPackedId()) {
+                    if (var1 == TropicalFish.COMMON_VARIANTS.get(var5).getPackedId()) {
                         param2.add(Component.translatable(TropicalFish.getPredefinedName(var5)).withStyle(var2));
                         return;
                     }

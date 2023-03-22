@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
+import java.util.Iterator;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.LevelWriter;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
@@ -173,72 +175,64 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     }
 
     private static DiscreteVoxelShape updateLeaves(LevelAccessor param0, BoundingBox param1, Set<BlockPos> param2, Set<BlockPos> param3, Set<BlockPos> param4) {
-        List<Set<BlockPos>> var0 = Lists.newArrayList();
-        DiscreteVoxelShape var1 = new BitSetDiscreteVoxelShape(param1.getXSpan(), param1.getYSpan(), param1.getZSpan());
-        int var2 = 6;
+        DiscreteVoxelShape var0 = new BitSetDiscreteVoxelShape(param1.getXSpan(), param1.getYSpan(), param1.getZSpan());
+        int var1 = 7;
+        List<Set<BlockPos>> var2 = Lists.newArrayList();
 
-        for(int var3 = 0; var3 < 6; ++var3) {
-            var0.add(Sets.newHashSet());
+        for(int var3 = 0; var3 < 7; ++var3) {
+            var2.add(Sets.newHashSet());
         }
 
-        BlockPos.MutableBlockPos var4 = new BlockPos.MutableBlockPos();
-
-        for(BlockPos var5 : Lists.newArrayList(Sets.union(param3, param4))) {
-            if (param1.isInside(var5)) {
-                var1.fill(var5.getX() - param1.minX(), var5.getY() - param1.minY(), var5.getZ() - param1.minZ());
+        for(BlockPos var4 : Lists.newArrayList(Sets.union(param3, param4))) {
+            if (param1.isInside(var4)) {
+                var0.fill(var4.getX() - param1.minX(), var4.getY() - param1.minY(), var4.getZ() - param1.minZ());
             }
         }
 
-        for(BlockPos var6 : Lists.newArrayList(param2)) {
-            if (param1.isInside(var6)) {
-                var1.fill(var6.getX() - param1.minX(), var6.getY() - param1.minY(), var6.getZ() - param1.minZ());
-            }
+        BlockPos.MutableBlockPos var5 = new BlockPos.MutableBlockPos();
+        int var6 = 0;
+        var2.get(0).addAll(param2);
 
-            for(Direction var7 : Direction.values()) {
-                var4.setWithOffset(var6, var7);
-                if (!param2.contains(var4)) {
-                    BlockState var8 = param0.getBlockState(var4);
-                    if (var8.hasProperty(BlockStateProperties.DISTANCE)) {
-                        var0.get(0).add(var4.immutable());
-                        setBlockKnownShape(param0, var4, var8.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(1)));
-                        if (param1.isInside(var4)) {
-                            var1.fill(var4.getX() - param1.minX(), var4.getY() - param1.minY(), var4.getZ() - param1.minZ());
-                        }
+        while(true) {
+            while(var6 >= 7 || !var2.get(var6).isEmpty()) {
+                if (var6 >= 7) {
+                    return var0;
+                }
+
+                Iterator<BlockPos> var7 = var2.get(var6).iterator();
+                BlockPos var8 = var7.next();
+                var7.remove();
+                if (param1.isInside(var8)) {
+                    if (var6 != 0) {
+                        BlockState var9 = param0.getBlockState(var8);
+                        setBlockKnownShape(param0, var8, var9.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var6)));
                     }
-                }
-            }
-        }
 
-        for(int var9 = 1; var9 < 6; ++var9) {
-            Set<BlockPos> var10 = var0.get(var9 - 1);
-            Set<BlockPos> var11 = var0.get(var9);
+                    var0.fill(var8.getX() - param1.minX(), var8.getY() - param1.minY(), var8.getZ() - param1.minZ());
 
-            for(BlockPos var12 : var10) {
-                if (param1.isInside(var12)) {
-                    var1.fill(var12.getX() - param1.minX(), var12.getY() - param1.minY(), var12.getZ() - param1.minZ());
-                }
-
-                for(Direction var13 : Direction.values()) {
-                    var4.setWithOffset(var12, var13);
-                    if (!var10.contains(var4) && !var11.contains(var4)) {
-                        BlockState var14 = param0.getBlockState(var4);
-                        if (var14.hasProperty(BlockStateProperties.DISTANCE)) {
-                            int var15 = var14.getValue(BlockStateProperties.DISTANCE);
-                            if (var15 > var9 + 1) {
-                                BlockState var16 = var14.setValue(BlockStateProperties.DISTANCE, Integer.valueOf(var9 + 1));
-                                setBlockKnownShape(param0, var4, var16);
-                                if (param1.isInside(var4)) {
-                                    var1.fill(var4.getX() - param1.minX(), var4.getY() - param1.minY(), var4.getZ() - param1.minZ());
+                    for(Direction var10 : Direction.values()) {
+                        var5.setWithOffset(var8, var10);
+                        if (param1.isInside(var5)) {
+                            int var11 = var5.getX() - param1.minX();
+                            int var12 = var5.getY() - param1.minY();
+                            int var13 = var5.getZ() - param1.minZ();
+                            if (!var0.isFull(var11, var12, var13)) {
+                                BlockState var14 = param0.getBlockState(var5);
+                                OptionalInt var15 = LeavesBlock.getOptionalDistanceAt(var14);
+                                if (!var15.isEmpty()) {
+                                    int var16 = Math.min(var15.getAsInt(), var6 + 1);
+                                    if (var16 < 7) {
+                                        var2.get(var16).add(var5.immutable());
+                                        var6 = Math.min(var6, var16);
+                                    }
                                 }
-
-                                var11.add(var4.immutable());
                             }
                         }
                     }
                 }
             }
-        }
 
-        return var1;
+            ++var6;
+        }
     }
 }

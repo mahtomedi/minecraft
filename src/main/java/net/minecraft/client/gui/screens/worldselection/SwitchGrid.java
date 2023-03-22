@@ -75,7 +75,7 @@ class SwitchGrid {
             GridLayout var0 = new GridLayout().rowSpacing(this.rowSpacing);
             var0.addChild(SpacerElement.width(this.width - 44), 0, 0);
             var0.addChild(SpacerElement.width(44), 0, 1);
-            List<SwitchGrid.LabeledSwitch> var1 = new ArrayList();
+            List<SwitchGrid.LabeledSwitch> var1 = new ArrayList<>();
             this.rowCount = 0;
 
             for(SwitchGrid.SwitchBuilder var2 : this.switchBuilders) {

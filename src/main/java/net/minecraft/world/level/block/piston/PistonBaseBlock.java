@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DirectionalBlock;
@@ -134,7 +135,7 @@ public class PistonBaseBlock extends DirectionalBlock {
 
     }
 
-    private boolean getNeighborSignal(Level param0, BlockPos param1, Direction param2) {
+    private boolean getNeighborSignal(SignalGetter param0, BlockPos param1, Direction param2) {
         for(Direction var0 : Direction.values()) {
             if (var0 != param2 && param0.hasSignal(param1.relative(var0), var0)) {
                 return true;
@@ -159,14 +160,15 @@ public class PistonBaseBlock extends DirectionalBlock {
     @Override
     public boolean triggerEvent(BlockState param0, Level param1, BlockPos param2, int param3, int param4) {
         Direction var0 = param0.getValue(FACING);
+        BlockState var1 = param0.setValue(EXTENDED, Boolean.valueOf(true));
         if (!param1.isClientSide) {
-            boolean var1 = this.getNeighborSignal(param1, param2, var0);
-            if (var1 && (param3 == 1 || param3 == 2)) {
-                param1.setBlock(param2, param0.setValue(EXTENDED, Boolean.valueOf(true)), 2);
+            boolean var2 = this.getNeighborSignal(param1, param2, var0);
+            if (var2 && (param3 == 1 || param3 == 2)) {
+                param1.setBlock(param2, var1, 2);
                 return false;
             }
 
-            if (!var1 && param3 == 0) {
+            if (!var2 && param3 == 0) {
                 return false;
             }
         }
@@ -176,44 +178,44 @@ public class PistonBaseBlock extends DirectionalBlock {
                 return false;
             }
 
-            param1.setBlock(param2, param0.setValue(EXTENDED, Boolean.valueOf(true)), 67);
+            param1.setBlock(param2, var1, 67);
             param1.playSound(null, param2, SoundEvents.PISTON_EXTEND, SoundSource.BLOCKS, 0.5F, param1.random.nextFloat() * 0.25F + 0.6F);
-            param1.gameEvent(null, GameEvent.PISTON_EXTEND, param2);
+            param1.gameEvent(GameEvent.BLOCK_ACTIVATE, param2, GameEvent.Context.of(var1));
         } else if (param3 == 1 || param3 == 2) {
-            BlockEntity var2 = param1.getBlockEntity(param2.relative(var0));
-            if (var2 instanceof PistonMovingBlockEntity) {
-                ((PistonMovingBlockEntity)var2).finalTick();
+            BlockEntity var3 = param1.getBlockEntity(param2.relative(var0));
+            if (var3 instanceof PistonMovingBlockEntity) {
+                ((PistonMovingBlockEntity)var3).finalTick();
             }
 
-            BlockState var3 = Blocks.MOVING_PISTON
+            BlockState var4 = Blocks.MOVING_PISTON
                 .defaultBlockState()
                 .setValue(MovingPistonBlock.FACING, var0)
                 .setValue(MovingPistonBlock.TYPE, this.isSticky ? PistonType.STICKY : PistonType.DEFAULT);
-            param1.setBlock(param2, var3, 20);
+            param1.setBlock(param2, var4, 20);
             param1.setBlockEntity(
                 MovingPistonBlock.newMovingBlockEntity(
-                    param2, var3, this.defaultBlockState().setValue(FACING, Direction.from3DDataValue(param4 & 7)), var0, false, true
+                    param2, var4, this.defaultBlockState().setValue(FACING, Direction.from3DDataValue(param4 & 7)), var0, false, true
                 )
             );
-            param1.blockUpdated(param2, var3.getBlock());
-            var3.updateNeighbourShapes(param1, param2, 2);
+            param1.blockUpdated(param2, var4.getBlock());
+            var4.updateNeighbourShapes(param1, param2, 2);
             if (this.isSticky) {
-                BlockPos var4 = param2.offset(var0.getStepX() * 2, var0.getStepY() * 2, var0.getStepZ() * 2);
-                BlockState var5 = param1.getBlockState(var4);
-                boolean var6 = false;
-                if (var5.is(Blocks.MOVING_PISTON)) {
-                    BlockEntity var7 = param1.getBlockEntity(var4);
-                    if (var7 instanceof PistonMovingBlockEntity var8 && var8.getDirection() == var0 && var8.isExtending()) {
-                        var8.finalTick();
-                        var6 = true;
+                BlockPos var5 = param2.offset(var0.getStepX() * 2, var0.getStepY() * 2, var0.getStepZ() * 2);
+                BlockState var6 = param1.getBlockState(var5);
+                boolean var7 = false;
+                if (var6.is(Blocks.MOVING_PISTON)) {
+                    BlockEntity var8 = param1.getBlockEntity(var5);
+                    if (var8 instanceof PistonMovingBlockEntity var9 && var9.getDirection() == var0 && var9.isExtending()) {
+                        var9.finalTick();
+                        var7 = true;
                     }
                 }
 
-                if (!var6) {
+                if (!var7) {
                     if (param3 != 1
-                        || var5.isAir()
-                        || !isPushable(var5, param1, var4, var0.getOpposite(), false, var0)
-                        || var5.getPistonPushReaction() != PushReaction.NORMAL && !var5.is(Blocks.PISTON) && !var5.is(Blocks.STICKY_PISTON)) {
+                        || var6.isAir()
+                        || !isPushable(var6, param1, var5, var0.getOpposite(), false, var0)
+                        || var6.getPistonPushReaction() != PushReaction.NORMAL && !var6.is(Blocks.PISTON) && !var6.is(Blocks.STICKY_PISTON)) {
                         param1.removeBlock(param2.relative(var0), false);
                     } else {
                         this.moveBlocks(param1, param2, var0, false);
@@ -224,7 +226,7 @@ public class PistonBaseBlock extends DirectionalBlock {
             }
 
             param1.playSound(null, param2, SoundEvents.PISTON_CONTRACT, SoundSource.BLOCKS, 0.5F, param1.random.nextFloat() * 0.15F + 0.6F);
-            param1.gameEvent(null, GameEvent.PISTON_CONTRACT, param2);
+            param1.gameEvent(GameEvent.BLOCK_DEACTIVATE, param2, GameEvent.Context.of(var4));
         }
 
         return true;

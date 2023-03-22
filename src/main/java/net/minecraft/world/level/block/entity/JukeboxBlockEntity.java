@@ -122,7 +122,7 @@ public class JukeboxBlockEntity extends BlockEntity implements Clearable, Contai
 
     @Override
     public ItemStack removeItem(int param0, int param1) {
-        ItemStack var0 = (ItemStack)Objects.requireNonNullElse(this.items.get(param0), ItemStack.EMPTY);
+        ItemStack var0 = Objects.requireNonNullElse(this.items.get(param0), ItemStack.EMPTY);
         this.items.set(param0, ItemStack.EMPTY);
         if (!var0.isEmpty()) {
             this.setHasRecordBlockState(null, false);

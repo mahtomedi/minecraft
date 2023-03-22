@@ -98,7 +98,7 @@ public class LegacyUnicodeBitmapsProvider implements GlyphProvider {
             }
         }
 
-        CompletableFuture.allOf((CompletableFuture<?>[])var5.toArray(param0x -> new CompletableFuture[param0x])).join();
+        CompletableFuture.allOf(var5.toArray(param0x -> new CompletableFuture[param0x])).join();
     }
 
     private static String getCommonSearchPrefix(Set<ResourceLocation> param0) {

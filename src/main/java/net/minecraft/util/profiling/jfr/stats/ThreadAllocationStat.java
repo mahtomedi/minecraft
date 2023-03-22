@@ -24,8 +24,8 @@ public record ThreadAllocationStat(Instant timestamp, String threadName, long to
         Map<String, List<ThreadAllocationStat>> var1 = param0.stream().collect(Collectors.groupingBy(param0x -> param0x.threadName));
         var1.forEach((param1, param2) -> {
             if (param2.size() >= 2) {
-                ThreadAllocationStat var0x = (ThreadAllocationStat)param2.get(0);
-                ThreadAllocationStat var1x = (ThreadAllocationStat)param2.get(param2.size() - 1);
+                ThreadAllocationStat var0x = param2.get(0);
+                ThreadAllocationStat var1x = param2.get(param2.size() - 1);
                 long var2x = Duration.between(var0x.timestamp, var1x.timestamp).getSeconds();
                 long var3 = var1x.totalBytes - var0x.totalBytes;
                 var0.put(param1, (double)var3 / (double)var2x);

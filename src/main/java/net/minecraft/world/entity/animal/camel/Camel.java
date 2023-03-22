@@ -355,7 +355,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        if (param0.isSecondaryUseActive()) {
+        if (param0.isSecondaryUseActive() && !this.isBaby()) {
             this.openCustomInventoryScreen(param0);
             return InteractionResult.sidedSuccess(this.level.isClientSide);
         } else {

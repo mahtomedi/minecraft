@@ -87,7 +87,7 @@ public class RuinedPortalStructure extends Structure {
                 }
             }
         } else {
-            var2 = (RuinedPortalStructure.Setup)this.setups.get(0);
+            var2 = this.setups.get(0);
         }
 
         if (var2 == null) {

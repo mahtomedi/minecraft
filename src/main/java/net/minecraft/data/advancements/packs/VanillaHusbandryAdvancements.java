@@ -37,8 +37,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.CatVariant;
-import net.minecraft.world.entity.animal.FrogVariant;
 import net.minecraft.world.item.HoneycombItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -47,28 +45,28 @@ import net.minecraft.world.level.block.Blocks;
 
 public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
     public static final List<EntityType<?>> BREEDABLE_ANIMALS = List.of(
-        new EntityType[]{
-            EntityType.HORSE,
-            EntityType.DONKEY,
-            EntityType.MULE,
-            EntityType.SHEEP,
-            EntityType.COW,
-            EntityType.MOOSHROOM,
-            EntityType.PIG,
-            EntityType.CHICKEN,
-            EntityType.WOLF,
-            EntityType.OCELOT,
-            EntityType.RABBIT,
-            EntityType.LLAMA,
-            EntityType.CAT,
-            EntityType.PANDA,
-            EntityType.FOX,
-            EntityType.BEE,
-            EntityType.HOGLIN,
-            EntityType.STRIDER,
-            EntityType.GOAT,
-            EntityType.AXOLOTL
-        }
+        EntityType.HORSE,
+        EntityType.DONKEY,
+        EntityType.MULE,
+        EntityType.SHEEP,
+        EntityType.COW,
+        EntityType.MOOSHROOM,
+        EntityType.PIG,
+        EntityType.CHICKEN,
+        EntityType.WOLF,
+        EntityType.OCELOT,
+        EntityType.RABBIT,
+        EntityType.LLAMA,
+        EntityType.CAT,
+        EntityType.PANDA,
+        EntityType.FOX,
+        EntityType.BEE,
+        EntityType.HOGLIN,
+        EntityType.STRIDER,
+        EntityType.GOAT,
+        EntityType.AXOLOTL,
+        EntityType.CAMEL,
+        EntityType.SNIFFER
     );
     public static final List<EntityType<?>> INDIRECTLY_BREEDABLE_ANIMALS = List.of(EntityType.TURTLE, EntityType.FROG);
     private static final Item[] FISH = new Item[]{Items.COD, Items.TROPICAL_FISH, Items.PUFFERFISH, Items.SALMON};
@@ -532,10 +530,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                         PlayerInteractTrigger.TriggerInstance.itemUsedOnEntity(
                             ItemPredicate.Builder.item().of(Items.LEAD),
                             EntityPredicate.Composite.wrap(
-                                EntityPredicate.Builder.entity()
-                                    .of(EntityType.FROG)
-                                    .subPredicate(EntitySubPredicate.variant((FrogVariant)param1.value()))
-                                    .build()
+                                EntityPredicate.Builder.entity().of(EntityType.FROG).subPredicate(EntitySubPredicate.variant(param1.value())).build()
                             )
                         )
                     )
@@ -596,9 +591,9 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
             .sorted(Entry.comparingByKey(Comparator.comparing(ResourceKey::location)))
             .forEach(
                 param1 -> param0.addCriterion(
-                        ((ResourceKey)param1.getKey()).location().toString(),
+                        param1.getKey().location().toString(),
                         TameAnimalTrigger.TriggerInstance.tamedAnimal(
-                            EntityPredicate.Builder.entity().subPredicate(EntitySubPredicate.variant((CatVariant)param1.getValue())).build()
+                            EntityPredicate.Builder.entity().subPredicate(EntitySubPredicate.variant(param1.getValue())).build()
                         )
                     )
             );

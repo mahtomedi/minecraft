@@ -16,7 +16,7 @@ public class NoteParticle extends TextureSheetParticle {
         this.yd *= 0.01F;
         this.zd *= 0.01F;
         this.yd += 0.2;
-        this.rCol = Math.max(0.0F, Mth.sin(((float)param4 + 0.0F) * (float) (Math.PI * 2)) * 0.65F + 0.35F);
+        this.rCol = Math.max(0.0F, Mth.sin(((float)param4 + 0.0F) * ((float) (Math.PI * 2))) * 0.65F + 0.35F);
         this.gCol = Math.max(0.0F, Mth.sin(((float)param4 + 0.33333334F) * (float) (Math.PI * 2)) * 0.65F + 0.35F);
         this.bCol = Math.max(0.0F, Mth.sin(((float)param4 + 0.6666667F) * (float) (Math.PI * 2)) * 0.65F + 0.35F);
         this.quadSize *= 1.5F;

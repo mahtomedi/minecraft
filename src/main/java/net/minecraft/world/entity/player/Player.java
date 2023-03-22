@@ -957,7 +957,7 @@ public abstract class Player extends LivingEntity {
         return false;
     }
 
-    public void openTextEdit(SignBlockEntity param0) {
+    public void openTextEdit(SignBlockEntity param0, boolean param1) {
     }
 
     public void openMinecartCommandBlock(BaseCommandBlock param0) {

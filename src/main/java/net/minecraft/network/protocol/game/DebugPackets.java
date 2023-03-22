@@ -163,7 +163,7 @@ public class DebugPackets {
         if (param0 instanceof Villager) {
             Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
                 .map(var0::getMemory)
-                .<GlobalPos>flatMap(Optional::stream)
+                .flatMap(Optional::stream)
                 .map(GlobalPos::pos)
                 .collect(Collectors.toSet());
             param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
@@ -174,7 +174,7 @@ public class DebugPackets {
         if (param0 instanceof Villager) {
             Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
                 .map(var0::getMemory)
-                .<GlobalPos>flatMap(Optional::stream)
+                .flatMap(Optional::stream)
                 .map(GlobalPos::pos)
                 .collect(Collectors.toSet());
             param1.writeCollection(var8, FriendlyByteBuf::writeBlockPos);

@@ -36,11 +36,11 @@ public abstract class AbstractMegaTreeGrower extends AbstractTreeGrower {
         if (var0 == null) {
             return false;
         } else {
-            Holder<ConfiguredFeature<?, ?>> var1 = (Holder)param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(var0).orElse(null);
+            Holder<ConfiguredFeature<?, ?>> var1 = param0.registryAccess().registryOrThrow(Registries.CONFIGURED_FEATURE).getHolder(var0).orElse(null);
             if (var1 == null) {
                 return false;
             } else {
-                ConfiguredFeature<?, ?> var2 = (ConfiguredFeature)var1.value();
+                ConfiguredFeature<?, ?> var2 = var1.value();
                 BlockState var3 = Blocks.AIR.defaultBlockState();
                 param0.setBlock(param2.offset(param5, 0, param6), var3, 4);
                 param0.setBlock(param2.offset(param5 + 1, 0, param6), var3, 4);

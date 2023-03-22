@@ -180,7 +180,7 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
             if (isStalactiteStartPos(param0, param1, param2)) {
                 Optional<PointedDripstoneBlock.FluidInfo> var0 = getFluidAboveStalactite(param1, param2, param0);
                 if (!var0.isEmpty()) {
-                    Fluid var1 = ((PointedDripstoneBlock.FluidInfo)var0.get()).fluid;
+                    Fluid var1 = var0.get().fluid;
                     float var2;
                     if (var1 == Fluids.WATER) {
                         var2 = 0.17578125F;
@@ -195,13 +195,11 @@ public class PointedDripstoneBlock extends Block implements Fallable, SimpleWate
                     if (!(param3 >= var2)) {
                         BlockPos var5 = findTip(param0, param1, param2, 11, false);
                         if (var5 != null) {
-                            if (((PointedDripstoneBlock.FluidInfo)var0.get()).sourceState.is(Blocks.MUD) && var1 == Fluids.WATER) {
+                            if (var0.get().sourceState.is(Blocks.MUD) && var1 == Fluids.WATER) {
                                 BlockState var6 = Blocks.CLAY.defaultBlockState();
-                                param1.setBlockAndUpdate(((PointedDripstoneBlock.FluidInfo)var0.get()).pos, var6);
-                                Block.pushEntitiesUp(
-                                    ((PointedDripstoneBlock.FluidInfo)var0.get()).sourceState, var6, param1, ((PointedDripstoneBlock.FluidInfo)var0.get()).pos
-                                );
-                                param1.gameEvent(GameEvent.BLOCK_CHANGE, ((PointedDripstoneBlock.FluidInfo)var0.get()).pos, GameEvent.Context.of(var6));
+                                param1.setBlockAndUpdate(var0.get().pos, var6);
+                                Block.pushEntitiesUp(var0.get().sourceState, var6, param1, var0.get().pos);
+                                param1.gameEvent(GameEvent.BLOCK_CHANGE, var0.get().pos, GameEvent.Context.of(var6));
                                 param1.levelEvent(1504, var5, 0);
                             } else {
                                 BlockPos var7 = findFillableCauldronBelowStalactiteTip(param1, var5, var1);

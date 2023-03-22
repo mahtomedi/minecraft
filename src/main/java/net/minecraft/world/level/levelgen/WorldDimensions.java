@@ -41,7 +41,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     private static final int VANILLA_DIMENSION_COUNT = BUILTIN_ORDER.size();
 
     public WorldDimensions(Registry<LevelStem> param0) {
-        LevelStem var0 = (LevelStem)param0.get(LevelStem.OVERWORLD);
+        LevelStem var0 = param0.get(LevelStem.OVERWORLD);
         if (var0 == null) {
             throw new IllegalStateException("Overworld settings missing");
         } else {
@@ -60,19 +60,19 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public static Registry<LevelStem> withOverworld(Registry<DimensionType> param0, Registry<LevelStem> param1, ChunkGenerator param2) {
-        LevelStem var0 = (LevelStem)param1.get(LevelStem.OVERWORLD);
+        LevelStem var0 = param1.get(LevelStem.OVERWORLD);
         Holder<DimensionType> var1 = (Holder<DimensionType>)(var0 == null ? param0.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD) : var0.type());
         return withOverworld(param1, var1, param2);
     }
 
     public static Registry<LevelStem> withOverworld(Registry<LevelStem> param0, Holder<DimensionType> param1, ChunkGenerator param2) {
-        WritableRegistry<LevelStem> var0 = new MappedRegistry(Registries.LEVEL_STEM, Lifecycle.experimental());
+        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.experimental());
         var0.register(LevelStem.OVERWORLD, new LevelStem(param1, param2), Lifecycle.stable());
 
         for(java.util.Map.Entry<ResourceKey<LevelStem>, LevelStem> var1 : param0.entrySet()) {
             ResourceKey<LevelStem> var2 = var1.getKey();
             if (var2 != LevelStem.OVERWORLD) {
-                var0.register(var2, (LevelStem)var1.getValue(), param0.lifecycle((LevelStem)var1.getValue()));
+                var0.register(var2, var1.getValue(), param0.lifecycle(var1.getValue()));
             }
         }
 
@@ -80,7 +80,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public ChunkGenerator overworld() {
-        LevelStem var0 = (LevelStem)this.dimensions.get(LevelStem.OVERWORLD);
+        LevelStem var0 = this.dimensions.get(LevelStem.OVERWORLD);
         if (var0 == null) {
             throw new IllegalStateException("Overworld settings missing");
         } else {
@@ -165,8 +165,7 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
     }
 
     public WorldDimensions.Complete bake(Registry<LevelStem> param0) {
-        Stream<ResourceKey<LevelStem>> var0 = Stream.<ResourceKey<LevelStem>>concat(param0.registryKeySet().stream(), this.dimensions.registryKeySet().stream())
-            .distinct();
+        Stream<ResourceKey<LevelStem>> var0 = Stream.concat(param0.registryKeySet().stream(), this.dimensions.registryKeySet().stream()).distinct();
 
         record Entry(ResourceKey<LevelStem> key, LevelStem value) {
             Lifecycle lifecycle() {
@@ -174,13 +173,13 @@ public record WorldDimensions(Registry<LevelStem> dimensions) {
             }
         }
 
-        List<Entry> var1 = new ArrayList();
+        List<Entry> var1 = new ArrayList<>();
         keysInOrder(var0)
             .forEach(
                 param2 -> param0.getOptional(param2).or(() -> this.dimensions.getOptional(param2)).ifPresent(param2x -> var1.add(new Entry(param2, param2x)))
             );
         Lifecycle var2 = var1.size() == VANILLA_DIMENSION_COUNT ? Lifecycle.stable() : Lifecycle.experimental();
-        WritableRegistry<LevelStem> var3 = new MappedRegistry(Registries.LEVEL_STEM, var2);
+        WritableRegistry<LevelStem> var3 = new MappedRegistry<>(Registries.LEVEL_STEM, var2);
         var1.forEach(param1 -> var3.register(param1.key, param1.value, param1.lifecycle()));
         Registry<LevelStem> var4 = var3.freeze();
         PrimaryLevelData.SpecialWorldProperty var5 = specialWorldProperty(var4);

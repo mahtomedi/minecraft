@@ -122,6 +122,6 @@ public class TextureUtil {
     }
 
     public static Path getDebugTexturePath() {
-        return getDebugTexturePath(Path.of(".", new String[0]));
+        return getDebugTexturePath(Path.of("."));
     }
 }

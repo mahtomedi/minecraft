@@ -185,9 +185,9 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public int tickCount;
     private int remainingFireTicks = -this.getFireImmuneTicks();
     protected boolean wasTouchingWater;
-    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight = new Object2DoubleArrayMap(2);
+    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight = new Object2DoubleArrayMap<>(2);
     protected boolean wasEyeInWater;
-    private final Set<TagKey<Fluid>> fluidOnEyes = new HashSet();
+    private final Set<TagKey<Fluid>> fluidOnEyes = new HashSet<>();
     public int invulnerableTime;
     protected boolean firstTick = true;
     protected final SynchedEntityData entityData;
@@ -642,8 +642,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     this.walkDist += (float)var0.horizontalDistance() * 0.6F;
                     this.moveDist += (float)Math.sqrt(var10 * var10 + var11 * var11 + var12 * var12) * 0.6F;
                     if (this.moveDist > this.nextStep && !var6.isAir()) {
-                        this.nextStep = this.nextStep();
-                        if (this.isInWater()) {
+                        if (this.onGround || var13) {
+                            this.nextStep = this.nextStep();
+                            if (var9.emitsSounds()) {
+                                this.handleStepSounds(var5, var6);
+                            }
+
+                            if (var9.emitsEvents()) {
+                                this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
+                            }
+                        } else if (this.isInWater()) {
+                            this.nextStep = this.nextStep();
                             if (var9.emitsSounds()) {
                                 Entity var14 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
                                 float var15 = var14 == this ? 0.35F : 0.4F;
@@ -654,15 +663,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
                             if (var9.emitsEvents()) {
                                 this.gameEvent(GameEvent.SWIM);
-                            }
-                        } else {
-                            if (var9.emitsSounds()) {
-                                this.playAmethystStepSound(var6);
-                                this.playStepSound(var5, var6);
-                            }
-
-                            if (var9.emitsEvents() && (this.onGround || param1.y == 0.0 || this.isInPowderSnow || var13)) {
-                                this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
                             }
                         }
                     } else if (var6.isAir()) {
@@ -948,25 +948,54 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.gameEvent(param0, this);
     }
 
-    protected void playStepSound(BlockPos param0, BlockState param1) {
-        BlockState var0 = this.level.getBlockState(param0.above());
-        boolean var1 = var0.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS);
-        if (var1 || !param1.getMaterial().isLiquid()) {
-            SoundType var2 = var1 ? var0.getSoundType() : param1.getSoundType();
-            this.playSound(var2.getStepSound(), var2.getVolume() * 0.15F, var2.getPitch());
+    private void handleStepSounds(BlockPos param0, BlockState param1) {
+        BlockPos var0 = this.getPrimaryStepSoundBlockPos(param0);
+        if (this instanceof Player && !param0.equals(var0)) {
+            BlockState var1 = this.level.getBlockState(var0);
+            if (var1.is(BlockTags.COMBINATION_STEP_SOUND_BLOCKS)) {
+                this.playCombinationStepSounds(var1, param1);
+            } else {
+                this.playStepSound(var0, var1);
+            }
+        } else {
+            this.playStepSound(param0, param1);
         }
+
+        if (this.shouldPlayAmethystStepSound(param1)) {
+            this.playAmethystStepSound();
+        }
+
     }
 
-    private void playAmethystStepSound(BlockState param0) {
-        if (param0.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20) {
-            this.crystalSoundIntensity *= (float)Math.pow(0.997, (double)(this.tickCount - this.lastCrystalSoundPlayTick));
-            this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
-            float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
-            float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
-            this.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, var1, var0);
-            this.lastCrystalSoundPlayTick = this.tickCount;
-        }
+    private BlockPos getPrimaryStepSoundBlockPos(BlockPos param0) {
+        BlockPos var0 = param0.above();
+        BlockState var1 = this.level.getBlockState(var0);
+        return !var1.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) && !var1.is(BlockTags.COMBINATION_STEP_SOUND_BLOCKS) ? param0 : var0;
+    }
 
+    private void playCombinationStepSounds(BlockState param0, BlockState param1) {
+        SoundType var0 = param0.getSoundType();
+        SoundType var1 = param1.getSoundType();
+        this.playSound(var0.getStepSound(), var0.getVolume() * 0.15F, var0.getPitch());
+        this.playSound(var1.getStepSound(), var1.getVolume() * 0.05F, var1.getPitch() * 0.8F);
+    }
+
+    protected void playStepSound(BlockPos param0, BlockState param1) {
+        SoundType var0 = param1.getSoundType();
+        this.playSound(var0.getStepSound(), var0.getVolume() * 0.15F, var0.getPitch());
+    }
+
+    private boolean shouldPlayAmethystStepSound(BlockState param0) {
+        return param0.is(BlockTags.CRYSTAL_SOUND_BLOCKS) && this.tickCount >= this.lastCrystalSoundPlayTick + 20;
+    }
+
+    private void playAmethystStepSound() {
+        this.crystalSoundIntensity *= (float)Math.pow(0.997, (double)(this.tickCount - this.lastCrystalSoundPlayTick));
+        this.crystalSoundIntensity = Math.min(1.0F, this.crystalSoundIntensity + 0.07F);
+        float var0 = 0.5F + this.crystalSoundIntensity * this.random.nextFloat() * 1.2F;
+        float var1 = 0.1F + this.crystalSoundIntensity * 1.2F;
+        this.playSound(SoundEvents.AMETHYST_BLOCK_CHIME, var1, var0);
+        this.lastCrystalSoundPlayTick = this.tickCount;
     }
 
     protected void playSwimSound(float param0) {
@@ -2557,6 +2586,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         float var0 = Mth.clamp(param6, -90.0F, 90.0F);
         if (param0 == this.level) {
             this.moveTo(param1, param2, param3, param5, var0);
+            this.teleportPassengers();
             this.setYHeadRot(param5);
         } else {
             this.unRide();
@@ -2582,13 +2612,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     public void teleportTo(double param0, double param1, double param2) {
         if (this.level instanceof ServerLevel) {
             this.moveTo(param0, param1, param2, this.getYRot(), this.getXRot());
-            this.getSelfAndPassengers().forEach(param0x -> {
-                for(Entity var0 : param0x.passengers) {
-                    param0x.positionRider(var0, Entity::moveTo);
-                }
-
-            });
+            this.teleportPassengers();
         }
+    }
+
+    private void teleportPassengers() {
+        this.getSelfAndPassengers().forEach(param0 -> {
+            for(Entity var0 : param0.passengers) {
+                param0.positionRider(var0, Entity::moveTo);
+            }
+
+        });
     }
 
     public void teleportRelative(double param0, double param1, double param2) {

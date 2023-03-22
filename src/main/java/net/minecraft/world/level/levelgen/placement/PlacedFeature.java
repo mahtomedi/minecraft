@@ -47,7 +47,7 @@ public record PlacedFeature(Holder<ConfiguredFeature<?, ?>> feature, List<Placem
             var0 = var0.flatMap(param3 -> var1.getPositions(param0, param1, param3));
         }
 
-        ConfiguredFeature<?, ?> var2 = (ConfiguredFeature)this.feature.value();
+        ConfiguredFeature<?, ?> var2 = this.feature.value();
         MutableBoolean var3 = new MutableBoolean();
         var0.forEach(param4 -> {
             if (var2.place(param0.getLevel(), param0.generator(), param1, param4)) {
@@ -59,9 +59,10 @@ public record PlacedFeature(Holder<ConfiguredFeature<?, ?>> feature, List<Placem
     }
 
     public Stream<ConfiguredFeature<?, ?>> getFeatures() {
-        return ((ConfiguredFeature)this.feature.value()).getFeatures();
+        return this.feature.value().getFeatures();
     }
 
+    @Override
     public String toString() {
         return "Placed " + this.feature;
     }

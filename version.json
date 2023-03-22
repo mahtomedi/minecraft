@@ -1,15 +1,15 @@
 {
-    "id": "1.19.4",
-    "name": "1.19.4",
-    "world_version": 3337,
+    "id": "23w12a",
+    "name": "23w12a",
+    "world_version": 3442,
     "series_id": "main",
-    "protocol_version": 762,
+    "protocol_version": 1073741951,
     "pack_version": {
         "resource": 13,
-        "data": 12
+        "data": 13
     },
-    "build_time": "2023-03-14T12:53:56+00:00",
+    "build_time": "2023-03-22T13:26:16+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
-    "stable": true
+    "stable": false
 }

@@ -77,6 +77,7 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
             return this.expiresAt.plus(param0).isBefore(Instant.now());
         }
 
+        @Override
         public boolean equals(Object param0) {
             if (!(param0 instanceof ProfilePublicKey.Data)) {
                 return false;

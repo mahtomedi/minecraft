@@ -10,6 +10,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -122,24 +123,12 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
         }
     }
 
-    protected int getAlternateSignal(LevelReader param0, BlockPos param1, BlockState param2) {
+    protected int getAlternateSignal(SignalGetter param0, BlockPos param1, BlockState param2) {
         Direction var0 = param2.getValue(FACING);
         Direction var1 = var0.getClockWise();
         Direction var2 = var0.getCounterClockWise();
-        return Math.max(this.getAlternateSignalAt(param0, param1.relative(var1), var1), this.getAlternateSignalAt(param0, param1.relative(var2), var2));
-    }
-
-    protected int getAlternateSignalAt(LevelReader param0, BlockPos param1, Direction param2) {
-        BlockState var0 = param0.getBlockState(param1);
-        if (this.isAlternateInput(var0)) {
-            if (var0.is(Blocks.REDSTONE_BLOCK)) {
-                return 15;
-            } else {
-                return var0.is(Blocks.REDSTONE_WIRE) ? var0.getValue(RedStoneWireBlock.POWER) : param0.getDirectSignal(param1, param2);
-            }
-        } else {
-            return 0;
-        }
+        boolean var3 = this.sideInputDiodesOnly();
+        return Math.max(param0.getControlInputSignal(param1.relative(var1), var1, var3), param0.getControlInputSignal(param1.relative(var2), var2, var3));
     }
 
     @Override
@@ -180,8 +169,8 @@ public abstract class DiodeBlock extends HorizontalDirectionalBlock {
         param0.updateNeighborsAtExceptFromFacing(var1, this, var0);
     }
 
-    protected boolean isAlternateInput(BlockState param0) {
-        return param0.isSignalSource();
+    protected boolean sideInputDiodesOnly() {
+        return false;
     }
 
     protected int getOutputSignal(BlockGetter param0, BlockPos param1, BlockState param2) {

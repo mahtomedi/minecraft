@@ -63,7 +63,7 @@ public class Interaction extends Entity implements Attackable, Targeting {
             Interaction.PlayerAction.CODEC
                 .decode(NbtOps.INSTANCE, param0.get("attack"))
                 .resultOrPartial(Util.prefix("Interaction entity", LOGGER::error))
-                .ifPresent(param0x -> this.attack = (Interaction.PlayerAction)param0x.getFirst());
+                .ifPresent(param0x -> this.attack = param0x.getFirst());
         } else {
             this.attack = null;
         }
@@ -72,7 +72,7 @@ public class Interaction extends Entity implements Attackable, Targeting {
             Interaction.PlayerAction.CODEC
                 .decode(NbtOps.INSTANCE, param0.get("interaction"))
                 .resultOrPartial(Util.prefix("Interaction entity", LOGGER::error))
-                .ifPresent(param0x -> this.interaction = (Interaction.PlayerAction)param0x.getFirst());
+                .ifPresent(param0x -> this.interaction = param0x.getFirst());
         } else {
             this.interaction = null;
         }

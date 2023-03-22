@@ -15,7 +15,6 @@ import net.minecraft.world.entity.decoration.GlowItemFrame;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.decoration.Painting;
-import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -100,8 +99,8 @@ public class HangingEntityItem extends Item {
                             param2.add(
                                 Component.translatable(
                                     "painting.dimensions",
-                                    Mth.positiveCeilDiv(((PaintingVariant)param1x.value()).getWidth(), 16),
-                                    Mth.positiveCeilDiv(((PaintingVariant)param1x.value()).getHeight(), 16)
+                                    Mth.positiveCeilDiv(param1x.value().getWidth(), 16),
+                                    Mth.positiveCeilDiv(param1x.value().getHeight(), 16)
                                 )
                             );
                         },

@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -43,7 +44,10 @@ public class FlatLevelSource extends ChunkGenerator {
         Stream<Holder<StructureSet>> var0 = this.settings
             .structureOverrides()
             .map(HolderSet::stream)
-            .orElseGet(() -> param0.listElements().map(param0x -> param0x));
+            .orElseGet(
+                () -> param0.listElements()
+                        .map((Function<? super Holder.Reference<StructureSet>, ? extends Holder.Reference<StructureSet>>)(param0x -> param0x))
+            );
         return ChunkGeneratorStructureState.createForFlat(param1, param2, this.biomeSource, var0);
     }
 

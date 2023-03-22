@@ -26,11 +26,13 @@ public class TrimPatterns {
     public static final ResourceKey<TrimPattern> SNOUT = registryKey("snout");
     public static final ResourceKey<TrimPattern> RIB = registryKey("rib");
     public static final ResourceKey<TrimPattern> SPIRE = registryKey("spire");
+    public static final ResourceKey<TrimPattern> WAYFINDER = registryKey("wayfinder");
+    public static final ResourceKey<TrimPattern> SHAPER = registryKey("shaper");
+    public static final ResourceKey<TrimPattern> SILENCE = registryKey("silence");
+    public static final ResourceKey<TrimPattern> RAISER = registryKey("raiser");
+    public static final ResourceKey<TrimPattern> HOST = registryKey("host");
 
     public static void bootstrap(BootstapContext<TrimPattern> param0) {
-    }
-
-    public static void nextUpdate(BootstapContext<TrimPattern> param0) {
         register(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE, SENTRY);
         register(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE, DUNE);
         register(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, COAST);
@@ -42,13 +44,15 @@ public class TrimPatterns {
         register(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE, SNOUT);
         register(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, RIB);
         register(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, SPIRE);
+        register(param0, Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, WAYFINDER);
+        register(param0, Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE, SHAPER);
+        register(param0, Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, SILENCE);
+        register(param0, Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE, RAISER);
+        register(param0, Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE, HOST);
     }
 
     public static Optional<Holder.Reference<TrimPattern>> getFromTemplate(RegistryAccess param0, ItemStack param1) {
-        return param0.registryOrThrow(Registries.TRIM_PATTERN)
-            .holders()
-            .filter(param1x -> param1.is(((TrimPattern)param1x.value()).templateItem()))
-            .findFirst();
+        return param0.registryOrThrow(Registries.TRIM_PATTERN).holders().filter(param1x -> param1.is(param1x.value().templateItem())).findFirst();
     }
 
     private static void register(BootstapContext<TrimPattern> param0, Item param1, ResourceKey<TrimPattern> param2) {

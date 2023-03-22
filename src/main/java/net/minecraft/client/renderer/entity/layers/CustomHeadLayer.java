@@ -15,8 +15,10 @@ import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.WalkAnimationState;
 import net.minecraft.world.entity.monster.ZombieVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.item.ArmorItem;
@@ -87,8 +89,17 @@ public class CustomHeadLayer<T extends LivingEntity, M extends EntityModel<T> & 
                 SkullBlock.Type var8 = ((AbstractSkullBlock)((BlockItem)var1).getBlock()).getType();
                 SkullModelBase var9 = this.skullModels.get(var8);
                 RenderType var10 = SkullBlockRenderer.getRenderType(var8, var6);
-                SkullBlockRenderer.renderSkull(null, 180.0F, param4, param0, param1, param2, var9, var10);
-            } else if (!(var1 instanceof ArmorItem var11) || var11.getEquipmentSlot() != EquipmentSlot.HEAD) {
+                Entity var22 = param3.getVehicle();
+                WalkAnimationState var12;
+                if (var22 instanceof LivingEntity var11) {
+                    var12 = var11.walkAnimation;
+                } else {
+                    var12 = param3.walkAnimation;
+                }
+
+                float var14 = var12.position(param6);
+                SkullBlockRenderer.renderSkull(null, 180.0F, var14, param0, param1, param2, var9, var10);
+            } else if (!(var1 instanceof ArmorItem var15) || var15.getEquipmentSlot() != EquipmentSlot.HEAD) {
                 translateToHead(param0, var2);
                 this.itemInHandRenderer.renderItem(param3, var0, ItemDisplayContext.HEAD, false, param0, param1, param2);
             }

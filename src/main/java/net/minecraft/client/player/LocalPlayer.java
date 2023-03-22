@@ -525,7 +525,7 @@ public class LocalPlayer extends AbstractClientPlayer {
 
     @Override
     public InteractionHand getUsedItemHand() {
-        return (InteractionHand)Objects.requireNonNullElse(this.usingItemHand, InteractionHand.MAIN_HAND);
+        return Objects.requireNonNullElse(this.usingItemHand, InteractionHand.MAIN_HAND);
     }
 
     @Override
@@ -567,11 +567,11 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     @Override
-    public void openTextEdit(SignBlockEntity param0) {
+    public void openTextEdit(SignBlockEntity param0, boolean param1) {
         if (param0 instanceof HangingSignBlockEntity var0) {
-            this.minecraft.setScreen(new HangingSignEditScreen(var0, this.minecraft.isTextFilteringEnabled()));
+            this.minecraft.setScreen(new HangingSignEditScreen(var0, param1, this.minecraft.isTextFilteringEnabled()));
         } else {
-            this.minecraft.setScreen(new SignEditScreen(param0, this.minecraft.isTextFilteringEnabled()));
+            this.minecraft.setScreen(new SignEditScreen(param0, param1, this.minecraft.isTextFilteringEnabled()));
         }
 
     }

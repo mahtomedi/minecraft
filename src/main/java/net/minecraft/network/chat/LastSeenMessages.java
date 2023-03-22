@@ -40,7 +40,7 @@ public record LastSeenMessages(List<MessageSignature> entries) {
         }
 
         public Optional<LastSeenMessages> unpack(MessageSignatureCache param0) {
-            List<MessageSignature> var0 = new ArrayList(this.entries.size());
+            List<MessageSignature> var0 = new ArrayList<>(this.entries.size());
 
             for(MessageSignature.Packed var1 : this.entries) {
                 Optional<MessageSignature> var2 = var1.unpack(param0);
@@ -48,7 +48,7 @@ public record LastSeenMessages(List<MessageSignature> entries) {
                     return Optional.empty();
                 }
 
-                var0.add((MessageSignature)var2.get());
+                var0.add(var2.get());
             }
 
             return Optional.of(new LastSeenMessages(var0));

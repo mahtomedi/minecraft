@@ -461,6 +461,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             if (var4 == BlockPathTypes.POWDER_SNOW) {
                 var3 = BlockPathTypes.DANGER_POWDER_SNOW;
             }
+
+            if (var4 == BlockPathTypes.DAMAGE_CAUTIOUS) {
+                var3 = BlockPathTypes.DAMAGE_CAUTIOUS;
+            }
         }
 
         if (var3 == BlockPathTypes.WALKABLE) {
@@ -492,6 +496,10 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         if (param0.getFluidState(param1).is(FluidTags.WATER)) {
                             return BlockPathTypes.WATER_BORDER;
                         }
+
+                        if (var6.is(Blocks.WITHER_ROSE) || var6.is(Blocks.POINTED_DRIPSTONE)) {
+                            return BlockPathTypes.DAMAGE_CAUTIOUS;
+                        }
                     }
                 }
             }
@@ -516,7 +524,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             return BlockPathTypes.STICKY_HONEY;
         } else if (var0.is(Blocks.COCOA)) {
             return BlockPathTypes.COCOA;
-        } else {
+        } else if (!var0.is(Blocks.WITHER_ROSE) && !var0.is(Blocks.POINTED_DRIPSTONE)) {
             FluidState var3 = param0.getFluidState(param1);
             if (var3.is(FluidTags.LAVA)) {
                 return BlockPathTypes.LAVA;
@@ -541,6 +549,8 @@ public class WalkNodeEvaluator extends NodeEvaluator {
             } else {
                 return BlockPathTypes.FENCE;
             }
+        } else {
+            return BlockPathTypes.DAMAGE_CAUTIOUS;
         }
     }
 

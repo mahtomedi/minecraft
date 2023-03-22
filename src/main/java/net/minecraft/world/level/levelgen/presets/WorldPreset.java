@@ -37,9 +37,9 @@ public class WorldPreset {
     }
 
     private Registry<LevelStem> createRegistry() {
-        WritableRegistry<LevelStem> var0 = new MappedRegistry(Registries.LEVEL_STEM, Lifecycle.experimental());
+        WritableRegistry<LevelStem> var0 = new MappedRegistry<>(Registries.LEVEL_STEM, Lifecycle.experimental());
         WorldDimensions.keysInOrder(this.dimensions.keySet().stream()).forEach(param1 -> {
-            LevelStem var0x = (LevelStem)this.dimensions.get(param1);
+            LevelStem var0x = this.dimensions.get(param1);
             if (var0x != null) {
                 var0.register(param1, var0x, Lifecycle.stable());
             }
@@ -53,7 +53,7 @@ public class WorldPreset {
     }
 
     public Optional<LevelStem> overworld() {
-        return Optional.ofNullable((LevelStem)this.dimensions.get(LevelStem.OVERWORLD));
+        return Optional.ofNullable(this.dimensions.get(LevelStem.OVERWORLD));
     }
 
     private static DataResult<WorldPreset> requireOverworld(WorldPreset param0) {

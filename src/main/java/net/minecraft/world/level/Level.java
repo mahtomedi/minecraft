@@ -78,7 +78,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public static final int MAX_LEVEL_SIZE = 30000000;
     public static final int LONG_PARTICLE_CLIP_RANGE = 512;
     public static final int SHORT_PARTICLE_CLIP_RANGE = 32;
-    private static final Direction[] DIRECTIONS = Direction.values();
     public static final int MAX_BRIGHTNESS = 15;
     public static final int TICKS_PER_DAY = 24000;
     public static final int MAX_ENTITY_SPAWN_Y = 20000000;
@@ -125,8 +124,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.profiler = param4;
         this.levelData = param0;
         this.dimensionTypeRegistration = param3;
-        this.dimensionTypeId = (ResourceKey)param3.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param3));
-        final DimensionType var0 = (DimensionType)param3.value();
+        this.dimensionTypeId = param3.unwrapKey().orElseThrow(() -> new IllegalArgumentException("Dimension must be registered, got " + param3));
+        final DimensionType var0 = param3.value();
         this.dimension = param1;
         this.isClientSide = param5;
         if (var0.coordinateScale() != 1.0) {
@@ -721,80 +720,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         return 63;
     }
 
-    public int getDirectSignalTo(BlockPos param0) {
-        int var0 = 0;
-        var0 = Math.max(var0, this.getDirectSignal(param0.below(), Direction.DOWN));
-        if (var0 >= 15) {
-            return var0;
-        } else {
-            var0 = Math.max(var0, this.getDirectSignal(param0.above(), Direction.UP));
-            if (var0 >= 15) {
-                return var0;
-            } else {
-                var0 = Math.max(var0, this.getDirectSignal(param0.north(), Direction.NORTH));
-                if (var0 >= 15) {
-                    return var0;
-                } else {
-                    var0 = Math.max(var0, this.getDirectSignal(param0.south(), Direction.SOUTH));
-                    if (var0 >= 15) {
-                        return var0;
-                    } else {
-                        var0 = Math.max(var0, this.getDirectSignal(param0.west(), Direction.WEST));
-                        if (var0 >= 15) {
-                            return var0;
-                        } else {
-                            var0 = Math.max(var0, this.getDirectSignal(param0.east(), Direction.EAST));
-                            return var0 >= 15 ? var0 : var0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean hasSignal(BlockPos param0, Direction param1) {
-        return this.getSignal(param0, param1) > 0;
-    }
-
-    public int getSignal(BlockPos param0, Direction param1) {
-        BlockState var0 = this.getBlockState(param0);
-        int var1 = var0.getSignal(this, param0, param1);
-        return var0.isRedstoneConductor(this, param0) ? Math.max(var1, this.getDirectSignalTo(param0)) : var1;
-    }
-
-    public boolean hasNeighborSignal(BlockPos param0) {
-        if (this.getSignal(param0.below(), Direction.DOWN) > 0) {
-            return true;
-        } else if (this.getSignal(param0.above(), Direction.UP) > 0) {
-            return true;
-        } else if (this.getSignal(param0.north(), Direction.NORTH) > 0) {
-            return true;
-        } else if (this.getSignal(param0.south(), Direction.SOUTH) > 0) {
-            return true;
-        } else if (this.getSignal(param0.west(), Direction.WEST) > 0) {
-            return true;
-        } else {
-            return this.getSignal(param0.east(), Direction.EAST) > 0;
-        }
-    }
-
-    public int getBestNeighborSignal(BlockPos param0) {
-        int var0 = 0;
-
-        for(Direction var1 : DIRECTIONS) {
-            int var2 = this.getSignal(param0.relative(var1), var1);
-            if (var2 >= 15) {
-                return 15;
-            }
-
-            if (var2 > var0) {
-                var0 = var2;
-            }
-        }
-
-        return var0;
-    }
-
     public void disconnect() {
     }
 
@@ -956,7 +881,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     @Override
     public DimensionType dimensionType() {
-        return (DimensionType)this.dimensionTypeRegistration.value();
+        return this.dimensionTypeRegistration.value();
     }
 
     public ResourceKey<DimensionType> dimensionTypeId() {

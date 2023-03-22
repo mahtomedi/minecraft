@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.EndGatewayConfiguration;
 import net.minecraft.world.phys.AABB;
@@ -210,10 +209,7 @@ public class TheEndGatewayBlockEntity extends TheEndPortalBlockEntity {
             param0.registryAccess()
                 .registry(Registries.CONFIGURED_FEATURE)
                 .flatMap(param0x -> param0x.getHolder(EndFeatures.END_ISLAND))
-                .ifPresent(
-                    param2 -> ((ConfiguredFeature)param2.value())
-                            .place(param0, param0.getChunkSource().getGenerator(), RandomSource.create(var3.asLong()), var3)
-                );
+                .ifPresent(param2 -> param2.value().place(param0, param0.getChunkSource().getGenerator(), RandomSource.create(var3.asLong()), var3));
             var2 = var3;
         } else {
             LOGGER.debug("Found suitable block to teleport to: {}", var2);

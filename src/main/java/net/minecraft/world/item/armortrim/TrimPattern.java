@@ -23,6 +23,6 @@ public record TrimPattern(ResourceLocation assetId, Holder<Item> templateItem, C
     public static final Codec<Holder<TrimPattern>> CODEC = RegistryFileCodec.create(Registries.TRIM_PATTERN, DIRECT_CODEC);
 
     public Component copyWithStyle(Holder<TrimMaterial> param0) {
-        return this.description.copy().withStyle(((TrimMaterial)param0.value()).description().getStyle());
+        return this.description.copy().withStyle(param0.value().description().getStyle());
     }
 }

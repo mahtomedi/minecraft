@@ -58,7 +58,7 @@ public class InstrumentItem extends Item {
 
     private static void setSoundVariantId(ItemStack param0, Holder<Instrument> param1) {
         CompoundTag var0 = param0.getOrCreateTag();
-        var0.putString("instrument", ((ResourceKey)param1.unwrapKey().orElseThrow(() -> new IllegalStateException("Invalid instrument"))).location().toString());
+        var0.putString("instrument", param1.unwrapKey().orElseThrow(() -> new IllegalStateException("Invalid instrument")).location().toString());
     }
 
     @Override
@@ -66,7 +66,7 @@ public class InstrumentItem extends Item {
         ItemStack var0 = param1.getItemInHand(param2);
         Optional<? extends Holder<Instrument>> var1 = this.getInstrument(var0);
         if (var1.isPresent()) {
-            Instrument var2 = (Instrument)var1.get().value();
+            Instrument var2 = var1.get().value();
             param1.startUsingItem(param2);
             play(param0, param1, var2);
             param1.getCooldowns().addCooldown(this, var2.useDuration());
@@ -80,7 +80,7 @@ public class InstrumentItem extends Item {
     @Override
     public int getUseDuration(ItemStack param0) {
         Optional<? extends Holder<Instrument>> var0 = this.getInstrument(param0);
-        return var0.<Integer>map(param0x -> ((Instrument)param0x.value()).useDuration()).orElse(0);
+        return var0.<Integer>map(param0x -> param0x.value().useDuration()).orElse(0);
     }
 
     private Optional<? extends Holder<Instrument>> getInstrument(ItemStack param0) {

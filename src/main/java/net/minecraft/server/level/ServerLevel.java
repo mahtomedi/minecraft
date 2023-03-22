@@ -179,8 +179,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
     final Set<Mob> navigatingMobs = new ObjectOpenHashSet<>();
     volatile boolean isUpdatingNavigations;
     protected final Raids raids;
-    private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet();
-    private final List<BlockEventData> blockEventsToReschedule = new ArrayList(64);
+    private final ObjectLinkedOpenHashSet<BlockEventData> blockEvents = new ObjectLinkedOpenHashSet<>();
+    private final List<BlockEventData> blockEventsToReschedule = new ArrayList<>(64);
     private boolean handlingTick;
     private final List<CustomSpawner> customSpawners;
     @Nullable
@@ -1066,7 +1066,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.blockEventsToReschedule.clear();
 
         while(!this.blockEvents.isEmpty()) {
-            BlockEventData var0 = (BlockEventData)this.blockEvents.removeFirst();
+            BlockEventData var0 = this.blockEvents.removeFirst();
             if (this.shouldTickBlocksAt(var0.pos())) {
                 if (this.doBlockEvent(var0)) {
                     this.server

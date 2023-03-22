@@ -1,11 +1,8 @@
 package net.minecraft.world.level.block;
 
-import com.google.common.collect.Lists;
-import java.util.Queue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -16,6 +13,7 @@ import net.minecraft.world.level.material.Material;
 public class SpongeBlock extends Block {
     public static final int MAX_DEPTH = 6;
     public static final int MAX_COUNT = 64;
+    private static final Direction[] ALL_DIRECTIONS = Direction.values();
 
     protected SpongeBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -43,49 +41,41 @@ public class SpongeBlock extends Block {
     }
 
     private boolean removeWaterBreadthFirstSearch(Level param0, BlockPos param1) {
-        Queue<Tuple<BlockPos, Integer>> var0 = Lists.newLinkedList();
-        var0.add(new Tuple<>(param1, 0));
-        int var1 = 0;
+        return BlockPos.breadthFirstTraversal(param1, 6, 65, (param0x, param1x) -> {
+            for(Direction var0 : ALL_DIRECTIONS) {
+                param1x.accept(param0x.relative(var0));
+            }
 
-        while(!var0.isEmpty()) {
-            Tuple<BlockPos, Integer> var2 = var0.poll();
-            BlockPos var3 = var2.getA();
-            int var4 = var2.getB();
-
-            for(Direction var5 : Direction.values()) {
-                BlockPos var6 = var3.relative(var5);
-                BlockState var7 = param0.getBlockState(var6);
-                FluidState var8 = param0.getFluidState(var6);
-                Material var9 = var7.getMaterial();
-                if (var8.is(FluidTags.WATER)) {
-                    if (var7.getBlock() instanceof BucketPickup && !((BucketPickup)var7.getBlock()).pickupBlock(param0, var6, var7).isEmpty()) {
-                        ++var1;
-                        if (var4 < 6) {
-                            var0.add(new Tuple<>(var6, var4 + 1));
-                        }
-                    } else if (var7.getBlock() instanceof LiquidBlock) {
-                        param0.setBlock(var6, Blocks.AIR.defaultBlockState(), 3);
-                        ++var1;
-                        if (var4 < 6) {
-                            var0.add(new Tuple<>(var6, var4 + 1));
-                        }
-                    } else if (var9 == Material.WATER_PLANT || var9 == Material.REPLACEABLE_WATER_PLANT) {
-                        BlockEntity var10 = var7.hasBlockEntity() ? param0.getBlockEntity(var6) : null;
-                        dropResources(var7, param0, var6, var10);
-                        param0.setBlock(var6, Blocks.AIR.defaultBlockState(), 3);
-                        ++var1;
-                        if (var4 < 6) {
-                            var0.add(new Tuple<>(var6, var4 + 1));
-                        }
+        }, param2 -> {
+            if (param2.equals(param1)) {
+                return true;
+            } else {
+                BlockState var0 = param0.getBlockState(param2);
+                FluidState var1x = param0.getFluidState(param2);
+                Material var2x = var0.getMaterial();
+                if (!var1x.is(FluidTags.WATER)) {
+                    return false;
+                } else {
+                    Block var3 = var0.getBlock();
+                    if (var3 instanceof BucketPickup var4 && !var4.pickupBlock(param0, param2, var0).isEmpty()) {
+                        return true;
                     }
+
+                    if (var0.getBlock() instanceof LiquidBlock) {
+                        param0.setBlock(param2, Blocks.AIR.defaultBlockState(), 3);
+                    } else {
+                        if (var2x != Material.WATER_PLANT && var2x != Material.REPLACEABLE_WATER_PLANT) {
+                            return false;
+                        }
+
+                        BlockEntity var5 = var0.hasBlockEntity() ? param0.getBlockEntity(param2) : null;
+                        dropResources(var0, param0, param2, var5);
+                        param0.setBlock(param2, Blocks.AIR.defaultBlockState(), 3);
+                    }
+
+                    return true;
                 }
             }
-
-            if (var1 > 64) {
-                break;
-            }
-        }
-
-        return var1 > 0;
+        }) > 1;
     }
 }

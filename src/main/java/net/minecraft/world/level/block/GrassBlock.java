@@ -63,7 +63,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
                         continue;
                     }
 
-                    var8 = ((RandomPatchConfiguration)((ConfiguredFeature)var7.get(0)).config()).feature();
+                    var8 = ((RandomPatchConfiguration)var7.get(0).config()).feature();
                 } else {
                     if (!var2.isPresent()) {
                         continue;
@@ -72,7 +72,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
                     var8 = var2.get();
                 }
 
-                ((PlacedFeature)var8.value()).place(param0, param0.getChunkSource().getGenerator(), param1, var4);
+                var8.value().place(param0, param0.getChunkSource().getGenerator(), param1, var4);
             }
         }
 

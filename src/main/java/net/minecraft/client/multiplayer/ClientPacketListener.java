@@ -326,7 +326,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     private static final Component CHAT_VALIDATION_FAILED_ERROR = Component.translatable("multiplayer.disconnect.chat_validation_failed");
     private static final int PENDING_OFFSET_THRESHOLD = 64;
     private final Connection connection;
-    private final List<ClientPacketListener.DeferredPacket> deferredPackets = new ArrayList();
+    private final List<ClientPacketListener.DeferredPacket> deferredPackets = new ArrayList<>();
     @Nullable
     private final ServerData serverData;
     private final GameProfile localGameProfile;
@@ -394,7 +394,10 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         Collections.shuffle(var0);
         this.levels = Sets.newLinkedHashSet(var0);
         ResourceKey<Level> var1 = param0.dimension();
-        Holder<DimensionType> var2 = this.registryAccess.compositeAccess().registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(param0.dimensionType());
+        Holder<DimensionType> var2 = this.registryAccess
+            .compositeAccess()
+            .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
+            .getHolderOrThrow(param0.dimensionType());
         this.serverChunkRadius = param0.chunkRadius();
         this.serverSimulationDistance = param0.simulationDistance();
         boolean var3 = param0.isDebug();
@@ -886,13 +889,11 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                     var5 = SignedMessageLink.unsigned(var2);
                 }
 
-                PlayerChatMessage var7 = new PlayerChatMessage(
-                    var5, param0.signature(), (SignedMessageBody)var0.get(), param0.unsignedContent(), param0.filterMask()
-                );
+                PlayerChatMessage var7 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
                 if (!var3.getMessageValidator().updateAndValidate(var7)) {
                     this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
                 } else {
-                    this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), (ChatType.Bound)var1.get());
+                    this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), var1.get());
                     this.messageSignatureCache.push(var7);
                 }
             }
@@ -908,7 +909,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         if (var0.isEmpty()) {
             this.connection.disconnect(INVALID_PACKET);
         } else {
-            this.minecraft.getChatListener().handleDisguisedChatMessage(param0.message(), (ChatType.Bound)var0.get());
+            this.minecraft.getChatListener().handleDisguisedChatMessage(param0.message(), var0.get());
         }
     }
 
@@ -919,9 +920,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         if (var0.isEmpty()) {
             this.connection.disconnect(INVALID_PACKET);
         } else {
-            this.lastSeenMessages.ignorePending((MessageSignature)var0.get());
-            if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue((MessageSignature)var0.get())) {
-                this.minecraft.gui.getChat().deleteMessage((MessageSignature)var0.get());
+            this.lastSeenMessages.ignorePending(var0.get());
+            if (!this.minecraft.getChatListener().removeFromDelayedMessageQueue(var0.get())) {
+                this.minecraft.gui.getChat().deleteMessage(var0.get());
             }
 
         }
@@ -1086,7 +1087,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         ResourceKey<Level> var0 = param0.getDimension();
         Holder<DimensionType> var1 = this.registryAccess
             .compositeAccess()
-            .registryOrThrow(Registries.DIMENSION_TYPE)
+            .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
             .getHolderOrThrow(param0.getDimensionType());
         LocalPlayer var2 = this.minecraft.player;
         int var3 = var2.getId();
@@ -1241,14 +1242,16 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     public void handleOpenSignEditor(ClientboundOpenSignEditorPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         BlockPos var0 = param0.getPos();
-        BlockEntity var1 = this.level.getBlockEntity(var0);
-        if (!(var1 instanceof SignBlockEntity)) {
+        BlockEntity var2 = this.level.getBlockEntity(var0);
+        if (var2 instanceof SignBlockEntity var1) {
+            this.minecraft.player.openTextEdit(var1, param0.isFrontText());
+        } else {
             BlockState var2 = this.level.getBlockState(var0);
-            var1 = new SignBlockEntity(var0, var2);
-            var1.setLevel(this.level);
+            SignBlockEntity var3 = new SignBlockEntity(var0, var2);
+            var3.setLevel(this.level);
+            this.minecraft.player.openTextEdit(var3, param0.isFrontText());
         }
 
-        this.minecraft.player.openTextEdit((SignBlockEntity)var1);
     }
 
     @Override
@@ -1838,7 +1841,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         Iterator<ClientPacketListener.DeferredPacket> var0 = this.deferredPackets.iterator();
 
         while(var0.hasNext()) {
-            ClientPacketListener.DeferredPacket var1 = (ClientPacketListener.DeferredPacket)var0.next();
+            ClientPacketListener.DeferredPacket var1 = var0.next();
             if (var1.sendCondition().getAsBoolean()) {
                 this.send(var1.packet);
                 var0.remove();
@@ -2043,9 +2046,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                 BlockPos var7 = var1.readBlockPos();
                 ((NeighborsUpdateRenderer)this.minecraft.debugRenderer.neighborsUpdateRenderer).addUpdate(var6, var7);
             } else if (ClientboundCustomPayloadPacket.DEBUG_STRUCTURES_PACKET.equals(var0)) {
-                DimensionType var8 = (DimensionType)this.registryAccess
+                DimensionType var8 = this.registryAccess
                     .compositeAccess()
-                    .registryOrThrow(Registries.DIMENSION_TYPE)
+                    .<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE)
                     .get(var1.readResourceLocation());
                 BoundingBox var9 = new BoundingBox(var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt(), var1.readInt());
                 int var10 = var1.readInt();

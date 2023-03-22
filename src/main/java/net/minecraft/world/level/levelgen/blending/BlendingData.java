@@ -48,19 +48,17 @@ public class BlendingData {
     private static final int CELL_COLUMN_COUNT = CELL_COLUMN_INSIDE_COUNT + CELL_COLUMN_OUTSIDE_COUNT;
     private final LevelHeightAccessor areaWithOldGeneration;
     private static final List<Block> SURFACE_BLOCKS = List.of(
-        new Block[]{
-            Blocks.PODZOL,
-            Blocks.GRAVEL,
-            Blocks.GRASS_BLOCK,
-            Blocks.STONE,
-            Blocks.COARSE_DIRT,
-            Blocks.SAND,
-            Blocks.RED_SAND,
-            Blocks.MYCELIUM,
-            Blocks.SNOW_BLOCK,
-            Blocks.TERRACOTTA,
-            Blocks.DIRT
-        }
+        Blocks.PODZOL,
+        Blocks.GRAVEL,
+        Blocks.GRASS_BLOCK,
+        Blocks.STONE,
+        Blocks.COARSE_DIRT,
+        Blocks.SAND,
+        Blocks.RED_SAND,
+        Blocks.MYCELIUM,
+        Blocks.SNOW_BLOCK,
+        Blocks.TERRACOTTA,
+        Blocks.DIRT
     );
     protected static final double NO_VALUE = Double.MAX_VALUE;
     private boolean hasCalculatedData;

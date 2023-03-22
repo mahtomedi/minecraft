@@ -2,7 +2,6 @@ package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.minecraft.commands.CommandBuildContext;
@@ -36,34 +35,32 @@ public class DamageCommand {
                                         )
                                 )
                                 .then(
-                                    ((RequiredArgumentBuilder)((RequiredArgumentBuilder)Commands.argument(
-                                                    "damageType", ResourceArgument.resource(param1, Registries.DAMAGE_TYPE)
+                                    Commands.argument("damageType", ResourceArgument.resource(param1, Registries.DAMAGE_TYPE))
+                                        .executes(
+                                            param0x -> damage(
+                                                    param0x.getSource(),
+                                                    EntityArgument.getEntity(param0x, "target"),
+                                                    FloatArgumentType.getFloat(param0x, "amount"),
+                                                    new DamageSource(ResourceArgument.getResource(param0x, "damageType", Registries.DAMAGE_TYPE))
                                                 )
-                                                .executes(
-                                                    param0x -> damage(
-                                                            (CommandSourceStack)param0x.getSource(),
-                                                            EntityArgument.getEntity(param0x, "target"),
-                                                            FloatArgumentType.getFloat(param0x, "amount"),
-                                                            new DamageSource(ResourceArgument.getResource(param0x, "damageType", Registries.DAMAGE_TYPE))
-                                                        )
-                                                ))
-                                            .then(
-                                                Commands.literal("at")
-                                                    .then(
-                                                        Commands.argument("location", Vec3Argument.vec3())
-                                                            .executes(
-                                                                param0x -> damage(
-                                                                        param0x.getSource(),
-                                                                        EntityArgument.getEntity(param0x, "target"),
-                                                                        FloatArgumentType.getFloat(param0x, "amount"),
-                                                                        new DamageSource(
-                                                                            ResourceArgument.getResource(param0x, "damageType", Registries.DAMAGE_TYPE),
-                                                                            Vec3Argument.getVec3(param0x, "location")
-                                                                        )
+                                        )
+                                        .then(
+                                            Commands.literal("at")
+                                                .then(
+                                                    Commands.argument("location", Vec3Argument.vec3())
+                                                        .executes(
+                                                            param0x -> damage(
+                                                                    param0x.getSource(),
+                                                                    EntityArgument.getEntity(param0x, "target"),
+                                                                    FloatArgumentType.getFloat(param0x, "amount"),
+                                                                    new DamageSource(
+                                                                        ResourceArgument.getResource(param0x, "damageType", Registries.DAMAGE_TYPE),
+                                                                        Vec3Argument.getVec3(param0x, "location")
                                                                     )
-                                                            )
-                                                    )
-                                            ))
+                                                                )
+                                                        )
+                                                )
+                                        )
                                         .then(
                                             Commands.literal("by")
                                                 .then(

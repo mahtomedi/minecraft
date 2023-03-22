@@ -119,7 +119,7 @@ public class CreateWorldScreen extends Screen {
         WorldLoader.InitConfig var1 = createDefaultLoadConfig(var0, WorldDataConfiguration.DEFAULT);
         CompletableFuture<WorldCreationContext> var2 = WorldLoader.load(
             var1,
-            param0x -> new WorldLoader.DataLoadOutput(
+            param0x -> new WorldLoader.DataLoadOutput<>(
                     new CreateWorldScreen.DataPackReloadCookie(
                         new WorldGenSettings(WorldOptions.defaultWithRandomSeed(), WorldPresets.createNormalWorldDimensions(param0x.datapackWorldgen())),
                         param0x.dataConfiguration()
@@ -134,7 +134,7 @@ public class CreateWorldScreen extends Screen {
             param0
         );
         param0.managedBlock(var2::isDone);
-        param0.setScreen(new CreateWorldScreen(param0, param1, (WorldCreationContext)var2.join(), Optional.of(WorldPresets.NORMAL), OptionalLong.empty()));
+        param0.setScreen(new CreateWorldScreen(param0, param1, var2.join(), Optional.of(WorldPresets.NORMAL), OptionalLong.empty()));
     }
 
     public static CreateWorldScreen createFromExisting(
@@ -374,7 +374,7 @@ public class CreateWorldScreen extends Screen {
     private void applyNewPackConfig(PackRepository param0, WorldDataConfiguration param1, Consumer<WorldDataConfiguration> param2) {
         this.minecraft.forceSetScreen(new GenericDirtMessageScreen(Component.translatable("dataPack.validation.working")));
         WorldLoader.InitConfig var0 = createDefaultLoadConfig(param0, param1);
-        WorldLoader.load(
+        WorldLoader.<CreateWorldScreen.DataPackReloadCookie, WorldCreationContext>load(
                 var0,
                 param0x -> {
                     if (param0x.datapackWorldgen().registryOrThrow(Registries.WORLD_PRESET).size() == 0) {
@@ -387,9 +387,9 @@ public class CreateWorldScreen extends Screen {
                         DataResult<JsonElement> var2x = WorldGenSettings.encode(var1x, var0x.options(), var0x.selectedDimensions())
                             .setLifecycle(Lifecycle.stable());
                         DynamicOps<JsonElement> var3x = RegistryOps.create(JsonOps.INSTANCE, param0x.datapackWorldgen());
-                        WorldGenSettings var4x = (WorldGenSettings)var2x.flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
+                        WorldGenSettings var4x = var2x.<WorldGenSettings>flatMap(param1x -> WorldGenSettings.CODEC.parse(var3x, param1x))
                             .getOrThrow(false, Util.prefix("Error parsing worldgen settings after loading data packs: ", LOGGER::error));
-                        return new WorldLoader.DataLoadOutput(
+                        return new WorldLoader.DataLoadOutput<>(
                             new CreateWorldScreen.DataPackReloadCookie(var4x, param0x.dataConfiguration()), param0x.datapackDimensions()
                         );
                     }
@@ -614,6 +614,14 @@ public class CreateWorldScreen extends Screen {
                 var4.setValue(CreateWorldScreen.this.uiState.isAllowCheats());
                 var4.active = !CreateWorldScreen.this.uiState.isDebug() && !CreateWorldScreen.this.uiState.isHardcore();
             });
+            param0.addChild(
+                Button.builder(
+                        CreateWorldScreen.EXPERIMENTS_LABEL,
+                        param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
+                    )
+                    .width(210)
+                    .build()
+            );
         }
 
         @Override
@@ -745,7 +753,7 @@ public class CreateWorldScreen extends Screen {
         }
 
         private static MutableComponent createTypeButtonNarration(CycleButton<WorldCreationUiState.WorldTypeEntry> param0x) {
-            return ((WorldCreationUiState.WorldTypeEntry)param0x.getValue()).isAmplified()
+            return param0x.getValue().isAmplified()
                 ? CommonComponents.joinForNarration(param0x.createDefaultNarrationMessage(), AMPLIFIED_HELP_TEXT)
                 : param0x.createDefaultNarrationMessage();
         }

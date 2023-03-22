@@ -54,7 +54,7 @@ public class LastSeenMessagesTracker {
     public LastSeenMessagesTracker.Update generateAndApplyUpdate() {
         int var0 = this.getAndClearOffset();
         BitSet var1 = new BitSet(this.trackedMessages.length);
-        ObjectList<MessageSignature> var2 = new ObjectArrayList(this.trackedMessages.length);
+        ObjectList<MessageSignature> var2 = new ObjectArrayList<>(this.trackedMessages.length);
 
         for(int var3 = 0; var3 < this.trackedMessages.length; ++var3) {
             int var4 = (this.tail + var3) % this.trackedMessages.length;

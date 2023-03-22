@@ -17,11 +17,11 @@ public class CherryLeavesBlock extends LeavesBlock {
     @Override
     public void animateTick(BlockState param0, Level param1, BlockPos param2, RandomSource param3) {
         super.animateTick(param0, param1, param2, param3);
-        if (param3.nextInt(15) == 0) {
+        if (param3.nextInt(10) == 0) {
             BlockPos var0 = param2.below();
             BlockState var1 = param1.getBlockState(var0);
-            if (!var1.canOcclude() || !var1.isFaceSturdy(param1, var0, Direction.UP)) {
-                ParticleUtils.spawnParticleBelow(param1, param2, param3, ParticleTypes.DRIPPING_CHERRY_LEAVES);
+            if (!isFaceFull(var1.getCollisionShape(param1, var0), Direction.UP)) {
+                ParticleUtils.spawnParticleBelow(param1, param2, param3, ParticleTypes.CHERRY_LEAVES);
             }
         }
     }

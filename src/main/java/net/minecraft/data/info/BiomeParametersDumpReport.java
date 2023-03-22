@@ -48,7 +48,7 @@ public class BiomeParametersDumpReport implements DataProvider {
                     List<CompletableFuture<?>> var1x = new ArrayList();
                     MultiNoiseBiomeSourceParameterList.knownPresets()
                         .forEach((param3, param4) -> var1x.add(dumpValue(this.createPath(param3.id()), param0, var0, CODEC, param4)));
-                    return CompletableFuture.allOf((CompletableFuture<?>[])var1x.toArray(param0x -> new CompletableFuture[param0x]));
+                    return CompletableFuture.allOf(var1x.toArray(param0x -> new CompletableFuture[param0x]));
                 }
             );
     }

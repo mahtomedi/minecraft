@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
@@ -630,7 +631,9 @@ public class ChunkRenderDispatcher {
                     if (var7.contains(RenderType.translucent())) {
                         BufferBuilder var19 = param3.builder(RenderType.translucent());
                         if (!var19.isCurrentBatchEmpty()) {
-                            var19.setQuadSortOrigin(param0 - (float)var2.getX(), param1 - (float)var2.getY(), param2 - (float)var2.getZ());
+                            var19.setQuadSorting(
+                                VertexSorting.byDistance(param0 - (float)var2.getX(), param1 - (float)var2.getY(), param2 - (float)var2.getZ())
+                            );
                             var0.transparencyState = var19.getSortState();
                         }
                     }
@@ -713,10 +716,12 @@ public class ChunkRenderDispatcher {
                         BufferBuilder var5 = param0.builder(RenderType.translucent());
                         RenderChunk.this.beginLayer(var5);
                         var5.restoreSortState(var4);
-                        var5.setQuadSortOrigin(
-                            var1 - (float)RenderChunk.this.origin.getX(),
-                            var2 - (float)RenderChunk.this.origin.getY(),
-                            var3 - (float)RenderChunk.this.origin.getZ()
+                        var5.setQuadSorting(
+                            VertexSorting.byDistance(
+                                var1 - (float)RenderChunk.this.origin.getX(),
+                                var2 - (float)RenderChunk.this.origin.getY(),
+                                var3 - (float)RenderChunk.this.origin.getZ()
+                            )
                         );
                         this.compiledChunk.transparencyState = var5.getSortState();
                         BufferBuilder.RenderedBuffer var6 = var5.end();

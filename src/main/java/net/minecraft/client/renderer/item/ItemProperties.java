@@ -15,7 +15,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.CompassItem;
 import net.minecraft.world.item.CrossbowItem;
@@ -88,11 +87,9 @@ public class ItemProperties {
         ClampedItemPropertyFunction var0 = (param0, param1, param2, param3) -> {
             if (!param0.is(ItemTags.TRIMMABLE_ARMOR)) {
                 return Float.NEGATIVE_INFINITY;
-            } else if (param1 == null) {
-                return 0.0F;
             } else {
-                return !param1.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)
-                    ? Float.NEGATIVE_INFINITY
+                return param1 == null
+                    ? 0.0F
                     : ArmorTrim.getTrim(param1.registryAccess(), param0)
                         .map(ArmorTrim::material)
                         .map(Holder::value)

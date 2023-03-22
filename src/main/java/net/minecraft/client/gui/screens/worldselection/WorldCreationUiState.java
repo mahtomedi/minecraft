@@ -42,8 +42,8 @@ public class WorldCreationUiState {
     private String targetFolder;
     private WorldCreationContext settings;
     private WorldCreationUiState.WorldTypeEntry worldType;
-    private final List<WorldCreationUiState.WorldTypeEntry> normalPresetList = new ArrayList();
-    private final List<WorldCreationUiState.WorldTypeEntry> altPresetList = new ArrayList();
+    private final List<WorldCreationUiState.WorldTypeEntry> normalPresetList = new ArrayList<>();
+    private final List<WorldCreationUiState.WorldTypeEntry> altPresetList = new ArrayList<>();
     private GameRules gameRules = new GameRules();
 
     public WorldCreationUiState(Path param0, WorldCreationContext param1, Optional<ResourceKey<WorldPreset>> param2, OptionalLong param3) {
@@ -245,9 +245,9 @@ public class WorldCreationUiState {
         this.altPresetList.addAll(getNonEmptyList(var0, WorldPresetTags.EXTENDED).orElse(this.normalPresetList));
         Holder<WorldPreset> var1 = this.worldType.preset();
         if (var1 != null) {
-            this.worldType = (WorldCreationUiState.WorldTypeEntry)findPreset(this.getSettings(), var1.unwrapKey())
+            this.worldType = findPreset(this.getSettings(), var1.unwrapKey())
                 .map(WorldCreationUiState.WorldTypeEntry::new)
-                .orElse((WorldCreationUiState.WorldTypeEntry)this.normalPresetList.get(0));
+                .orElse(this.normalPresetList.get(0));
         }
 
     }

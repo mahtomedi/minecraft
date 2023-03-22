@@ -30,15 +30,15 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 
 public class LevelTicks<T> implements LevelTickAccess<T> {
     private static final Comparator<LevelChunkTicks<?>> CONTAINER_DRAIN_ORDER = (param0, param1) -> ScheduledTick.INTRA_TICK_DRAIN_ORDER
-            .compare((T)param0.peek(), (T)param1.peek());
+            .compare(param0.peek(), param1.peek());
     private final LongPredicate tickCheck;
     private final Supplier<ProfilerFiller> profiler;
     private final Long2ObjectMap<LevelChunkTicks<T>> allContainers = new Long2ObjectOpenHashMap<>();
     private final Long2LongMap nextTickForContainer = Util.make(new Long2LongOpenHashMap(), param0x -> param0x.defaultReturnValue(Long.MAX_VALUE));
     private final Queue<LevelChunkTicks<T>> containersToTick = new PriorityQueue<>(CONTAINER_DRAIN_ORDER);
-    private final Queue<ScheduledTick<T>> toRunThisTick = new ArrayDeque();
-    private final List<ScheduledTick<T>> alreadyRunThisTick = new ArrayList();
-    private final Set<ScheduledTick<?>> toRunThisTickSet = new ObjectOpenCustomHashSet(ScheduledTick.UNIQUE_TICK_HASH);
+    private final Queue<ScheduledTick<T>> toRunThisTick = new ArrayDeque<>();
+    private final List<ScheduledTick<T>> alreadyRunThisTick = new ArrayList<>();
+    private final Set<ScheduledTick<?>> toRunThisTickSet = new ObjectOpenCustomHashSet<>(ScheduledTick.UNIQUE_TICK_HASH);
     private final BiConsumer<LevelChunkTicks<T>, ScheduledTick<T>> chunkScheduleUpdater = (param0x, param1x) -> {
         if (param1x.equals(param0x.peek())) {
             this.updateContainerScheduling(param1x);
@@ -186,7 +186,7 @@ public class LevelTicks<T> implements LevelTickAccess<T> {
 
     private void runCollectedTicks(BiConsumer<BlockPos, T> param0) {
         while(!this.toRunThisTick.isEmpty()) {
-            ScheduledTick<T> var0 = (ScheduledTick)this.toRunThisTick.poll();
+            ScheduledTick<T> var0 = this.toRunThisTick.poll();
             if (!this.toRunThisTickSet.isEmpty()) {
                 this.toRunThisTickSet.remove(var0);
             }
@@ -265,7 +265,7 @@ public class LevelTicks<T> implements LevelTickAccess<T> {
     }
 
     public void copyAreaFrom(LevelTicks<T> param0, BoundingBox param1, Vec3i param2) {
-        List<ScheduledTick<T>> var0 = new ArrayList();
+        List<ScheduledTick<T>> var0 = new ArrayList<>();
         Predicate<ScheduledTick<T>> var1 = param1x -> param1.isInside(param1x.pos());
         param0.alreadyRunThisTick.stream().filter(var1).forEach(var0::add);
         param0.toRunThisTick.stream().filter(var1).forEach(var0::add);
@@ -276,7 +276,7 @@ public class LevelTicks<T> implements LevelTickAccess<T> {
         var0.forEach(
             param3 -> this.schedule(
                     new ScheduledTick<>(
-                        (T)param3.type(), param3.pos().offset(param2), param3.triggerTick(), param3.priority(), param3.subTickOrder() - var3 + var4 + 1L
+                        param3.type(), param3.pos().offset(param2), param3.triggerTick(), param3.priority(), param3.subTickOrder() - var3 + var4 + 1L
                     )
                 )
         );

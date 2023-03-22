@@ -82,7 +82,7 @@ public abstract class RecipeProvider implements DataProvider {
 
             }
         });
-        return CompletableFuture.allOf((CompletableFuture<?>[])var1.toArray(param0x -> new CompletableFuture[param0x]));
+        return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     protected CompletableFuture<?> buildAdvancement(CachedOutput param0, ResourceLocation param1, Advancement.Builder param2) {
@@ -137,13 +137,6 @@ public abstract class RecipeProvider implements DataProvider {
                 .save(param0, getItemName(param4) + param8 + "_" + getItemName(var0));
         }
 
-    }
-
-    @Deprecated
-    protected static void legacyNetheriteSmithing(Consumer<FinishedRecipe> param0, Item param1, RecipeCategory param2, Item param3) {
-        LegacyUpgradeRecipeBuilder.smithing(Ingredient.of(param1), Ingredient.of(Items.NETHERITE_INGOT), param2, param3)
-            .unlocks("has_netherite_ingot", has(Items.NETHERITE_INGOT))
-            .save(param0, getItemName(param3) + "_smithing");
     }
 
     protected static void netheriteSmithing(Consumer<FinishedRecipe> param0, Item param1, RecipeCategory param2, Item param3) {

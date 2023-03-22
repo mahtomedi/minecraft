@@ -23,10 +23,7 @@ public record VibrationInfo(GameEvent gameEvent, float distance, Vec3 pos, @Null
                     UUIDUtil.CODEC.optionalFieldOf("projectile_owner").forGetter(param0x -> Optional.ofNullable(param0x.projectileOwnerUuid()))
                 )
                 .apply(
-                    param0,
-                    (param0x, param1, param2, param3, param4) -> new VibrationInfo(
-                            param0x, param1, param2, (UUID)param3.orElse(null), (UUID)param4.orElse(null)
-                        )
+                    param0, (param0x, param1, param2, param3, param4) -> new VibrationInfo(param0x, param1, param2, param3.orElse(null), param4.orElse(null))
                 )
     );
 

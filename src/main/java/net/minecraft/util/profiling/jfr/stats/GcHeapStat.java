@@ -27,12 +27,12 @@ public record GcHeapStat(Instant timestamp, long heapUsed, GcHeapStat.Timing tim
         List<GcHeapStat> var3 = var1.get(GcHeapStat.Timing.AFTER_GC);
 
         for(int var4 = 1; var4 < var2.size(); ++var4) {
-            GcHeapStat var5 = (GcHeapStat)var2.get(var4);
-            GcHeapStat var6 = (GcHeapStat)var3.get(var4 - 1);
+            GcHeapStat var5 = var2.get(var4);
+            GcHeapStat var6 = var3.get(var4 - 1);
             var0 += var5.heapUsed - var6.heapUsed;
         }
 
-        Duration var7 = Duration.between(((GcHeapStat)param0.get(1)).timestamp, ((GcHeapStat)param0.get(param0.size() - 1)).timestamp);
+        Duration var7 = Duration.between(param0.get(1).timestamp, param0.get(param0.size() - 1).timestamp);
         return (double)var0 / (double)var7.getSeconds();
     }
 

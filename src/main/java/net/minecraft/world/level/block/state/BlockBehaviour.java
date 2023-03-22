@@ -614,7 +614,6 @@ public abstract class BlockBehaviour implements FeatureElement {
         }
 
         public final void updateNeighbourShapes(LevelAccessor param0, BlockPos param1, int param2, int param3) {
-            this.getBlock();
             BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
 
             for(Direction var1 : BlockBehaviour.UPDATE_SHAPE_ORDER) {

@@ -28,12 +28,12 @@ public class RuleProcessor extends StructureProcessor {
         StructureTemplate.StructureBlockInfo param4,
         StructurePlaceSettings param5
     ) {
-        RandomSource var0 = RandomSource.create(Mth.getSeed(param4.pos));
-        BlockState var1 = param0.getBlockState(param4.pos);
+        RandomSource var0 = RandomSource.create(Mth.getSeed(param4.pos()));
+        BlockState var1 = param0.getBlockState(param4.pos());
 
         for(ProcessorRule var2 : this.rules) {
-            if (var2.test(param4.state, var1, param3.pos, param4.pos, param2, var0)) {
-                return new StructureTemplate.StructureBlockInfo(param4.pos, var2.getOutputState(), var2.getOutputTag());
+            if (var2.test(param4.state(), var1, param3.pos(), param4.pos(), param2, var0)) {
+                return new StructureTemplate.StructureBlockInfo(param4.pos(), var2.getOutputState(), var2.getOutputTag(var0, param4.nbt()));
             }
         }
 

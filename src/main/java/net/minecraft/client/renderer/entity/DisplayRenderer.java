@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Transformation;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -23,8 +24,7 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<T> {
-    private static final float MAX_SHADOW_RADIUS = 64.0F;
+public abstract class DisplayRenderer<T extends Display, S> extends EntityRenderer<T> {
     private final EntityRenderDispatcher entityRenderDispatcher;
 
     protected DisplayRenderer(EntityRendererProvider.Context param0) {
@@ -37,38 +37,48 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
     }
 
     public void render(T param0, float param1, float param2, PoseStack param3, MultiBufferSource param4, int param5) {
-        float var0 = param0.calculateInterpolationProgress(param2);
-        this.shadowRadius = Math.min(param0.getShadowRadius(var0), 64.0F);
-        this.shadowStrength = param0.getShadowStrength(var0);
-        int var1 = param0.getPackedBrightnessOverride();
-        int var2 = var1 != -1 ? var1 : param5;
-        super.render(param0, param1, param2, param3, param4, var2);
-        param3.pushPose();
-        param3.mulPose(this.calculateOrientation(param0));
-        Transformation var3 = param0.transformation(var0);
-        param3.mulPoseMatrix(var3.getMatrix());
-        param3.last().normal().rotate(var3.getLeftRotation()).rotate(var3.getRightRotation());
-        this.renderInner(param0, param3, param4, var2, var0);
-        param3.popPose();
+        Display.RenderState var0 = param0.renderState();
+        if (var0 != null) {
+            S var1 = this.getSubState(param0);
+            if (var1 != null) {
+                float var2 = param0.calculateInterpolationProgress(param2);
+                this.shadowRadius = var0.shadowRadius().get(var2);
+                this.shadowStrength = var0.shadowStrength().get(var2);
+                int var3 = var0.brightnessOverride();
+                int var4 = var3 != -1 ? var3 : param5;
+                super.render(param0, param1, param2, param3, param4, var4);
+                param3.pushPose();
+                param3.mulPose(this.calculateOrientation(var0, param0));
+                Transformation var5 = var0.transformation().get(var2);
+                param3.mulPoseMatrix(var5.getMatrix());
+                param3.last().normal().rotate(var5.getLeftRotation()).rotate(var5.getRightRotation());
+                this.renderInner(param0, var1, param3, param4, var4, var2);
+                param3.popPose();
+            }
+        }
     }
 
-    private Quaternionf calculateOrientation(T param0) {
+    private Quaternionf calculateOrientation(Display.RenderState param0, T param1) {
         Camera var0 = this.entityRenderDispatcher.camera;
 
-        return switch(param0.getBillboardConstraints()) {
-            case FIXED -> param0.orientation();
-            case HORIZONTAL -> new Quaternionf().rotationYXZ((float) (-Math.PI / 180.0) * param0.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
+        return switch(param0.billboardConstraints()) {
+            case FIXED -> param1.orientation();
+            case HORIZONTAL -> new Quaternionf()
+            .rotationYXZ(((float) (-Math.PI / 180.0)) * param1.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
             case VERTICAL -> new Quaternionf()
-            .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (Math.PI / 180.0) * param0.getXRot(), 0.0F);
+            .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (Math.PI / 180.0) * param1.getXRot(), 0.0F);
             case CENTER -> new Quaternionf()
             .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
         };
     }
 
-    protected abstract void renderInner(T var1, PoseStack var2, MultiBufferSource var3, int var4, float var5);
+    @Nullable
+    protected abstract S getSubState(T var1);
+
+    protected abstract void renderInner(T var1, S var2, PoseStack var3, MultiBufferSource var4, int var5, float var6);
 
     @OnlyIn(Dist.CLIENT)
-    public static class BlockDisplayRenderer extends DisplayRenderer<Display.BlockDisplay> {
+    public static class BlockDisplayRenderer extends DisplayRenderer<Display.BlockDisplay, Display.BlockDisplay.BlockRenderState> {
         private final BlockRenderDispatcher blockRenderer;
 
         protected BlockDisplayRenderer(EntityRendererProvider.Context param0) {
@@ -76,13 +86,20 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
             this.blockRenderer = param0.getBlockRenderDispatcher();
         }
 
-        public void renderInner(Display.BlockDisplay param0, PoseStack param1, MultiBufferSource param2, int param3, float param4) {
-            this.blockRenderer.renderSingleBlock(param0.getBlockState(), param1, param2, param3, OverlayTexture.NO_OVERLAY);
+        @Nullable
+        protected Display.BlockDisplay.BlockRenderState getSubState(Display.BlockDisplay param0) {
+            return param0.blockRenderState();
+        }
+
+        public void renderInner(
+            Display.BlockDisplay param0, Display.BlockDisplay.BlockRenderState param1, PoseStack param2, MultiBufferSource param3, int param4, float param5
+        ) {
+            this.blockRenderer.renderSingleBlock(param1.blockState(), param2, param3, param4, OverlayTexture.NO_OVERLAY);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class ItemDisplayRenderer extends DisplayRenderer<Display.ItemDisplay> {
+    public static class ItemDisplayRenderer extends DisplayRenderer<Display.ItemDisplay, Display.ItemDisplay.ItemRenderState> {
         private final ItemRenderer itemRenderer;
 
         protected ItemDisplayRenderer(EntityRendererProvider.Context param0) {
@@ -90,16 +107,21 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
             this.itemRenderer = param0.getItemRenderer();
         }
 
-        public void renderInner(Display.ItemDisplay param0, PoseStack param1, MultiBufferSource param2, int param3, float param4) {
+        @Nullable
+        protected Display.ItemDisplay.ItemRenderState getSubState(Display.ItemDisplay param0) {
+            return param0.itemRenderState();
+        }
+
+        public void renderInner(
+            Display.ItemDisplay param0, Display.ItemDisplay.ItemRenderState param1, PoseStack param2, MultiBufferSource param3, int param4, float param5
+        ) {
             this.itemRenderer
-                .renderStatic(
-                    param0.getItemStack(), param0.getItemTransform(), param3, OverlayTexture.NO_OVERLAY, param1, param2, param0.getLevel(), param0.getId()
-                );
+                .renderStatic(param1.itemStack(), param1.itemTransform(), param4, OverlayTexture.NO_OVERLAY, param2, param3, param0.getLevel(), param0.getId());
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class TextDisplayRenderer extends DisplayRenderer<Display.TextDisplay> {
+    public static class TextDisplayRenderer extends DisplayRenderer<Display.TextDisplay, Display.TextDisplay.TextRenderState> {
         private final Font font;
 
         protected TextDisplayRenderer(EntityRendererProvider.Context param0) {
@@ -109,7 +131,7 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
 
         private Display.TextDisplay.CachedInfo splitLines(Component param0, int param1) {
             List<FormattedCharSequence> var0 = this.font.split(param0, param1);
-            List<Display.TextDisplay.CachedLine> var1 = new ArrayList(var0.size());
+            List<Display.TextDisplay.CachedLine> var1 = new ArrayList<>(var0.size());
             int var2 = 0;
 
             for(FormattedCharSequence var3 : var0) {
@@ -121,23 +143,30 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
             return new Display.TextDisplay.CachedInfo(var1, var2);
         }
 
-        public void renderInner(Display.TextDisplay param0, PoseStack param1, MultiBufferSource param2, int param3, float param4) {
-            byte var0 = param0.getFlags();
+        @Nullable
+        protected Display.TextDisplay.TextRenderState getSubState(Display.TextDisplay param0) {
+            return param0.textRenderState();
+        }
+
+        public void renderInner(
+            Display.TextDisplay param0, Display.TextDisplay.TextRenderState param1, PoseStack param2, MultiBufferSource param3, int param4, float param5
+        ) {
+            byte var0 = param1.flags();
             boolean var1 = (var0 & 2) != 0;
             boolean var2 = (var0 & 4) != 0;
             boolean var3 = (var0 & 1) != 0;
             Display.TextDisplay.Align var4 = Display.TextDisplay.getAlign(var0);
-            byte var5 = param0.getTextOpacity(param4);
+            byte var5 = (byte)param1.textOpacity().get(param5);
             int var7;
             if (var2) {
                 float var6 = Minecraft.getInstance().options.getBackgroundOpacity(0.25F);
                 var7 = (int)(var6 * 255.0F) << 24;
             } else {
-                var7 = param0.getBackgroundColor(param4);
+                var7 = param1.backgroundColor().get(param5);
             }
 
             float var9 = 0.0F;
-            Matrix4f var10 = param1.last().pose();
+            Matrix4f var10 = param2.last().pose();
             var10.rotate((float) Math.PI, 0.0F, 1.0F, 0.0F);
             var10.scale(-0.025F, -0.025F, -0.025F);
             Display.TextDisplay.CachedInfo var11 = param0.cacheDisplay(this::splitLines);
@@ -146,11 +175,11 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
             int var14 = var11.lines().size() * var12;
             var10.translate(1.0F - (float)var13 / 2.0F, (float)(-var14), 0.0F);
             if (var7 != 0) {
-                VertexConsumer var15 = param2.getBuffer(var1 ? RenderType.textBackgroundSeeThrough() : RenderType.textBackground());
-                var15.vertex(var10, -1.0F, -1.0F, 0.0F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, -1.0F, (float)var14, 0.0F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, (float)var13, (float)var14, 0.0F).color(var7).uv2(param3).endVertex();
-                var15.vertex(var10, (float)var13, -1.0F, 0.0F).color(var7).uv2(param3).endVertex();
+                VertexConsumer var15 = param3.getBuffer(var1 ? RenderType.textBackgroundSeeThrough() : RenderType.textBackground());
+                var15.vertex(var10, -1.0F, -1.0F, 0.0F).color(var7).uv2(param4).endVertex();
+                var15.vertex(var10, -1.0F, (float)var14, 0.0F).color(var7).uv2(param4).endVertex();
+                var15.vertex(var10, (float)var13, (float)var14, 0.0F).color(var7).uv2(param4).endVertex();
+                var15.vertex(var10, (float)var13, -1.0F, 0.0F).color(var7).uv2(param4).endVertex();
             }
 
             for(Display.TextDisplay.CachedLine var16 : var11.lines()) {
@@ -167,10 +196,10 @@ public abstract class DisplayRenderer<T extends Display> extends EntityRenderer<
                         var5 << 24 | 16777215,
                         var3,
                         var10,
-                        param2,
+                        param3,
                         var1 ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.POLYGON_OFFSET,
                         0,
-                        param3
+                        param4
                     );
                 var9 += (float)var12;
             }

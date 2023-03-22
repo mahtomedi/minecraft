@@ -127,7 +127,7 @@ public class WorldUpgrader {
                             CompoundTag var17 = var14.read(var15).join().orElse(null);
                             if (var17 != null) {
                                 int var18 = ChunkStorage.getVersion(var17);
-                                ChunkGenerator var19 = ((LevelStem)this.dimensions.getOrThrow(Registries.levelToLevelStem(var12))).generator();
+                                ChunkGenerator var19 = this.dimensions.getOrThrow(Registries.levelToLevelStem(var12)).generator();
                                 CompoundTag var20 = var14.upgradeChunkTag(var12, () -> this.overworldDataStorage, var17, var19.getTypeNameForDataFixer());
                                 ChunkPos var21 = new ChunkPos(var20.getInt("xPos"), var20.getInt("zPos"));
                                 if (!var21.equals(var15)) {

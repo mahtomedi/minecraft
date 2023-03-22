@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 public class LastSeenMessagesValidator {
     private final int lastSeenCount;
-    private final ObjectList<LastSeenTrackedEntry> trackedMessages = new ObjectArrayList();
+    private final ObjectList<LastSeenTrackedEntry> trackedMessages = new ObjectArrayList<>();
     @Nullable
     private MessageSignature lastPendingMessage;
 
@@ -46,13 +46,13 @@ public class LastSeenMessagesValidator {
         if (!this.applyOffset(param0.offset())) {
             return Optional.empty();
         } else {
-            ObjectList<MessageSignature> var0 = new ObjectArrayList(param0.acknowledged().cardinality());
+            ObjectList<MessageSignature> var0 = new ObjectArrayList<>(param0.acknowledged().cardinality());
             if (param0.acknowledged().length() > this.lastSeenCount) {
                 return Optional.empty();
             } else {
                 for(int var1 = 0; var1 < this.lastSeenCount; ++var1) {
                     boolean var2 = param0.acknowledged().get(var1);
-                    LastSeenTrackedEntry var3 = (LastSeenTrackedEntry)this.trackedMessages.get(var1);
+                    LastSeenTrackedEntry var3 = this.trackedMessages.get(var1);
                     if (var2) {
                         if (var3 == null) {
                             return Optional.empty();

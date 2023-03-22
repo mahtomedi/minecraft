@@ -12,7 +12,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.security.PublicKey;
 import java.time.DateTimeException;
@@ -36,7 +35,7 @@ import org.slf4j.Logger;
 public class AccountProfileKeyPairManager implements ProfileKeyPairManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Duration MINIMUM_PROFILE_KEY_REFRESH_INTERVAL = Duration.ofHours(1L);
-    private static final Path PROFILE_KEY_PAIR_DIR = Path.of("profilekeys", new String[0]);
+    private static final Path PROFILE_KEY_PAIR_DIR = Path.of("profilekeys");
     private final UserApiService userApiService;
     private final Path profileKeyPairPath;
     private CompletableFuture<Optional<ProfileKeyPair>> keyPair;
@@ -45,7 +44,7 @@ public class AccountProfileKeyPairManager implements ProfileKeyPairManager {
     public AccountProfileKeyPairManager(UserApiService param0, UUID param1, Path param2) {
         this.userApiService = param0;
         this.profileKeyPairPath = param2.resolve(PROFILE_KEY_PAIR_DIR).resolve(param1 + ".json");
-        this.keyPair = CompletableFuture.<Optional>supplyAsync(
+        this.keyPair = CompletableFuture.<Optional<ProfileKeyPair>>supplyAsync(
                 () -> this.readProfileKeyPair().filter(param0x -> !param0x.publicKey().data().hasExpired()), Util.backgroundExecutor()
             )
             .thenCompose(this::readOrFetchProfileKeyPair);
@@ -67,7 +66,7 @@ public class AccountProfileKeyPairManager implements ProfileKeyPairManager {
 
     private CompletableFuture<Optional<ProfileKeyPair>> readOrFetchProfileKeyPair(Optional<ProfileKeyPair> param0x) {
         return CompletableFuture.supplyAsync(() -> {
-            if (param0x.isPresent() && !((ProfileKeyPair)param0x.get()).dueRefresh()) {
+            if (param0x.isPresent() && !param0x.get().dueRefresh()) {
                 if (!SharedConstants.IS_RUNNING_IN_IDE) {
                     this.writeProfileKeyPair(null);
                 }
@@ -117,7 +116,7 @@ public class AccountProfileKeyPairManager implements ProfileKeyPairManager {
                 ProfileKeyPair.CODEC.encodeStart(JsonOps.INSTANCE, param0).result().ifPresent(param0x -> {
                     try {
                         Files.createDirectories(this.profileKeyPairPath.getParent());
-                        Files.writeString(this.profileKeyPairPath, param0x.toString(), new OpenOption[0]);
+                        Files.writeString(this.profileKeyPairPath, param0x.toString());
                     } catch (Exception var3x) {
                         LOGGER.error("Failed to write profile key pair file {}", this.profileKeyPairPath, var3x);
                     }

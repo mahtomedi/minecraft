@@ -27,10 +27,13 @@ public interface WorldData {
 
     Set<String> getKnownServerBrands();
 
+    Set<String> getRemovedFeatureFlags();
+
     void setModdedInfo(String var1, boolean var2);
 
     default void fillCrashReportCategory(CrashReportCategory param0) {
         param0.setDetail("Known server brands", () -> String.join(", ", this.getKnownServerBrands()));
+        param0.setDetail("Removed feature flags", () -> String.join(", ", this.getRemovedFeatureFlags()));
         param0.setDetail("Level was modded", () -> Boolean.toString(this.wasModded()));
         param0.setDetail("Level storage version", () -> {
             int var0 = this.getVersion();

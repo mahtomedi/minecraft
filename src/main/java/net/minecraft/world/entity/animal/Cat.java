@@ -151,7 +151,7 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_VARIANT_ID, (CatVariant)BuiltInRegistries.CAT_VARIANT.getOrThrow(CatVariant.BLACK));
+        this.entityData.define(DATA_VARIANT_ID, BuiltInRegistries.CAT_VARIANT.getOrThrow(CatVariant.BLACK));
         this.entityData.define(IS_LYING, false);
         this.entityData.define(RELAX_STATE_ONE, false);
         this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
@@ -167,7 +167,7 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        CatVariant var0 = (CatVariant)BuiltInRegistries.CAT_VARIANT.get(ResourceLocation.tryParse(param0.getString("variant")));
+        CatVariant var0 = BuiltInRegistries.CAT_VARIANT.get(ResourceLocation.tryParse(param0.getString("variant")));
         if (var0 != null) {
             this.setVariant(var0);
         }
@@ -355,10 +355,10 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
         BuiltInRegistries.CAT_VARIANT
             .getTag(var1)
             .flatMap(param1x -> param1x.getRandomElement(param0.getRandom()))
-            .ifPresent(param0x -> this.setVariant((CatVariant)param0x.value()));
+            .ifPresent(param0x -> this.setVariant(param0x.value()));
         ServerLevel var2 = param0.getLevel();
         if (var2.structureManager().getStructureWithPieceAt(this.blockPosition(), StructureTags.CATS_SPAWN_AS_BLACK).isValid()) {
-            this.setVariant((CatVariant)BuiltInRegistries.CAT_VARIANT.getOrThrow(CatVariant.ALL_BLACK));
+            this.setVariant(BuiltInRegistries.CAT_VARIANT.getOrThrow(CatVariant.ALL_BLACK));
             this.setPersistenceRequired();
         }
 

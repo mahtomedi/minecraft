@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -366,27 +367,29 @@ public class StructureTemplate {
     public static List<StructureTemplate.StructureBlockInfo> processBlockInfos(
         LevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, List<StructureTemplate.StructureBlockInfo> param4
     ) {
-        List<StructureTemplate.StructureBlockInfo> var0 = Lists.newArrayList();
+        List<StructureTemplate.StructureBlockInfo> var0 = new ArrayList<>();
+        List<StructureTemplate.StructureBlockInfo> var1 = new ArrayList<>();
 
-        for(StructureTemplate.StructureBlockInfo var1 : param4) {
-            BlockPos var2 = calculateRelativePosition(param3, var1.pos).offset(param1);
-            StructureTemplate.StructureBlockInfo var3 = new StructureTemplate.StructureBlockInfo(var2, var1.state, var1.nbt != null ? var1.nbt.copy() : null);
-            Iterator<StructureProcessor> var4 = param3.getProcessors().iterator();
+        for(StructureTemplate.StructureBlockInfo var2 : param4) {
+            BlockPos var3 = calculateRelativePosition(param3, var2.pos).offset(param1);
+            StructureTemplate.StructureBlockInfo var4 = new StructureTemplate.StructureBlockInfo(var3, var2.state, var2.nbt != null ? var2.nbt.copy() : null);
+            Iterator<StructureProcessor> var5 = param3.getProcessors().iterator();
 
-            while(var3 != null && var4.hasNext()) {
-                var3 = var4.next().processBlock(param0, param1, param2, var1, var3, param3);
+            while(var4 != null && var5.hasNext()) {
+                var4 = var5.next().processBlock(param0, param1, param2, var2, var4, param3);
             }
 
-            if (var3 != null) {
-                var0.add(var3);
+            if (var4 != null) {
+                var1.add(var4);
+                var0.add(var2);
             }
         }
 
-        for(StructureProcessor var5 : param3.getProcessors()) {
-            var5.finalizeStructure(param0, param1, param2, param3, var0);
+        for(StructureProcessor var6 : param3.getProcessors()) {
+            var1 = var6.finalizeProcessing(param0, param1, param2, var0, var1, param3);
         }
 
-        return var0;
+        return var1;
     }
 
     private void placeEntities(
@@ -749,17 +752,7 @@ public class StructureTemplate {
         }
     }
 
-    public static class StructureBlockInfo {
-        public final BlockPos pos;
-        public final BlockState state;
-        public final CompoundTag nbt;
-
-        public StructureBlockInfo(BlockPos param0, BlockState param1, @Nullable CompoundTag param2) {
-            this.pos = param0;
-            this.state = param1;
-            this.nbt = param2;
-        }
-
+    public static record StructureBlockInfo(BlockPos pos, BlockState state, @Nullable CompoundTag nbt) {
         @Override
         public String toString() {
             return String.format(Locale.ROOT, "<StructureBlockInfo | %s | %s | %s>", this.pos, this.state, this.nbt);

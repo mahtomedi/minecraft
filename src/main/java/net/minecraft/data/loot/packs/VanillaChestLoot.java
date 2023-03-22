@@ -738,6 +738,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.LEATHER_CHESTPLATE).setWeight(3).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                     .add(LootItem.lootTableItem(Items.LEATHER_LEGGINGS).setWeight(3).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
                     .add(LootItem.lootTableItem(Items.LEATHER_BOOTS).setWeight(3).apply(EnchantRandomlyFunction.randomApplicableEnchantment()))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(5))
+                    .add(
+                        LootItem.lootTableItem(Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 
@@ -767,6 +777,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.PAPER).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 10.0F))))
                     .add(LootItem.lootTableItem(Items.FEATHER).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 5.0F))))
                     .add(LootItem.lootTableItem(Items.BOOK).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 5.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(5))
+                    .add(
+                        LootItem.lootTableItem(Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 
@@ -817,6 +837,18 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.COOKED_PORKCHOP).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 5.0F))))
                     .add(LootItem.lootTableItem(Blocks.CRIMSON_FUNGUS).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 7.0F))))
                     .add(LootItem.lootTableItem(Blocks.CRIMSON_ROOTS).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 7.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(11))
+                    .add(LootItem.lootTableItem(Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(9))
+                    .add(LootItem.lootTableItem(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -876,6 +908,18 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.ARROW).apply(SetItemCountFunction.setCount(UniformGenerator.between(5.0F, 17.0F))))
                     .add(LootItem.lootTableItem(Items.IRON_NUGGET).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 6.0F))))
                     .add(LootItem.lootTableItem(Items.GOLD_NUGGET).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 6.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(11))
+                    .add(LootItem.lootTableItem(Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(9))
+                    .add(LootItem.lootTableItem(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -963,6 +1007,12 @@ public class VanillaChestLoot implements LootTableSubProvider {
                             .setWeight(3)
                             .apply(EnchantWithLevelsFunction.enchantWithLevels(UniformGenerator.between(20.0F, 39.0F)).allowTreasure())
                     )
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(14))
+                    .add(LootItem.lootTableItem(Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -983,6 +1033,12 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.IRON_HORSE_ARMOR).setWeight(5))
                     .add(LootItem.lootTableItem(Items.DIAMOND_HORSE_ARMOR).setWeight(3))
                     .add(LootItem.lootTableItem(Blocks.OBSIDIAN).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 4.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(14))
+                    .add(LootItem.lootTableItem(Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1045,6 +1101,15 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.QUARTZ).apply(SetItemCountFunction.setCount(UniformGenerator.between(8.0F, 23.0F))))
                     .add(LootItem.lootTableItem(Blocks.GILDED_BLACKSTONE).apply(SetItemCountFunction.setCount(UniformGenerator.between(5.0F, 15.0F))))
                     .add(LootItem.lootTableItem(Items.MAGMA_CREAM).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 8.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(11))
+                    .add(LootItem.lootTableItem(Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
+            )
+            .withPool(
+                LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1126,6 +1191,18 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.STRING).apply(SetItemCountFunction.setCount(UniformGenerator.between(4.0F, 6.0F))))
                     .add(LootItem.lootTableItem(Items.ARROW).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(5.0F, 17.0F))))
                     .add(LootItem.lootTableItem(Items.COOKED_PORKCHOP).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(11))
+                    .add(LootItem.lootTableItem(Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(9))
+                    .add(LootItem.lootTableItem(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1166,6 +1243,12 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.GUNPOWDER).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
                     .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
                     .add(LootItem.lootTableItem(Items.STRING).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(1))
+                    .add(LootItem.lootTableItem(Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1183,6 +1266,9 @@ public class VanillaChestLoot implements LootTableSubProvider {
                             .setWeight(10)
                             .apply(EnchantWithLevelsFunction.enchantWithLevels(ConstantValue.exactly(30.0F)).allowTreasure())
                     )
+            )
+            .withPool(
+                LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F)).add(LootItem.lootTableItem(Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1211,6 +1297,12 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.DIAMOND_HORSE_ARMOR))
                     .add(LootItem.lootTableItem(Items.MUSIC_DISC_OTHERSIDE))
                     .add(LootItem.lootTableItem(Items.BOOK).apply(EnchantWithLevelsFunction.enchantWithLevels(ConstantValue.exactly(30.0F)).allowTreasure()))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(9))
+                    .add(LootItem.lootTableItem(Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1272,6 +1364,13 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.BONE).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 15.0F))))
                     .add(LootItem.lootTableItem(Items.SOUL_TORCH).setWeight(5).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 15.0F))))
                     .add(LootItem.lootTableItem(Items.COAL).setWeight(7).apply(SetItemCountFunction.setCount(UniformGenerator.between(6.0F, 15.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(75))
+                    .add(LootItem.lootTableItem(Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(4))
+                    .add(LootItem.lootTableItem(Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE).setWeight(1))
             );
     }
 
@@ -1292,6 +1391,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.GOLDEN_HORSE_ARMOR))
                     .add(LootItem.lootTableItem(Items.DIAMOND_HORSE_ARMOR))
                     .add(LootItem.lootTableItem(Items.BOOK).apply(EnchantWithLevelsFunction.enchantWithLevels(ConstantValue.exactly(30.0F)).allowTreasure()))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(2))
+                    .add(
+                        LootItem.lootTableItem(Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 
@@ -1312,6 +1421,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.IRON_NUGGET).setWeight(50).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 10.0F))))
                     .add(LootItem.lootTableItem(Items.GOLD_NUGGET).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 10.0F))))
                     .add(LootItem.lootTableItem(Items.LAPIS_LAZULI).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 10.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(5))
+                    .add(
+                        LootItem.lootTableItem(Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 
@@ -1345,6 +1464,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .setRolls(UniformGenerator.between(0.0F, 1.0F))
                     .add(LootItem.lootTableItem(Items.GOAT_HORN))
                     .apply(SetInstrumentFunction.setInstrumentOptions(InstrumentTags.REGULAR_GOAT_HORNS))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(3))
+                    .add(
+                        LootItem.lootTableItem(Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 
@@ -1377,6 +1506,16 @@ public class VanillaChestLoot implements LootTableSubProvider {
                     .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
                     .add(LootItem.lootTableItem(Items.STRING).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
                     .add(LootItem.lootTableItem(Blocks.SAND).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 8.0F))))
+            )
+            .withPool(
+                LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0F))
+                    .add(EmptyLootItem.emptyItem().setWeight(6))
+                    .add(
+                        LootItem.lootTableItem(Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE)
+                            .setWeight(1)
+                            .apply(SetItemCountFunction.setCount(ConstantValue.exactly(2.0F)))
+                    )
             );
     }
 }

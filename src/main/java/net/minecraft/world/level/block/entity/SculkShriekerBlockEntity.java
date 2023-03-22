@@ -38,7 +38,7 @@ import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
-public class SculkShriekerBlockEntity extends BlockEntity implements VibrationListener.VibrationListenerConfig {
+public class SculkShriekerBlockEntity extends BlockEntity implements VibrationListener.Config {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int LISTENER_RADIUS = 8;
     private static final int WARNING_SOUND_RADIUS = 10;
@@ -54,7 +54,7 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
     });
     private static final int SHRIEKING_TICKS = 90;
     private int warningLevel;
-    private VibrationListener listener = new VibrationListener(new BlockPositionSource(this.worldPosition), 8, this);
+    private VibrationListener listener = new VibrationListener(new BlockPositionSource(this.worldPosition), this);
 
     public SculkShriekerBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.SCULK_SHRIEKER, param0, param1);
@@ -88,6 +88,11 @@ public class SculkShriekerBlockEntity extends BlockEntity implements VibrationLi
             .encodeStart(NbtOps.INSTANCE, this.listener)
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("listener", param1));
+    }
+
+    @Override
+    public int getListenerRadius() {
+        return 8;
     }
 
     @Override

@@ -52,7 +52,7 @@ public class MessageArgument implements SignedArgument<MessageArgument.Message> 
         CompletableFuture<FilteredText> var1 = filterPlainText(param1, param2);
         CompletableFuture<Component> var2 = var0.getChatDecorator().decorate(param1.getPlayer(), param2.decoratedContent());
         param1.getChatMessageChainer().append(param4 -> CompletableFuture.allOf(var1, var2).thenAcceptAsync(param4x -> {
-                PlayerChatMessage var0x = param2.withUnsignedContent(var2.join()).filter(((FilteredText)var1.join()).mask());
+                PlayerChatMessage var0x = param2.withUnsignedContent(var2.join()).filter(var1.join().mask());
                 param0.accept(var0x);
             }, param4));
     }

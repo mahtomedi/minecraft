@@ -143,7 +143,7 @@ public class SynchedEntityData {
                 if (var1.isDirty()) {
                     var1.setDirty(false);
                     if (var0 == null) {
-                        var0 = new ArrayList();
+                        var0 = new ArrayList<>();
                     }
 
                     var0.add(var1.value());
@@ -165,7 +165,7 @@ public class SynchedEntityData {
         for(SynchedEntityData.DataItem<?> var1 : this.itemsById.values()) {
             if (!var1.isSetToDefault()) {
                 if (var0 == null) {
-                    var0 = new ArrayList();
+                    var0 = new ArrayList<>();
                 }
 
                 var0.add(var1.value());

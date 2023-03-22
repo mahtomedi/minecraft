@@ -1,24 +1,22 @@
 package net.minecraft.world.level.levelgen.feature;
 
 import com.mojang.serialization.Codec;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.stream.Stream;
+import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.loot.packs.UpdateOneTwentyBuiltInLootTables;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import org.apache.commons.lang3.mutable.MutableInt;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
     private static final BlockStatePredicate IS_SAND = BlockStatePredicate.forBlock(Blocks.SAND);
+    private final BlockState sand = Blocks.SAND.defaultBlockState();
     private final BlockState sandSlab = Blocks.SANDSTONE_SLAB.defaultBlockState();
     private final BlockState sandstone = Blocks.SANDSTONE.defaultBlockState();
     private final BlockState water = Blocks.WATER.defaultBlockState();
@@ -48,16 +46,12 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
 
-            for(int var4 = -1; var4 <= 0; ++var4) {
+            for(int var4 = -2; var4 <= 0; ++var4) {
                 for(int var5 = -2; var5 <= 2; ++var5) {
                     for(int var6 = -2; var6 <= 2; ++var6) {
                         var0.setBlock(var1.offset(var5, var4, var6), this.sandstone, 2);
                     }
                 }
-            }
-
-            if (var0.enabledFeatures().contains(FeatureFlags.UPDATE_1_20)) {
-                placeSandFloor(var0, var1, param0.random());
             }
 
             var0.setBlock(var1, this.water, 2);
@@ -66,10 +60,17 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
                 var0.setBlock(var1.relative(var7), this.water, 2);
             }
 
-            for(int var8 = -2; var8 <= 2; ++var8) {
-                for(int var9 = -2; var9 <= 2; ++var9) {
-                    if (var8 == -2 || var8 == 2 || var9 == -2 || var9 == 2) {
-                        var0.setBlock(var1.offset(var8, 1, var9), this.sandstone, 2);
+            BlockPos var8 = var1.below();
+            var0.setBlock(var8, this.sand, 2);
+
+            for(Direction var9 : Direction.Plane.HORIZONTAL) {
+                var0.setBlock(var8.relative(var9), this.sand, 2);
+            }
+
+            for(int var10 = -2; var10 <= 2; ++var10) {
+                for(int var11 = -2; var11 <= 2; ++var11) {
+                    if (var10 == -2 || var10 == 2 || var11 == -2 || var11 == 2) {
+                        var0.setBlock(var1.offset(var10, 1, var11), this.sandstone, 2);
                     }
                 }
             }
@@ -79,49 +80,34 @@ public class DesertWellFeature extends Feature<NoneFeatureConfiguration> {
             var0.setBlock(var1.offset(0, 1, 2), this.sandSlab, 2);
             var0.setBlock(var1.offset(0, 1, -2), this.sandSlab, 2);
 
-            for(int var10 = -1; var10 <= 1; ++var10) {
-                for(int var11 = -1; var11 <= 1; ++var11) {
-                    if (var10 == 0 && var11 == 0) {
-                        var0.setBlock(var1.offset(var10, 4, var11), this.sandstone, 2);
+            for(int var12 = -1; var12 <= 1; ++var12) {
+                for(int var13 = -1; var13 <= 1; ++var13) {
+                    if (var12 == 0 && var13 == 0) {
+                        var0.setBlock(var1.offset(var12, 4, var13), this.sandstone, 2);
                     } else {
-                        var0.setBlock(var1.offset(var10, 4, var11), this.sandSlab, 2);
+                        var0.setBlock(var1.offset(var12, 4, var13), this.sandSlab, 2);
                     }
                 }
             }
 
-            for(int var12 = 1; var12 <= 3; ++var12) {
-                var0.setBlock(var1.offset(-1, var12, -1), this.sandstone, 2);
-                var0.setBlock(var1.offset(-1, var12, 1), this.sandstone, 2);
-                var0.setBlock(var1.offset(1, var12, -1), this.sandstone, 2);
-                var0.setBlock(var1.offset(1, var12, 1), this.sandstone, 2);
+            for(int var14 = 1; var14 <= 3; ++var14) {
+                var0.setBlock(var1.offset(-1, var14, -1), this.sandstone, 2);
+                var0.setBlock(var1.offset(-1, var14, 1), this.sandstone, 2);
+                var0.setBlock(var1.offset(1, var14, -1), this.sandstone, 2);
+                var0.setBlock(var1.offset(1, var14, 1), this.sandstone, 2);
             }
 
+            List<BlockPos> var16 = List.of(var1, var1.east(), var1.south(), var1.west(), var1.north());
+            RandomSource var17 = param0.random();
+            placeSusSand(var0, Util.getRandom(var16, var17).below(1));
+            placeSusSand(var0, Util.getRandom(var16, var17).below(2));
             return true;
         }
     }
 
-    private static void placeSandFloor(WorldGenLevel param0, BlockPos param1, RandomSource param2) {
-        BlockPos var0 = param1.offset(0, -1, 0);
-        ObjectArrayList<BlockPos> var1 = Util.make(new ObjectArrayList<>(), param1x -> {
-            param1x.add(var0.east());
-            param1x.add(var0.south());
-            param1x.add(var0.west());
-            param1x.add(var0.north());
-        });
-        Util.shuffle(var1, param2);
-        MutableInt var2 = new MutableInt(param2.nextInt(2, 4));
-        Stream.concat(Stream.of(var0), var1.stream())
-            .forEach(
-                param2x -> {
-                    if (var2.getAndDecrement() > 0) {
-                        param0.setBlock(param2x, Blocks.SUSPICIOUS_SAND.defaultBlockState(), 3);
-                        param0.getBlockEntity(param2x, BlockEntityType.SUSPICIOUS_SAND)
-                            .ifPresent(param1x -> param1x.setLootTable(UpdateOneTwentyBuiltInLootTables.DESERT_WELL_ARCHAEOLOGY, param2x.asLong()));
-                    } else {
-                        param0.setBlock(param2x, Blocks.SAND.defaultBlockState(), 3);
-                    }
-        
-                }
-            );
+    private static void placeSusSand(WorldGenLevel param0, BlockPos param1) {
+        param0.setBlock(param1, Blocks.SUSPICIOUS_SAND.defaultBlockState(), 3);
+        param0.getBlockEntity(param1, BlockEntityType.BRUSHABLE_BLOCK)
+            .ifPresent(param1x -> param1x.setLootTable(BuiltInLootTables.DESERT_WELL_ARCHAEOLOGY, param1.asLong()));
     }
 }
