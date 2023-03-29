@@ -42,7 +42,7 @@ public abstract class ThrowableProjectile extends Projectile {
     @Override
     public void tick() {
         super.tick();
-        HitResult var0 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult var0 = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         boolean var1 = false;
         if (var0.getType() == HitResult.Type.BLOCK) {
             BlockPos var2 = ((BlockHitResult)var0).getBlockPos();

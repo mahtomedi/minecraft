@@ -63,8 +63,7 @@ public abstract class DisplayRenderer<T extends Display, S> extends EntityRender
 
         return switch(param0.billboardConstraints()) {
             case FIXED -> param1.orientation();
-            case HORIZONTAL -> new Quaternionf()
-            .rotationYXZ(((float) (-Math.PI / 180.0)) * param1.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
+            case HORIZONTAL -> new Quaternionf().rotationYXZ((float) (-Math.PI / 180.0) * param1.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
             case VERTICAL -> new Quaternionf()
             .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (Math.PI / 180.0) * param1.getXRot(), 0.0F);
             case CENTER -> new Quaternionf()

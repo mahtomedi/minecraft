@@ -46,7 +46,6 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                         return 15;
                     }
 
-                    param0 = BlockPos.offset(param0, 0, 16, 0);
                     var0 = SectionPos.offset(var0, Direction.UP);
                 }
             }
@@ -111,7 +110,7 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
         int var2 = SectionPos.y(param0);
         if (this.updatingSectionData.topSections.get(var0) == var2 + 1) {
             long var3;
-            for(var3 = param0; !this.storingLightForSection(var3) && this.hasSectionsBelow(var2); var3 = SectionPos.offset(var3, Direction.DOWN)) {
+            for(var3 = param0; !this.storingLightForSection(var3) && this.hasLightDataAtOrBelow(var2); var3 = SectionPos.offset(var3, Direction.DOWN)) {
                 --var2;
             }
 
@@ -296,7 +295,7 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
         }
     }
 
-    protected boolean hasSectionsBelow(int param0) {
+    protected boolean hasLightDataAtOrBelow(int param0) {
         return param0 >= this.updatingSectionData.currentLowestY;
     }
 

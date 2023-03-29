@@ -20,6 +20,8 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.Music;
+import net.minecraft.sounds.Musics;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
@@ -271,6 +273,16 @@ public class WinScreen extends Screen {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
         super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void removed() {
+        this.minecraft.getMusicManager().stopPlaying(Musics.CREDITS);
+    }
+
+    @Override
+    public Music getBackgroundMusic() {
+        return Musics.CREDITS;
     }
 
     @FunctionalInterface

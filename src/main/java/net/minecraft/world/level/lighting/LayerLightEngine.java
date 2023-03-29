@@ -7,22 +7,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S extends LayerLightSectionStorage<M>>
     extends DynamicGraphMinFixedPoint
     implements LayerLightEventListener {
-    public static final long SELF_SOURCE = Long.MAX_VALUE;
     private static final Direction[] DIRECTIONS = Direction.values();
     protected final LightChunkGetter chunkSource;
-    protected final LightLayer layer;
     protected final S storage;
     private boolean runningLightUpdates;
     protected final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
@@ -30,11 +26,10 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
     private final long[] lastChunkPos = new long[2];
     private final BlockGetter[] lastChunk = new BlockGetter[2];
 
-    public LayerLightEngine(LightChunkGetter param0, LightLayer param1, S param2) {
+    public LayerLightEngine(LightChunkGetter param0, S param1) {
         super(16, 256, 8192);
         this.chunkSource = param0;
-        this.layer = param1;
-        this.storage = param2;
+        this.storage = param1;
         this.clearCache();
     }
 
@@ -74,38 +69,27 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         Arrays.fill(this.lastChunk, null);
     }
 
-    protected BlockState getStateAndOpacity(long param0, @Nullable MutableInt param1) {
-        if (param0 == Long.MAX_VALUE) {
-            if (param1 != null) {
-                param1.setValue(0);
-            }
-
-            return Blocks.AIR.defaultBlockState();
-        } else {
-            int var0 = SectionPos.blockToSectionCoord(BlockPos.getX(param0));
-            int var1 = SectionPos.blockToSectionCoord(BlockPos.getZ(param0));
-            BlockGetter var2 = this.getChunk(var0, var1);
-            if (var2 == null) {
-                if (param1 != null) {
-                    param1.setValue(16);
-                }
-
-                return Blocks.BEDROCK.defaultBlockState();
-            } else {
-                this.pos.set(param0);
-                BlockState var3 = var2.getBlockState(this.pos);
-                boolean var4 = var3.canOcclude() && var3.useShapeForLightOcclusion();
-                if (param1 != null) {
-                    param1.setValue(var3.getLightBlock(this.chunkSource.getLevel(), this.pos));
-                }
-
-                return var4 ? var3 : Blocks.AIR.defaultBlockState();
-            }
-        }
+    protected BlockState getState(BlockPos param0) {
+        int var0 = SectionPos.blockToSectionCoord(param0.getX());
+        int var1 = SectionPos.blockToSectionCoord(param0.getZ());
+        BlockGetter var2 = this.getChunk(var0, var1);
+        return var2 == null ? Blocks.BEDROCK.defaultBlockState() : var2.getBlockState(param0);
     }
 
-    protected VoxelShape getShape(BlockState param0, long param1, Direction param2) {
-        return param0.canOcclude() ? param0.getFaceOcclusionShape(this.chunkSource.getLevel(), this.pos.set(param1), param2) : Shapes.empty();
+    protected int getOpacity(BlockState param0, BlockPos param1) {
+        return param0.getLightBlock(this.chunkSource.getLevel(), param1);
+    }
+
+    protected boolean shapeOccludes(long param0, BlockState param1, long param2, BlockState param3, Direction param4) {
+        VoxelShape var0 = this.getShape(param1, param0, param4);
+        VoxelShape var1 = this.getShape(param3, param2, param4.getOpposite());
+        return Shapes.faceShapeOccludes(var0, var1);
+    }
+
+    private VoxelShape getShape(BlockState param0, long param1, Direction param2) {
+        return param0.canOcclude() && param0.useShapeForLightOcclusion()
+            ? param0.getFaceOcclusionShape(this.chunkSource.getLevel(), this.pos.set(param1), param2)
+            : Shapes.empty();
     }
 
     public static int getLightBlockInto(
@@ -122,9 +106,12 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         }
     }
 
-    @Override
-    protected boolean isSource(long param0) {
-        return param0 == Long.MAX_VALUE;
+    @Nullable
+    protected static Direction getDirection(long param0, long param1) {
+        int var0 = BlockPos.getX(param1) - BlockPos.getX(param0);
+        int var1 = BlockPos.getY(param1) - BlockPos.getY(param0);
+        int var2 = BlockPos.getZ(param1) - BlockPos.getZ(param0);
+        return Direction.fromDelta(var0, var1, var2);
     }
 
     @Override
@@ -134,7 +121,7 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
 
     @Override
     protected int getLevel(long param0) {
-        return param0 == Long.MAX_VALUE ? 0 : 15 - this.storage.getStoredLevel(param0);
+        return this.isSource(param0) ? 0 : 15 - this.storage.getStoredLevel(param0);
     }
 
     protected int getLevel(DataLayer param0, long param1) {

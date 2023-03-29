@@ -59,6 +59,7 @@ import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.sounds.Music;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -719,6 +720,11 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     @Override
     public ScreenRectangle getRectangle() {
         return new ScreenRectangle(0, 0, this.width, this.height);
+    }
+
+    @Nullable
+    public Music getBackgroundMusic() {
+        return null;
     }
 
     @OnlyIn(Dist.CLIENT)

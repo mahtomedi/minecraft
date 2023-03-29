@@ -133,7 +133,7 @@ public class CamelAi {
         @Override
         protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
             if (param1 instanceof Camel var0) {
-                var0.standUpPanic();
+                var0.standUpInstantly();
             }
 
             super.start(param0, param1, param2);

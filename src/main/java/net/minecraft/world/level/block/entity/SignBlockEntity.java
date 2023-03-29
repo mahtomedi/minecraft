@@ -1,16 +1,23 @@
 package net.minecraft.world.level.block.entity;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.FilteredText;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 public class SignBlockEntity extends BlockEntity {
@@ -45,11 +54,12 @@ public class SignBlockEntity extends BlockEntity {
     public boolean isFacingFrontText(Player param0) {
         Block var1 = this.getBlockState().getBlock();
         if (var1 instanceof SignBlock var0) {
-            double var1x = param0.getX() - ((double)this.getBlockPos().getX() + 0.5);
-            double var2 = param0.getZ() - ((double)this.getBlockPos().getZ() + 0.5);
-            float var3x = var0.getYRotationDegrees(this.getBlockState());
-            float var4 = (float)(Mth.atan2(var2, var1x) * 180.0F / (float)Math.PI) - 90.0F;
-            return Mth.degreesDifferenceAbs(var3x, var4) <= 90.0F;
+            Vec3 var1x = var0.getSignHitboxCenterPosition(this.getBlockState());
+            double var2 = param0.getX() - ((double)this.getBlockPos().getX() + var1x.x);
+            double var3x = param0.getZ() - ((double)this.getBlockPos().getZ() + var1x.z);
+            float var4 = var0.getYRotationDegrees(this.getBlockState());
+            float var5 = (float)(Mth.atan2(var3x, var2) * 180.0F / (float)Math.PI) - 90.0F;
+            return Mth.degreesDifferenceAbs(var4, var5) <= 90.0F;
         } else {
             return false;
         }
@@ -94,17 +104,39 @@ public class SignBlockEntity extends BlockEntity {
             SignText.DIRECT_CODEC
                 .parse(NbtOps.INSTANCE, param0.getCompound("front_text"))
                 .resultOrPartial(LOGGER::error)
-                .ifPresent(param0x -> this.frontText = param0x);
+                .ifPresent(param0x -> this.frontText = this.loadLines(param0x));
         }
 
         if (param0.contains("back_text")) {
             SignText.DIRECT_CODEC
                 .parse(NbtOps.INSTANCE, param0.getCompound("back_text"))
                 .resultOrPartial(LOGGER::error)
-                .ifPresent(param0x -> this.backText = param0x);
+                .ifPresent(param0x -> this.backText = this.loadLines(param0x));
         }
 
         this.isWaxed = param0.getBoolean("is_waxed");
+    }
+
+    private SignText loadLines(SignText param0) {
+        for(int var0 = 0; var0 < 4; ++var0) {
+            Component var1 = this.loadLine(param0.getMessage(var0, false));
+            Component var2 = this.loadLine(param0.getMessage(var0, true));
+            param0 = param0.setMessage(var0, var1, var2);
+        }
+
+        return param0;
+    }
+
+    private Component loadLine(Component param0) {
+        Level var3 = this.level;
+        if (var3 instanceof ServerLevel var0) {
+            try {
+                return ComponentUtils.updateForEntity(createCommandSourceStack(null, var0, this.worldPosition), param0, null, 0);
+            } catch (CommandSyntaxException var4) {
+            }
+        }
+
+        return param0;
     }
 
     public void updateSignText(Player param0, boolean param1, List<FilteredText> param2) {
@@ -156,6 +188,31 @@ public class SignBlockEntity extends BlockEntity {
         } else {
             return false;
         }
+    }
+
+    public boolean canExecuteClickCommands(boolean param0, Player param1) {
+        return this.isWaxed() && this.getText(param0).hasAnyClickCommands(param1);
+    }
+
+    public boolean executeClickCommandsIfPresent(ServerPlayer param0, ServerLevel param1, BlockPos param2, boolean param3) {
+        boolean var0 = false;
+
+        for(Component var1 : this.getText(param3).getMessages(param0.isTextFilteringEnabled())) {
+            Style var2 = var1.getStyle();
+            ClickEvent var3 = var2.getClickEvent();
+            if (var3 != null && var3.getAction() == ClickEvent.Action.RUN_COMMAND) {
+                param0.getServer().getCommands().performPrefixedCommand(createCommandSourceStack(param0, param1, param2), var3.getValue());
+                var0 = true;
+            }
+        }
+
+        return var0;
+    }
+
+    private static CommandSourceStack createCommandSourceStack(@Nullable ServerPlayer param0, ServerLevel param1, BlockPos param2) {
+        String var0 = param0 == null ? "Sign" : param0.getName().getString();
+        Component var1 = (Component)(param0 == null ? Component.literal("Sign") : param0.getDisplayName());
+        return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(param2), Vec2.ZERO, param1, 2, var0, var1, param1.getServer(), param0);
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {

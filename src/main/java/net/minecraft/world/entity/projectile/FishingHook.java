@@ -252,7 +252,7 @@ public class FishingHook extends Projectile {
     }
 
     private void checkCollision() {
-        HitResult var0 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult var0 = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         this.onHit(var0);
     }
 

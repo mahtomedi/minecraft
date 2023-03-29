@@ -10,7 +10,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.IntProvider;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 public class CappedProcessor extends StructureProcessor {
     public static final Codec<CappedProcessor> CODEC = RecordCodecBuilder.create(
@@ -35,7 +35,7 @@ public class CappedProcessor extends StructureProcessor {
 
     @Override
     public final List<StructureTemplate.StructureBlockInfo> finalizeProcessing(
-        LevelAccessor param0,
+        ServerLevelAccessor param0,
         BlockPos param1,
         BlockPos param2,
         List<StructureTemplate.StructureBlockInfo> param3,
@@ -52,7 +52,7 @@ public class CappedProcessor extends StructureProcessor {
                 );
                 return param4;
             } else {
-                RandomSource var0 = param0.getRandom().forkPositional().at(param1);
+                RandomSource var0 = RandomSource.create(param0.getLevel().getSeed()).forkPositional().at(param1);
                 int var1 = Math.min(this.limit.sample(var0), param4.size());
                 if (var1 < 1) {
                     return param4;

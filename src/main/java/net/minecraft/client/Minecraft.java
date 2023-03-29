@@ -95,7 +95,6 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import net.minecraft.client.gui.screens.WinScreen;
 import net.minecraft.client.gui.screens.advancements.AdvancementsScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -2449,17 +2448,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public Music getSituationalMusic() {
-        if (this.screen instanceof WinScreen) {
-            return Musics.CREDITS;
+        Music var0 = Optionull.map(this.screen, Screen::getBackgroundMusic);
+        if (var0 != null) {
+            return var0;
         } else if (this.player != null) {
             if (this.player.level.dimension() == Level.END) {
                 return this.gui.getBossOverlay().shouldPlayMusic() ? Musics.END_BOSS : Musics.END;
             } else {
-                Holder<Biome> var0 = this.player.level.getBiome(this.player.blockPosition());
-                if (!this.musicManager.isPlayingMusic(Musics.UNDER_WATER) && (!this.player.isUnderWater() || !var0.is(BiomeTags.PLAYS_UNDERWATER_MUSIC))) {
+                Holder<Biome> var1 = this.player.level.getBiome(this.player.blockPosition());
+                if (!this.musicManager.isPlayingMusic(Musics.UNDER_WATER) && (!this.player.isUnderWater() || !var1.is(BiomeTags.PLAYS_UNDERWATER_MUSIC))) {
                     return this.player.level.dimension() != Level.NETHER && this.player.getAbilities().instabuild && this.player.getAbilities().mayfly
                         ? Musics.CREATIVE
-                        : var0.value().getBackgroundMusic().orElse(Musics.GAME);
+                        : var1.value().getBackgroundMusic().orElse(Musics.GAME);
                 } else {
                     return Musics.UNDER_WATER;
                 }

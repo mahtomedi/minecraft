@@ -618,7 +618,6 @@ public class CreativeModeTabs {
             param1.accept(Items.SNOW);
             param1.accept(Items.MOSS_BLOCK);
             param1.accept(Items.MOSS_CARPET);
-            param1.accept(Items.PINK_PETALS);
             param1.accept(Items.STONE);
             param1.accept(Items.DEEPSLATE);
             param1.accept(Items.GRANITE);
@@ -728,6 +727,7 @@ public class CreativeModeTabs {
             param1.accept(Items.OXEYE_DAISY);
             param1.accept(Items.CORNFLOWER);
             param1.accept(Items.LILY_OF_THE_VALLEY);
+            param1.accept(Items.PINK_PETALS);
             param1.accept(Items.SPORE_BLOSSOM);
             param1.accept(Items.BAMBOO);
             param1.accept(Items.SUGAR_CANE);

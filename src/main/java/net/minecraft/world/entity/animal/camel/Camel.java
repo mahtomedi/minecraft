@@ -59,6 +59,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     private static final float RUNNING_SPEED_BONUS = 0.1F;
     private static final float DASH_VERTICAL_MOMENTUM = 1.4285F;
     private static final float DASH_HORIZONTAL_MOMENTUM = 22.2222F;
+    private static final int DASH_MINIMUM_DURATION_TICKS = 5;
     private static final int SITDOWN_DURATION_TICKS = 40;
     private static final int STANDUP_DURATION_TICKS = 52;
     private static final int IDLE_MINIMAL_DURATION_TICKS = 80;
@@ -164,7 +165,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     @Override
     public void tick() {
         super.tick();
-        if (this.isDashing() && this.dashCooldown < 55 && (this.onGround || this.isInWater())) {
+        if (this.isDashing() && this.dashCooldown < 50 && (this.onGround || this.isInWater() || this.isPassenger())) {
             this.setDashing(false);
         }
 
@@ -181,6 +182,10 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
         if (this.refuseToMove()) {
             this.clampHeadRotationToBody(this, 30.0F);
+        }
+
+        if (this.isCamelSitting() && this.isInWater()) {
+            this.standUpInstantly();
         }
 
     }
@@ -235,7 +240,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     }
 
     @Override
-    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+    protected void tickRidden(Player param0, Vec3 param1) {
         super.tickRidden(param0, param1);
         if (param0.zza > 0.0F && this.isCamelSitting() && !this.isInPoseTransition()) {
             this.standUp();
@@ -248,7 +253,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     }
 
     @Override
-    protected float getRiddenSpeed(LivingEntity param0) {
+    protected float getRiddenSpeed(Player param0) {
         float var0 = param0.isSprinting() && this.getJumpCooldown() == 0 ? 0.1F : 0.0F;
         return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) + var0;
     }
@@ -259,7 +264,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
     }
 
     @Override
-    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+    protected Vec3 getRiddenInput(Player param0, Vec3 param1) {
         return this.refuseToMove() ? Vec3.ZERO : super.getRiddenInput(param0, param1);
     }
 
@@ -457,7 +462,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
     @Override
     protected void actuallyHurt(DamageSource param0, float param1) {
-        this.standUpPanic();
+        this.standUpInstantly();
         super.actuallyHurt(param0, param1);
     }
 
@@ -618,7 +623,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
         }
     }
 
-    public void standUpPanic() {
+    public void standUpInstantly() {
         this.setPose(Pose.STANDING);
         this.resetLastPoseChangeTickToFullStand(this.level.getGameTime());
     }

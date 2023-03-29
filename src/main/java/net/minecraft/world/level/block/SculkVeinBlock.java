@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.PushReaction;
 
 public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, SimpleWaterloggedBlock {
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -170,11 +169,6 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
     @Override
     public FluidState getFluidState(BlockState param0) {
         return param0.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(param0);
-    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState param0) {
-        return PushReaction.DESTROY;
     }
 
     class SculkVeinSpreaderConfig extends MultifaceSpreader.DefaultSpreaderConfig {

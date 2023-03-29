@@ -259,7 +259,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+    protected void tickRidden(Player param0, Vec3 param1) {
         this.setRot(param0.getYRot(), param0.getXRot() * 0.5F);
         this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
         this.steering.tickBoost();
@@ -267,12 +267,12 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     }
 
     @Override
-    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+    protected Vec3 getRiddenInput(Player param0, Vec3 param1) {
         return new Vec3(0.0, 0.0, 1.0);
     }
 
     @Override
-    protected float getRiddenSpeed(LivingEntity param0) {
+    protected float getRiddenSpeed(Player param0) {
         return (float)(this.getAttributeValue(Attributes.MOVEMENT_SPEED) * (double)(this.isSuffocating() ? 0.35F : 0.55F) * (double)this.steering.boostFactor());
     }
 

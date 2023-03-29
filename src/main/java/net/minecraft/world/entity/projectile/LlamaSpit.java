@@ -33,7 +33,7 @@ public class LlamaSpit extends Projectile {
     public void tick() {
         super.tick();
         Vec3 var0 = this.getDeltaMovement();
-        HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult var1 = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         this.onHit(var1);
         double var2 = this.getX() + var0.x;
         double var3 = this.getY() + var0.y;

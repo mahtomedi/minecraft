@@ -217,7 +217,7 @@ public class ShulkerBullet extends Projectile {
                 this.setDeltaMovement(var0.add((this.targetDeltaX - var0.x) * 0.2, (this.targetDeltaY - var0.y) * 0.2, (this.targetDeltaZ - var0.z) * 0.2));
             }
 
-            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+            HitResult var1 = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }

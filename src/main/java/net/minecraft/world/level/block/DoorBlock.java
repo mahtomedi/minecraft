@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -236,11 +235,6 @@ public class DoorBlock extends Block {
     }
 
     @Override
-    public PushReaction getPistonPushReaction(BlockState param0) {
-        return PushReaction.DESTROY;
-    }
-
-    @Override
     public BlockState rotate(BlockState param0, Rotation param1) {
         return param0.setValue(FACING, param1.rotate(param0.getValue(FACING)));
     }
@@ -265,6 +259,6 @@ public class DoorBlock extends Block {
     }
 
     public static boolean isWoodenDoor(BlockState param0) {
-        return param0.getBlock() instanceof DoorBlock && (param0.getMaterial() == Material.WOOD || param0.getMaterial() == Material.NETHER_WOOD);
+        return param0.getBlock() instanceof DoorBlock && param0.getMaterial() == Material.WOOD;
     }
 }

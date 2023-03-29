@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -132,11 +131,6 @@ public abstract class BasePressurePlateBlock extends Block {
     @Override
     public boolean isSignalSource(BlockState param0) {
         return true;
-    }
-
-    @Override
-    public PushReaction getPistonPushReaction(BlockState param0) {
-        return PushReaction.DESTROY;
     }
 
     protected abstract int getSignalStrength(Level var1, BlockPos var2);

@@ -365,7 +365,7 @@ public class StructureTemplate {
     }
 
     public static List<StructureTemplate.StructureBlockInfo> processBlockInfos(
-        LevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, List<StructureTemplate.StructureBlockInfo> param4
+        ServerLevelAccessor param0, BlockPos param1, BlockPos param2, StructurePlaceSettings param3, List<StructureTemplate.StructureBlockInfo> param4
     ) {
         List<StructureTemplate.StructureBlockInfo> var0 = new ArrayList<>();
         List<StructureTemplate.StructureBlockInfo> var1 = new ArrayList<>();

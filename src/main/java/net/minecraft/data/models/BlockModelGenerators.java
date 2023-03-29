@@ -2035,7 +2035,13 @@ public class BlockModelGenerators {
     }
 
     private void createPottedAzalea(Block param0) {
-        ResourceLocation var0 = ModelTemplates.POTTED_AZALEA.create(param0, TextureMapping.cubeTop(param0), this.modelOutput);
+        ResourceLocation var0;
+        if (param0 == Blocks.POTTED_FLOWERING_AZALEA) {
+            var0 = ModelTemplates.POTTED_FLOWERING_AZALEA.create(param0, TextureMapping.pottedAzalea(param0), this.modelOutput);
+        } else {
+            var0 = ModelTemplates.POTTED_AZALEA.create(param0, TextureMapping.pottedAzalea(param0), this.modelOutput);
+        }
+
         this.blockStateOutput.accept(createSimpleBlock(param0, var0));
     }
 
@@ -3963,7 +3969,7 @@ public class BlockModelGenerators {
                 case 2 -> "_very_cracked";
                 default -> "_not_cracked";
             };
-            TextureMapping var1x = TextureMapping.cube(TextureMapping.getBlockTexture(Blocks.SNIFFER_EGG, var0x));
+            TextureMapping var1x = TextureMapping.snifferEgg(var0x);
             return ModelTemplates.SNIFFER_EGG.createWithSuffix(Blocks.SNIFFER_EGG, var0x, var1x, this.modelOutput);
         };
         this.blockStateOutput
@@ -4471,7 +4477,7 @@ public class BlockModelGenerators {
         this.createCropBlock(Blocks.NETHER_WART, BlockStateProperties.AGE_3, 0, 1, 1, 2);
         this.createCropBlock(Blocks.POTATOES, BlockStateProperties.AGE_7, 0, 0, 1, 1, 2, 2, 2, 3);
         this.createCropBlock(Blocks.WHEAT, BlockStateProperties.AGE_7, 0, 1, 2, 3, 4, 5, 6, 7);
-        this.createCrossBlock(Blocks.TORCHFLOWER_CROP, BlockModelGenerators.TintState.NOT_TINTED, BlockStateProperties.AGE_2, 0, 1, 2);
+        this.createCrossBlock(Blocks.TORCHFLOWER_CROP, BlockModelGenerators.TintState.NOT_TINTED, BlockStateProperties.AGE_1, 0, 1);
         this.createPitcherCrop();
         this.createPitcherPlant();
         this.blockEntityModels(ModelLocationUtils.decorateBlockModelLocation("decorated_pot"), Blocks.TERRACOTTA).createWithoutBlockItem(Blocks.DECORATED_POT);

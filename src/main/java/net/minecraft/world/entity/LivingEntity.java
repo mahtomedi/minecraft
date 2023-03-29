@@ -2147,7 +2147,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.calculateEntityAnimation(this instanceof FlyingAnimal);
     }
 
-    private void travelRidden(LivingEntity param0, Vec3 param1) {
+    private void travelRidden(Player param0, Vec3 param1) {
         Vec3 var0 = this.getRiddenInput(param0, param1);
         this.tickRidden(param0, var0);
         if (this.isControlledByLocalInstance()) {
@@ -2161,14 +2161,14 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     }
 
-    protected void tickRidden(LivingEntity param0, Vec3 param1) {
+    protected void tickRidden(Player param0, Vec3 param1) {
     }
 
-    protected Vec3 getRiddenInput(LivingEntity param0, Vec3 param1) {
+    protected Vec3 getRiddenInput(Player param0, Vec3 param1) {
         return param1;
     }
 
-    protected float getRiddenSpeed(LivingEntity param0) {
+    protected float getRiddenSpeed(Player param0) {
         return this.getSpeed();
     }
 
@@ -2573,18 +2573,22 @@ public abstract class LivingEntity extends Entity implements Attackable {
             this.noJumpDelay = 0;
         }
 
-        this.level.getProfiler().pop();
-        this.level.getProfiler().push("travel");
-        this.xxa *= 0.98F;
-        this.zza *= 0.98F;
-        this.updateFallFlying();
-        AABB var12 = this.getBoundingBox();
-        LivingEntity var13 = this.getControllingPassenger();
-        Vec3 var14 = new Vec3((double)this.xxa, (double)this.yya, (double)this.zza);
-        if (var13 != null && this.isAlive()) {
-            this.travelRidden(var13, var14);
-        } else {
-            this.travel(var14);
+        AABB var12;
+        label101: {
+            this.level.getProfiler().pop();
+            this.level.getProfiler().push("travel");
+            this.xxa *= 0.98F;
+            this.zza *= 0.98F;
+            this.updateFallFlying();
+            var12 = this.getBoundingBox();
+            Vec3 var13 = new Vec3((double)this.xxa, (double)this.yya, (double)this.zza);
+            LivingEntity var17 = this.getControllingPassenger();
+            if (var17 instanceof Player var14 && this.isAlive()) {
+                this.travelRidden(var14, var13);
+                break label101;
+            }
+
+            this.travel(var13);
         }
 
         this.level.getProfiler().pop();

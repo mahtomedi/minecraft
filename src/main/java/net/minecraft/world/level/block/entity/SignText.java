@@ -8,21 +8,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.commands.CommandSource;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 
 public class SignText {
     private static final Codec<Component[]> LINES_CODEC = ExtraCodecs.FLAT_COMPONENT
@@ -115,7 +108,7 @@ public class SignText {
         return Arrays.stream(this.getMessages(param0.isTextFilteringEnabled())).anyMatch(param0x -> !param0x.getString().isEmpty());
     }
 
-    private Component[] getMessages(boolean param0) {
+    public Component[] getMessages(boolean param0) {
         return param0 ? this.filteredMessages : this.messages;
     }
 
@@ -159,26 +152,5 @@ public class SignText {
         }
 
         return false;
-    }
-
-    public boolean executeClickCommandsIfPresent(ServerPlayer param0, ServerLevel param1, BlockPos param2) {
-        boolean var0 = false;
-
-        for(Component var1 : this.getMessages(param0.isTextFilteringEnabled())) {
-            Style var2 = var1.getStyle();
-            ClickEvent var3 = var2.getClickEvent();
-            if (var3 != null && var3.getAction() == ClickEvent.Action.RUN_COMMAND) {
-                param0.getServer().getCommands().performPrefixedCommand(createCommandSourceStack(param0, param1, param2), var3.getValue());
-                var0 = true;
-            }
-        }
-
-        return var0;
-    }
-
-    private static CommandSourceStack createCommandSourceStack(ServerPlayer param0, ServerLevel param1, BlockPos param2) {
-        String var0 = param0.getName().getString();
-        Component var1 = param0.getDisplayName();
-        return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(param2), Vec2.ZERO, param1, 2, var0, var1, param1.getServer(), param0);
     }
 }

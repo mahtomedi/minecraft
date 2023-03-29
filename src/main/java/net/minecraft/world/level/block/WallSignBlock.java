@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -90,6 +91,12 @@ public class WallSignBlock extends SignBlock {
     @Override
     public float getYRotationDegrees(BlockState param0) {
         return param0.getValue(FACING).toYRot();
+    }
+
+    @Override
+    public Vec3 getSignHitboxCenterPosition(BlockState param0) {
+        VoxelShape var0 = AABBS.get(param0.getValue(FACING));
+        return var0.bounds().getCenter();
     }
 
     @Override

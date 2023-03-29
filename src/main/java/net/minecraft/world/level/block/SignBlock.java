@@ -2,7 +2,6 @@ package net.minecraft.world.level.block;
 
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +32,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -75,33 +75,28 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
         Item var1 = var0.getItem();
-        Item var5 = var0.getItem();
-        SignApplicator var3 = var5 instanceof SignApplicator var2 ? var2 : null;
+        Item var5x = var0.getItem();
+        SignApplicator var3 = var5x instanceof SignApplicator var2 ? var2 : null;
         boolean var4 = var3 != null && param3.getAbilities().mayBuild;
-        if (param1.isClientSide) {
-            return var4 ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
-        } else {
-            BlockEntity var6 = param1.getBlockEntity(param2);
-            if (var6 instanceof SignBlockEntity var5) {
+        BlockEntity var6 = param1.getBlockEntity(param2);
+        if (var6 instanceof SignBlockEntity var5) {
+            if (!param1.isClientSide) {
                 boolean var6x = var5.isFacingFrontText(param3);
                 SignText var7 = var5.getText(var6x);
                 if (var5.isWaxed()) {
-                    boolean var8 = var7.executeClickCommandsIfPresent((ServerPlayer)param3, (ServerLevel)param1, param2);
+                    boolean var8 = var5.executeClickCommandsIfPresent((ServerPlayer)param3, (ServerLevel)param1, param2, var6x);
                     if (!var8) {
                         param1.playSound(null, var5.getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
+                        return InteractionResult.PASS;
+                    } else {
+                        return var4 ? InteractionResult.PASS : InteractionResult.SUCCESS;
                     }
-
-                    return InteractionResult.SUCCESS;
                 } else if (var4
                     && !this.otherPlayerIsEditingSign(param3, var5)
                     && var3.canApplyToSign(var7, param3)
                     && var3.tryApplyToSign(param1, var5, var6x, param3)) {
                     if (!param3.isCreative()) {
                         var0.shrink(1);
-                    }
-
-                    if (param3 instanceof ServerPlayer var9) {
-                        CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(var9, param2, var0);
                     }
 
                     param1.gameEvent(GameEvent.BLOCK_CHANGE, var5.getBlockPos(), GameEvent.Context.of(param3, var5.getBlockState()));
@@ -114,12 +109,18 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                     return InteractionResult.PASS;
                 }
             } else {
-                return InteractionResult.PASS;
+                return !var4 && !var5.isWaxed() ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
             }
+        } else {
+            return InteractionResult.PASS;
         }
     }
 
     public abstract float getYRotationDegrees(BlockState var1);
+
+    public Vec3 getSignHitboxCenterPosition(BlockState param0) {
+        return new Vec3(0.5, 0.5, 0.5);
+    }
 
     @Override
     public FluidState getFluidState(BlockState param0) {

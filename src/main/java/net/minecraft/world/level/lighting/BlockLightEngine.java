@@ -1,58 +1,52 @@
 package net.minecraft.world.level.lighting;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 public final class BlockLightEngine extends LayerLightEngine<BlockLightSectionStorage.BlockDataLayerStorageMap, BlockLightSectionStorage> {
     private static final Direction[] DIRECTIONS = Direction.values();
     private final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
     public BlockLightEngine(LightChunkGetter param0) {
-        super(param0, LightLayer.BLOCK, new BlockLightSectionStorage(param0));
+        this(param0, new BlockLightSectionStorage(param0));
+    }
+
+    @VisibleForTesting
+    public BlockLightEngine(LightChunkGetter param0, BlockLightSectionStorage param1) {
+        super(param0, param1);
     }
 
     private int getLightEmission(long param0) {
-        int var0 = BlockPos.getX(param0);
-        int var1 = BlockPos.getY(param0);
-        int var2 = BlockPos.getZ(param0);
-        BlockGetter var3 = this.chunkSource.getChunkForLighting(SectionPos.blockToSectionCoord(var0), SectionPos.blockToSectionCoord(var2));
-        return var3 != null ? var3.getLightEmission(this.pos.set(var0, var1, var2)) : 0;
+        return this.getState(this.pos.set(param0)).getLightEmission();
     }
 
     @Override
     protected int computeLevelFromNeighbor(long param0, long param1, int param2) {
-        if (param1 == Long.MAX_VALUE) {
+        if (this.isSource(param1)) {
             return 15;
-        } else if (param0 == Long.MAX_VALUE) {
+        } else if (this.isSource(param0)) {
             return param2 + 15 - this.getLightEmission(param1);
-        } else if (param2 >= 15) {
-            return param2;
+        } else if (param2 >= 14) {
+            return 15;
         } else {
-            int var0 = Integer.signum(BlockPos.getX(param1) - BlockPos.getX(param0));
-            int var1 = Integer.signum(BlockPos.getY(param1) - BlockPos.getY(param0));
-            int var2 = Integer.signum(BlockPos.getZ(param1) - BlockPos.getZ(param0));
-            Direction var3 = Direction.fromNormal(var0, var1, var2);
-            if (var3 == null) {
+            this.pos.set(param1);
+            BlockState var0 = this.getState(this.pos);
+            int var1 = this.getOpacity(var0, this.pos);
+            if (var1 >= 15) {
                 return 15;
             } else {
-                MutableInt var4 = new MutableInt();
-                BlockState var5 = this.getStateAndOpacity(param1, var4);
-                if (var4.getValue() >= 15) {
+                Direction var2 = getDirection(param0, param1);
+                if (var2 == null) {
                     return 15;
                 } else {
-                    BlockState var6 = this.getStateAndOpacity(param0, null);
-                    VoxelShape var7 = this.getShape(var6, param0, var3);
-                    VoxelShape var8 = this.getShape(var5, param1, var3.getOpposite());
-                    return Shapes.faceShapeOccludes(var7, var8) ? 15 : param2 + Math.max(1, var4.getValue());
+                    this.pos.set(param0);
+                    BlockState var3 = this.getState(this.pos);
+                    return this.shapeOccludes(param0, var3, param1, var0, var2) ? 15 : param2 + Math.max(1, var1);
                 }
             }
         }
@@ -60,22 +54,24 @@ public final class BlockLightEngine extends LayerLightEngine<BlockLightSectionSt
 
     @Override
     protected void checkNeighborsAfterUpdate(long param0, int param1, boolean param2) {
-        long var0 = SectionPos.blockToSection(param0);
+        if (!param2 || param1 < this.levelCount - 2) {
+            long var0 = SectionPos.blockToSection(param0);
 
-        for(Direction var1 : DIRECTIONS) {
-            long var2 = BlockPos.offset(param0, var1);
-            long var3 = SectionPos.blockToSection(var2);
-            if (var0 == var3 || this.storage.storingLightForSection(var3)) {
-                this.checkNeighbor(param0, var2, param1, param2);
+            for(Direction var1 : DIRECTIONS) {
+                long var2 = BlockPos.offset(param0, var1);
+                long var3 = SectionPos.blockToSection(var2);
+                if (var0 == var3 || this.storage.storingLightForSection(var3)) {
+                    this.checkNeighbor(param0, var2, param1, param2);
+                }
             }
-        }
 
+        }
     }
 
     @Override
     protected int getComputedLevel(long param0, long param1, int param2) {
         int var0 = param2;
-        if (Long.MAX_VALUE != param1) {
+        if (!this.isSource(param1)) {
             int var1 = this.computeLevelFromNeighbor(Long.MAX_VALUE, param0, 0);
             if (param2 > var1) {
                 var0 = var1;
@@ -101,13 +97,16 @@ public final class BlockLightEngine extends LayerLightEngine<BlockLightSectionSt
                 }
 
                 if (var7 != null) {
-                    int var9 = this.computeLevelFromNeighbor(var5, param0, this.getLevel(var7, var5));
-                    if (var0 > var9) {
-                        var0 = var9;
-                    }
+                    int var9 = this.getLevel(var7, var5);
+                    if (var9 + 1 < var0) {
+                        int var10 = this.computeLevelFromNeighbor(var5, param0, var9);
+                        if (var0 > var10) {
+                            var0 = var10;
+                        }
 
-                    if (var0 == 0) {
-                        return var0;
+                        if (var0 == 0) {
+                            return var0;
+                        }
                     }
                 }
             }

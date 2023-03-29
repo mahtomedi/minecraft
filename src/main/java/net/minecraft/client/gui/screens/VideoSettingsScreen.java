@@ -171,6 +171,25 @@ public class VideoSettingsScreen extends OptionsSubScreen {
     }
 
     @Override
+    public boolean mouseScrolled(double param0, double param1, double param2) {
+        if (Screen.hasControlDown()) {
+            OptionInstance<Integer> var0 = this.options.guiScale();
+            int var1 = var0.get() + (int)Math.signum(param2);
+            if (var1 != 0) {
+                var0.set(var1);
+                if (var0.get() == var1) {
+                    this.minecraft.resizeDisplay();
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            return super.mouseScrolled(param0, param1, param2);
+        }
+    }
+
+    @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
         this.basicListRender(param0, this.list, param1, param2, param3);
     }

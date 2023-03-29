@@ -3,15 +3,12 @@ package net.minecraft.core;
 import com.google.common.collect.Iterators;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -50,10 +47,6 @@ public enum Direction implements StringRepresentable {
         .filter(param0 -> param0.getAxis().isHorizontal())
         .sorted(Comparator.comparingInt(param0 -> param0.data2d))
         .toArray(param0 -> new Direction[param0]);
-    private static final Long2ObjectMap<Direction> BY_NORMAL = Arrays.stream(VALUES)
-        .collect(Collectors.toMap(param0 -> new BlockPos(param0.getNormal()).asLong(), param0 -> param0, (param0, param1) -> {
-            throw new IllegalArgumentException("Duplicate keys");
-        }, Long2ObjectOpenHashMap::new));
 
     private Direction(int param0, int param1, int param2, String param3, Direction.AxisDirection param4, Direction.Axis param5, Vec3i param6) {
         this.data3d = param0;
@@ -263,13 +256,32 @@ public enum Direction implements StringRepresentable {
     }
 
     @Nullable
-    public static Direction fromNormal(BlockPos param0) {
-        return BY_NORMAL.get(param0.asLong());
-    }
+    public static Direction fromDelta(int param0, int param1, int param2) {
+        if (param0 == 0) {
+            if (param1 == 0) {
+                if (param2 > 0) {
+                    return SOUTH;
+                }
 
-    @Nullable
-    public static Direction fromNormal(int param0, int param1, int param2) {
-        return BY_NORMAL.get(BlockPos.asLong(param0, param1, param2));
+                if (param2 < 0) {
+                    return NORTH;
+                }
+            } else if (param2 == 0) {
+                if (param1 > 0) {
+                    return UP;
+                }
+
+                return DOWN;
+            }
+        } else if (param1 == 0 && param2 == 0) {
+            if (param0 > 0) {
+                return EAST;
+            }
+
+            return WEST;
+        }
+
+        return null;
     }
 
     public static Direction fromYRot(double param0) {

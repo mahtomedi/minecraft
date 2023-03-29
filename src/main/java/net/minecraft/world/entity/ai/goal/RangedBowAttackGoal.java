@@ -1,7 +1,9 @@
 package net.minecraft.world.entity.ai.goal;
 
 import java.util.EnumSet;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -110,6 +112,11 @@ public class RangedBowAttackGoal<T extends Monster & RangedAttackMob> extends Go
                 }
 
                 this.mob.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
+                Entity var7 = this.mob.getControlledVehicle();
+                if (var7 instanceof Mob var4) {
+                    var4.lookAt(var0, 30.0F, 30.0F);
+                }
+
                 this.mob.lookAt(var0, 30.0F, 30.0F);
             } else {
                 this.mob.getLookControl().setLookAt(var0, 30.0F, 30.0F);
@@ -119,10 +126,10 @@ public class RangedBowAttackGoal<T extends Monster & RangedAttackMob> extends Go
                 if (!var2 && this.seeTime < -60) {
                     this.mob.stopUsingItem();
                 } else if (var2) {
-                    int var4 = this.mob.getTicksUsingItem();
-                    if (var4 >= 20) {
+                    int var5 = this.mob.getTicksUsingItem();
+                    if (var5 >= 20) {
                         this.mob.stopUsingItem();
-                        this.mob.performRangedAttack(var0, BowItem.getPowerForTime(var4));
+                        this.mob.performRangedAttack(var0, BowItem.getPowerForTime(var5));
                         this.attackTime = this.attackIntervalMin;
                     }
                 }

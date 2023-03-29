@@ -78,7 +78,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
                 this.setSecondsOnFire(1);
             }
 
-            HitResult var1 = ProjectileUtil.getHitResult(this, this::canHitEntity);
+            HitResult var1 = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
             if (var1.getType() != HitResult.Type.MISS) {
                 this.onHit(var1);
             }
