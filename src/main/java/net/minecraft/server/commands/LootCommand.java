@@ -37,16 +37,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 public class LootCommand {
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOT_TABLE = (param0, param1) -> {
-        LootTables var0 = param0.getSource().getServer().getLootTables();
-        return SharedSuggestionProvider.suggestResource(var0.getIds(), param1);
+        LootDataManager var0 = param0.getSource().getServer().getLootData();
+        return SharedSuggestionProvider.suggestResource(var0.getKeys(LootDataType.TABLE), param1);
     };
     private static final DynamicCommandExceptionType ERROR_NO_HELD_ITEMS = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.drop.no_held_items", param0)
@@ -464,7 +465,7 @@ public class LootCommand {
             var2.withOptionalParameter(LootContextParams.KILLER_ENTITY, var3);
             var2.withParameter(LootContextParams.THIS_ENTITY, param1);
             var2.withParameter(LootContextParams.ORIGIN, var1.getPosition());
-            LootTable var4 = var1.getServer().getLootTables().get(var0);
+            LootTable var4 = var1.getServer().getLootData().getLootTable(var0);
             List<ItemStack> var5 = var4.getRandomItems(var2.create(LootContextParamSets.ENTITY));
             return param2.accept(param0, var5, param2x -> callback(var1, param2x, var0));
         }
@@ -492,7 +493,7 @@ public class LootCommand {
 
     private static int drop(CommandContext<CommandSourceStack> param0, ResourceLocation param1, LootContext param2, LootCommand.DropConsumer param3) throws CommandSyntaxException {
         CommandSourceStack var0 = param0.getSource();
-        LootTable var1 = var0.getServer().getLootTables().get(param1);
+        LootTable var1 = var0.getServer().getLootData().getLootTable(param1);
         List<ItemStack> var2 = var1.getRandomItems(param2);
         return param3.accept(param0, var2, param1x -> callback(var0, param1x));
     }

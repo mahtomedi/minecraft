@@ -82,7 +82,7 @@ public class BrushableBlockEntity extends BlockEntity {
 
     public void unpackLootTable(Player param0) {
         if (this.lootTable != null && this.level != null && !this.level.isClientSide() && this.level.getServer() != null) {
-            LootTable var0 = this.level.getServer().getLootTables().get(this.lootTable);
+            LootTable var0 = this.level.getServer().getLootData().getLootTable(this.lootTable);
             if (param0 instanceof ServerPlayer var1) {
                 CriteriaTriggers.GENERATE_LOOT.trigger(var1, this.lootTable);
             }

@@ -117,11 +117,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             int var8 = this.draggingItem.isEmpty() ? 8 : 16;
             String var9 = null;
             if (!this.draggingItem.isEmpty() && this.isSplittingStack) {
-                var6 = var6.copy();
-                var6.setCount(Mth.ceil((float)var6.getCount() / 2.0F));
+                var6 = var6.copyWithCount(Mth.ceil((float)var6.getCount() / 2.0F));
             } else if (this.isQuickCrafting && this.quickCraftSlots.size() > 1) {
-                var6 = var6.copy();
-                var6.setCount(this.quickCraftingRemainder);
+                var6 = var6.copyWithCount(this.quickCraftingRemainder);
                 if (var6.isEmpty()) {
                     var9 = ChatFormatting.YELLOW + "0";
                 }
@@ -187,24 +185,23 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         ItemStack var5 = this.menu.getCarried();
         String var6 = null;
         if (param1 == this.clickedSlot && !this.draggingItem.isEmpty() && this.isSplittingStack && !var2.isEmpty()) {
-            var2 = var2.copy();
-            var2.setCount(var2.getCount() / 2);
+            var2 = var2.copyWithCount(var2.getCount() / 2);
         } else if (this.isQuickCrafting && this.quickCraftSlots.contains(param1) && !var5.isEmpty()) {
             if (this.quickCraftSlots.size() == 1) {
                 return;
             }
 
             if (AbstractContainerMenu.canItemQuickReplace(param1, var5, true) && this.menu.canDragTo(param1)) {
-                var2 = var5.copy();
                 var3 = true;
-                AbstractContainerMenu.getQuickCraftSlotCount(
-                    this.quickCraftSlots, this.quickCraftingType, var2, param1.getItem().isEmpty() ? 0 : param1.getItem().getCount()
-                );
-                int var7 = Math.min(var2.getMaxStackSize(), param1.getMaxStackSize(var2));
-                if (var2.getCount() > var7) {
+                int var7 = Math.min(var5.getMaxStackSize(), param1.getMaxStackSize(var5));
+                int var8 = param1.getItem().isEmpty() ? 0 : param1.getItem().getCount();
+                int var9 = AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.quickCraftingType, var5) + var8;
+                if (var9 > var7) {
+                    var9 = var7;
                     var6 = ChatFormatting.YELLOW.toString() + var7;
-                    var2.setCount(var7);
                 }
+
+                var2 = var5.copyWithCount(var9);
             } else {
                 this.quickCraftSlots.remove(param1);
                 this.recalculateQuickCraftRemaining();
@@ -214,11 +211,11 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
         param0.pushPose();
         param0.translate(0.0F, 0.0F, 100.0F);
         if (var2.isEmpty() && param1.isActive()) {
-            Pair<ResourceLocation, ResourceLocation> var8 = param1.getNoItemIcon();
-            if (var8 != null) {
-                TextureAtlasSprite var9 = this.minecraft.getTextureAtlas(var8.getFirst()).apply(var8.getSecond());
-                RenderSystem.setShaderTexture(0, var9.atlasLocation());
-                blit(param0, var0, var1, 0, 16, 16, var9);
+            Pair<ResourceLocation, ResourceLocation> var10 = param1.getNoItemIcon();
+            if (var10 != null) {
+                TextureAtlasSprite var11 = this.minecraft.getTextureAtlas(var10.getFirst()).apply(var10.getSecond());
+                RenderSystem.setShaderTexture(0, var11.atlasLocation());
+                blit(param0, var0, var1, 0, 16, 16, var11);
                 var4 = true;
             }
         }
@@ -244,16 +241,11 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 this.quickCraftingRemainder = var0.getCount();
 
                 for(Slot var1 : this.quickCraftSlots) {
-                    ItemStack var2 = var0.copy();
-                    ItemStack var3 = var1.getItem();
-                    int var4 = var3.isEmpty() ? 0 : var3.getCount();
-                    AbstractContainerMenu.getQuickCraftSlotCount(this.quickCraftSlots, this.quickCraftingType, var2, var4);
-                    int var5 = Math.min(var2.getMaxStackSize(), var1.getMaxStackSize(var2));
-                    if (var2.getCount() > var5) {
-                        var2.setCount(var5);
-                    }
-
-                    this.quickCraftingRemainder -= var2.getCount() - var4;
+                    ItemStack var2 = var1.getItem();
+                    int var3 = var2.isEmpty() ? 0 : var2.getCount();
+                    int var4 = Math.min(var0.getMaxStackSize(), var1.getMaxStackSize(var0));
+                    int var5 = Math.min(AbstractContainerMenu.getQuickCraftPlaceCount(this.quickCraftSlots, this.quickCraftingType, var0) + var3, var4);
+                    this.quickCraftingRemainder -= var5 - var3;
                 }
 
             }

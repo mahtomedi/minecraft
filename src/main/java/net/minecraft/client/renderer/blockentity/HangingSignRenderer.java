@@ -37,7 +37,9 @@ public class HangingSignRenderer extends SignRenderer {
     private static final String CHAIN_R_1 = "chainR1";
     private static final String CHAIN_R_2 = "chainR2";
     private static final String BOARD = "board";
-    private static final float SIZE = 1.0F;
+    private static final float MODEL_RENDER_SCALE = 1.0F;
+    private static final float TEXT_RENDER_SCALE = 0.9F;
+    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, -0.32F, 0.073F);
     private final Map<WoodType, HangingSignRenderer.HangingSignModel> hangingSignModels;
 
     public HangingSignRenderer(BlockEntityRendererProvider.Context param0) {
@@ -51,13 +53,23 @@ public class HangingSignRenderer extends SignRenderer {
     }
 
     @Override
+    public float getSignModelRenderScale() {
+        return 1.0F;
+    }
+
+    @Override
+    public float getSignTextRenderScale() {
+        return 0.9F;
+    }
+
+    @Override
     public void render(SignBlockEntity param0, float param1, PoseStack param2, MultiBufferSource param3, int param4, int param5) {
         BlockState var0 = param0.getBlockState();
         SignBlock var1 = (SignBlock)var0.getBlock();
         WoodType var2 = SignBlock.getWoodType(var1);
         HangingSignRenderer.HangingSignModel var3 = this.hangingSignModels.get(var2);
         var3.evaluateVisibleParts(var0);
-        this.renderSignWithText(param0, param2, param3, param4, param5, var0, var1, var2, var3, 1.0F);
+        this.renderSignWithText(param0, param2, param3, param4, param5, var0, var1, var2, var3);
     }
 
     @Override
@@ -79,8 +91,8 @@ public class HangingSignRenderer extends SignRenderer {
     }
 
     @Override
-    Vec3 getTextOffset(float param0) {
-        return new Vec3(0.0, (double)(-0.32F * param0), (double)(0.07F * param0));
+    Vec3 getTextOffset() {
+        return TEXT_OFFSET;
     }
 
     public static LayerDefinition createHangingSignLayer() {

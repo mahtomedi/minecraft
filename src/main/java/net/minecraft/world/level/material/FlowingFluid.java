@@ -19,6 +19,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.IceBlock;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -109,7 +110,7 @@ public abstract class FlowingFluid extends Fluid {
         } else if (param2 == Direction.UP) {
             return true;
         } else {
-            return var0.getMaterial() == Material.ICE ? false : var0.isFaceSturdy(param0, param1, param2);
+            return var0.getBlock() instanceof IceBlock ? false : var0.isFaceSturdy(param0, param1, param2);
         }
     }
 
@@ -385,17 +386,14 @@ public abstract class FlowingFluid extends Fluid {
         Block var0 = param2.getBlock();
         if (var0 instanceof LiquidBlockContainer) {
             return ((LiquidBlockContainer)var0).canPlaceLiquid(param0, param1, param2, param3);
-        } else if (!(var0 instanceof DoorBlock)
-            && !param2.is(BlockTags.SIGNS)
-            && !param2.is(Blocks.LADDER)
-            && !param2.is(Blocks.SUGAR_CANE)
-            && !param2.is(Blocks.BUBBLE_COLUMN)) {
-            Material var1 = param2.getMaterial();
-            if (var1 != Material.PORTAL && var1 != Material.STRUCTURAL_AIR && var1 != Material.WATER_PLANT && var1 != Material.REPLACEABLE_WATER_PLANT) {
-                return !var1.blocksMotion();
-            } else {
-                return false;
-            }
+        } else if (var0 instanceof DoorBlock
+            || param2.is(BlockTags.SIGNS)
+            || param2.is(Blocks.LADDER)
+            || param2.is(Blocks.SUGAR_CANE)
+            || param2.is(Blocks.BUBBLE_COLUMN)) {
+            return false;
+        } else if (!param2.is(Blocks.NETHER_PORTAL) && !param2.is(Blocks.END_PORTAL) && !param2.is(Blocks.END_GATEWAY) && !param2.is(Blocks.STRUCTURE_VOID)) {
+            return !param2.getMaterial().blocksMotion();
         } else {
             return false;
         }

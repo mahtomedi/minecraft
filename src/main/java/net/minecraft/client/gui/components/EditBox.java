@@ -18,6 +18,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -348,31 +349,18 @@ public class EditBox extends AbstractWidget implements Renderable {
     }
 
     @Override
-    public boolean mouseClicked(double param0, double param1, int param2) {
-        if (this.isVisible() && param2 == 0) {
-            boolean var0 = param0 >= (double)this.getX()
-                && param0 < (double)(this.getX() + this.width)
-                && param1 >= (double)this.getY()
-                && param1 < (double)(this.getY() + this.height);
-            if (this.canLoseFocus) {
-                this.setFocused(var0);
-            }
-
-            if (this.isFocused() && var0 && param2 == 0) {
-                int var1 = Mth.floor(param0) - this.getX();
-                if (this.bordered) {
-                    var1 -= 4;
-                }
-
-                String var2 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
-                this.moveCursorTo(this.font.plainSubstrByWidth(var2, var1).length() + this.displayPos);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+    public void onClick(double param0, double param1) {
+        int var0 = Mth.floor(param0) - this.getX();
+        if (this.bordered) {
+            var0 -= 4;
         }
+
+        String var1 = this.font.plainSubstrByWidth(this.value.substring(this.displayPos), this.getInnerWidth());
+        this.moveCursorTo(this.font.plainSubstrByWidth(var1, var0).length() + this.displayPos);
+    }
+
+    @Override
+    public void playDownSound(SoundManager param0) {
     }
 
     @Override

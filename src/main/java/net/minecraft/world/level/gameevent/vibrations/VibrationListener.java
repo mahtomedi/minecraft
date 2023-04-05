@@ -163,15 +163,17 @@ public class VibrationListener implements GameEventListener {
                 --this.travelTimeInTicks;
                 if (this.travelTimeInTicks <= 0) {
                     this.travelTimeInTicks = 0;
+                    BlockPos var1 = BlockPos.containing(this.currentVibration.pos());
+                    BlockPos var2 = this.listenerSource.getPosition(var0).map(BlockPos::containing).orElse(var1);
                     this.config
                         .onSignalReceive(
                             var0,
                             this,
-                            BlockPos.containing(this.currentVibration.pos()),
+                            var1,
                             this.currentVibration.gameEvent(),
                             this.currentVibration.getEntity(var0).orElse(null),
                             this.currentVibration.getProjectileOwner(var0).orElse(null),
-                            this.currentVibration.distance()
+                            distanceBetweenInBlocks(var1, var2)
                         );
                     this.currentVibration = null;
                 }
@@ -220,6 +222,10 @@ public class VibrationListener implements GameEventListener {
 
     public void scheduleVibration(ServerLevel param0, GameEvent param1, GameEvent.Context param2, Vec3 param3, Vec3 param4) {
         this.selectionStrategy.addCandidate(new VibrationInfo(param1, (float)param3.distanceTo(param4), param3, param2.sourceEntity()), param0.getGameTime());
+    }
+
+    public static float distanceBetweenInBlocks(BlockPos param0, BlockPos param1) {
+        return (float)Math.sqrt(param0.distSqr(param1));
     }
 
     private static boolean isOccluded(Level param0, Vec3 param1, Vec3 param2) {

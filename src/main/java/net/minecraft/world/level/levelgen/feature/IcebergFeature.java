@@ -10,7 +10,6 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
-import net.minecraft.world.level.material.Material;
 
 public class IcebergFeature extends Feature<BlockStateConfiguration> {
     public IcebergFeature(Codec<BlockStateConfiguration> param0) {
@@ -172,7 +171,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
         BlockPos param0, LevelAccessor param1, RandomSource param2, int param3, int param4, boolean param5, boolean param6, BlockState param7
     ) {
         BlockState var0 = param1.getBlockState(param0);
-        if (var0.getMaterial() == Material.AIR || var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.ICE) || var0.is(Blocks.WATER)) {
+        if (var0.isAir() || var0.is(Blocks.SNOW_BLOCK) || var0.is(Blocks.ICE) || var0.is(Blocks.WATER)) {
             boolean var1 = !param5 || param2.nextDouble() > 0.05;
             int var2 = param5 ? 3 : 2;
             if (param6 && !var0.is(Blocks.WATER) && (double)param3 <= (double)param2.nextInt(Math.max(1, param4 / var2)) + (double)param4 * 0.6 && var1) {
@@ -232,7 +231,7 @@ public class IcebergFeature extends Feature<BlockStateConfiguration> {
     }
 
     private boolean belowIsAir(BlockGetter param0, BlockPos param1) {
-        return param0.getBlockState(param1.below()).getMaterial() == Material.AIR;
+        return param0.getBlockState(param1.below()).isAir();
     }
 
     private void smooth(LevelAccessor param0, BlockPos param1, int param2, int param3, boolean param4, int param5) {

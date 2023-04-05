@@ -21,10 +21,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
-import net.minecraft.world.level.block.state.predicate.BlockMaterialPredicate;
 import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.Material;
 
 public class CarvedPumpkinBlock extends HorizontalDirectionalBlock implements Equipable {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -146,7 +144,7 @@ public class CarvedPumpkinBlock extends HorizontalDirectionalBlock implements Eq
             this.ironGolemBase = BlockPatternBuilder.start()
                 .aisle("~ ~", "###", "~#~")
                 .where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK)))
-                .where('~', BlockInWorld.hasState(BlockMaterialPredicate.forMaterial(Material.AIR)))
+                .where('~', param0 -> param0.getState().isAir())
                 .build();
         }
 
@@ -159,7 +157,7 @@ public class CarvedPumpkinBlock extends HorizontalDirectionalBlock implements Eq
                 .aisle("~^~", "###", "~#~")
                 .where('^', BlockInWorld.hasState(PUMPKINS_PREDICATE))
                 .where('#', BlockInWorld.hasState(BlockStatePredicate.forBlock(Blocks.IRON_BLOCK)))
-                .where('~', BlockInWorld.hasState(BlockMaterialPredicate.forMaterial(Material.AIR)))
+                .where('~', param0 -> param0.getState().isAir())
                 .build();
         }
 

@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.projectile;
 
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -30,7 +29,7 @@ public abstract class ThrowableItemProjectile extends ThrowableProjectile implem
 
     public void setItem(ItemStack param0) {
         if (!param0.is(this.getDefaultItem()) || param0.hasTag()) {
-            this.getEntityData().set(DATA_ITEM_STACK, Util.make(param0.copy(), param0x -> param0x.setCount(1)));
+            this.getEntityData().set(DATA_ITEM_STACK, param0.copyWithCount(1));
         }
 
     }

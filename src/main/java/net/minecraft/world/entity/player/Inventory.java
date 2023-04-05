@@ -257,9 +257,8 @@ public class Inventory implements Container, Nameable {
                     }
 
                     if (param0 >= 0) {
-                        this.items.set(param0, param1.copy());
+                        this.items.set(param0, param1.copyAndClear());
                         this.items.get(param0).setPopTime(5);
-                        param1.setCount(0);
                         return true;
                     } else if (this.player.getAbilities().instabuild) {
                         param1.setCount(0);

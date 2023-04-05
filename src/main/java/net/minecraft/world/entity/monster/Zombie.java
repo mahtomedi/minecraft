@@ -406,8 +406,8 @@ public class Zombie extends Monster {
     }
 
     @Override
-    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
-        boolean var0 = super.wasKilled(param0, param1);
+    public boolean killedEntity(ServerLevel param0, LivingEntity param1) {
+        boolean var0 = super.killedEntity(param0, param1);
         if ((param0.getDifficulty() == Difficulty.NORMAL || param0.getDifficulty() == Difficulty.HARD) && param1 instanceof Villager var1) {
             if (param0.getDifficulty() != Difficulty.HARD && this.random.nextBoolean()) {
                 return var0;

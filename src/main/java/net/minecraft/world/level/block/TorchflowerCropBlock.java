@@ -19,7 +19,8 @@ public class TorchflowerCropBlock extends CropBlock {
     public static final int MAX_AGE = 2;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_1;
     private static final float AABB_OFFSET = 3.0F;
-    private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(5.0, 0.0, 5.0, 11.0, 10.0, 11.0), Block.box(5.0, 0.0, 5.0, 11.0, 10.0, 11.0)};
+    private static final VoxelShape[] SHAPE_BY_AGE = new VoxelShape[]{Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0), Block.box(5.0, 0.0, 5.0, 11.0, 10.0, 11.0)};
+    private static final int BONEMEAL_INCREASE = 1;
 
     public TorchflowerCropBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -65,6 +66,6 @@ public class TorchflowerCropBlock extends CropBlock {
 
     @Override
     protected int getBonemealAgeIncrease(Level param0) {
-        return super.getBonemealAgeIncrease(param0) / 3;
+        return 1;
     }
 }

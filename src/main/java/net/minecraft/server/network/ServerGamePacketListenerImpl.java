@@ -1721,16 +1721,13 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         ServerLevel var0 = this.player.getLevel();
         BlockPos var1 = param0.getPos();
         if (var0.hasChunkAt(var1)) {
-            BlockState var2 = var0.getBlockState(var1);
-            BlockEntity var3 = var0.getBlockEntity(var1);
-            if (!(var3 instanceof SignBlockEntity)) {
+            BlockEntity var2 = var0.getBlockEntity(var1);
+            if (!(var2 instanceof SignBlockEntity)) {
                 return;
             }
 
-            SignBlockEntity var4 = (SignBlockEntity)var3;
-            var4.updateSignText(this.player, param0.isFrontText(), param1);
-            var4.setAllowedPlayerEditor(null);
-            var0.sendBlockUpdated(var1, var2, var2, 3);
+            SignBlockEntity var3 = (SignBlockEntity)var2;
+            var3.updateSignText(this.player, param0.isFrontText(), param1);
         }
 
     }

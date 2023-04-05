@@ -11,10 +11,18 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class LogoRenderer extends GuiComponent {
     public static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/minecraft.png");
+    public static final ResourceLocation EASTER_EGG_LOGO = new ResourceLocation("textures/gui/title/minceraft.png");
     public static final ResourceLocation MINECRAFT_EDITION = new ResourceLocation("textures/gui/title/edition.png");
-    public static final int LOGO_WIDTH = 274;
+    public static final int LOGO_WIDTH = 256;
     public static final int LOGO_HEIGHT = 44;
+    private static final int LOGO_TEXTURE_WIDTH = 256;
+    private static final int LOGO_TEXTURE_HEIGHT = 64;
+    private static final int EDITION_WIDTH = 128;
+    private static final int EDITION_HEIGHT = 14;
+    private static final int EDITION_TEXTURE_WIDTH = 128;
+    private static final int EDITION_TEXTURE_HEIGHT = 16;
     public static final int DEFAULT_HEIGHT_OFFSET = 30;
+    private static final int EDITION_LOGO_OVERLAP = 7;
     private final boolean showEasterEgg = (double)RandomSource.create().nextFloat() < 1.0E-4;
     private final boolean keepLogoThroughFade;
 
@@ -27,26 +35,14 @@ public class LogoRenderer extends GuiComponent {
     }
 
     public void renderLogo(PoseStack param0, int param1, float param2, int param3) {
-        RenderSystem.setShaderTexture(0, MINECRAFT_LOGO);
+        RenderSystem.setShaderTexture(0, this.showEasterEgg ? EASTER_EGG_LOGO : MINECRAFT_LOGO);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.keepLogoThroughFade ? 1.0F : param2);
-        int var0 = param1 / 2 - 137;
-        if (this.showEasterEgg) {
-            blitOutlineBlack(var0, param3, (param1x, param2x) -> {
-                blit(param0, param1x, param2x, 0, 0, 99, 44);
-                blit(param0, param1x + 99, param2x, 129, 0, 27, 44);
-                blit(param0, param1x + 99 + 26, param2x, 126, 0, 3, 44);
-                blit(param0, param1x + 99 + 26 + 3, param2x, 99, 0, 26, 44);
-                blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
-            });
-        } else {
-            blitOutlineBlack(var0, param3, (param1x, param2x) -> {
-                blit(param0, param1x, param2x, 0, 0, 155, 44);
-                blit(param0, param1x + 155, param2x, 0, 45, 155, 44);
-            });
-        }
-
+        int var0 = param1 / 2 - 128;
+        blit(param0, var0, param3, 0.0F, 0.0F, 256, 44, 256, 64);
         RenderSystem.setShaderTexture(0, MINECRAFT_EDITION);
-        blit(param0, var0 + 88, param3 + 37, 0.0F, 0.0F, 98, 14, 128, 16);
+        int var1 = param1 / 2 - 64;
+        int var2 = param3 + 44 - 7;
+        blit(param0, var1, var2, 0.0F, 0.0F, 128, 14, 128, 16);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

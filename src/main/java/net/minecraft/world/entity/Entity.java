@@ -642,7 +642,24 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     this.walkDist += (float)var0.horizontalDistance() * 0.6F;
                     this.moveDist += (float)Math.sqrt(var10 * var10 + var11 * var11 + var12 * var12) * 0.6F;
                     if (this.moveDist > this.nextStep && !var6.isAir()) {
-                        if (this.onGround || var13) {
+                        if (!this.onGround && !var13 && (!this.isCrouching() || param1.y != 0.0)) {
+                            if (this.isInWater()) {
+                                this.nextStep = this.nextStep();
+                                if (var9.emitsSounds()) {
+                                    Entity var14 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
+                                    float var15 = var14 == this ? 0.35F : 0.4F;
+                                    Vec3 var16 = var14.getDeltaMovement();
+                                    float var17 = Math.min(
+                                        1.0F, (float)Math.sqrt(var16.x * var16.x * 0.2F + var16.y * var16.y + var16.z * var16.z * 0.2F) * var15
+                                    );
+                                    this.playSwimSound(var17);
+                                }
+
+                                if (var9.emitsEvents()) {
+                                    this.gameEvent(GameEvent.SWIM);
+                                }
+                            }
+                        } else {
                             this.nextStep = this.nextStep();
                             if (var9.emitsSounds()) {
                                 this.handleStepSounds(var5, var6);
@@ -650,19 +667,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
                             if (var9.emitsEvents()) {
                                 this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
-                            }
-                        } else if (this.isInWater()) {
-                            this.nextStep = this.nextStep();
-                            if (var9.emitsSounds()) {
-                                Entity var14 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
-                                float var15 = var14 == this ? 0.35F : 0.4F;
-                                Vec3 var16 = var14.getDeltaMovement();
-                                float var17 = Math.min(1.0F, (float)Math.sqrt(var16.x * var16.x * 0.2F + var16.y * var16.y + var16.z * var16.z * 0.2F) * var15);
-                                this.playSwimSound(var17);
-                            }
-
-                            if (var9.emitsEvents()) {
-                                this.gameEvent(GameEvent.SWIM);
                             }
                         }
                     } else if (var6.isAir()) {
@@ -2232,7 +2236,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.resetFallDistance();
     }
 
-    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
+    public boolean killedEntity(ServerLevel param0, LivingEntity param1) {
         return true;
     }
 
@@ -3062,6 +3066,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public final float getBbHeight() {
         return this.dimensions.height;
+    }
+
+    public float getNameTagOffsetY() {
+        return this.getBbHeight() + 0.5F;
     }
 
     public Packet<ClientGamePacketListener> getAddEntityPacket() {

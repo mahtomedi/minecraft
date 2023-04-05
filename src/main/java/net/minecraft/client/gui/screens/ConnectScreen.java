@@ -17,6 +17,8 @@ import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
 import net.minecraft.client.multiplayer.resolver.ResolvedServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
+import net.minecraft.client.quickplay.QuickPlay;
+import net.minecraft.client.quickplay.QuickPlayLog;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
@@ -39,17 +41,20 @@ public class ConnectScreen extends Screen {
     final Screen parent;
     private Component status = Component.translatable("connect.connecting");
     private long lastNarration = -1L;
+    final Component connectFailedTitle;
 
-    private ConnectScreen(Screen param0) {
+    private ConnectScreen(Screen param0, Component param1) {
         super(GameNarrator.NO_TITLE);
         this.parent = param0;
+        this.connectFailedTitle = param1;
     }
 
-    public static void startConnecting(Screen param0, Minecraft param1, ServerAddress param2, ServerData param3) {
-        ConnectScreen var0 = new ConnectScreen(param0);
+    public static void startConnecting(Screen param0, Minecraft param1, ServerAddress param2, ServerData param3, boolean param4) {
+        ConnectScreen var0 = new ConnectScreen(param0, param4 ? QuickPlay.ERROR_TITLE : CommonComponents.CONNECT_FAILED);
         param1.clearLevel();
         param1.prepareForMultiplayer();
         param1.updateReportEnvironment(ReportEnvironment.thirdParty(param3 != null ? param3.ip : param2.getHost()));
+        param1.quickPlayLog().setWorldData(QuickPlayLog.Type.MULTIPLAYER, param3.ip, param3.name);
         param1.setScreen(var0);
         var0.connect(param1, param2, param3);
     }
@@ -74,7 +79,7 @@ public class ConnectScreen extends Screen {
                     if (!var1.isPresent()) {
                         param0.execute(
                             () -> param0.setScreen(
-                                    new DisconnectedScreen(ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, ConnectScreen.UNKNOWN_HOST_MESSAGE)
+                                    new DisconnectedScreen(ConnectScreen.this.parent, ConnectScreen.this.connectFailedTitle, ConnectScreen.UNKNOWN_HOST_MESSAGE)
                                 )
                         );
                         return;
@@ -111,7 +116,7 @@ public class ConnectScreen extends Screen {
                     param0.execute(
                         () -> param0.setScreen(
                                 new DisconnectedScreen(
-                                    ConnectScreen.this.parent, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var6)
+                                    ConnectScreen.this.parent, ConnectScreen.this.connectFailedTitle, Component.translatable("disconnect.genericReason", var6)
                                 )
                             )
                     );

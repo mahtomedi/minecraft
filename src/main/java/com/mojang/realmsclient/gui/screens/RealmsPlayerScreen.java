@@ -9,10 +9,14 @@ import com.mojang.realmsclient.dto.PlayerInfo;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.util.RealmsUtil;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -25,29 +29,24 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsPlayerScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final ResourceLocation OP_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/op_icon.png");
-    private static final ResourceLocation USER_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/user_icon.png");
-    private static final ResourceLocation CROSS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/cross_player_icon.png");
+    static final ResourceLocation OP_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/op_icon.png");
+    static final ResourceLocation USER_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/user_icon.png");
+    static final ResourceLocation CROSS_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/cross_player_icon.png");
     private static final ResourceLocation OPTIONS_BACKGROUND = new ResourceLocation("minecraft", "textures/gui/options_background.png");
-    private static final Component NORMAL_USER_TOOLTIP = Component.translatable("mco.configure.world.invites.normal.tooltip");
-    private static final Component OP_TOOLTIP = Component.translatable("mco.configure.world.invites.ops.tooltip");
-    private static final Component REMOVE_ENTRY_TOOLTIP = Component.translatable("mco.configure.world.invites.remove.tooltip");
+    static final Component NORMAL_USER_TOOLTIP = Component.translatable("mco.configure.world.invites.normal.tooltip");
+    static final Component OP_TOOLTIP = Component.translatable("mco.configure.world.invites.ops.tooltip");
+    static final Component REMOVE_ENTRY_TOOLTIP = Component.translatable("mco.configure.world.invites.remove.tooltip");
     private static final Component INVITED_LABEL = Component.translatable("mco.configure.world.invited");
-    @Nullable
-    private Component toolTip;
+    private static final int NO_ENTRY_SELECTED = -1;
     private final RealmsConfigureWorldScreen lastScreen;
     final RealmsServer serverData;
-    private RealmsPlayerScreen.InvitedObjectSelectionList invitedObjectSelectionList;
+    RealmsPlayerScreen.InvitedObjectSelectionList invitedObjectSelectionList;
     int column1X;
     int columnWidth;
-    private int column2X;
     private Button removeButton;
     private Button opdeopButton;
-    private int selectedInvitedIndex = -1;
-    private String selectedInvited;
-    int player = -1;
+    int playerIndex = -1;
     private boolean stateChanged;
-    RealmsPlayerScreen.UserAction hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
 
     public RealmsPlayerScreen(RealmsConfigureWorldScreen param0, RealmsServer param1) {
         super(Component.translatable("mco.configure.world.players.title"));
@@ -59,47 +58,49 @@ public class RealmsPlayerScreen extends RealmsScreen {
     public void init() {
         this.column1X = this.width / 2 - 160;
         this.columnWidth = 150;
-        this.column2X = this.width / 2 + 12;
+        int var0 = this.width / 2 + 12;
         this.invitedObjectSelectionList = new RealmsPlayerScreen.InvitedObjectSelectionList();
         this.invitedObjectSelectionList.setLeftPos(this.column1X);
         this.addWidget(this.invitedObjectSelectionList);
 
-        for(PlayerInfo var0 : this.serverData.players) {
-            this.invitedObjectSelectionList.addEntry(var0);
+        for(PlayerInfo var1 : this.serverData.players) {
+            this.invitedObjectSelectionList.addEntry(var1);
         }
 
+        this.playerIndex = -1;
         this.addRenderableWidget(
             Button.builder(
                     Component.translatable("mco.configure.world.buttons.invite"),
                     param0 -> this.minecraft.setScreen(new RealmsInviteScreen(this.lastScreen, this, this.serverData))
                 )
-                .bounds(this.column2X, row(1), this.columnWidth + 10, 20)
+                .bounds(var0, row(1), this.columnWidth + 10, 20)
                 .build()
         );
         this.removeButton = this.addRenderableWidget(
-            Button.builder(Component.translatable("mco.configure.world.invites.remove.tooltip"), param0 -> this.uninvite(this.player))
-                .bounds(this.column2X, row(7), this.columnWidth + 10, 20)
+            Button.builder(Component.translatable("mco.configure.world.invites.remove.tooltip"), param0 -> this.uninvite(this.playerIndex))
+                .bounds(var0, row(7), this.columnWidth + 10, 20)
                 .build()
         );
         this.opdeopButton = this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.invites.ops.tooltip"), param0 -> {
-            if (this.serverData.players.get(this.player).isOperator()) {
-                this.deop(this.player);
+            if (this.serverData.players.get(this.playerIndex).isOperator()) {
+                this.deop(this.playerIndex);
             } else {
-                this.op(this.player);
+                this.op(this.playerIndex);
             }
 
-        }).bounds(this.column2X, row(9), this.columnWidth + 10, 20).build());
+        }).bounds(var0, row(9), this.columnWidth + 10, 20).build());
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_BACK, param0 -> this.backButtonClicked())
-                .bounds(this.column2X + this.columnWidth / 2 + 2, row(12), this.columnWidth / 2 + 10 - 2, 20)
+                .bounds(var0 + this.columnWidth / 2 + 2, row(12), this.columnWidth / 2 + 10 - 2, 20)
                 .build()
         );
         this.updateButtonStates();
     }
 
     void updateButtonStates() {
-        this.removeButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.player);
-        this.opdeopButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.player);
+        this.removeButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.playerIndex);
+        this.opdeopButton.visible = this.shouldRemoveAndOpdeopButtonBeVisible(this.playerIndex);
+        this.invitedObjectSelectionList.updateButtons();
     }
 
     private boolean shouldRemoveAndOpdeopButtonBeVisible(int param0) {
@@ -126,7 +127,6 @@ public class RealmsPlayerScreen extends RealmsScreen {
     }
 
     void op(int param0) {
-        this.updateButtonStates();
         RealmsClient var0 = RealmsClient.create();
         String var1 = this.serverData.players.get(param0).getUuid();
 
@@ -136,10 +136,10 @@ public class RealmsPlayerScreen extends RealmsScreen {
             LOGGER.error("Couldn't op the user");
         }
 
+        this.updateButtonStates();
     }
 
     void deop(int param0) {
-        this.updateButtonStates();
         RealmsClient var0 = RealmsClient.create();
         String var1 = this.serverData.players.get(param0).getUuid();
 
@@ -149,6 +149,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             LOGGER.error("Couldn't deop the user");
         }
 
+        this.updateButtonStates();
     }
 
     private void updateOps(Ops param0) {
@@ -162,20 +163,18 @@ public class RealmsPlayerScreen extends RealmsScreen {
         this.updateButtonStates();
         if (param0 >= 0 && param0 < this.serverData.players.size()) {
             PlayerInfo var0 = this.serverData.players.get(param0);
-            this.selectedInvited = var0.getUuid();
-            this.selectedInvitedIndex = param0;
-            RealmsConfirmScreen var1 = new RealmsConfirmScreen(param0x -> {
-                if (param0x) {
+            RealmsConfirmScreen var1 = new RealmsConfirmScreen(param1 -> {
+                if (param1) {
                     RealmsClient var0x = RealmsClient.create();
 
                     try {
-                        var0x.uninvite(this.serverData.id, this.selectedInvited);
-                    } catch (RealmsServiceException var4) {
+                        var0x.uninvite(this.serverData.id, var0.getUuid());
+                    } catch (RealmsServiceException var5) {
                         LOGGER.error("Couldn't uninvite user");
                     }
 
-                    this.deleteFromInvitedList(this.selectedInvitedIndex);
-                    this.player = -1;
+                    this.serverData.players.remove(this.playerIndex);
+                    this.playerIndex = -1;
                     this.updateButtonStates();
                 }
 
@@ -187,26 +186,17 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
     }
 
-    private void deleteFromInvitedList(int param0) {
-        this.serverData.players.remove(param0);
-    }
-
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
-        this.toolTip = null;
-        this.hoveredUserAction = RealmsPlayerScreen.UserAction.NONE;
         this.renderBackground(param0);
-        if (this.invitedObjectSelectionList != null) {
-            this.invitedObjectSelectionList.render(param0, param1, param2, param3);
-        }
-
+        this.invitedObjectSelectionList.render(param0, param1, param2, param3);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
         int var0 = row(12) + 20;
         RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND);
         RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
         blit(param0, 0, var0, 0.0F, 0.0F, this.width, this.height - var0, 32, 32);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.serverData != null && this.serverData.players != null) {
+        if (this.serverData.players != null) {
             this.font
                 .draw(
                     param0,
@@ -220,95 +210,76 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         super.render(param0, param1, param2, param3);
-        if (this.serverData != null) {
-            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
-        }
-    }
-
-    protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
-        if (param1 != null) {
-            int var0 = param2 + 12;
-            int var1 = param3 - 12;
-            int var2 = this.font.width(param1);
-            fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
-        }
-    }
-
-    void drawRemoveIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
-        boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        RenderSystem.setShaderTexture(0, CROSS_ICON_LOCATION);
-        float var1 = var0 ? 7.0F : 0.0F;
-        GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 7, 8, 14);
-        if (var0) {
-            this.toolTip = REMOVE_ENTRY_TOOLTIP;
-            this.hoveredUserAction = RealmsPlayerScreen.UserAction.REMOVE;
-        }
-
-    }
-
-    void drawOpped(PoseStack param0, int param1, int param2, int param3, int param4) {
-        boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        RenderSystem.setShaderTexture(0, OP_ICON_LOCATION);
-        float var1 = var0 ? 8.0F : 0.0F;
-        GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
-        if (var0) {
-            this.toolTip = OP_TOOLTIP;
-            this.hoveredUserAction = RealmsPlayerScreen.UserAction.TOGGLE_OP;
-        }
-
-    }
-
-    void drawNormal(PoseStack param0, int param1, int param2, int param3, int param4) {
-        boolean var0 = param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 9 && param4 < row(12) + 20 && param4 > row(1);
-        RenderSystem.setShaderTexture(0, USER_ICON_LOCATION);
-        float var1 = var0 ? 8.0F : 0.0F;
-        GuiComponent.blit(param0, param1, param2, 0.0F, var1, 8, 8, 8, 16);
-        if (var0) {
-            this.toolTip = NORMAL_USER_TOOLTIP;
-            this.hoveredUserAction = RealmsPlayerScreen.UserAction.TOGGLE_OP;
-        }
-
     }
 
     @OnlyIn(Dist.CLIENT)
     class Entry extends ObjectSelectionList.Entry<RealmsPlayerScreen.Entry> {
+        private static final int X_OFFSET = 3;
+        private static final int Y_PADDING = 1;
+        private static final int BUTTON_WIDTH = 8;
+        private static final int BUTTON_HEIGHT = 7;
         private final PlayerInfo playerInfo;
+        private final List<AbstractWidget> children = new ArrayList<>();
+        private final ImageButton removeButton;
+        private final ImageButton makeOpButton;
+        private final ImageButton removeOpButton;
 
         public Entry(PlayerInfo param0) {
             this.playerInfo = param0;
+            int param1 = RealmsPlayerScreen.this.serverData.players.indexOf(this.playerInfo);
+            int var0 = RealmsPlayerScreen.this.invitedObjectSelectionList.getRowRight() - 16 - 9;
+            int var1 = RealmsPlayerScreen.this.invitedObjectSelectionList.getRowTop(param1) + 1;
+            this.removeButton = new ImageButton(
+                var0, var1, 8, 7, 0, 0, 7, RealmsPlayerScreen.CROSS_ICON_LOCATION, 8, 14, param1x -> RealmsPlayerScreen.this.uninvite(param1)
+            );
+            this.removeButton.setTooltip(Tooltip.create(RealmsPlayerScreen.REMOVE_ENTRY_TOOLTIP));
+            this.children.add(this.removeButton);
+            var0 += 11;
+            this.makeOpButton = new ImageButton(
+                var0, var1, 8, 7, 0, 0, 7, RealmsPlayerScreen.USER_ICON_LOCATION, 8, 14, param1x -> RealmsPlayerScreen.this.op(param1)
+            );
+            this.makeOpButton.setTooltip(Tooltip.create(RealmsPlayerScreen.NORMAL_USER_TOOLTIP));
+            this.children.add(this.makeOpButton);
+            this.removeOpButton = new ImageButton(
+                var0, var1, 8, 7, 0, 0, 7, RealmsPlayerScreen.OP_ICON_LOCATION, 8, 14, param1x -> RealmsPlayerScreen.this.deop(param1)
+            );
+            this.removeOpButton.setTooltip(Tooltip.create(RealmsPlayerScreen.OP_TOOLTIP));
+            this.children.add(this.removeOpButton);
+            this.updateButtons();
+        }
+
+        public void updateButtons() {
+            this.makeOpButton.visible = !this.playerInfo.isOperator();
+            this.removeOpButton.visible = !this.makeOpButton.visible;
+        }
+
+        @Override
+        public boolean mouseClicked(double param0, double param1, int param2) {
+            if (!this.makeOpButton.mouseClicked(param0, param1, param2)) {
+                this.removeOpButton.mouseClicked(param0, param1, param2);
+            }
+
+            this.removeButton.mouseClicked(param0, param1, param2);
+            return true;
         }
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            this.renderInvitedItem(param0, this.playerInfo, param3, param2, param6, param7);
-        }
-
-        private void renderInvitedItem(PoseStack param0, PlayerInfo param1, int param2, int param3, int param4, int param5) {
             int var0;
-            if (!param1.getAccepted()) {
+            if (!this.playerInfo.getAccepted()) {
                 var0 = 10526880;
-            } else if (param1.getOnline()) {
+            } else if (this.playerInfo.getOnline()) {
                 var0 = 8388479;
             } else {
                 var0 = 16777215;
             }
 
-            RealmsPlayerScreen.this.font.draw(param0, param1.getName(), (float)(RealmsPlayerScreen.this.column1X + 3 + 12), (float)(param3 + 1), var0);
-            if (param1.isOperator()) {
-                RealmsPlayerScreen.this.drawOpped(
-                    param0, RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth - 10, param3 + 1, param4, param5
-                );
-            } else {
-                RealmsPlayerScreen.this.drawNormal(
-                    param0, RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth - 10, param3 + 1, param4, param5
-                );
-            }
-
-            RealmsPlayerScreen.this.drawRemoveIcon(
-                param0, RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth - 22, param3 + 2, param4, param5
-            );
-            RealmsUtil.renderPlayerFace(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param3 + 1, 8, param1.getUuid());
+            RealmsUtil.renderPlayerFace(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param2 + 1, 8, this.playerInfo.getUuid());
+            RealmsPlayerScreen.this.font.draw(param0, this.playerInfo.getName(), (float)(RealmsPlayerScreen.this.column1X + 3 + 12), (float)(param2 + 1), var0);
+            this.children.forEach(param5x -> {
+                param5x.setY(param2 + 1);
+                param5x.render(param0, param6, param7, param9);
+            });
         }
 
         @Override
@@ -323,6 +294,13 @@ public class RealmsPlayerScreen extends RealmsScreen {
             super(RealmsPlayerScreen.this.columnWidth + 10, RealmsPlayerScreen.row(12) + 20, RealmsPlayerScreen.row(1), RealmsPlayerScreen.row(12) + 20, 13);
         }
 
+        public void updateButtons() {
+            if (RealmsPlayerScreen.this.playerIndex != -1) {
+                this.getEntry(RealmsPlayerScreen.this.playerIndex).updateButtons();
+            }
+
+        }
+
         public void addEntry(PlayerInfo param0) {
             this.addEntry(RealmsPlayerScreen.this.new Entry(param0));
         }
@@ -333,55 +311,19 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         @Override
-        public boolean mouseClicked(double param0, double param1, int param2) {
-            if (param2 == 0 && param0 < (double)this.getScrollbarPosition() && param1 >= (double)this.y0 && param1 <= (double)this.y1) {
-                int var0 = RealmsPlayerScreen.this.column1X;
-                int var1 = RealmsPlayerScreen.this.column1X + RealmsPlayerScreen.this.columnWidth;
-                int var2 = (int)Math.floor(param1 - (double)this.y0) - this.headerHeight + (int)this.getScrollAmount() - 4;
-                int var3 = var2 / this.itemHeight;
-                if (param0 >= (double)var0 && param0 <= (double)var1 && var3 >= 0 && var2 >= 0 && var3 < this.getItemCount()) {
-                    this.selectItem(var3);
-                    this.itemClicked(var2, var3, param0, param1, this.width, param2);
-                }
-
-                return true;
-            } else {
-                return super.mouseClicked(param0, param1, param2);
-            }
-        }
-
-        @Override
-        public void itemClicked(int param0, int param1, double param2, double param3, int param4, int param5) {
-            if (param1 >= 0
-                && param1 <= RealmsPlayerScreen.this.serverData.players.size()
-                && RealmsPlayerScreen.this.hoveredUserAction != RealmsPlayerScreen.UserAction.NONE) {
-                if (RealmsPlayerScreen.this.hoveredUserAction == RealmsPlayerScreen.UserAction.TOGGLE_OP) {
-                    if (RealmsPlayerScreen.this.serverData.players.get(param1).isOperator()) {
-                        RealmsPlayerScreen.this.deop(param1);
-                    } else {
-                        RealmsPlayerScreen.this.op(param1);
-                    }
-                } else if (RealmsPlayerScreen.this.hoveredUserAction == RealmsPlayerScreen.UserAction.REMOVE) {
-                    RealmsPlayerScreen.this.uninvite(param1);
-                }
-
-            }
-        }
-
-        @Override
         public void selectItem(int param0) {
             super.selectItem(param0);
             this.selectInviteListItem(param0);
         }
 
         public void selectInviteListItem(int param0) {
-            RealmsPlayerScreen.this.player = param0;
+            RealmsPlayerScreen.this.playerIndex = param0;
             RealmsPlayerScreen.this.updateButtonStates();
         }
 
         public void setSelected(@Nullable RealmsPlayerScreen.Entry param0) {
             super.setSelected(param0);
-            RealmsPlayerScreen.this.player = this.children().indexOf(param0);
+            RealmsPlayerScreen.this.playerIndex = this.children().indexOf(param0);
             RealmsPlayerScreen.this.updateButtonStates();
         }
 
@@ -399,12 +341,5 @@ public class RealmsPlayerScreen extends RealmsScreen {
         public int getMaxPosition() {
             return this.getItemCount() * 13;
         }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static enum UserAction {
-        TOGGLE_OP,
-        REMOVE,
-        NONE;
     }
 }

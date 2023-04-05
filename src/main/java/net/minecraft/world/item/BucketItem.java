@@ -134,7 +134,7 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                 this.playEmptySound(param0, param1, param2);
                 return true;
             } else {
-                if (!param1.isClientSide && var3 && !var2.isLiquid()) {
+                if (!param1.isClientSide && var3 && !var0.liquid()) {
                     param1.destroyBlock(param2, true);
                 }
 

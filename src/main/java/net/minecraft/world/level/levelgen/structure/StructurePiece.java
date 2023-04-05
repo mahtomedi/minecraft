@@ -383,11 +383,7 @@ public abstract class StructurePiece {
     }
 
     protected boolean isReplaceableByStructures(BlockState param0) {
-        return param0.isAir()
-            || param0.getMaterial().isLiquid()
-            || param0.is(Blocks.GLOW_LICHEN)
-            || param0.is(Blocks.SEAGRASS)
-            || param0.is(Blocks.TALL_SEAGRASS);
+        return param0.isAir() || param0.liquid() || param0.is(Blocks.GLOW_LICHEN) || param0.is(Blocks.SEAGRASS) || param0.is(Blocks.TALL_SEAGRASS);
     }
 
     protected boolean createChest(WorldGenLevel param0, BoundingBox param1, RandomSource param2, int param3, int param4, int param5, ResourceLocation param6) {

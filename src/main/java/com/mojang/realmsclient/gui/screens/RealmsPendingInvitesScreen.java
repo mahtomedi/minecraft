@@ -43,8 +43,8 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     private Button acceptButton;
     private Button rejectButton;
 
-    public RealmsPendingInvitesScreen(Screen param0) {
-        super(Component.translatable("mco.invites.title"));
+    public RealmsPendingInvitesScreen(Screen param0, Component param1) {
+        super(param1);
         this.lastScreen = param0;
     }
 

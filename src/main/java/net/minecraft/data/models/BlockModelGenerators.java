@@ -3976,7 +3976,8 @@ public class BlockModelGenerators {
             .accept(
                 MultiVariantGenerator.multiVariant(Blocks.SNIFFER_EGG)
                     .with(
-                        PropertyDispatch.property(SnifferEggBlock.AGE).generate(param1 -> Variant.variant().with(VariantProperties.MODEL, var0.apply(param1)))
+                        PropertyDispatch.property(SnifferEggBlock.HATCH)
+                            .generate(param1 -> Variant.variant().with(VariantProperties.MODEL, var0.apply(param1)))
                     )
             );
     }
@@ -4731,7 +4732,7 @@ public class BlockModelGenerators {
         this.createCrossBlockWithDefaultItem(Blocks.GRASS, BlockModelGenerators.TintState.TINTED);
         this.createCrossBlock(Blocks.SUGAR_CANE, BlockModelGenerators.TintState.TINTED);
         this.createSimpleFlatItemModel(Items.SUGAR_CANE);
-        this.createGrowingPlant(Blocks.KELP, Blocks.KELP_PLANT, BlockModelGenerators.TintState.TINTED);
+        this.createGrowingPlant(Blocks.KELP, Blocks.KELP_PLANT, BlockModelGenerators.TintState.NOT_TINTED);
         this.createSimpleFlatItemModel(Items.KELP);
         this.skipAutoItemBlock(Blocks.KELP_PLANT);
         this.createCrossBlock(Blocks.HANGING_ROOTS, BlockModelGenerators.TintState.NOT_TINTED);

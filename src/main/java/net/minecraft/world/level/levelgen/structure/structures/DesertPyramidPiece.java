@@ -25,6 +25,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
     public static final int DEPTH = 21;
     private final boolean[] hasPlacedChest = new boolean[4];
     private final List<BlockPos> potentialSuspiciousSandWorldPositions = new ArrayList<>();
+    private BlockPos randomCollapsedRoofPos = BlockPos.ZERO;
 
     public DesertPyramidPiece(RandomSource param0, int param1, int param2) {
         super(StructurePieceType.DESERT_PYRAMID_PIECE, param1, 64, param2, 21, 15, 21, getRandomHorizontalDirection(param0));
@@ -310,7 +311,6 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
         int var1 = param0.getY();
         int var2 = param0.getZ();
         BlockState var3 = Blocks.SANDSTONE_STAIRS.defaultBlockState();
-        this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 12, 0, 17, param2);
         this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 13, -1, 17, param2);
         this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 14, -2, 17, param2);
         this.placeBlock(param1, var3.rotate(Rotation.COUNTERCLOCKWISE_90), 15, -3, 17, param2);
@@ -323,11 +323,11 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
         this.placeBlock(param1, var4, var0 - 1, var1 + 4, var2 + 4, param2);
         this.placeBlock(param1, var4, var0, var1 + 4, var2 + 4, param2);
         this.placeBlock(param1, var4, var0 - 2, var1 + 3, var2 + 4, param2);
-        this.placeBlock(param1, var4, var0 - 1, var1 + 3, var2 + 4, param2);
-        this.placeBlock(param1, var4, var0, var1 + 3, var2 + 4, param2);
+        this.placeBlock(param1, var6 ? var4 : var5, var0 - 1, var1 + 3, var2 + 4, param2);
+        this.placeBlock(param1, !var6 ? var4 : var5, var0, var1 + 3, var2 + 4, param2);
         this.placeBlock(param1, var4, var0 - 1, var1 + 2, var2 + 4, param2);
-        this.placeBlock(param1, var6 ? var4 : var5, var0, var1 + 2, var2 + 4, param2);
-        this.placeBlock(param1, var6 ? var4 : var5, var0, var1 + 1, var2 + 4, param2);
+        this.placeBlock(param1, var5, var0, var1 + 2, var2 + 4, param2);
+        this.placeBlock(param1, var4, var0, var1 + 1, var2 + 4, param2);
     }
 
     private void addCellarRoom(BlockPos param0, WorldGenLevel param1, BoundingBox param2) {
@@ -348,7 +348,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
         this.generateBox(param1, param2, var0 + 3, -1, var2 - 3, var0 + 3, -1, var2 + 2, var3, var3, true);
         this.generateBox(param1, param2, var0 - 3, -1, var2 - 3, var0 + 3, -1, var2 - 2, var3, var3, true);
         this.generateBox(param1, param2, var0 - 3, -1, var2 + 3, var0 + 3, -1, var2 + 3, var3, var3, true);
-        this.placeSandBox(param2, var0 - 2, var1 + 1, var2 - 2, var0 + 2, var1 + 3, var2 + 2);
+        this.placeSandBox(var0 - 2, var1 + 1, var2 - 2, var0 + 2, var1 + 3, var2 + 2);
         this.placeCollapsedRoof(param1, param2, var0 - 2, var1 + 4, var2 - 2, var0 + 2, var2 + 2);
         BlockState var5 = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
         BlockState var6 = Blocks.BLUE_TERRACOTTA.defaultBlockState();
@@ -362,38 +362,35 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
         this.placeBlock(param1, var5, var0, var1, var2 + 2, param2);
         this.placeBlock(param1, var5, var0, var1, var2 - 2, param2);
         this.placeBlock(param1, var5, var0 + 3, var1, var2, param2);
-        this.placeSand(var0 + 3, var1 + 1, var2, param2);
-        this.placeSand(var0 + 3, var1 + 2, var2, param2);
+        this.placeSand(var0 + 3, var1 + 1, var2);
+        this.placeSand(var0 + 3, var1 + 2, var2);
         this.placeBlock(param1, var3, var0 + 4, var1 + 1, var2, param2);
         this.placeBlock(param1, var4, var0 + 4, var1 + 2, var2, param2);
         this.placeBlock(param1, var5, var0 - 3, var1, var2, param2);
-        this.placeSand(var0 - 3, var1 + 1, var2, param2);
-        this.placeSand(var0 - 3, var1 + 2, var2, param2);
+        this.placeSand(var0 - 3, var1 + 1, var2);
+        this.placeSand(var0 - 3, var1 + 2, var2);
         this.placeBlock(param1, var3, var0 - 4, var1 + 1, var2, param2);
         this.placeBlock(param1, var4, var0 - 4, var1 + 2, var2, param2);
         this.placeBlock(param1, var5, var0, var1, var2 + 3, param2);
-        this.placeSand(var0, var1 + 1, var2 + 3, param2);
-        this.placeSand(var0, var1 + 2, var2 + 3, param2);
+        this.placeSand(var0, var1 + 1, var2 + 3);
+        this.placeSand(var0, var1 + 2, var2 + 3);
         this.placeBlock(param1, var5, var0, var1, var2 - 3, param2);
-        this.placeSand(var0, var1 + 1, var2 - 3, param2);
-        this.placeSand(var0, var1 + 2, var2 - 3, param2);
+        this.placeSand(var0, var1 + 1, var2 - 3);
+        this.placeSand(var0, var1 + 2, var2 - 3);
         this.placeBlock(param1, var3, var0, var1 + 1, var2 - 4, param2);
         this.placeBlock(param1, var4, var0, -2, var2 - 4, param2);
     }
 
-    private void placeSand(int param0, int param1, int param2, BoundingBox param3) {
+    private void placeSand(int param0, int param1, int param2) {
         BlockPos var0 = this.getWorldPos(param0, param1, param2);
-        if (param3.isInside(var0)) {
-            this.potentialSuspiciousSandWorldPositions.add(var0);
-        }
-
+        this.potentialSuspiciousSandWorldPositions.add(var0);
     }
 
-    private void placeSandBox(BoundingBox param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        for(int var0 = param2; var0 <= param5; ++var0) {
-            for(int var1 = param1; var1 <= param4; ++var1) {
-                for(int var2 = param3; var2 <= param6; ++var2) {
-                    this.placeSand(var1, var0, var2, param0);
+    private void placeSandBox(int param0, int param1, int param2, int param3, int param4, int param5) {
+        for(int var0 = param1; var0 <= param4; ++var0) {
+            for(int var1 = param0; var1 <= param3; ++var1) {
+                for(int var2 = param2; var2 <= param5; ++var2) {
+                    this.placeSand(var1, var0, var2);
                 }
             }
         }
@@ -401,7 +398,7 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
     }
 
     private void placeCollapsedRoofPiece(WorldGenLevel param0, int param1, int param2, int param3, BoundingBox param4) {
-        if (param0.getRandom().nextBoolean()) {
+        if (param0.getRandom().nextFloat() < 0.33F) {
             BlockState var0 = Blocks.SANDSTONE.defaultBlockState();
             this.placeBlock(param0, var0, param1, param2, param3, param4);
         } else {
@@ -418,9 +415,17 @@ public class DesertPyramidPiece extends ScatteredFeaturePiece {
             }
         }
 
+        RandomSource var2 = RandomSource.create(param0.getSeed()).forkPositional().at(this.getWorldPos(param2, param3, param4));
+        int var3 = var2.nextIntBetweenInclusive(param2, param5);
+        int var4 = var2.nextIntBetweenInclusive(param4, param6);
+        this.randomCollapsedRoofPos = new BlockPos(this.getWorldX(var3, var4), this.getWorldY(param3), this.getWorldZ(var3, var4));
     }
 
     public List<BlockPos> getPotentialSuspiciousSandWorldPositions() {
         return this.potentialSuspiciousSandWorldPositions;
+    }
+
+    public BlockPos getRandomCollapsedRoofPos() {
+        return this.randomCollapsedRoofPos;
     }
 }

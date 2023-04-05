@@ -342,6 +342,11 @@ public abstract class AbstractContainerMenu {
                     }
 
                     ItemStack var5 = this.getCarried().copy();
+                    if (var5.isEmpty()) {
+                        this.resetQuickCraft();
+                        return;
+                    }
+
                     int var6 = this.getCarried().getCount();
 
                     for(Slot var7 : this.quickcraftSlots) {
@@ -351,16 +356,11 @@ public abstract class AbstractContainerMenu {
                             && var7.mayPlace(var8)
                             && (this.quickcraftType == 2 || var8.getCount() >= this.quickcraftSlots.size())
                             && this.canDragTo(var7)) {
-                            ItemStack var9 = var5.copy();
-                            int var10 = var7.hasItem() ? var7.getItem().getCount() : 0;
-                            getQuickCraftSlotCount(this.quickcraftSlots, this.quickcraftType, var9, var10);
-                            int var11 = Math.min(var9.getMaxStackSize(), var7.getMaxStackSize(var9));
-                            if (var9.getCount() > var11) {
-                                var9.setCount(var11);
-                            }
-
-                            var6 -= var9.getCount() - var10;
-                            var7.setByPlayer(var9);
+                            int var9 = var7.hasItem() ? var7.getItem().getCount() : 0;
+                            int var10 = Math.min(var5.getMaxStackSize(), var7.getMaxStackSize(var5));
+                            int var11 = Math.min(getQuickCraftPlaceCount(this.quickcraftSlots, this.quickcraftType, var5) + var9, var10);
+                            var6 -= var11 - var9;
+                            var7.setByPlayer(var5.copyWithCount(var11));
                         }
                     }
 
@@ -483,9 +483,8 @@ public abstract class AbstractContainerMenu {
         } else if (param2 == ClickType.CLONE && param3.getAbilities().instabuild && this.getCarried().isEmpty() && param0 >= 0) {
             Slot var28 = this.slots.get(param0);
             if (var28.hasItem()) {
-                ItemStack var29 = var28.getItem().copy();
-                var29.setCount(var29.getMaxStackSize());
-                this.setCarried(var29);
+                ItemStack var29 = var28.getItem();
+                this.setCarried(var29.copyWithCount(var29.getMaxStackSize()));
             }
         } else if (param2 == ClickType.THROW && this.getCarried().isEmpty() && param0 >= 0) {
             Slot var30 = this.slots.get(param0);
@@ -720,19 +719,13 @@ public abstract class AbstractContainerMenu {
         }
     }
 
-    public static void getQuickCraftSlotCount(Set<Slot> param0, int param1, ItemStack param2, int param3) {
-        switch(param1) {
-            case 0:
-                param2.setCount(Mth.floor((float)param2.getCount() / (float)param0.size()));
-                break;
-            case 1:
-                param2.setCount(1);
-                break;
-            case 2:
-                param2.setCount(param2.getItem().getMaxStackSize());
-        }
-
-        param2.grow(param3);
+    public static int getQuickCraftPlaceCount(Set<Slot> param0, int param1, ItemStack param2) {
+        return switch(param1) {
+            case 0 -> Mth.floor((float)param2.getCount() / (float)param0.size());
+            case 1 -> 1;
+            case 2 -> param2.getItem().getMaxStackSize();
+            default -> param2.getCount();
+        };
     }
 
     public boolean canDragTo(Slot param0) {

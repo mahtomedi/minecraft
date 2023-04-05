@@ -905,11 +905,11 @@ public class MineshaftPieces {
             } else {
                 for(int var7 = var0; var7 <= var3; ++var7) {
                     for(int var8 = var2; var8 <= var5; ++var8) {
-                        if (param0.getBlockState(var6.set(var7, var1, var8)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var7, var1, var8)).liquid()) {
                             return true;
                         }
 
-                        if (param0.getBlockState(var6.set(var7, var4, var8)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var7, var4, var8)).liquid()) {
                             return true;
                         }
                     }
@@ -917,11 +917,11 @@ public class MineshaftPieces {
 
                 for(int var9 = var0; var9 <= var3; ++var9) {
                     for(int var10 = var1; var10 <= var4; ++var10) {
-                        if (param0.getBlockState(var6.set(var9, var10, var2)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var9, var10, var2)).liquid()) {
                             return true;
                         }
 
-                        if (param0.getBlockState(var6.set(var9, var10, var5)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var9, var10, var5)).liquid()) {
                             return true;
                         }
                     }
@@ -929,11 +929,11 @@ public class MineshaftPieces {
 
                 for(int var11 = var2; var11 <= var5; ++var11) {
                     for(int var12 = var1; var12 <= var4; ++var12) {
-                        if (param0.getBlockState(var6.set(var0, var12, var11)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var0, var12, var11)).liquid()) {
                             return true;
                         }
 
-                        if (param0.getBlockState(var6.set(var3, var12, var11)).getMaterial().isLiquid()) {
+                        if (param0.getBlockState(var6.set(var3, var12, var11)).liquid()) {
                             return true;
                         }
                     }

@@ -290,8 +290,7 @@ public class ItemFrame extends HangingEntity {
 
     public void setItem(ItemStack param0, boolean param1) {
         if (!param0.isEmpty()) {
-            param0 = param0.copy();
-            param0.setCount(1);
+            param0 = param0.copyWithCount(1);
         }
 
         this.onItemChanged(param0);

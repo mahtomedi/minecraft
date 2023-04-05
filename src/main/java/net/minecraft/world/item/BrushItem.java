@@ -85,13 +85,14 @@ public class BrushItem extends Item {
                         var10 = SoundEvents.BRUSH_GENERIC;
                     }
 
-                    param0.playSound(var0, var7, var10, SoundSource.PLAYERS);
+                    param0.playSound(var0, var7, var10, SoundSource.BLOCKS);
                     if (!param0.isClientSide()) {
-                        BlockEntity var16 = param0.getBlockEntity(var7);
-                        if (var16 instanceof BrushableBlockEntity var12) {
+                        BlockEntity var17 = param0.getBlockEntity(var7);
+                        if (var17 instanceof BrushableBlockEntity var12) {
                             boolean var13 = var12.brush(param0.getGameTime(), var0, var3.getDirection());
                             if (var13) {
-                                param2.hurtAndBreak(1, param1, param0x -> param0x.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+                                EquipmentSlot var14 = param2.equals(var0.getItemBySlot(EquipmentSlot.OFFHAND)) ? EquipmentSlot.OFFHAND : EquipmentSlot.MAINHAND;
+                                param2.hurtAndBreak(1, param1, param1x -> param1x.broadcastBreakEvent(var14));
                             }
                         }
                     }

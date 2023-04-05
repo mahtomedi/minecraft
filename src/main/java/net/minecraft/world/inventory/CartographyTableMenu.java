@@ -117,13 +117,11 @@ public class CartographyTableMenu extends AbstractContainerMenu {
             if (var0 != null) {
                 ItemStack var1;
                 if (param1.is(Items.PAPER) && !var0.locked && var0.scale < 4) {
-                    var1 = param0.copy();
-                    var1.setCount(1);
+                    var1 = param0.copyWithCount(1);
                     var1.getOrCreateTag().putInt("map_scale_direction", 1);
                     this.broadcastChanges();
                 } else if (param1.is(Items.GLASS_PANE) && !var0.locked) {
-                    var1 = param0.copy();
-                    var1.setCount(1);
+                    var1 = param0.copyWithCount(1);
                     var1.getOrCreateTag().putBoolean("map_to_lock", true);
                     this.broadcastChanges();
                 } else {
@@ -133,8 +131,7 @@ public class CartographyTableMenu extends AbstractContainerMenu {
                         return;
                     }
 
-                    var1 = param0.copy();
-                    var1.setCount(2);
+                    var1 = param0.copyWithCount(2);
                     this.broadcastChanges();
                 }
 

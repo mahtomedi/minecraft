@@ -61,13 +61,7 @@ public class MapCloningRecipe extends CustomRecipe {
             }
         }
 
-        if (!var1.isEmpty() && var0 >= 1) {
-            ItemStack var4 = var1.copy();
-            var4.setCount(var0 + 1);
-            return var4;
-        } else {
-            return ItemStack.EMPTY;
-        }
+        return !var1.isEmpty() && var0 >= 1 ? var1.copyWithCount(var0 + 1) : ItemStack.EMPTY;
     }
 
     @Override

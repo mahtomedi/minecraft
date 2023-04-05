@@ -67,7 +67,7 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
 
     public void unpackLootTable(@Nullable Player param0) {
         if (this.lootTable != null && this.level.getServer() != null) {
-            LootTable var0 = this.level.getServer().getLootTables().get(this.lootTable);
+            LootTable var0 = this.level.getServer().getLootData().getLootTable(this.lootTable);
             if (param0 instanceof ServerPlayer) {
                 CriteriaTriggers.GENERATE_LOOT.trigger((ServerPlayer)param0, this.lootTable);
             }

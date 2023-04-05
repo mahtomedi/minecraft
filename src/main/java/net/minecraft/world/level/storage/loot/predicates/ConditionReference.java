@@ -7,6 +7,8 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootDataId;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import org.slf4j.Logger;
 
@@ -25,37 +27,40 @@ public class ConditionReference implements LootItemCondition {
 
     @Override
     public void validate(ValidationContext param0) {
-        if (param0.hasVisitedCondition(this.name)) {
+        LootDataId<LootItemCondition> var0 = new LootDataId<>(LootDataType.PREDICATE, this.name);
+        if (param0.hasVisitedElement(var0)) {
             param0.reportProblem("Condition " + this.name + " is recursively called");
         } else {
             LootItemCondition.super.validate(param0);
-            LootItemCondition var0 = param0.resolveCondition(this.name);
-            if (var0 == null) {
-                param0.reportProblem("Unknown condition table called " + this.name);
-            } else {
-                var0.validate(param0.enterTable(".{" + this.name + "}", this.name));
-            }
-
+            param0.resolver()
+                .getElementOptional(var0)
+                .ifPresentOrElse(
+                    param2 -> param2.validate(param0.enterElement(".{" + this.name + "}", var0)),
+                    () -> param0.reportProblem("Unknown condition table called " + this.name)
+                );
         }
     }
 
     public boolean test(LootContext param0) {
-        LootItemCondition var0 = param0.getCondition(this.name);
+        LootItemCondition var0 = param0.getResolver().getElement(LootDataType.PREDICATE, this.name);
         if (var0 == null) {
             LOGGER.warn("Tried using unknown condition table called {}", this.name);
             return false;
-        } else if (param0.addVisitedCondition(var0)) {
-            boolean var3;
-            try {
-                var3 = var0.test(param0);
-            } finally {
-                param0.removeVisitedCondition(var0);
-            }
-
-            return var3;
         } else {
-            LOGGER.warn("Detected infinite loop in loot tables");
-            return false;
+            LootContext.VisitedEntry<?> var1 = LootContext.createVisitedEntry(var0);
+            if (param0.pushVisitedElement(var1)) {
+                boolean var4;
+                try {
+                    var4 = var0.test(param0);
+                } finally {
+                    param0.popVisitedElement(var1);
+                }
+
+                return var4;
+            } else {
+                LOGGER.warn("Detected infinite loop in loot tables");
+                return false;
+            }
         }
     }
 

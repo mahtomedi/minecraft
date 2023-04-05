@@ -367,9 +367,7 @@ public class ArmorStand extends LivingEntity {
         } else if (var0.isEmpty() && (this.disabledSlots & 1 << param1.getFilterFlag() + 16) != 0) {
             return false;
         } else if (param0.getAbilities().instabuild && var0.isEmpty() && !param2.isEmpty()) {
-            ItemStack var1 = param2.copy();
-            var1.setCount(1);
-            this.setItemSlot(param1, var1);
+            this.setItemSlot(param1, param2.copyWithCount(1));
             return true;
         } else if (param2.isEmpty() || param2.getCount() <= 1) {
             this.setItemSlot(param1, param2);
@@ -378,10 +376,7 @@ public class ArmorStand extends LivingEntity {
         } else if (!var0.isEmpty()) {
             return false;
         } else {
-            ItemStack var2 = param2.copy();
-            var2.setCount(1);
-            this.setItemSlot(param1, var2);
-            param2.shrink(1);
+            this.setItemSlot(param1, param2.split(1));
             return true;
         }
     }

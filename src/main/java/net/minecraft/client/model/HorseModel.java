@@ -142,16 +142,16 @@ public class HorseModel<T extends AbstractHorse> extends AgeableListModel<T> {
         );
         var3.addOrReplaceChild(
             "left_saddle_line",
-            CubeListBuilder.create().texOffs(32, 2).addBox(3.1F, -6.0F, -8.0F, 0.0F, 3.0F, 16.0F, param0),
+            CubeListBuilder.create().texOffs(32, 2).addBox(3.1F, -6.0F, -8.0F, 0.0F, 3.0F, 16.0F),
             PartPose.rotation((float) (-Math.PI / 6), 0.0F, 0.0F)
         );
         var3.addOrReplaceChild(
             "right_saddle_line",
-            CubeListBuilder.create().texOffs(32, 2).addBox(-3.1F, -6.0F, -8.0F, 0.0F, 3.0F, 16.0F, param0),
+            CubeListBuilder.create().texOffs(32, 2).addBox(-3.1F, -6.0F, -8.0F, 0.0F, 3.0F, 16.0F),
             PartPose.rotation((float) (-Math.PI / 6), 0.0F, 0.0F)
         );
         var3.addOrReplaceChild(
-            "head_saddle", CubeListBuilder.create().texOffs(1, 1).addBox(-3.0F, -11.0F, -1.9F, 6.0F, 5.0F, 6.0F, new CubeDeformation(0.2F)), PartPose.ZERO
+            "head_saddle", CubeListBuilder.create().texOffs(1, 1).addBox(-3.0F, -11.0F, -1.9F, 6.0F, 5.0F, 6.0F, new CubeDeformation(0.22F)), PartPose.ZERO
         );
         var3.addOrReplaceChild(
             "mouth_saddle_wrap",

@@ -56,7 +56,7 @@ public class SpawnUtil {
     }
 
     public interface Strategy {
-        SpawnUtil.Strategy LEGACY_IRON_GOLEM = (param0, param1, param2, param3, param4) -> (param4.isAir() || param4.getMaterial().isLiquid())
+        SpawnUtil.Strategy LEGACY_IRON_GOLEM = (param0, param1, param2, param3, param4) -> (param4.isAir() || param4.liquid())
                 && param2.getMaterial().isSolidBlocking();
         SpawnUtil.Strategy ON_TOP_OF_COLLIDER = (param0, param1, param2, param3, param4) -> param4.getCollisionShape(param0, param3).isEmpty()
                 && Block.isFaceFull(param2.getCollisionShape(param0, param1), Direction.UP);

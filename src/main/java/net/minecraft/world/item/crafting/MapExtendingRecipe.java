@@ -39,25 +39,17 @@ public class MapExtendingRecipe extends ShapedRecipe {
         if (!super.matches(param0, param1)) {
             return false;
         } else {
-            ItemStack var0 = ItemStack.EMPTY;
-
-            for(int var1 = 0; var1 < param0.getContainerSize() && var0.isEmpty(); ++var1) {
-                ItemStack var2 = param0.getItem(var1);
-                if (var2.is(Items.FILLED_MAP)) {
-                    var0 = var2;
-                }
-            }
-
+            ItemStack var0 = findFilledMap(param0);
             if (var0.isEmpty()) {
                 return false;
             } else {
-                MapItemSavedData var3 = MapItem.getSavedData(var0, param1);
-                if (var3 == null) {
+                MapItemSavedData var1 = MapItem.getSavedData(var0, param1);
+                if (var1 == null) {
                     return false;
-                } else if (var3.isExplorationMap()) {
+                } else if (var1.isExplorationMap()) {
                     return false;
                 } else {
-                    return var3.scale < 4;
+                    return var1.scale < 4;
                 }
             }
         }
@@ -65,19 +57,20 @@ public class MapExtendingRecipe extends ShapedRecipe {
 
     @Override
     public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
-        ItemStack var0 = ItemStack.EMPTY;
+        ItemStack var0 = findFilledMap(param0).copyWithCount(1);
+        var0.getOrCreateTag().putInt("map_scale_direction", 1);
+        return var0;
+    }
 
-        for(int var1 = 0; var1 < param0.getContainerSize() && var0.isEmpty(); ++var1) {
-            ItemStack var2 = param0.getItem(var1);
-            if (var2.is(Items.FILLED_MAP)) {
-                var0 = var2;
+    private static ItemStack findFilledMap(CraftingContainer param0) {
+        for(int var0 = 0; var0 < param0.getContainerSize(); ++var0) {
+            ItemStack var1 = param0.getItem(var0);
+            if (var1.is(Items.FILLED_MAP)) {
+                return var1;
             }
         }
 
-        var0 = var0.copy();
-        var0.setCount(1);
-        var0.getOrCreateTag().putInt("map_scale_direction", 1);
-        return var0;
+        return ItemStack.EMPTY;
     }
 
     @Override

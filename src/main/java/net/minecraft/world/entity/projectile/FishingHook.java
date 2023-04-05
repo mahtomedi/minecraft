@@ -455,7 +455,7 @@ public class FishingHook extends Projectile {
                     .withParameter(LootContextParams.THIS_ENTITY, this)
                     .withRandom(this.random)
                     .withLuck((float)this.luck + var0.getLuck());
-                LootTable var3 = this.level.getServer().getLootTables().get(BuiltInLootTables.FISHING);
+                LootTable var3 = this.level.getServer().getLootData().getLootTable(BuiltInLootTables.FISHING);
                 List<ItemStack> var4 = var3.getRandomItems(var2.create(LootContextParamSets.FISHING));
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)var0, param0, this, var4);
 

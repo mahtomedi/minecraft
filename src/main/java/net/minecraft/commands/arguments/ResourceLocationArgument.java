@@ -13,8 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.level.storage.loot.ItemModifierManager;
-import net.minecraft.world.level.storage.loot.PredicateManager;
+import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
@@ -55,8 +55,8 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
 
     public static LootItemCondition getPredicate(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = getId(param0, param1);
-        PredicateManager var1 = param0.getSource().getServer().getPredicateManager();
-        LootItemCondition var2 = var1.get(var0);
+        LootDataManager var1 = param0.getSource().getServer().getLootData();
+        LootItemCondition var2 = var1.getElement(LootDataType.PREDICATE, var0);
         if (var2 == null) {
             throw ERROR_UNKNOWN_PREDICATE.create(var0);
         } else {
@@ -66,8 +66,8 @@ public class ResourceLocationArgument implements ArgumentType<ResourceLocation> 
 
     public static LootItemFunction getItemModifier(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         ResourceLocation var0 = getId(param0, param1);
-        ItemModifierManager var1 = param0.getSource().getServer().getItemModifierManager();
-        LootItemFunction var2 = var1.get(var0);
+        LootDataManager var1 = param0.getSource().getServer().getLootData();
+        LootItemFunction var2 = var1.getElement(LootDataType.MODIFIER, var0);
         if (var2 == null) {
             throw ERROR_UNKNOWN_ITEM_MODIFIER.create(var0);
         } else {

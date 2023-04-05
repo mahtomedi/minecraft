@@ -17,6 +17,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.chat.ChatTrustLevel;
@@ -393,7 +394,7 @@ public class ChatSelectionScreen extends Screen {
 
             @Override
             public boolean keyPressed(int param0, int param1, int param2) {
-                return param0 != 257 && param0 != 32 && param0 != 335 ? false : this.toggleReport();
+                return CommonInputs.selected(param0) ? this.toggleReport() : false;
             }
 
             @Override

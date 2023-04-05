@@ -26,7 +26,6 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
@@ -41,19 +40,8 @@ public class TreeFeature extends Feature<TreeConfiguration> {
         return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.VINE));
     }
 
-    public static boolean isBlockWater(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> param0x.is(Blocks.WATER));
-    }
-
     public static boolean isAirOrLeaves(LevelSimulatedReader param0, BlockPos param1) {
         return param0.isStateAtPosition(param1, param0x -> param0x.isAir() || param0x.is(BlockTags.LEAVES));
-    }
-
-    private static boolean isReplaceablePlant(LevelSimulatedReader param0, BlockPos param1) {
-        return param0.isStateAtPosition(param1, param0x -> {
-            Material var0x = param0x.getMaterial();
-            return var0x == Material.REPLACEABLE_PLANT || var0x == Material.REPLACEABLE_WATER_PLANT || var0x == Material.REPLACEABLE_FIREPROOF_PLANT;
-        });
     }
 
     private static void setBlockKnownShape(LevelWriter param0, BlockPos param1, BlockState param2) {
@@ -61,7 +49,7 @@ public class TreeFeature extends Feature<TreeConfiguration> {
     }
 
     public static boolean validTreePos(LevelSimulatedReader param0, BlockPos param1) {
-        return isAirOrLeaves(param0, param1) || isReplaceablePlant(param0, param1) || isBlockWater(param0, param1);
+        return param0.isStateAtPosition(param1, param0x -> param0x.isAir() || param0x.is(BlockTags.REPLACEABLE_BY_TREES));
     }
 
     private boolean doPlace(

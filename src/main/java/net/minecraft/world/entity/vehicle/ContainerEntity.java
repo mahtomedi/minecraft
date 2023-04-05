@@ -97,7 +97,7 @@ public interface ContainerEntity extends Container, MenuProvider {
     default void unpackChestVehicleLootTable(@Nullable Player param0) {
         MinecraftServer var0 = this.getLevel().getServer();
         if (this.getLootTable() != null && var0 != null) {
-            LootTable var1 = var0.getLootTables().get(this.getLootTable());
+            LootTable var1 = var0.getLootData().getLootTable(this.getLootTable());
             if (param0 != null) {
                 CriteriaTriggers.GENERATE_LOOT.trigger((ServerPlayer)param0, this.getLootTable());
             }

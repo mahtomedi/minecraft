@@ -727,6 +727,7 @@ public class CreativeModeTabs {
             param1.accept(Items.OXEYE_DAISY);
             param1.accept(Items.CORNFLOWER);
             param1.accept(Items.LILY_OF_THE_VALLEY);
+            param1.accept(Items.TORCHFLOWER);
             param1.accept(Items.PINK_PETALS);
             param1.accept(Items.SPORE_BLOSSOM);
             param1.accept(Items.BAMBOO);
@@ -736,8 +737,6 @@ public class CreativeModeTabs {
             param1.accept(Items.CRIMSON_ROOTS);
             param1.accept(Items.WARPED_ROOTS);
             param1.accept(Items.NETHER_SPROUTS);
-            param1.accept(Items.TORCHFLOWER);
-            param1.accept(Items.PITCHER_PLANT);
             param1.accept(Items.WEEPING_VINES);
             param1.accept(Items.TWISTING_VINES);
             param1.accept(Items.VINE);
@@ -747,6 +746,7 @@ public class CreativeModeTabs {
             param1.accept(Items.LILAC);
             param1.accept(Items.ROSE_BUSH);
             param1.accept(Items.PEONY);
+            param1.accept(Items.PITCHER_PLANT);
             param1.accept(Items.BIG_DRIPLEAF);
             param1.accept(Items.SMALL_DRIPLEAF);
             param1.accept(Items.CHORUS_PLANT);
@@ -1028,6 +1028,8 @@ public class CreativeModeTabs {
             param1.accept(Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
             param1.accept(Items.SCULK_SENSOR);
             param1.accept(Items.CALIBRATED_SCULK_SENSOR);
+            param1.accept(Items.SCULK_SHRIEKER);
+            param1.accept(Items.AMETHYST_BLOCK);
             param1.accept(Items.WHITE_WOOL);
             param1.accept(Items.TRIPWIRE_HOOK);
             param1.accept(Items.STRING);

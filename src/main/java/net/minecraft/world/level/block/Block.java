@@ -371,8 +371,8 @@ public class Block extends BlockBehaviour implements ItemLike {
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, @Nullable LivingEntity param3, ItemStack param4) {
     }
 
-    public boolean isPossibleToRespawnInThis() {
-        return !this.material.isSolid() && !this.material.isLiquid();
+    public boolean isPossibleToRespawnInThis(BlockState param0) {
+        return !this.material.isSolid() && !param0.liquid();
     }
 
     public MutableComponent getName() {

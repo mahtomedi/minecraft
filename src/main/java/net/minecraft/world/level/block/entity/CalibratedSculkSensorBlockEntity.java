@@ -27,6 +27,11 @@ public class CalibratedSculkSensorBlockEntity extends SculkSensorBlockEntity {
         }
 
         @Override
+        public int getListenerRadius() {
+            return 16;
+        }
+
+        @Override
         public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable GameEvent.Context param4) {
             BlockPos var0 = this.sculkSensor.getBlockPos();
             int var1 = this.getBackSignal(param0, var0, this.sculkSensor.getBlockState());
@@ -35,7 +40,7 @@ public class CalibratedSculkSensorBlockEntity extends SculkSensorBlockEntity {
 
         private int getBackSignal(Level param0, BlockPos param1, BlockState param2) {
             Direction var0 = param2.getValue(CalibratedSculkSensorBlock.FACING).getOpposite();
-            return param0.getControlInputSignal(param1.relative(var0), var0, false);
+            return param0.getSignal(param1.relative(var0), var0);
         }
     }
 }

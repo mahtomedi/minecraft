@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.projectile;
 
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -36,7 +35,7 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
 
     public void setItem(ItemStack param0) {
         if (!param0.is(Items.ENDER_EYE) || param0.hasTag()) {
-            this.getEntityData().set(DATA_ITEM_STACK, Util.make(param0.copy(), param0x -> param0x.setCount(1)));
+            this.getEntityData().set(DATA_ITEM_STACK, param0.copyWithCount(1));
         }
 
     }

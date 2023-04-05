@@ -55,8 +55,7 @@ public class LootTable {
                     int var0x = param2.getCount();
 
                     while(var0x > 0) {
-                        ItemStack var1x = param2.copy();
-                        var1x.setCount(Math.min(param2.getMaxStackSize(), var0x));
+                        ItemStack var1x = param2.copyWithCount(Math.min(param2.getMaxStackSize(), var0x));
                         var0x -= var1x.getCount();
                         param1.accept(var1x);
                     }
@@ -67,14 +66,15 @@ public class LootTable {
     }
 
     public void getRandomItemsRaw(LootContext param0, Consumer<ItemStack> param1) {
-        if (param0.addVisitedTable(this)) {
-            Consumer<ItemStack> var0 = LootItemFunction.decorate(this.compositeFunction, param1, param0);
+        LootContext.VisitedEntry<?> var0 = LootContext.createVisitedEntry(this);
+        if (param0.pushVisitedElement(var0)) {
+            Consumer<ItemStack> var1 = LootItemFunction.decorate(this.compositeFunction, param1, param0);
 
-            for(LootPool var1 : this.pools) {
-                var1.addRandomItems(var0, param0);
+            for(LootPool var2 : this.pools) {
+                var2.addRandomItems(var1, param0);
             }
 
-            param0.removeVisitedTable(this);
+            param0.popVisitedElement(var0);
         } else {
             LOGGER.warn("Detected infinite loop in loot tables");
         }

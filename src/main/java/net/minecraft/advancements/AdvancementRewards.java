@@ -52,7 +52,7 @@ public class AdvancementRewards {
         boolean var1 = false;
 
         for(ResourceLocation var2 : this.loot) {
-            for(ItemStack var3 : param0.server.getLootTables().get(var2).getRandomItems(var0)) {
+            for(ItemStack var3 : param0.server.getLootData().getLootTable(var2).getRandomItems(var0)) {
                 if (param0.addItem(var3)) {
                     param0.level
                         .playSound(

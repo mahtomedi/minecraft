@@ -17,7 +17,6 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.FilteredText;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -140,8 +139,10 @@ public class SignBlockEntity extends BlockEntity {
     }
 
     public void updateSignText(Player param0, boolean param1, List<FilteredText> param2) {
-        if (!this.isWaxed() && param0.getUUID().equals(this.getPlayerWhoMayEdit())) {
+        if (!this.isWaxed() && param0.getUUID().equals(this.getPlayerWhoMayEdit()) && this.level != null) {
             this.updateText(param2x -> this.setMessages(param0, param2, param2x), param1);
+            this.setAllowedPlayerEditor(null);
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         } else {
             LOGGER.warn("Player {} just tried to change non-editable sign", param0.getName().getString());
         }
@@ -194,7 +195,7 @@ public class SignBlockEntity extends BlockEntity {
         return this.isWaxed() && this.getText(param0).hasAnyClickCommands(param1);
     }
 
-    public boolean executeClickCommandsIfPresent(ServerPlayer param0, ServerLevel param1, BlockPos param2, boolean param3) {
+    public boolean executeClickCommandsIfPresent(Player param0, Level param1, BlockPos param2, boolean param3) {
         boolean var0 = false;
 
         for(Component var1 : this.getText(param3).getMessages(param0.isTextFilteringEnabled())) {
@@ -209,10 +210,10 @@ public class SignBlockEntity extends BlockEntity {
         return var0;
     }
 
-    private static CommandSourceStack createCommandSourceStack(@Nullable ServerPlayer param0, ServerLevel param1, BlockPos param2) {
+    private static CommandSourceStack createCommandSourceStack(@Nullable Player param0, Level param1, BlockPos param2) {
         String var0 = param0 == null ? "Sign" : param0.getName().getString();
         Component var1 = (Component)(param0 == null ? Component.literal("Sign") : param0.getDisplayName());
-        return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(param2), Vec2.ZERO, param1, 2, var0, var1, param1.getServer(), param0);
+        return new CommandSourceStack(CommandSource.NULL, Vec3.atCenterOf(param2), Vec2.ZERO, (ServerLevel)param1, 2, var0, var1, param1.getServer(), param0);
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {

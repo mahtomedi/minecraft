@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -351,7 +352,7 @@ public class SpreadPlayersCommand {
             BlockPos var0 = BlockPos.containing(this.x, (double)(this.getSpawnY(param0, param1) - 1), this.z);
             BlockState var1 = param0.getBlockState(var0);
             Material var2 = var1.getMaterial();
-            return var0.getY() < param1 && !var2.isLiquid() && var2 != Material.FIRE;
+            return var0.getY() < param1 && !var1.liquid() && !var1.is(BlockTags.FIRE);
         }
 
         public void randomize(RandomSource param0, double param1, double param2, double param3, double param4) {

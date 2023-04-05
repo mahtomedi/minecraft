@@ -39,8 +39,7 @@ public interface DyeableLeatherItem {
         Item var5 = param0.getItem();
         if (var5 instanceof DyeableLeatherItem) {
             var4 = (DyeableLeatherItem)var5;
-            var0 = param0.copy();
-            var0.setCount(1);
+            var0 = param0.copyWithCount(1);
             if (var4.hasCustomColor(param0)) {
                 int var6 = var4.getColor(var0);
                 float var7 = (float)(var6 >> 16 & 0xFF) / 255.0F;

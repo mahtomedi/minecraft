@@ -163,6 +163,7 @@ import net.minecraft.util.datafix.fixes.RenamedCoralFix;
 import net.minecraft.util.datafix.fixes.ReorganizePoi;
 import net.minecraft.util.datafix.fixes.SavedDataFeaturePoolElementFix;
 import net.minecraft.util.datafix.fixes.SavedDataUUIDFix;
+import net.minecraft.util.datafix.fixes.SculkSensorRemoveCooldownPhaseFix;
 import net.minecraft.util.datafix.fixes.SpawnerDataFix;
 import net.minecraft.util.datafix.fixes.StatsCounterFix;
 import net.minecraft.util.datafix.fixes.StatsRenameFix;
@@ -1111,6 +1112,8 @@ public class DataFixers {
         param0.addFixer(new FeatureFlagRemoveFix(var187, "Remove 1.20 feature toggle", Set.of("minecraft:update_1_20")));
         Schema var188 = param0.addSchema(3441, SAME_NAMESPACED);
         param0.addFixer(new BlendingDataFix(var188));
+        Schema var189 = param0.addSchema(3444, SAME_NAMESPACED);
+        param0.addFixer(new SculkSensorRemoveCooldownPhaseFix(var189, false));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

@@ -137,8 +137,8 @@ public class KeyboardHandler {
                     if (this.minecraft.player.isReducedDebugInfo()) {
                         return false;
                     } else {
-                        ClientPacketListener var5 = this.minecraft.player.connection;
-                        if (var5 == null) {
+                        ClientPacketListener var6 = this.minecraft.player.connection;
+                        if (var6 == null) {
                             return false;
                         }
 
@@ -224,12 +224,13 @@ public class KeyboardHandler {
                     var2.addMessage(Component.translatable("debug.gamemodes.help"));
                     return true;
                 case 83:
-                    Path var3 = TextureUtil.getDebugTexturePath(this.minecraft.gameDirectory.toPath()).toAbsolutePath();
-                    this.minecraft.getTextureManager().dumpAllSheets(var3);
-                    Component var4 = Component.literal(var3.toString())
+                    Path var3 = this.minecraft.gameDirectory.toPath().toAbsolutePath();
+                    Path var4 = TextureUtil.getDebugTexturePath(var3);
+                    this.minecraft.getTextureManager().dumpAllSheets(var4);
+                    Component var5 = Component.literal(var3.relativize(var4).toString())
                         .withStyle(ChatFormatting.UNDERLINE)
-                        .withStyle(param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var3.toFile().toString())));
-                    this.debugFeedbackTranslated("debug.dump_dynamic_textures", var4);
+                        .withStyle(param1 -> param1.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, var4.toFile().toString())));
+                    this.debugFeedbackTranslated("debug.dump_dynamic_textures", var5);
                     return true;
                 case 84:
                     this.debugFeedbackTranslated("debug.reload_resourcepacks.message");

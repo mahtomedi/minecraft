@@ -5,10 +5,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.Ravager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -21,15 +24,19 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBlock {
+public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBlock, FarmableBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_4;
     public static final int MAX_AGE = 4;
     private static final int DOUBLE_PLANT_AGE_INTERSECTION = 3;
     private static final int BONEMEAL_INCREASE = 1;
-    private static final VoxelShape UPPER_SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 15.0, 13.0);
-    private static final VoxelShape LOWER_SHAPE = Block.box(3.0, -1.0, 3.0, 13.0, 16.0, 13.0);
+    private static final VoxelShape FULL_UPPER_SHAPE = Block.box(3.0, 0.0, 3.0, 13.0, 15.0, 13.0);
+    private static final VoxelShape FULL_LOWER_SHAPE = Block.box(3.0, -1.0, 3.0, 13.0, 16.0, 13.0);
     private static final VoxelShape COLLISION_SHAPE_BULB = Block.box(5.0, -1.0, 5.0, 11.0, 3.0, 11.0);
     private static final VoxelShape COLLISION_SHAPE_CROP = Block.box(3.0, -1.0, 3.0, 13.0, 5.0, 13.0);
+    private static final VoxelShape[] UPPER_SHAPE_BY_AGE = new VoxelShape[]{Block.box(3.0, 0.0, 3.0, 13.0, 11.0, 13.0), FULL_UPPER_SHAPE};
+    private static final VoxelShape[] LOWER_SHAPE_BY_AGE = new VoxelShape[]{
+        COLLISION_SHAPE_BULB, Block.box(3.0, -1.0, 3.0, 13.0, 14.0, 13.0), FULL_LOWER_SHAPE, FULL_LOWER_SHAPE, FULL_LOWER_SHAPE
+    };
 
     public PitcherCropBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -87,7 +94,18 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return param0.getValue(HALF) == DoubleBlockHalf.UPPER ? UPPER_SHAPE : LOWER_SHAPE;
+        return param0.getValue(HALF) == DoubleBlockHalf.UPPER
+            ? UPPER_SHAPE_BY_AGE[Math.abs(4 - (param0.getValue(AGE) + 1))]
+            : LOWER_SHAPE_BY_AGE[param0.getValue(AGE)];
+    }
+
+    @Override
+    public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
+        if (param3 instanceof Ravager && param1.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+            param1.destroyBlock(param2, true, param3);
+        }
+
+        super.entityInside(param0, param1, param2, param3);
     }
 
     @Override
@@ -111,21 +129,20 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
 
     private void grow(ServerLevel param0, BlockState param1, BlockPos param2, int param3) {
         int var0 = Math.min(param1.getValue(AGE) + param3, 4);
-        if (var0 < 3 || canGrowInto(param0, param2.above())) {
+        if (var0 < 3 || canGrowInto(param0, isLower(param1) ? param2.above() : param2)) {
             param0.setBlock(param2, param1.setValue(AGE, Integer.valueOf(var0)), 2);
             if (var0 >= 3) {
-                DoubleBlockHalf var1 = param1.getValue(HALF);
-                if (var1 == DoubleBlockHalf.LOWER) {
-                    BlockPos var2 = param2.above();
+                if (isLower(param1)) {
+                    BlockPos var1 = param2.above();
                     param0.setBlock(
-                        var2,
+                        var1,
                         copyWaterloggedFrom(param0, param2, this.defaultBlockState().setValue(AGE, Integer.valueOf(var0)).setValue(HALF, DoubleBlockHalf.UPPER)),
                         3
                     );
-                } else if (var1 == DoubleBlockHalf.UPPER) {
-                    BlockPos var3 = param2.below();
+                } else {
+                    BlockPos var2 = param2.below();
                     param0.setBlock(
-                        var3,
+                        var2,
                         copyWaterloggedFrom(param0, param2, this.defaultBlockState().setValue(AGE, Integer.valueOf(var0)).setValue(HALF, DoubleBlockHalf.LOWER)),
                         3
                     );
@@ -140,9 +157,14 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
         return var0.isAir() || var0.is(Blocks.PITCHER_CROP);
     }
 
+    private static boolean isLower(BlockState param0) {
+        return param0.getValue(HALF) == DoubleBlockHalf.LOWER;
+    }
+
     @Override
     public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
-        return !this.isMaxAge(param2);
+        return !this.isMaxAge(param2)
+            && (param2.getValue(AGE) < 2 || param0 instanceof ServerLevel var0 && canGrowInto(var0, isLower(param2) ? param1.above() : param1));
     }
 
     @Override

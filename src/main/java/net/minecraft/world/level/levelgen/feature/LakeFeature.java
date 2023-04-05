@@ -72,12 +72,13 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
                                     || var23 > 0 && var4[(var21 * 16 + var22) * 8 + (var23 - 1)]
                             );
                         if (var24) {
-                            Material var25 = var1.getBlockState(var0.offset(var21, var23, var22)).getMaterial();
-                            if (var23 >= 4 && var25.isLiquid()) {
+                            BlockState var25 = var1.getBlockState(var0.offset(var21, var23, var22));
+                            Material var26 = var25.getMaterial();
+                            if (var23 >= 4 && var25.liquid()) {
                                 return false;
                             }
 
-                            if (var23 < 4 && !var25.isSolid() && var1.getBlockState(var0.offset(var21, var23, var22)) != var20) {
+                            if (var23 < 4 && !var26.isSolid() && var1.getBlockState(var0.offset(var21, var23, var22)) != var20) {
                                 return false;
                             }
                         }
@@ -85,17 +86,17 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
                 }
             }
 
-            for(int var26 = 0; var26 < 16; ++var26) {
-                for(int var27 = 0; var27 < 16; ++var27) {
-                    for(int var28 = 0; var28 < 8; ++var28) {
-                        if (var4[(var26 * 16 + var27) * 8 + var28]) {
-                            BlockPos var29 = var0.offset(var26, var28, var27);
-                            if (this.canReplaceBlock(var1.getBlockState(var29))) {
-                                boolean var30 = var28 >= 4;
-                                var1.setBlock(var29, var30 ? AIR : var20, 2);
-                                if (var30) {
-                                    var1.scheduleTick(var29, AIR.getBlock(), 0);
-                                    this.markAboveForPostProcessing(var1, var29);
+            for(int var27 = 0; var27 < 16; ++var27) {
+                for(int var28 = 0; var28 < 16; ++var28) {
+                    for(int var29 = 0; var29 < 8; ++var29) {
+                        if (var4[(var27 * 16 + var28) * 8 + var29]) {
+                            BlockPos var30 = var0.offset(var27, var29, var28);
+                            if (this.canReplaceBlock(var1.getBlockState(var30))) {
+                                boolean var31 = var29 >= 4;
+                                var1.setBlock(var30, var31 ? AIR : var20, 2);
+                                if (var31) {
+                                    var1.scheduleTick(var30, AIR.getBlock(), 0);
+                                    this.markAboveForPostProcessing(var1, var30);
                                 }
                             }
                         }
@@ -103,26 +104,26 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
                 }
             }
 
-            BlockState var31 = var3.barrier().getState(var2, var0);
-            if (!var31.isAir()) {
-                for(int var32 = 0; var32 < 16; ++var32) {
-                    for(int var33 = 0; var33 < 16; ++var33) {
-                        for(int var34 = 0; var34 < 8; ++var34) {
-                            boolean var35 = !var4[(var32 * 16 + var33) * 8 + var34]
+            BlockState var32 = var3.barrier().getState(var2, var0);
+            if (!var32.isAir()) {
+                for(int var33 = 0; var33 < 16; ++var33) {
+                    for(int var34 = 0; var34 < 16; ++var34) {
+                        for(int var35 = 0; var35 < 8; ++var35) {
+                            boolean var36 = !var4[(var33 * 16 + var34) * 8 + var35]
                                 && (
-                                    var32 < 15 && var4[((var32 + 1) * 16 + var33) * 8 + var34]
-                                        || var32 > 0 && var4[((var32 - 1) * 16 + var33) * 8 + var34]
-                                        || var33 < 15 && var4[(var32 * 16 + var33 + 1) * 8 + var34]
-                                        || var33 > 0 && var4[(var32 * 16 + (var33 - 1)) * 8 + var34]
-                                        || var34 < 7 && var4[(var32 * 16 + var33) * 8 + var34 + 1]
-                                        || var34 > 0 && var4[(var32 * 16 + var33) * 8 + (var34 - 1)]
+                                    var33 < 15 && var4[((var33 + 1) * 16 + var34) * 8 + var35]
+                                        || var33 > 0 && var4[((var33 - 1) * 16 + var34) * 8 + var35]
+                                        || var34 < 15 && var4[(var33 * 16 + var34 + 1) * 8 + var35]
+                                        || var34 > 0 && var4[(var33 * 16 + (var34 - 1)) * 8 + var35]
+                                        || var35 < 7 && var4[(var33 * 16 + var34) * 8 + var35 + 1]
+                                        || var35 > 0 && var4[(var33 * 16 + var34) * 8 + (var35 - 1)]
                                 );
-                            if (var35 && (var34 < 4 || var2.nextInt(2) != 0)) {
-                                BlockState var36 = var1.getBlockState(var0.offset(var32, var34, var33));
-                                if (var36.getMaterial().isSolid() && !var36.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) {
-                                    BlockPos var37 = var0.offset(var32, var34, var33);
-                                    var1.setBlock(var37, var31, 2);
-                                    this.markAboveForPostProcessing(var1, var37);
+                            if (var36 && (var35 < 4 || var2.nextInt(2) != 0)) {
+                                BlockState var37 = var1.getBlockState(var0.offset(var33, var35, var34));
+                                if (var37.getMaterial().isSolid() && !var37.is(BlockTags.LAVA_POOL_STONE_CANNOT_REPLACE)) {
+                                    BlockPos var38 = var0.offset(var33, var35, var34);
+                                    var1.setBlock(var38, var32, 2);
+                                    this.markAboveForPostProcessing(var1, var38);
                                 }
                             }
                         }
@@ -131,12 +132,12 @@ public class LakeFeature extends Feature<LakeFeature.Configuration> {
             }
 
             if (var20.getFluidState().is(FluidTags.WATER)) {
-                for(int var38 = 0; var38 < 16; ++var38) {
-                    for(int var39 = 0; var39 < 16; ++var39) {
-                        int var40 = 4;
-                        BlockPos var41 = var0.offset(var38, 4, var39);
-                        if (var1.getBiome(var41).value().shouldFreeze(var1, var41, false) && this.canReplaceBlock(var1.getBlockState(var41))) {
-                            var1.setBlock(var41, Blocks.ICE.defaultBlockState(), 2);
+                for(int var39 = 0; var39 < 16; ++var39) {
+                    for(int var40 = 0; var40 < 16; ++var40) {
+                        int var41 = 4;
+                        BlockPos var42 = var0.offset(var39, 4, var40);
+                        if (var1.getBiome(var42).value().shouldFreeze(var1, var42, false) && this.canReplaceBlock(var1.getBlockState(var42))) {
+                            var1.setBlock(var42, Blocks.ICE.defaultBlockState(), 2);
                         }
                     }
                 }

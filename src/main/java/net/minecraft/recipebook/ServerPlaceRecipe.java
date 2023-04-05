@@ -132,7 +132,7 @@ public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integ
     protected void moveItemToGrid(Slot param0, ItemStack param1) {
         int var0 = this.inventory.findSlotMatchingUnusedItem(param1);
         if (var0 != -1) {
-            ItemStack var1 = this.inventory.getItem(var0).copy();
+            ItemStack var1 = this.inventory.getItem(var0);
             if (!var1.isEmpty()) {
                 if (var1.getCount() > 1) {
                     this.inventory.removeItem(var0, 1);
@@ -140,9 +140,8 @@ public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integ
                     this.inventory.removeItemNoUpdate(var0);
                 }
 
-                var1.setCount(1);
                 if (param0.getItem().isEmpty()) {
-                    param0.set(var1);
+                    param0.set(var1.copyWithCount(1));
                 } else {
                     param0.getItem().grow(1);
                 }

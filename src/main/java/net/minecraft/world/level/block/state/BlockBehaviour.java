@@ -227,7 +227,7 @@ public abstract class BlockBehaviour implements FeatureElement {
         } else {
             LootContext var1 = param1.withParameter(LootContextParams.BLOCK_STATE, param0).create(LootContextParamSets.BLOCK);
             ServerLevel var2 = var1.getLevel();
-            LootTable var3 = var2.getServer().getLootTables().get(var0);
+            LootTable var3 = var2.getServer().getLootData().getLootTable(var0);
             return var3.getRandomItems(var1);
         }
     }
@@ -379,6 +379,8 @@ public abstract class BlockBehaviour implements FeatureElement {
         private final boolean useShapeForLightOcclusion;
         private final boolean isAir;
         private final boolean ignitedByLava;
+        @Deprecated
+        private final boolean liquid;
         private final PushReaction pushReaction;
         private final Material material;
         private final MaterialColor materialColor;
@@ -404,6 +406,7 @@ public abstract class BlockBehaviour implements FeatureElement {
             this.useShapeForLightOcclusion = param0.useShapeForLightOcclusion(this.asState());
             this.isAir = var0.isAir;
             this.ignitedByLava = var0.ignitedByLava;
+            this.liquid = var0.liquid;
             this.pushReaction = var0.pushReaction;
             this.material = var0.material;
             this.materialColor = var0.materialColor.apply(this.asState());
@@ -480,6 +483,11 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         public boolean ignitedByLava() {
             return this.ignitedByLava;
+        }
+
+        @Deprecated
+        public boolean liquid() {
+            return this.liquid;
         }
 
         public MaterialColor getMapColor(BlockGetter param0, BlockPos param1) {
@@ -872,6 +880,8 @@ public abstract class BlockBehaviour implements FeatureElement {
         boolean canOcclude = true;
         boolean isAir;
         boolean ignitedByLava;
+        @Deprecated
+        boolean liquid;
         PushReaction pushReaction = PushReaction.NORMAL;
         boolean spawnParticlesOnBreak = true;
         BlockBehaviour.StateArgumentPredicate<EntityType<?>> isValidSpawn = (param0x, param1x, param2, param3) -> param0x.isFaceSturdy(
@@ -930,11 +940,13 @@ public abstract class BlockBehaviour implements FeatureElement {
             var0.canOcclude = param0.properties.canOcclude;
             var0.isAir = param0.properties.isAir;
             var0.ignitedByLava = param0.properties.ignitedByLava;
+            var0.liquid = param0.properties.liquid;
             var0.pushReaction = param0.properties.pushReaction;
             var0.requiresCorrectToolForDrops = param0.properties.requiresCorrectToolForDrops;
             var0.offsetFunction = param0.properties.offsetFunction;
             var0.spawnParticlesOnBreak = param0.properties.spawnParticlesOnBreak;
             var0.requiredFeatures = param0.properties.requiredFeatures;
+            var0.emissiveRendering = param0.properties.emissiveRendering;
             return var0;
         }
 
@@ -1009,6 +1021,11 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         public BlockBehaviour.Properties ignitedByLava() {
             this.ignitedByLava = true;
+            return this;
+        }
+
+        public BlockBehaviour.Properties liquid() {
+            this.liquid = true;
             return this;
         }
 

@@ -24,7 +24,6 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -511,7 +510,6 @@ public class WalkNodeEvaluator extends NodeEvaluator {
     protected static BlockPathTypes getBlockPathTypeRaw(BlockGetter param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         Block var1 = var0.getBlock();
-        Material var2 = var0.getMaterial();
         if (var0.isAir()) {
             return BlockPathTypes.OPEN;
         } else if (var0.is(BlockTags.TRAPDOORS) || var0.is(Blocks.LILY_PAD) || var0.is(Blocks.BIG_DRIPLEAF)) {
@@ -525,17 +523,17 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         } else if (var0.is(Blocks.COCOA)) {
             return BlockPathTypes.COCOA;
         } else if (!var0.is(Blocks.WITHER_ROSE) && !var0.is(Blocks.POINTED_DRIPSTONE)) {
-            FluidState var3 = param0.getFluidState(param1);
-            if (var3.is(FluidTags.LAVA)) {
+            FluidState var2 = param0.getFluidState(param1);
+            if (var2.is(FluidTags.LAVA)) {
                 return BlockPathTypes.LAVA;
             } else if (isBurningBlock(var0)) {
                 return BlockPathTypes.DAMAGE_FIRE;
-            } else if (DoorBlock.isWoodenDoor(var0) && !var0.getValue(DoorBlock.OPEN)) {
-                return BlockPathTypes.DOOR_WOOD_CLOSED;
-            } else if (var1 instanceof DoorBlock && var2 == Material.METAL && !var0.getValue(DoorBlock.OPEN)) {
-                return BlockPathTypes.DOOR_IRON_CLOSED;
-            } else if (var1 instanceof DoorBlock && var0.getValue(DoorBlock.OPEN)) {
-                return BlockPathTypes.DOOR_OPEN;
+            } else if (var1 instanceof DoorBlock var3) {
+                if (var0.getValue(DoorBlock.OPEN)) {
+                    return BlockPathTypes.DOOR_OPEN;
+                } else {
+                    return var3.type().canOpenByHand() ? BlockPathTypes.DOOR_WOOD_CLOSED : BlockPathTypes.DOOR_IRON_CLOSED;
+                }
             } else if (var1 instanceof BaseRailBlock) {
                 return BlockPathTypes.RAIL;
             } else if (var1 instanceof LeavesBlock) {
@@ -544,7 +542,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                 if (!var0.isPathfindable(param0, param1, PathComputationType.LAND)) {
                     return BlockPathTypes.BLOCKED;
                 } else {
-                    return var3.is(FluidTags.WATER) ? BlockPathTypes.WATER : BlockPathTypes.OPEN;
+                    return var2.is(FluidTags.WATER) ? BlockPathTypes.WATER : BlockPathTypes.OPEN;
                 }
             } else {
                 return BlockPathTypes.FENCE;

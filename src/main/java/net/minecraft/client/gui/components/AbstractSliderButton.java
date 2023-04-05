@@ -6,6 +6,7 @@ import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -101,7 +102,10 @@ public abstract class AbstractSliderButton extends AbstractWidget {
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 != 32 && param0 != 257 && param0 != 335) {
+        if (CommonInputs.selected(param0)) {
+            this.canChangeValue = !this.canChangeValue;
+            return true;
+        } else {
             if (this.canChangeValue) {
                 boolean var0 = param0 == 263;
                 if (var0 || param0 == 262) {
@@ -112,9 +116,6 @@ public abstract class AbstractSliderButton extends AbstractWidget {
             }
 
             return false;
-        } else {
-            this.canChangeValue = !this.canChangeValue;
-            return true;
         }
     }
 

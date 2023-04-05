@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -11,13 +10,16 @@ import com.mojang.realmsclient.util.RealmsUtil;
 import com.mojang.realmsclient.util.task.DownloadTask;
 import com.mojang.realmsclient.util.task.RestoreTask;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsObjectSelectionList;
@@ -36,11 +38,8 @@ public class RealmsBackupScreen extends RealmsScreen {
     static final Component HAS_CHANGES_TOOLTIP = Component.translatable("mco.backup.changes.tooltip");
     private static final Component TITLE = Component.translatable("mco.configure.world.backup");
     private static final Component NO_BACKUPS_LABEL = Component.translatable("mco.backup.nobackups");
-    static int lastScrollPosition = -1;
     private final RealmsConfigureWorldScreen lastScreen;
     List<Backup> backups = Collections.emptyList();
-    @Nullable
-    Component toolTip;
     RealmsBackupScreen.BackupObjectSelectionList backupObjectSelectionList;
     int selectedBackup = -1;
     private final int slotId;
@@ -61,10 +60,6 @@ public class RealmsBackupScreen extends RealmsScreen {
     @Override
     public void init() {
         this.backupObjectSelectionList = new RealmsBackupScreen.BackupObjectSelectionList();
-        if (lastScrollPosition != -1) {
-            this.backupObjectSelectionList.setScrollAmount((double)lastScrollPosition);
-        }
-
         (new Thread("Realms-fetch-backups") {
             @Override
             public void run() {
@@ -81,7 +76,6 @@ public class RealmsBackupScreen extends RealmsScreen {
                             RealmsBackupScreen.this.backupObjectSelectionList.addEntry(var0x);
                         }
 
-                        RealmsBackupScreen.this.generateChangeList();
                     });
                 } catch (RealmsServiceException var3) {
                     RealmsBackupScreen.LOGGER.error("Couldn't request backups", (Throwable)var3);
@@ -111,36 +105,6 @@ public class RealmsBackupScreen extends RealmsScreen {
         this.addWidget(this.backupObjectSelectionList);
         this.magicalSpecialHackyFocus(this.backupObjectSelectionList);
         this.updateButtonStates();
-    }
-
-    void generateChangeList() {
-        if (this.backups.size() > 1) {
-            for(int var0 = 0; var0 < this.backups.size() - 1; ++var0) {
-                Backup var1 = this.backups.get(var0);
-                Backup var2 = this.backups.get(var0 + 1);
-                if (!var1.metadata.isEmpty() && !var2.metadata.isEmpty()) {
-                    for(String var3 : var1.metadata.keySet()) {
-                        if (var3.contains("Uploaded") || !var2.metadata.containsKey(var3)) {
-                            this.addToChangeList(var1, var3);
-                        } else if (!var1.metadata.get(var3).equals(var2.metadata.get(var3))) {
-                            this.addToChangeList(var1, var3);
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
-    private void addToChangeList(Backup param0, String param1) {
-        if (param1.contains("Uploaded")) {
-            String var0 = DateFormat.getDateTimeInstance(3, 3).format(param0.lastModifiedDate);
-            param0.changeList.put(param1, var0);
-            param0.setUploadedVersion(true);
-        } else {
-            param0.changeList.put(param1, param0.metadata.get(param1));
-        }
-
     }
 
     void updateButtonStates() {
@@ -232,7 +196,6 @@ public class RealmsBackupScreen extends RealmsScreen {
 
     @Override
     public void render(PoseStack param0, int param1, int param2, float param3) {
-        this.toolTip = null;
         this.renderBackground(param0);
         this.backupObjectSelectionList.render(param0, param1, param2, param3);
         drawCenteredString(param0, this.font, this.title, this.width / 2, 12, 16777215);
@@ -243,20 +206,6 @@ public class RealmsBackupScreen extends RealmsScreen {
 
         this.downloadButton.active = !this.noBackups;
         super.render(param0, param1, param2, param3);
-        if (this.toolTip != null) {
-            this.renderMousehoverTooltip(param0, this.toolTip, param1, param2);
-        }
-
-    }
-
-    protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
-        if (param1 != null) {
-            int var0 = param2 + 12;
-            int var1 = param3 - 12;
-            int var2 = this.font.width(param1);
-            fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-            this.font.drawShadow(param0, param1, (float)var0, (float)var1, 16777215);
-        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -285,47 +234,8 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public boolean mouseClicked(double param0, double param1, int param2) {
-            if (param2 != 0) {
-                return false;
-            } else if (param0 < (double)this.getScrollbarPosition() && param1 >= (double)this.y0 && param1 <= (double)this.y1) {
-                int var0 = this.width / 2 - 92;
-                int var1 = this.width;
-                int var2 = (int)Math.floor(param1 - (double)this.y0) - this.headerHeight + (int)this.getScrollAmount();
-                int var3 = var2 / this.itemHeight;
-                if (param0 >= (double)var0 && param0 <= (double)var1 && var3 >= 0 && var2 >= 0 && var3 < this.getItemCount()) {
-                    this.selectItem(var3);
-                    this.itemClicked(var2, var3, param0, param1, this.width, param2);
-                }
-
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        @Override
         public int getScrollbarPosition() {
             return this.width - 5;
-        }
-
-        @Override
-        public void itemClicked(int param0, int param1, double param2, double param3, int param4, int param5) {
-            int var0 = this.width - 35;
-            int var1 = param1 * this.itemHeight + 36 - (int)this.getScrollAmount();
-            int var2 = var0 + 10;
-            int var3 = var1 - 3;
-            if (param2 >= (double)var0 && param2 <= (double)(var0 + 9) && param3 >= (double)var1 && param3 <= (double)(var1 + 9)) {
-                if (!RealmsBackupScreen.this.backups.get(param1).changeList.isEmpty()) {
-                    RealmsBackupScreen.this.selectedBackup = -1;
-                    RealmsBackupScreen.lastScrollPosition = (int)this.getScrollAmount();
-                    this.minecraft.setScreen(new RealmsBackupInfoScreen(RealmsBackupScreen.this, RealmsBackupScreen.this.backups.get(param1)));
-                }
-            } else if (param2 >= (double)var2 && param2 < (double)(var2 + 13) && param3 >= (double)var3 && param3 < (double)(var3 + 15)) {
-                RealmsBackupScreen.lastScrollPosition = (int)this.getScrollAmount();
-                RealmsBackupScreen.this.restoreClicked(param1);
-            }
-
         }
 
         @Override
@@ -348,83 +258,133 @@ public class RealmsBackupScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     class Entry extends ObjectSelectionList.Entry<RealmsBackupScreen.Entry> {
+        private static final int Y_PADDING = 2;
+        private static final int X_PADDING = 7;
         private final Backup backup;
+        private final List<AbstractWidget> children = new ArrayList<>();
+        @Nullable
+        private ImageButton restoreButton;
+        @Nullable
+        private ImageButton changesButton;
 
         public Entry(Backup param0) {
             this.backup = param0;
+            this.populateChangeList(param0);
+            if (!param0.changeList.isEmpty()) {
+                this.addChangesButton();
+            }
+
+            if (!RealmsBackupScreen.this.serverData.expired) {
+                this.addRestoreButton();
+            }
+
+        }
+
+        private void populateChangeList(Backup param0) {
+            int var0 = RealmsBackupScreen.this.backups.indexOf(param0);
+            if (var0 != RealmsBackupScreen.this.backups.size() - 1) {
+                Backup var1 = RealmsBackupScreen.this.backups.get(var0 + 1);
+
+                for(String var2 : param0.metadata.keySet()) {
+                    if (var2.contains("Uploaded") || !var1.metadata.containsKey(var2)) {
+                        this.addToChangeList(var2);
+                    } else if (!param0.metadata.get(var2).equals(var1.metadata.get(var2))) {
+                        this.addToChangeList(var2);
+                    }
+                }
+
+            }
+        }
+
+        private void addToChangeList(String param0) {
+            if (param0.contains("Uploaded")) {
+                String var0 = DateFormat.getDateTimeInstance(3, 3).format(this.backup.lastModifiedDate);
+                this.backup.changeList.put(param0, var0);
+                this.backup.setUploadedVersion(true);
+            } else {
+                this.backup.changeList.put(param0, this.backup.metadata.get(param0));
+            }
+
+        }
+
+        private void addChangesButton() {
+            int var0 = 9;
+            int var1 = 9;
+            int var2 = RealmsBackupScreen.this.backupObjectSelectionList.getRowRight() - 9 - 28;
+            int var3 = RealmsBackupScreen.this.backupObjectSelectionList.getRowTop(RealmsBackupScreen.this.backups.indexOf(this.backup)) + 2;
+            this.changesButton = new ImageButton(
+                var2,
+                var3,
+                9,
+                9,
+                0,
+                0,
+                9,
+                RealmsBackupScreen.PLUS_ICON_LOCATION,
+                9,
+                18,
+                param0 -> RealmsBackupScreen.this.minecraft.setScreen(new RealmsBackupInfoScreen(RealmsBackupScreen.this, this.backup))
+            );
+            this.changesButton.setTooltip(Tooltip.create(RealmsBackupScreen.HAS_CHANGES_TOOLTIP));
+            this.children.add(this.changesButton);
+        }
+
+        private void addRestoreButton() {
+            int var0 = 17;
+            int var1 = 10;
+            int var2 = RealmsBackupScreen.this.backupObjectSelectionList.getRowRight() - 17 - 7;
+            int var3 = RealmsBackupScreen.this.backupObjectSelectionList.getRowTop(RealmsBackupScreen.this.backups.indexOf(this.backup)) + 2;
+            this.restoreButton = new ImageButton(
+                var2,
+                var3,
+                17,
+                10,
+                0,
+                0,
+                10,
+                RealmsBackupScreen.RESTORE_ICON_LOCATION,
+                17,
+                20,
+                param0 -> RealmsBackupScreen.this.restoreClicked(RealmsBackupScreen.this.backups.indexOf(this.backup))
+            );
+            this.restoreButton.setTooltip(Tooltip.create(RealmsBackupScreen.RESTORE_TOOLTIP));
+            this.children.add(this.restoreButton);
+        }
+
+        @Override
+        public boolean mouseClicked(double param0, double param1, int param2) {
+            if (this.restoreButton != null) {
+                this.restoreButton.mouseClicked(param0, param1, param2);
+            }
+
+            if (this.changesButton != null) {
+                this.changesButton.mouseClicked(param0, param1, param2);
+            }
+
+            return true;
         }
 
         @Override
         public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            this.renderBackupItem(param0, this.backup, param3 - 40, param2, param6, param7);
-        }
-
-        private void renderBackupItem(PoseStack param0, Backup param1, int param2, int param3, int param4, int param5) {
-            int var0 = param1.isUploadedVersion() ? -8388737 : 16777215;
+            int var0 = this.backup.isUploadedVersion() ? -8388737 : 16777215;
             RealmsBackupScreen.this.font
                 .draw(
                     param0,
-                    "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(param1.lastModifiedDate) + ")",
-                    (float)(param2 + 40),
-                    (float)(param3 + 1),
+                    "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(this.backup.lastModifiedDate) + ")",
+                    (float)param3,
+                    (float)(param2 + 1),
                     var0
                 );
             RealmsBackupScreen.this.font
-                .draw(param0, this.getMediumDatePresentation(param1.lastModifiedDate), (float)(param2 + 40), (float)(param3 + 12), 5000268);
-            int var1 = RealmsBackupScreen.this.width - 175;
-            int var2 = -3;
-            int var3 = var1 - 10;
-            int var4 = 0;
-            if (!RealmsBackupScreen.this.serverData.expired) {
-                this.drawRestore(param0, var1, param3 + -3, param4, param5);
-            }
-
-            if (!param1.changeList.isEmpty()) {
-                this.drawInfo(param0, var3, param3 + 0, param4, param5);
-            }
-
+                .draw(param0, this.getMediumDatePresentation(this.backup.lastModifiedDate), (float)param3, (float)(param2 + 12), 5000268);
+            this.children.forEach(param5x -> {
+                param5x.setY(param2 + 2);
+                param5x.render(param0, param6, param7, param9);
+            });
         }
 
         private String getMediumDatePresentation(Date param0) {
             return DateFormat.getDateTimeInstance(3, 3).format(param0);
-        }
-
-        private void drawRestore(PoseStack param0, int param1, int param2, int param3, int param4) {
-            boolean var0 = param3 >= param1
-                && param3 <= param1 + 12
-                && param4 >= param2
-                && param4 <= param2 + 14
-                && param4 < RealmsBackupScreen.this.height - 15
-                && param4 > 32;
-            RenderSystem.setShaderTexture(0, RealmsBackupScreen.RESTORE_ICON_LOCATION);
-            param0.pushPose();
-            param0.scale(0.5F, 0.5F, 0.5F);
-            float var1 = var0 ? 28.0F : 0.0F;
-            GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 23, 28, 23, 56);
-            param0.popPose();
-            if (var0) {
-                RealmsBackupScreen.this.toolTip = RealmsBackupScreen.RESTORE_TOOLTIP;
-            }
-
-        }
-
-        private void drawInfo(PoseStack param0, int param1, int param2, int param3, int param4) {
-            boolean var0 = param3 >= param1
-                && param3 <= param1 + 8
-                && param4 >= param2
-                && param4 <= param2 + 8
-                && param4 < RealmsBackupScreen.this.height - 15
-                && param4 > 32;
-            RenderSystem.setShaderTexture(0, RealmsBackupScreen.PLUS_ICON_LOCATION);
-            param0.pushPose();
-            param0.scale(0.5F, 0.5F, 0.5F);
-            float var1 = var0 ? 15.0F : 0.0F;
-            GuiComponent.blit(param0, param1 * 2, param2 * 2, 0.0F, var1, 15, 15, 15, 30);
-            param0.popPose();
-            if (var0) {
-                RealmsBackupScreen.this.toolTip = RealmsBackupScreen.HAS_CHANGES_TOOLTIP;
-            }
-
         }
 
         @Override

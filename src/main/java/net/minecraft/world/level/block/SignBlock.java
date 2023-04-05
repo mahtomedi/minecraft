@@ -1,11 +1,12 @@
 package net.minecraft.world.level.block;
 
+import java.util.Arrays;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -62,7 +63,7 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
     }
 
     @Override
-    public boolean isPossibleToRespawnInThis() {
+    public boolean isPossibleToRespawnInThis(BlockState param0) {
         return true;
     }
 
@@ -77,20 +78,16 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
         Item var1 = var0.getItem();
         Item var5x = var0.getItem();
         SignApplicator var3 = var5x instanceof SignApplicator var2 ? var2 : null;
-        boolean var4 = var3 != null && param3.getAbilities().mayBuild;
+        boolean var4 = var3 != null && param3.mayBuild();
         BlockEntity var6 = param1.getBlockEntity(param2);
         if (var6 instanceof SignBlockEntity var5) {
             if (!param1.isClientSide) {
                 boolean var6x = var5.isFacingFrontText(param3);
                 SignText var7 = var5.getText(var6x);
+                boolean var8 = var5.executeClickCommandsIfPresent(param3, param1, param2, var6x);
                 if (var5.isWaxed()) {
-                    boolean var8 = var5.executeClickCommandsIfPresent((ServerPlayer)param3, (ServerLevel)param1, param2, var6x);
-                    if (!var8) {
-                        param1.playSound(null, var5.getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
-                        return InteractionResult.PASS;
-                    } else {
-                        return var4 ? InteractionResult.PASS : InteractionResult.SUCCESS;
-                    }
+                    param1.playSound(null, var5.getBlockPos(), SoundEvents.WAXED_SIGN_INTERACT_FAIL, SoundSource.BLOCKS);
+                    return InteractionResult.PASS;
                 } else if (var4
                     && !this.otherPlayerIsEditingSign(param3, var5)
                     && var3.canApplyToSign(var7, param3)
@@ -102,7 +99,9 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
                     param1.gameEvent(GameEvent.BLOCK_CHANGE, var5.getBlockPos(), GameEvent.Context.of(param3, var5.getBlockState()));
                     param3.awardStat(Stats.ITEM_USED.get(var1));
                     return InteractionResult.SUCCESS;
-                } else if (!this.otherPlayerIsEditingSign(param3, var5)) {
+                } else if (var8) {
+                    return InteractionResult.SUCCESS;
+                } else if (!this.otherPlayerIsEditingSign(param3, var5) && param3.mayBuild() && this.hasEditableText(param3, var5, var6x)) {
                     this.openTextEdit(param3, var5, var6x);
                     return InteractionResult.SUCCESS;
                 } else {
@@ -114,6 +113,12 @@ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterlo
         } else {
             return InteractionResult.PASS;
         }
+    }
+
+    private boolean hasEditableText(Player param0, SignBlockEntity param1, boolean param2) {
+        SignText var0 = param1.getText(param2);
+        return Arrays.stream(var0.getMessages(param0.isTextFilteringEnabled()))
+            .allMatch(param0x -> param0x.equals(CommonComponents.EMPTY) || param0x.getContents() instanceof LiteralContents);
     }
 
     public abstract float getYRotationDegrees(BlockState var1);

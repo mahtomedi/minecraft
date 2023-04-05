@@ -38,22 +38,31 @@ public class DesertPyramidStructure extends SinglePieceStructure {
         for(StructurePiece var1 : param6.pieces()) {
             if (var1 instanceof DesertPyramidPiece var2) {
                 var0.addAll(var2.getPotentialSuspiciousSandWorldPositions());
+                placeSuspiciousSand(param4, param0, var2.getRandomCollapsedRoofPos());
             }
         }
 
         ObjectArrayList<BlockPos> var3 = new ObjectArrayList<>(var0.stream().toList());
-        Util.shuffle(var3, param3);
-        int var4 = Math.min(var0.size(), param3.nextInt(5, 8));
+        RandomSource var4 = RandomSource.create(param0.getSeed()).forkPositional().at(param6.calculateBoundingBox().getCenter());
+        Util.shuffle(var3, var4);
+        int var5 = Math.min(var0.size(), var4.nextInt(5, 8));
 
-        for(BlockPos var5 : var3) {
-            if (var4 > 0) {
-                --var4;
-                param0.setBlock(var5, Blocks.SUSPICIOUS_SAND.defaultBlockState(), 2);
-                param0.getBlockEntity(var5, BlockEntityType.BRUSHABLE_BLOCK)
-                    .ifPresent(param1x -> param1x.setLootTable(BuiltInLootTables.DESERT_PYRAMID_ARCHAEOLOGY, var5.asLong()));
+        for(BlockPos var6 : var3) {
+            if (var5 > 0) {
+                --var5;
+                placeSuspiciousSand(param4, param0, var6);
             } else {
-                param0.setBlock(var5, Blocks.SAND.defaultBlockState(), 2);
+                param0.setBlock(var6, Blocks.SAND.defaultBlockState(), 2);
             }
+        }
+
+    }
+
+    private static void placeSuspiciousSand(BoundingBox param0, WorldGenLevel param1, BlockPos param2) {
+        if (param0.isInside(param2)) {
+            param1.setBlock(param2, Blocks.SUSPICIOUS_SAND.defaultBlockState(), 2);
+            param1.getBlockEntity(param2, BlockEntityType.BRUSHABLE_BLOCK)
+                .ifPresent(param1x -> param1x.setLootTable(BuiltInLootTables.DESERT_PYRAMID_ARCHAEOLOGY, param2.asLong()));
         }
 
     }

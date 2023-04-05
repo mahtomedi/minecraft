@@ -82,7 +82,7 @@ public class FarmBlock extends Block {
         if (!isNearWater(param1, param2) && !param1.isRainingAt(param2.above())) {
             if (var0 > 0) {
                 param1.setBlock(param2, param0.setValue(MOISTURE, Integer.valueOf(var0 - 1)), 2);
-            } else if (!isUnderCrops(param1, param2)) {
+            } else if (!shouldMaintainFarmland(param1, param2)) {
                 turnToDirt(null, param0, param1, param2);
             }
         } else if (var0 < 7) {
@@ -110,9 +110,9 @@ public class FarmBlock extends Block {
         param2.gameEvent(GameEvent.BLOCK_CHANGE, param3, GameEvent.Context.of(param0, var0));
     }
 
-    private static boolean isUnderCrops(BlockGetter param0, BlockPos param1) {
+    private static boolean shouldMaintainFarmland(BlockGetter param0, BlockPos param1) {
         Block var0 = param0.getBlockState(param1.above()).getBlock();
-        return var0 instanceof CropBlock || var0 instanceof StemBlock || var0 instanceof AttachedStemBlock;
+        return var0 instanceof FarmableBlock;
     }
 
     private static boolean isNearWater(LevelReader param0, BlockPos param1) {

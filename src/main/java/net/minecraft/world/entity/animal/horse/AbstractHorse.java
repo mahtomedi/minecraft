@@ -386,7 +386,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     @Override
     protected void playStepSound(BlockPos param0, BlockState param1) {
-        if (!param1.getMaterial().isLiquid()) {
+        if (!param1.liquid()) {
             BlockState var0 = this.level.getBlockState(param0.above());
             SoundType var1 = param1.getSoundType();
             if (var0.is(Blocks.SNOW)) {

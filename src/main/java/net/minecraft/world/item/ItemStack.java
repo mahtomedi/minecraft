@@ -108,7 +108,6 @@ public final class ItemStack {
     private final Item item;
     @Nullable
     private CompoundTag tag;
-    private boolean emptyCacheFlag;
     @Nullable
     private Entity entityRepresentation;
     @Nullable
@@ -144,12 +143,6 @@ public final class ItemStack {
             this.setDamageValue(this.getDamageValue());
         }
 
-        this.updateEmptyCacheFlag();
-    }
-
-    private void updateEmptyCacheFlag() {
-        this.emptyCacheFlag = false;
-        this.emptyCacheFlag = this.isEmpty();
     }
 
     private ItemStack(CompoundTag param0) {
@@ -164,7 +157,6 @@ public final class ItemStack {
             this.setDamageValue(this.getDamageValue());
         }
 
-        this.updateEmptyCacheFlag();
     }
 
     public static ItemStack of(CompoundTag param0) {
@@ -177,13 +169,7 @@ public final class ItemStack {
     }
 
     public boolean isEmpty() {
-        if (this == EMPTY) {
-            return true;
-        } else if (this.getItem() == null || this.is(Items.AIR)) {
-            return true;
-        } else {
-            return this.count <= 0;
-        }
+        return this == EMPTY || this.item == Items.AIR || this.count <= 0;
     }
 
     public boolean isItemEnabled(FeatureFlagSet param0) {
@@ -191,15 +177,24 @@ public final class ItemStack {
     }
 
     public ItemStack split(int param0) {
-        int var0 = Math.min(param0, this.count);
-        ItemStack var1 = this.copy();
-        var1.setCount(var0);
+        int var0 = Math.min(param0, this.getCount());
+        ItemStack var1 = this.copyWithCount(var0);
         this.shrink(var0);
         return var1;
     }
 
+    public ItemStack copyAndClear() {
+        if (this.isEmpty()) {
+            return EMPTY;
+        } else {
+            ItemStack var0 = this.copy();
+            this.setCount(0);
+            return var0;
+        }
+    }
+
     public Item getItem() {
-        return this.emptyCacheFlag ? Items.AIR : this.item;
+        return this.isEmpty() ? Items.AIR : this.item;
     }
 
     public Holder<Item> getItemHolder() {
@@ -277,7 +272,7 @@ public final class ItemStack {
     }
 
     public boolean isDamageableItem() {
-        if (!this.emptyCacheFlag && this.getItem().getMaxDamage() > 0) {
+        if (!this.isEmpty() && this.getItem().getMaxDamage() > 0) {
             CompoundTag var0 = this.getTag();
             return var0 == null || !var0.getBoolean("Unbreakable");
         } else {
@@ -408,9 +403,13 @@ public final class ItemStack {
     }
 
     public ItemStack copyWithCount(int param0) {
-        ItemStack var0 = this.copy();
-        var0.setCount(param0);
-        return var0;
+        if (this.isEmpty()) {
+            return EMPTY;
+        } else {
+            ItemStack var0 = this.copy();
+            var0.setCount(param0);
+            return var0;
+        }
     }
 
     public static boolean tagMatches(ItemStack param0, ItemStack param1) {
@@ -434,7 +433,7 @@ public final class ItemStack {
     }
 
     private boolean matches(ItemStack param0) {
-        if (this.count != param0.count) {
+        if (this.getCount() != param0.getCount()) {
             return false;
         } else if (!this.is(param0.getItem())) {
             return false;
@@ -467,7 +466,7 @@ public final class ItemStack {
 
     @Override
     public String toString() {
-        return this.count + " " + this.getItem();
+        return this.getCount() + " " + this.getItem();
     }
 
     public void inventoryTick(Level param0, Entity param1, int param2, boolean param3) {
@@ -503,7 +502,7 @@ public final class ItemStack {
     }
 
     public boolean hasTag() {
-        return !this.emptyCacheFlag && this.tag != null && !this.tag.isEmpty();
+        return !this.isEmpty() && this.tag != null && !this.tag.isEmpty();
     }
 
     @Nullable
@@ -875,7 +874,7 @@ public final class ItemStack {
 
     @Nullable
     public Entity getEntityRepresentation() {
-        return !this.emptyCacheFlag ? this.entityRepresentation : null;
+        return !this.isEmpty() ? this.entityRepresentation : null;
     }
 
     public int getBaseRepairCost() {
@@ -934,7 +933,7 @@ public final class ItemStack {
         }
 
         MutableComponent var1 = ComponentUtils.wrapInSquareBrackets(var0);
-        if (!this.emptyCacheFlag) {
+        if (!this.isEmpty()) {
             var1.withStyle(this.getRarity().color)
                 .withStyle(param0 -> param0.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackInfo(this))));
         }
@@ -967,16 +966,15 @@ public final class ItemStack {
     }
 
     public int getCount() {
-        return this.emptyCacheFlag ? 0 : this.count;
+        return this.isEmpty() ? 0 : this.count;
     }
 
     public void setCount(int param0) {
         this.count = param0;
-        this.updateEmptyCacheFlag();
     }
 
     public void grow(int param0) {
-        this.setCount(this.count + param0);
+        this.setCount(this.getCount() + param0);
     }
 
     public void shrink(int param0) {

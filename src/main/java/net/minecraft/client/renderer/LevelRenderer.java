@@ -122,6 +122,7 @@ import net.minecraft.world.level.block.SculkShriekerBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
@@ -2899,9 +2900,9 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 }
                 break;
             case 1010:
-                Item var63 = Item.byId(param2);
-                if (var63 instanceof RecordItem var82) {
-                    this.playStreamingMusic(var82.getSound(), param1);
+                Item var73 = Item.byId(param2);
+                if (var73 instanceof RecordItem var84) {
+                    this.playStreamingMusic(var84.getSound(), param1);
                 }
                 break;
             case 1011:
@@ -3051,7 +3052,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 this.level
                     .playLocalSound(param1, SoundEvents.LAVA_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false);
 
-                for(int var65 = 0; var65 < 8; ++var65) {
+                for(int var67 = 0; var67 < 8; ++var67) {
                     this.level
                         .addParticle(
                             ParticleTypes.LARGE_SMOKE,
@@ -3070,21 +3071,21 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         param1, SoundEvents.REDSTONE_TORCH_BURNOUT, SoundSource.BLOCKS, 0.5F, 2.6F + (var0.nextFloat() - var0.nextFloat()) * 0.8F, false
                     );
 
-                for(int var66 = 0; var66 < 5; ++var66) {
-                    double var67 = (double)param1.getX() + var0.nextDouble() * 0.6 + 0.2;
-                    double var68 = (double)param1.getY() + var0.nextDouble() * 0.6 + 0.2;
-                    double var69 = (double)param1.getZ() + var0.nextDouble() * 0.6 + 0.2;
-                    this.level.addParticle(ParticleTypes.SMOKE, var67, var68, var69, 0.0, 0.0, 0.0);
+                for(int var68 = 0; var68 < 5; ++var68) {
+                    double var69 = (double)param1.getX() + var0.nextDouble() * 0.6 + 0.2;
+                    double var70 = (double)param1.getY() + var0.nextDouble() * 0.6 + 0.2;
+                    double var71 = (double)param1.getZ() + var0.nextDouble() * 0.6 + 0.2;
+                    this.level.addParticle(ParticleTypes.SMOKE, var69, var70, var71, 0.0, 0.0, 0.0);
                 }
                 break;
             case 1503:
                 this.level.playLocalSound(param1, SoundEvents.END_PORTAL_FRAME_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
 
-                for(int var70 = 0; var70 < 16; ++var70) {
-                    double var71 = (double)param1.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    double var72 = (double)param1.getY() + 0.8125;
-                    double var73 = (double)param1.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
-                    this.level.addParticle(ParticleTypes.SMOKE, var71, var72, var73, 0.0, 0.0, 0.0);
+                for(int var72 = 0; var72 < 16; ++var72) {
+                    double var73 = (double)param1.getX() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    double var74 = (double)param1.getY() + 0.8125;
+                    double var75 = (double)param1.getZ() + (5.0 + var0.nextDouble() * 6.0) / 16.0;
+                    this.level.addParticle(ParticleTypes.SMOKE, var73, var74, var75, 0.0, 0.0, 0.0);
                 }
                 break;
             case 1504:
@@ -3214,24 +3215,24 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 BoneMealItem.addGrowthParticles(this.level, param1, param2);
                 break;
             case 2006:
-                for(int var74 = 0; var74 < 200; ++var74) {
-                    float var75 = var0.nextFloat() * 4.0F;
-                    float var76 = var0.nextFloat() * (float) (Math.PI * 2);
-                    double var77 = (double)(Mth.cos(var76) * var75);
-                    double var78 = 0.01 + var0.nextDouble() * 0.5;
-                    double var79 = (double)(Mth.sin(var76) * var75);
-                    Particle var80 = this.addParticleInternal(
+                for(int var76 = 0; var76 < 200; ++var76) {
+                    float var77 = var0.nextFloat() * 4.0F;
+                    float var78 = var0.nextFloat() * (float) (Math.PI * 2);
+                    double var79 = (double)(Mth.cos(var78) * var77);
+                    double var80 = 0.01 + var0.nextDouble() * 0.5;
+                    double var81 = (double)(Mth.sin(var78) * var77);
+                    Particle var82 = this.addParticleInternal(
                         ParticleTypes.DRAGON_BREATH,
                         false,
-                        (double)param1.getX() + var77 * 0.1,
+                        (double)param1.getX() + var79 * 0.1,
                         (double)param1.getY() + 0.3,
-                        (double)param1.getZ() + var79 * 0.1,
-                        var77,
-                        var78,
-                        var79
+                        (double)param1.getZ() + var81 * 0.1,
+                        var79,
+                        var80,
+                        var81
                     );
-                    if (var80 != null) {
-                        var80.setPower(var75);
+                    if (var82 != null) {
+                        var82.setPower(var77);
                     }
                 }
 
@@ -3244,7 +3245,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     .addParticle(ParticleTypes.EXPLOSION, (double)param1.getX() + 0.5, (double)param1.getY() + 0.5, (double)param1.getZ() + 0.5, 0.0, 0.0, 0.0);
                 break;
             case 2009:
-                for(int var81 = 0; var81 < 8; ++var81) {
+                for(int var83 = 0; var83 < 8; ++var83) {
                     this.level
                         .addParticle(
                             ParticleTypes.CLOUD,
@@ -3369,22 +3370,26 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                         );
                 }
 
-                this.level
-                    .playLocalSound(
-                        (double)param1.getX() + 0.5,
-                        (double)param1.getY() + SculkShriekerBlock.TOP_Y,
-                        (double)param1.getZ() + 0.5,
-                        SoundEvents.SCULK_SHRIEKER_SHRIEK,
-                        SoundSource.BLOCKS,
-                        2.0F,
-                        0.6F + this.level.random.nextFloat() * 0.4F,
-                        false
-                    );
+                BlockState var65 = this.level.getBlockState(param1);
+                boolean var66 = var65.hasProperty(BlockStateProperties.WATERLOGGED) && var65.getValue(BlockStateProperties.WATERLOGGED);
+                if (!var66) {
+                    this.level
+                        .playLocalSound(
+                            (double)param1.getX() + 0.5,
+                            (double)param1.getY() + SculkShriekerBlock.TOP_Y,
+                            (double)param1.getZ() + 0.5,
+                            SoundEvents.SCULK_SHRIEKER_SHRIEK,
+                            SoundSource.BLOCKS,
+                            2.0F,
+                            0.6F + this.level.random.nextFloat() * 0.4F,
+                            false
+                        );
+                }
                 break;
             case 3008:
                 BlockState var37 = Block.stateById(param2);
-                Block var82 = var37.getBlock();
-                if (var82 instanceof BrushableBlock var38) {
+                Block var65 = var37.getBlock();
+                if (var65 instanceof BrushableBlock var38) {
                     this.level.playLocalSound(param1, var38.getBrushCompletedSound(), SoundSource.PLAYERS, 1.0F, 1.0F, false);
                 }
 

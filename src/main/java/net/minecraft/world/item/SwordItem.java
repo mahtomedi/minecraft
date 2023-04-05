@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 
 public class SwordItem extends TieredItem implements Vanishable {
     private final float attackDamage;
@@ -48,8 +47,7 @@ public class SwordItem extends TieredItem implements Vanishable {
         if (param1.is(Blocks.COBWEB)) {
             return 15.0F;
         } else {
-            Material var0 = param1.getMaterial();
-            return var0 != Material.PLANT && var0 != Material.REPLACEABLE_PLANT && !param1.is(BlockTags.LEAVES) && var0 != Material.VEGETABLE ? 1.0F : 1.5F;
+            return param1.is(BlockTags.SWORD_EFFICIENT) ? 1.5F : 1.0F;
         }
     }
 

@@ -317,32 +317,36 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
 
                 return true;
             } else if (this.searchBox.mouseClicked(param0, param1, param2)) {
-                return true;
-            } else if (this.filterButton.mouseClicked(param0, param1, param2)) {
-                boolean var2 = this.toggleFiltering();
-                this.filterButton.setStateTriggered(var2);
-                this.updateFilterButtonTooltip();
-                this.sendUpdateSettings();
-                this.updateCollections(false);
+                this.searchBox.setFocused(true);
                 return true;
             } else {
-                for(RecipeBookTabButton var3 : this.tabButtons) {
-                    if (var3.mouseClicked(param0, param1, param2)) {
-                        if (this.selectedTab != var3) {
-                            if (this.selectedTab != null) {
-                                this.selectedTab.setStateTriggered(false);
+                this.searchBox.setFocused(false);
+                if (this.filterButton.mouseClicked(param0, param1, param2)) {
+                    boolean var2 = this.toggleFiltering();
+                    this.filterButton.setStateTriggered(var2);
+                    this.updateFilterButtonTooltip();
+                    this.sendUpdateSettings();
+                    this.updateCollections(false);
+                    return true;
+                } else {
+                    for(RecipeBookTabButton var3 : this.tabButtons) {
+                        if (var3.mouseClicked(param0, param1, param2)) {
+                            if (this.selectedTab != var3) {
+                                if (this.selectedTab != null) {
+                                    this.selectedTab.setStateTriggered(false);
+                                }
+
+                                this.selectedTab = var3;
+                                this.selectedTab.setStateTriggered(true);
+                                this.updateCollections(true);
                             }
 
-                            this.selectedTab = var3;
-                            this.selectedTab.setStateTriggered(true);
-                            this.updateCollections(true);
+                            return true;
                         }
-
-                        return true;
                     }
-                }
 
-                return false;
+                    return false;
+                }
             }
         } else {
             return false;

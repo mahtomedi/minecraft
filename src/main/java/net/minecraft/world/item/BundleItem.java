@@ -131,8 +131,7 @@ public class BundleItem extends Item {
                     var4.remove(var6);
                     var4.add(0, var6);
                 } else {
-                    ItemStack var8 = param1.copy();
-                    var8.setCount(var3);
+                    ItemStack var8 = param1.copyWithCount(var3);
                     CompoundTag var9 = new CompoundTag();
                     var8.save(var9);
                     var4.add(0, var9);

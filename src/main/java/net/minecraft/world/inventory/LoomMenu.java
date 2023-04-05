@@ -277,8 +277,7 @@ public class LoomMenu extends AbstractContainerMenu {
         ItemStack var1 = this.dyeSlot.getItem();
         ItemStack var2 = ItemStack.EMPTY;
         if (!var0.isEmpty() && !var1.isEmpty()) {
-            var2 = var0.copy();
-            var2.setCount(1);
+            var2 = var0.copyWithCount(1);
             DyeColor var3 = ((DyeItem)var1.getItem()).getDyeColor();
             CompoundTag var4 = BlockItem.getBlockEntityData(var2);
             ListTag var5;

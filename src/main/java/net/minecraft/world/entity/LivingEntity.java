@@ -1306,8 +1306,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
             this.dead = true;
             this.getCombatTracker().recheckStatus();
-            if (this.level instanceof ServerLevel) {
-                if (var0 == null || var0.wasKilled((ServerLevel)this.level, this)) {
+            Level var5 = this.level;
+            if (var5 instanceof ServerLevel var2) {
+                if (var0 == null || var0.killedEntity(var2, this)) {
                     this.gameEvent(GameEvent.ENTITY_DIE);
                     this.dropAllDeathLoot(param0);
                     this.createWitherRose(var1);
@@ -1385,7 +1386,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     protected void dropFromLootTable(DamageSource param0, boolean param1) {
         ResourceLocation var0 = this.getLootTable();
-        LootTable var1 = this.level.getServer().getLootTables().get(var0);
+        LootTable var1 = this.level.getServer().getLootData().getLootTable(var0);
         LootContext.Builder var2 = this.createLootContext(param1, param0);
         var1.getRandomItems(var2.create(LootContextParamSets.ENTITY), this::spawnAtLocation);
     }

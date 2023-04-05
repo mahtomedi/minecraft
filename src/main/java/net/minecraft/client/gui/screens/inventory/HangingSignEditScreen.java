@@ -13,7 +13,7 @@ import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class HangingSignEditScreen extends AbstractSignEditScreen {
-    public static final float MAGIC_BACKGROUND_SCALE = 4.0F;
+    public static final float MAGIC_BACKGROUND_SCALE = 4.5F;
     private static final Vector3f TEXT_SCALE = new Vector3f(1.0F, 1.0F, 1.0F);
     private static final int TEXTURE_WIDTH = 16;
     private static final int TEXTURE_HEIGHT = 16;
@@ -32,7 +32,7 @@ public class HangingSignEditScreen extends AbstractSignEditScreen {
     protected void renderSignBackground(PoseStack param0, MultiBufferSource.BufferSource param1, BlockState param2) {
         param0.translate(0.0F, -13.0F, 0.0F);
         RenderSystem.setShaderTexture(0, this.texture);
-        param0.scale(4.0F, 4.0F, 1.0F);
+        param0.scale(4.5F, 4.5F, 1.0F);
         blit(param0, -8, -8, 0.0F, 0.0F, 16, 16, 16, 16);
     }
 

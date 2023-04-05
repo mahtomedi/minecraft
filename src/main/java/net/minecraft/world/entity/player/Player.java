@@ -944,6 +944,7 @@ public abstract class Player extends LivingEntity {
                     this.awardStat(Stats.DAMAGE_TAKEN, Math.round(var8 * 10.0F));
                 }
 
+                this.gameEvent(GameEvent.ENTITY_DAMAGE);
             }
         }
     }
@@ -1392,9 +1393,10 @@ public abstract class Player extends LivingEntity {
         } else if (!param3) {
             return Optional.empty();
         } else {
-            boolean var3 = var1.isPossibleToRespawnInThis();
-            boolean var4 = param0.getBlockState(param1.above()).getBlock().isPossibleToRespawnInThis();
-            return var3 && var4
+            boolean var3 = var1.isPossibleToRespawnInThis(var0);
+            BlockState var4 = param0.getBlockState(param1.above());
+            boolean var5 = var4.getBlock().isPossibleToRespawnInThis(var4);
+            return var3 && var5
                 ? Optional.of(new Vec3((double)param1.getX() + 0.5, (double)param1.getY() + 0.1, (double)param1.getZ() + 0.5))
                 : Optional.empty();
         }
@@ -1621,7 +1623,7 @@ public abstract class Player extends LivingEntity {
     }
 
     @Override
-    public boolean wasKilled(ServerLevel param0, LivingEntity param1) {
+    public boolean killedEntity(ServerLevel param0, LivingEntity param1) {
         this.awardStat(Stats.ENTITY_KILLED.get(param1.getType()));
         return true;
     }

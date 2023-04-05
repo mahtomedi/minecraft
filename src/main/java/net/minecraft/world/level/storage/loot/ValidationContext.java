@@ -5,43 +5,31 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class ValidationContext {
     private final Multimap<String, String> problems;
     private final Supplier<String> context;
     private final LootContextParamSet params;
-    private final Function<ResourceLocation, LootItemCondition> conditionResolver;
-    private final Set<ResourceLocation> visitedConditions;
-    private final Function<ResourceLocation, LootTable> tableResolver;
-    private final Set<ResourceLocation> visitedTables;
+    private final LootDataResolver resolver;
+    private final Set<LootDataId<?>> visitedElements;
+    @Nullable
     private String contextCache;
 
-    public ValidationContext(LootContextParamSet param0, Function<ResourceLocation, LootItemCondition> param1, Function<ResourceLocation, LootTable> param2) {
-        this(HashMultimap.create(), () -> "", param0, param1, ImmutableSet.of(), param2, ImmutableSet.of());
+    public ValidationContext(LootContextParamSet param0, LootDataResolver param1) {
+        this(HashMultimap.create(), () -> "", param0, param1, ImmutableSet.of());
     }
 
     public ValidationContext(
-        Multimap<String, String> param0,
-        Supplier<String> param1,
-        LootContextParamSet param2,
-        Function<ResourceLocation, LootItemCondition> param3,
-        Set<ResourceLocation> param4,
-        Function<ResourceLocation, LootTable> param5,
-        Set<ResourceLocation> param6
+        Multimap<String, String> param0, Supplier<String> param1, LootContextParamSet param2, LootDataResolver param3, Set<LootDataId<?>> param4
     ) {
         this.problems = param0;
         this.context = param1;
         this.params = param2;
-        this.conditionResolver = param3;
-        this.visitedConditions = param4;
-        this.tableResolver = param5;
-        this.visitedTables = param6;
+        this.resolver = param3;
+        this.visitedElements = param4;
     }
 
     private String getContext() {
@@ -57,37 +45,16 @@ public class ValidationContext {
     }
 
     public ValidationContext forChild(String param0) {
-        return new ValidationContext(
-            this.problems,
-            () -> this.getContext() + param0,
-            this.params,
-            this.conditionResolver,
-            this.visitedConditions,
-            this.tableResolver,
-            this.visitedTables
-        );
+        return new ValidationContext(this.problems, () -> this.getContext() + param0, this.params, this.resolver, this.visitedElements);
     }
 
-    public ValidationContext enterTable(String param0, ResourceLocation param1) {
-        ImmutableSet<ResourceLocation> var0 = ImmutableSet.<ResourceLocation>builder().addAll(this.visitedTables).add(param1).build();
-        return new ValidationContext(
-            this.problems, () -> this.getContext() + param0, this.params, this.conditionResolver, this.visitedConditions, this.tableResolver, var0
-        );
+    public ValidationContext enterElement(String param0, LootDataId<?> param1) {
+        ImmutableSet<LootDataId<?>> var0 = ImmutableSet.<LootDataId<?>>builder().addAll(this.visitedElements).add(param1).build();
+        return new ValidationContext(this.problems, () -> this.getContext() + param0, this.params, this.resolver, var0);
     }
 
-    public ValidationContext enterCondition(String param0, ResourceLocation param1) {
-        ImmutableSet<ResourceLocation> var0 = ImmutableSet.<ResourceLocation>builder().addAll(this.visitedConditions).add(param1).build();
-        return new ValidationContext(
-            this.problems, () -> this.getContext() + param0, this.params, this.conditionResolver, var0, this.tableResolver, this.visitedTables
-        );
-    }
-
-    public boolean hasVisitedTable(ResourceLocation param0) {
-        return this.visitedTables.contains(param0);
-    }
-
-    public boolean hasVisitedCondition(ResourceLocation param0) {
-        return this.visitedConditions.contains(param0);
+    public boolean hasVisitedElement(LootDataId<?> param0) {
+        return this.visitedElements.contains(param0);
     }
 
     public Multimap<String, String> getProblems() {
@@ -98,19 +65,11 @@ public class ValidationContext {
         this.params.validateUser(this, param0);
     }
 
-    @Nullable
-    public LootTable resolveLootTable(ResourceLocation param0) {
-        return this.tableResolver.apply(param0);
-    }
-
-    @Nullable
-    public LootItemCondition resolveCondition(ResourceLocation param0) {
-        return this.conditionResolver.apply(param0);
+    public LootDataResolver resolver() {
+        return this.resolver;
     }
 
     public ValidationContext setParams(LootContextParamSet param0) {
-        return new ValidationContext(
-            this.problems, this.context, param0, this.conditionResolver, this.visitedConditions, this.tableResolver, this.visitedTables
-        );
+        return new ValidationContext(this.problems, this.context, param0, this.resolver, this.visitedElements);
     }
 }

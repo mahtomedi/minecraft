@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Material;
 
 public class SpongeBlock extends Block {
     public static final int MAX_DEPTH = 6;
@@ -52,24 +51,23 @@ public class SpongeBlock extends Block {
             } else {
                 BlockState var0 = param0.getBlockState(param2);
                 FluidState var1x = param0.getFluidState(param2);
-                Material var2x = var0.getMaterial();
                 if (!var1x.is(FluidTags.WATER)) {
                     return false;
                 } else {
-                    Block var3 = var0.getBlock();
-                    if (var3 instanceof BucketPickup var4 && !var4.pickupBlock(param0, param2, var0).isEmpty()) {
+                    Block var2x = var0.getBlock();
+                    if (var2x instanceof BucketPickup var3 && !var3.pickupBlock(param0, param2, var0).isEmpty()) {
                         return true;
                     }
 
                     if (var0.getBlock() instanceof LiquidBlock) {
                         param0.setBlock(param2, Blocks.AIR.defaultBlockState(), 3);
                     } else {
-                        if (var2x != Material.WATER_PLANT && var2x != Material.REPLACEABLE_WATER_PLANT) {
+                        if (!var0.is(Blocks.KELP) && !var0.is(Blocks.KELP_PLANT) && !var0.is(Blocks.SEAGRASS) && !var0.is(Blocks.TALL_SEAGRASS)) {
                             return false;
                         }
 
-                        BlockEntity var5 = var0.hasBlockEntity() ? param0.getBlockEntity(param2) : null;
-                        dropResources(var0, param0, param2, var5);
+                        BlockEntity var4 = var0.hasBlockEntity() ? param0.getBlockEntity(param2) : null;
+                        dropResources(var0, param0, param2, var4);
                         param0.setBlock(param2, Blocks.AIR.defaultBlockState(), 3);
                     }
 

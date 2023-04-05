@@ -83,9 +83,7 @@ public class BookCloningRecipe extends CustomRecipe {
             if (var2.getItem().hasCraftingRemainingItem()) {
                 var0.set(var1, new ItemStack(var2.getItem().getCraftingRemainingItem()));
             } else if (var2.getItem() instanceof WrittenBookItem) {
-                ItemStack var3 = var2.copy();
-                var3.setCount(1);
-                var0.set(var1, var3);
+                var0.set(var1, var2.copyWithCount(1));
                 break;
             }
         }

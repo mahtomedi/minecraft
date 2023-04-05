@@ -43,7 +43,8 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
     private static final String STICK = "stick";
     private static final int BLACK_TEXT_OUTLINE_COLOR = -988212;
     private static final int OUTLINE_RENDER_DISTANCE = Mth.square(16);
-    private static final float SIZE = 0.6666667F;
+    private static final float RENDER_SCALE = 0.6666667F;
+    private static final Vec3 TEXT_OFFSET = new Vec3(0.0, 0.33333334F, 0.046666667F);
     private final Map<WoodType, SignRenderer.SignModel> signModels;
     private final Font font;
 
@@ -61,7 +62,15 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         WoodType var2 = SignBlock.getWoodType(var1);
         SignRenderer.SignModel var3 = this.signModels.get(var2);
         var3.stick.visible = var0.getBlock() instanceof StandingSignBlock;
-        this.renderSignWithText(param0, param2, param3, param4, param5, var0, var1, var2, var3, 0.6666667F);
+        this.renderSignWithText(param0, param2, param3, param4, param5, var0, var1, var2, var3);
+    }
+
+    public float getSignModelRenderScale() {
+        return 0.6666667F;
+    }
+
+    public float getSignTextRenderScale() {
+        return 0.6666667F;
     }
 
     void renderSignWithText(
@@ -73,41 +82,18 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         BlockState param5,
         SignBlock param6,
         WoodType param7,
-        Model param8,
-        float param9
+        Model param8
     ) {
         param1.pushPose();
         this.translateSign(param1, -param6.getYRotationDegrees(param5), param5);
-        this.renderSign(param1, param2, param3, param4, param9, param7, param8);
-        this.renderSignText(
-            param0.getBlockPos(),
-            param0.getFrontText(),
-            param1,
-            param2,
-            param3,
-            param9,
-            this.getTextOffset(param9),
-            param0.getTextLineHeight(),
-            param0.getMaxTextLineWidth(),
-            true
-        );
-        this.renderSignText(
-            param0.getBlockPos(),
-            param0.getBackText(),
-            param1,
-            param2,
-            param3,
-            param9,
-            this.getTextOffset(param9),
-            param0.getTextLineHeight(),
-            param0.getMaxTextLineWidth(),
-            false
-        );
+        this.renderSign(param1, param2, param3, param4, param7, param8);
+        this.renderSignText(param0.getBlockPos(), param0.getFrontText(), param1, param2, param3, param0.getTextLineHeight(), param0.getMaxTextLineWidth(), true);
+        this.renderSignText(param0.getBlockPos(), param0.getBackText(), param1, param2, param3, param0.getTextLineHeight(), param0.getMaxTextLineWidth(), false);
         param1.popPose();
     }
 
     void translateSign(PoseStack param0, float param1, BlockState param2) {
-        param0.translate(0.5F, 0.5F, 0.5F);
+        param0.translate(0.5F, 0.75F * this.getSignModelRenderScale(), 0.5F);
         param0.mulPose(Axis.YP.rotationDegrees(param1));
         if (!(param2.getBlock() instanceof StandingSignBlock)) {
             param0.translate(0.0F, -0.3125F, -0.4375F);
@@ -115,12 +101,13 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
 
     }
 
-    void renderSign(PoseStack param0, MultiBufferSource param1, int param2, int param3, float param4, WoodType param5, Model param6) {
+    void renderSign(PoseStack param0, MultiBufferSource param1, int param2, int param3, WoodType param4, Model param5) {
         param0.pushPose();
-        param0.scale(param4, -param4, -param4);
-        Material var0 = this.getSignMaterial(param5);
-        VertexConsumer var1 = var0.buffer(param1, param6::renderType);
-        this.renderSignModel(param0, param2, param3, param6, var1);
+        float var0 = this.getSignModelRenderScale();
+        param0.scale(var0, -var0, -var0);
+        Material var1 = this.getSignMaterial(param4);
+        VertexConsumer var2 = var1.buffer(param1, param5::renderType);
+        this.renderSignModel(param0, param2, param3, param5, var2);
         param0.popPose();
     }
 
@@ -133,24 +120,13 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         return Sheets.getSignMaterial(param0);
     }
 
-    void renderSignText(
-        BlockPos param0,
-        SignText param1,
-        PoseStack param2,
-        MultiBufferSource param3,
-        int param4,
-        float param5,
-        Vec3 param6,
-        int param7,
-        int param8,
-        boolean param9
-    ) {
+    void renderSignText(BlockPos param0, SignText param1, PoseStack param2, MultiBufferSource param3, int param4, int param5, int param6, boolean param7) {
         param2.pushPose();
-        this.translateSignText(param5, param2, param9, param6);
+        this.translateSignText(param2, param7, this.getTextOffset());
         int var0 = getDarkColor(param1);
-        int var1 = 4 * param7 / 2;
+        int var1 = 4 * param5 / 2;
         FormattedCharSequence[] var2 = param1.getRenderMessages(Minecraft.getInstance().isTextFilteringEnabled(), param1x -> {
-            List<FormattedCharSequence> var0x = this.font.split(param1x, param8);
+            List<FormattedCharSequence> var0x = this.font.split(param1x, param6);
             return var0x.isEmpty() ? FormattedCharSequence.EMPTY : var0x.get(0);
         });
         int var3;
@@ -170,11 +146,11 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
             FormattedCharSequence var10 = var2[var9];
             float var11 = (float)(-this.font.width(var10) / 2);
             if (var4) {
-                this.font.drawInBatch8xOutline(var10, var11, (float)(var9 * param7 - var1), var3, var0, param2.last().pose(), param3, var5);
+                this.font.drawInBatch8xOutline(var10, var11, (float)(var9 * param5 - var1), var3, var0, param2.last().pose(), param3, var5);
             } else {
                 this.font
                     .drawInBatch(
-                        var10, var11, (float)(var9 * param7 - var1), var3, false, param2.last().pose(), param3, Font.DisplayMode.POLYGON_OFFSET, 0, var5
+                        var10, var11, (float)(var9 * param5 - var1), var3, false, param2.last().pose(), param3, Font.DisplayMode.POLYGON_OFFSET, 0, var5
                     );
             }
         }
@@ -182,18 +158,18 @@ public class SignRenderer implements BlockEntityRenderer<SignBlockEntity> {
         param2.popPose();
     }
 
-    private void translateSignText(float param0, PoseStack param1, boolean param2, Vec3 param3) {
-        if (!param2) {
-            param1.mulPose(Axis.YP.rotationDegrees(180.0F));
+    private void translateSignText(PoseStack param0, boolean param1, Vec3 param2) {
+        if (!param1) {
+            param0.mulPose(Axis.YP.rotationDegrees(180.0F));
         }
 
-        float var0 = 0.015625F * param0;
-        param1.translate(param3.x, param3.y, param3.z);
-        param1.scale(var0, -var0, var0);
+        float var0 = 0.015625F * this.getSignTextRenderScale();
+        param0.translate(param2.x, param2.y, param2.z);
+        param0.scale(var0, -var0, var0);
     }
 
-    Vec3 getTextOffset(float param0) {
-        return new Vec3(0.0, (double)(0.5F * param0), (double)(0.07F * param0));
+    Vec3 getTextOffset() {
+        return TEXT_OFFSET;
     }
 
     static boolean isOutlineVisible(BlockPos param0, int param1) {

@@ -18,18 +18,18 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.storage.loot.PredicateManager;
+import net.minecraft.world.level.storage.loot.LootDataManager;
 import org.slf4j.Logger;
 
 public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Gson GSON = new GsonBuilder().create();
     private AdvancementList advancements = new AdvancementList();
-    private final PredicateManager predicateManager;
+    private final LootDataManager lootData;
 
-    public ServerAdvancementManager(PredicateManager param0) {
+    public ServerAdvancementManager(LootDataManager param0) {
         super(GSON, "advancements");
-        this.predicateManager = param0;
+        this.lootData = param0;
     }
 
     protected void apply(Map<ResourceLocation, JsonElement> param0, ResourceManager param1, ProfilerFiller param2) {
@@ -37,7 +37,7 @@ public class ServerAdvancementManager extends SimpleJsonResourceReloadListener {
         param0.forEach((param1x, param2x) -> {
             try {
                 JsonObject var0x = GsonHelper.convertToJsonObject(param2x, "advancement");
-                Advancement.Builder var1x = Advancement.Builder.fromJson(var0x, new DeserializationContext(param1x, this.predicateManager));
+                Advancement.Builder var1x = Advancement.Builder.fromJson(var0x, new DeserializationContext(param1x, this.lootData));
                 var0.put(param1x, var1x);
             } catch (Exception var6) {
                 LOGGER.error("Parsing error loading custom advancement {}: {}", param1x, var6.getMessage());

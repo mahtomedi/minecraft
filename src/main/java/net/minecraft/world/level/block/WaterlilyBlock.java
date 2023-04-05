@@ -10,7 +10,6 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -39,6 +38,6 @@ public class WaterlilyBlock extends BushBlock {
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
         FluidState var0 = param1.getFluidState(param2);
         FluidState var1 = param1.getFluidState(param2.above());
-        return (var0.getType() == Fluids.WATER || param0.getMaterial() == Material.ICE) && var1.getType() == Fluids.EMPTY;
+        return (var0.getType() == Fluids.WATER || param0.getBlock() instanceof IceBlock) && var1.getType() == Fluids.EMPTY;
     }
 }

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -28,10 +28,8 @@ public class LootContext {
     private final RandomSource random;
     private final float luck;
     private final ServerLevel level;
-    private final Function<ResourceLocation, LootTable> lootTables;
-    private final Set<LootTable> visitedTables = Sets.newLinkedHashSet();
-    private final Function<ResourceLocation, LootItemCondition> conditions;
-    private final Set<LootItemCondition> visitedConditions = Sets.newLinkedHashSet();
+    private final LootDataResolver lootDataResolver;
+    private final Set<LootContext.VisitedEntry<?>> visitedElements = Sets.newLinkedHashSet();
     private final Map<LootContextParam<?>, Object> params;
     private final Map<ResourceLocation, LootContext.DynamicDrop> dynamicDrops;
 
@@ -39,18 +37,16 @@ public class LootContext {
         RandomSource param0,
         float param1,
         ServerLevel param2,
-        Function<ResourceLocation, LootTable> param3,
-        Function<ResourceLocation, LootItemCondition> param4,
-        Map<LootContextParam<?>, Object> param5,
-        Map<ResourceLocation, LootContext.DynamicDrop> param6
+        LootDataResolver param3,
+        Map<LootContextParam<?>, Object> param4,
+        Map<ResourceLocation, LootContext.DynamicDrop> param5
     ) {
         this.random = param0;
         this.luck = param1;
         this.level = param2;
-        this.lootTables = param3;
-        this.conditions = param4;
-        this.params = ImmutableMap.copyOf(param5);
-        this.dynamicDrops = ImmutableMap.copyOf(param6);
+        this.lootDataResolver = param3;
+        this.params = ImmutableMap.copyOf(param4);
+        this.dynamicDrops = ImmutableMap.copyOf(param5);
     }
 
     public boolean hasParam(LootContextParam<?> param0) {
@@ -79,29 +75,20 @@ public class LootContext {
         return (T)this.params.get(param0);
     }
 
-    public boolean addVisitedTable(LootTable param0) {
-        return this.visitedTables.add(param0);
+    public boolean hasVisitedElement(LootContext.VisitedEntry<?> param0) {
+        return this.visitedElements.contains(param0);
     }
 
-    public void removeVisitedTable(LootTable param0) {
-        this.visitedTables.remove(param0);
+    public boolean pushVisitedElement(LootContext.VisitedEntry<?> param0) {
+        return this.visitedElements.add(param0);
     }
 
-    public boolean addVisitedCondition(LootItemCondition param0) {
-        return this.visitedConditions.add(param0);
+    public void popVisitedElement(LootContext.VisitedEntry<?> param0) {
+        this.visitedElements.remove(param0);
     }
 
-    public void removeVisitedCondition(LootItemCondition param0) {
-        this.visitedConditions.remove(param0);
-    }
-
-    public LootTable getLootTable(ResourceLocation param0) {
-        return this.lootTables.apply(param0);
-    }
-
-    @Nullable
-    public LootItemCondition getCondition(ResourceLocation param0) {
-        return this.conditions.apply(param0);
+    public LootDataResolver getResolver() {
+        return this.lootDataResolver;
     }
 
     public RandomSource getRandom() {
@@ -116,10 +103,23 @@ public class LootContext {
         return this.level;
     }
 
+    public static LootContext.VisitedEntry<LootTable> createVisitedEntry(LootTable param0) {
+        return new LootContext.VisitedEntry<>(LootDataType.TABLE, param0);
+    }
+
+    public static LootContext.VisitedEntry<LootItemCondition> createVisitedEntry(LootItemCondition param0) {
+        return new LootContext.VisitedEntry<>(LootDataType.PREDICATE, param0);
+    }
+
+    public static LootContext.VisitedEntry<LootItemFunction> createVisitedEntry(LootItemFunction param0) {
+        return new LootContext.VisitedEntry<>(LootDataType.MODIFIER, param0);
+    }
+
     public static class Builder {
         private final ServerLevel level;
         private final Map<LootContextParam<?>, Object> params = Maps.newIdentityHashMap();
         private final Map<ResourceLocation, LootContext.DynamicDrop> dynamicDrops = Maps.newHashMap();
+        @Nullable
         private RandomSource random;
         private float luck;
 
@@ -212,9 +212,7 @@ public class LootContext {
                     }
 
                     MinecraftServer var3 = this.level.getServer();
-                    return new LootContext(
-                        var2, this.luck, this.level, var3.getLootTables()::get, var3.getPredicateManager()::get, this.params, this.dynamicDrops
-                    );
+                    return new LootContext(var2, this.luck, this.level, var3.getLootData(), this.params, this.dynamicDrops);
                 }
             }
         }
@@ -262,5 +260,8 @@ public class LootContext {
                 return LootContext.EntityTarget.getByName(param0.nextString());
             }
         }
+    }
+
+    public static record VisitedEntry<T>(LootDataType<T> type, T value) {
     }
 }

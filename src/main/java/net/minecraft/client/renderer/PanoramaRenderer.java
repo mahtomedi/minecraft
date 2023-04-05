@@ -1,7 +1,6 @@
 package net.minecraft.client.renderer;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -21,7 +20,7 @@ public class PanoramaRenderer {
         float var0 = (float)((double)param0 * this.minecraft.options.panoramaSpeed().get());
         this.spin = wrap(this.spin + var0 * 0.1F, 360.0F);
         this.bob = wrap(this.bob + var0 * 0.001F, (float) (Math.PI * 2));
-        this.cubeMap.render(this.minecraft, Mth.sin(this.bob) * 5.0F + 25.0F, -this.spin, param1);
+        this.cubeMap.render(this.minecraft, 10.0F, -this.spin, param1);
     }
 
     private static float wrap(float param0, float param1) {

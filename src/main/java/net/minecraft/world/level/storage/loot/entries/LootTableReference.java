@@ -8,6 +8,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootDataId;
+import net.minecraft.world.level.storage.loot.LootDataType;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -28,23 +30,23 @@ public class LootTableReference extends LootPoolSingletonContainer {
 
     @Override
     public void createItemStack(Consumer<ItemStack> param0, LootContext param1) {
-        LootTable var0 = param1.getLootTable(this.name);
+        LootTable var0 = param1.getResolver().getLootTable(this.name);
         var0.getRandomItemsRaw(param1, param0);
     }
 
     @Override
     public void validate(ValidationContext param0) {
-        if (param0.hasVisitedTable(this.name)) {
+        LootDataId<LootTable> var0 = new LootDataId<>(LootDataType.TABLE, this.name);
+        if (param0.hasVisitedElement(var0)) {
             param0.reportProblem("Table " + this.name + " is recursively called");
         } else {
             super.validate(param0);
-            LootTable var0 = param0.resolveLootTable(this.name);
-            if (var0 == null) {
-                param0.reportProblem("Unknown loot table called " + this.name);
-            } else {
-                var0.validate(param0.enterTable("->{" + this.name + "}", this.name));
-            }
-
+            param0.resolver()
+                .getElementOptional(var0)
+                .ifPresentOrElse(
+                    param2 -> param2.validate(param0.enterElement("->{" + this.name + "}", var0)),
+                    () -> param0.reportProblem("Unknown loot table called " + this.name)
+                );
         }
     }
 

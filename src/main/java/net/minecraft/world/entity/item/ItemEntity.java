@@ -228,8 +228,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
 
     public static ItemStack merge(ItemStack param0, ItemStack param1, int param2) {
         int var0 = Math.min(Math.min(param0.getMaxStackSize(), param2) - param0.getCount(), param1.getCount());
-        ItemStack var1 = param0.copy();
-        var1.grow(var0);
+        ItemStack var1 = param0.copyWithCount(param0.getCount() + var0);
         param1.shrink(var0);
         return var1;
     }
