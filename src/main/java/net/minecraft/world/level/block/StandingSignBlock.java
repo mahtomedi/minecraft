@@ -25,7 +25,7 @@ public class StandingSignBlock extends SignBlock {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        return param1.getBlockState(param2.below()).getMaterial().isSolid();
+        return param1.getBlockState(param2.below()).isSolid();
     }
 
     @Override

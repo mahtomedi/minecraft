@@ -2,13 +2,12 @@ package net.minecraft.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,13 +27,11 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     private float xMouse;
     private float yMouse;
     private final RecipeBookComponent recipeBookComponent = new RecipeBookComponent();
-    private boolean recipeBookComponentInitialized;
     private boolean widthTooNarrow;
     private boolean buttonClicked;
 
     public InventoryScreen(Player param0) {
         super(param0.inventoryMenu, param0.getInventory(), Component.translatable("container.crafting"));
-        this.passEvents = true;
         this.titleLabelX = 97;
     }
 
@@ -65,7 +62,6 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
             super.init();
             this.widthTooNarrow = this.width < 379;
             this.recipeBookComponent.init(this.width, this.height, this.minecraft, this.widthTooNarrow, this.menu);
-            this.recipeBookComponentInitialized = true;
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
             this.addRenderableWidget(new ImageButton(this.leftPos + 104, this.height / 2 - 22, 20, 18, 0, 0, 19, RECIPE_BUTTON_LOCATION, param0 -> {
                 this.recipeBookComponent.toggleVisibility();
@@ -79,12 +75,12 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     }
 
     @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 4210752);
+    protected void renderLabels(GuiGraphics param0, int param1, int param2) {
+        param0.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
             this.renderBg(param0, param3, param1, param2);
@@ -102,18 +98,17 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, INVENTORY_LOCATION);
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(INVENTORY_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         renderEntityInInventoryFollowsMouse(
             param0, var0 + 51, var1 + 75, 30, (float)(var0 + 51) - this.xMouse, (float)(var1 + 75 - 50) - this.yMouse, this.minecraft.player
         );
     }
 
     public static void renderEntityInInventoryFollowsMouse(
-        PoseStack param0, int param1, int param2, int param3, float param4, float param5, LivingEntity param6
+        GuiGraphics param0, int param1, int param2, int param3, float param4, float param5, LivingEntity param6
     ) {
         float var0 = (float)Math.atan((double)(param4 / 40.0F));
         float var1 = (float)Math.atan((double)(param5 / 40.0F));
@@ -139,12 +134,12 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
     }
 
     public static void renderEntityInInventory(
-        PoseStack param0, int param1, int param2, int param3, Quaternionf param4, @Nullable Quaternionf param5, LivingEntity param6
+        GuiGraphics param0, int param1, int param2, int param3, Quaternionf param4, @Nullable Quaternionf param5, LivingEntity param6
     ) {
-        param0.pushPose();
-        param0.translate((double)param1, (double)param2, 50.0);
-        param0.mulPoseMatrix(new Matrix4f().scaling((float)param3, (float)param3, (float)(-param3)));
-        param0.mulPose(param4);
+        param0.pose().pushPose();
+        param0.pose().translate((double)param1, (double)param2, 50.0);
+        param0.pose().mulPoseMatrix(new Matrix4f().scaling((float)param3, (float)param3, (float)(-param3)));
+        param0.pose().mulPose(param4);
         Lighting.setupForEntityInInventory();
         EntityRenderDispatcher var0 = Minecraft.getInstance().getEntityRenderDispatcher();
         if (param5 != null) {
@@ -153,11 +148,10 @@ public class InventoryScreen extends EffectRenderingInventoryScreen<InventoryMen
         }
 
         var0.setRenderShadow(false);
-        MultiBufferSource.BufferSource var1 = Minecraft.getInstance().renderBuffers().bufferSource();
-        RenderSystem.runAsFancy(() -> var0.render(param6, 0.0, 0.0, 0.0, 0.0F, 1.0F, param0, var1, 15728880));
-        var1.endBatch();
+        RenderSystem.runAsFancy(() -> var0.render(param6, 0.0, 0.0, 0.0, 0.0F, 1.0F, param0.pose(), param0.bufferSource(), 15728880));
+        param0.flush();
         var0.setRenderShadow(true);
-        param0.popPose();
+        param0.pose().popPose();
         Lighting.setupFor3DItems();
     }
 

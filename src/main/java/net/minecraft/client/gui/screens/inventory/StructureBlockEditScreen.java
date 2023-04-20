@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -420,45 +420,45 @@ public class StructureBlockEditScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         StructureMode var0 = this.structure.getMode();
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
         if (var0 != StructureMode.DATA) {
-            drawString(param0, this.font, NAME_LABEL, this.width / 2 - 153, 30, 10526880);
+            param0.drawString(this.font, NAME_LABEL, this.width / 2 - 153, 30, 10526880);
             this.nameEdit.render(param0, param1, param2, param3);
         }
 
         if (var0 == StructureMode.LOAD || var0 == StructureMode.SAVE) {
-            drawString(param0, this.font, POSITION_LABEL, this.width / 2 - 153, 70, 10526880);
+            param0.drawString(this.font, POSITION_LABEL, this.width / 2 - 153, 70, 10526880);
             this.posXEdit.render(param0, param1, param2, param3);
             this.posYEdit.render(param0, param1, param2, param3);
             this.posZEdit.render(param0, param1, param2, param3);
-            drawString(param0, this.font, INCLUDE_ENTITIES_LABEL, this.width / 2 + 154 - this.font.width(INCLUDE_ENTITIES_LABEL), 150, 10526880);
+            param0.drawString(this.font, INCLUDE_ENTITIES_LABEL, this.width / 2 + 154 - this.font.width(INCLUDE_ENTITIES_LABEL), 150, 10526880);
         }
 
         if (var0 == StructureMode.SAVE) {
-            drawString(param0, this.font, SIZE_LABEL, this.width / 2 - 153, 110, 10526880);
+            param0.drawString(this.font, SIZE_LABEL, this.width / 2 - 153, 110, 10526880);
             this.sizeXEdit.render(param0, param1, param2, param3);
             this.sizeYEdit.render(param0, param1, param2, param3);
             this.sizeZEdit.render(param0, param1, param2, param3);
-            drawString(param0, this.font, DETECT_SIZE_LABEL, this.width / 2 + 154 - this.font.width(DETECT_SIZE_LABEL), 110, 10526880);
-            drawString(param0, this.font, SHOW_AIR_LABEL, this.width / 2 + 154 - this.font.width(SHOW_AIR_LABEL), 70, 10526880);
+            param0.drawString(this.font, DETECT_SIZE_LABEL, this.width / 2 + 154 - this.font.width(DETECT_SIZE_LABEL), 110, 10526880);
+            param0.drawString(this.font, SHOW_AIR_LABEL, this.width / 2 + 154 - this.font.width(SHOW_AIR_LABEL), 70, 10526880);
         }
 
         if (var0 == StructureMode.LOAD) {
-            drawString(param0, this.font, INTEGRITY_LABEL, this.width / 2 - 153, 110, 10526880);
+            param0.drawString(this.font, INTEGRITY_LABEL, this.width / 2 - 153, 110, 10526880);
             this.integrityEdit.render(param0, param1, param2, param3);
             this.seedEdit.render(param0, param1, param2, param3);
-            drawString(param0, this.font, SHOW_BOUNDING_BOX_LABEL, this.width / 2 + 154 - this.font.width(SHOW_BOUNDING_BOX_LABEL), 70, 10526880);
+            param0.drawString(this.font, SHOW_BOUNDING_BOX_LABEL, this.width / 2 + 154 - this.font.width(SHOW_BOUNDING_BOX_LABEL), 70, 10526880);
         }
 
         if (var0 == StructureMode.DATA) {
-            drawString(param0, this.font, CUSTOM_DATA_LABEL, this.width / 2 - 153, 110, 10526880);
+            param0.drawString(this.font, CUSTOM_DATA_LABEL, this.width / 2 - 153, 110, 10526880);
             this.dataEdit.render(param0, param1, param2, param3);
         }
 
-        drawString(param0, this.font, var0.getDisplayName(), this.width / 2 - 153, 174, 10526880);
+        param0.drawString(this.font, var0.getDisplayName(), this.width / 2 - 153, 174, 10526880);
         super.render(param0, param1, param2, param3);
     }
 

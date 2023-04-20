@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
@@ -27,7 +26,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -114,7 +113,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         List<LevelSummary> var0 = this.pollLevelsIgnoreErrors();
         if (var0 != this.currentlyDisplayedLevels) {
             this.handleNewLevels(var0);
@@ -245,14 +244,14 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             int var0 = (this.minecraft.screen.width - this.minecraft.font.width(LOADING_LABEL)) / 2;
             int var1 = param2 + (param5 - 9) / 2;
-            this.minecraft.font.draw(param0, LOADING_LABEL, (float)var0, (float)var1, 16777215);
+            param0.drawString(this.minecraft.font, LOADING_LABEL, var0, var1, 16777215, false);
             String var2 = LoadingDotsText.get(Util.getMillis());
             int var3 = (this.minecraft.screen.width - this.minecraft.font.width(var2)) / 2;
             int var4 = var1 + 9;
-            this.minecraft.font.draw(param0, var2, (float)var3, (float)var4, 8421504);
+            param0.drawString(this.minecraft.font, var2, var3, var4, 8421504, false);
         }
 
         @Override
@@ -325,7 +324,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             String var0 = this.summary.getLevelName();
             String var1 = this.summary.getLevelId() + " (" + WorldSelectionList.DATE_FORMAT.format(new Date(this.summary.getLastPlayed())) + ")";
             if (StringUtils.isEmpty(var0)) {
@@ -333,34 +332,33 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
             }
 
             Component var2 = this.summary.getInfo();
-            this.minecraft.font.draw(param0, var0, (float)(param3 + 32 + 3), (float)(param2 + 1), 16777215);
-            this.minecraft.font.draw(param0, var1, (float)(param3 + 32 + 3), (float)(param2 + 9 + 3), 8421504);
-            this.minecraft.font.draw(param0, var2, (float)(param3 + 32 + 3), (float)(param2 + 9 + 9 + 3), 8421504);
-            RenderSystem.setShaderTexture(0, this.icon != null ? this.iconLocation : WorldSelectionList.ICON_MISSING);
+            param0.drawString(this.minecraft.font, var0, param3 + 32 + 3, param2 + 1, 16777215, false);
+            param0.drawString(this.minecraft.font, var1, param3 + 32 + 3, param2 + 9 + 3, 8421504, false);
+            param0.drawString(this.minecraft.font, var2, param3 + 32 + 3, param2 + 9 + 9 + 3, 8421504, false);
+            ResourceLocation var3 = this.icon != null ? this.iconLocation : WorldSelectionList.ICON_MISSING;
             RenderSystem.enableBlend();
-            GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
+            param0.blit(var3, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();
             if (this.minecraft.options.touchscreen().get() || param8) {
-                RenderSystem.setShaderTexture(0, WorldSelectionList.ICON_OVERLAY_LOCATION);
-                GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
-                int var3 = param6 - param3;
-                boolean var4 = var3 < 32;
-                int var5 = var4 ? 32 : 0;
+                param0.fill(param3, param2, param3 + 32, param2 + 32, -1601138544);
+                int var4 = param6 - param3;
+                boolean var5 = var4 < 32;
+                int var6 = var5 ? 32 : 0;
                 if (this.summary.isLocked()) {
-                    GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
-                    if (var4) {
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
+                    if (var5) {
                         this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
                     }
                 } else if (this.summary.requiresManualConversion()) {
-                    GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
-                    if (var4) {
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
+                    if (var5) {
                         this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
                     }
                 } else if (this.summary.markVersionInList()) {
-                    GuiComponent.blit(param0, param3, param2, 32.0F, (float)var5, 32, 32, 256, 256);
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 32.0F, (float)var6, 32, 32, 256, 256);
                     if (this.summary.askToOpenWorld()) {
-                        GuiComponent.blit(param0, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
-                        if (var4) {
+                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
+                        if (var5) {
                             this.screen
                                 .setTooltipForNextRenderPass(
                                     ImmutableList.of(
@@ -370,8 +368,8 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                                 );
                         }
                     } else if (!SharedConstants.getCurrentVersion().isStable()) {
-                        GuiComponent.blit(param0, param3, param2, 64.0F, (float)var5, 32, 32, 256, 256);
-                        if (var4) {
+                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 64.0F, (float)var6, 32, 32, 256, 256);
+                        if (var5) {
                             this.screen
                                 .setTooltipForNextRenderPass(
                                     ImmutableList.of(
@@ -381,7 +379,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         }
                     }
                 } else {
-                    GuiComponent.blit(param0, param3, param2, 0.0F, (float)var5, 32, 32, 256, 256);
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 0.0F, (float)var6, 32, 32, 256, 256);
                 }
             }
 

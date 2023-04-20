@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -13,7 +12,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
@@ -364,12 +363,12 @@ public class EditBox extends AbstractWidget implements Renderable {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.isVisible()) {
             if (this.isBordered()) {
                 int var0 = this.isFocused() ? -1 : -6250336;
-                fill(param0, this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, var0);
-                fill(param0, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, -16777216);
+                param0.fill(this.getX() - 1, this.getY() - 1, this.getX() + this.width + 1, this.getY() + this.height + 1, var0);
+                param0.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, -16777216);
             }
 
             int var1 = this.isEditable ? this.textColor : this.textColorUneditable;
@@ -387,7 +386,7 @@ public class EditBox extends AbstractWidget implements Renderable {
 
             if (!var4.isEmpty()) {
                 String var10 = var5 ? var4.substring(0, var2) : var4;
-                var9 = this.font.drawShadow(param0, this.formatter.apply(var10, this.displayPos), (float)var7, (float)var8, var1);
+                var9 = param0.drawString(this.font, this.formatter.apply(var10, this.displayPos), var7, var8, var1);
             }
 
             boolean var11 = this.cursorPos < this.value.length() || this.value.length() >= this.getMaxLength();
@@ -400,22 +399,22 @@ public class EditBox extends AbstractWidget implements Renderable {
             }
 
             if (!var4.isEmpty() && var5 && var2 < var4.length()) {
-                this.font.drawShadow(param0, this.formatter.apply(var4.substring(var2), this.cursorPos), (float)var9, (float)var8, var1);
+                param0.drawString(this.font, this.formatter.apply(var4.substring(var2), this.cursorPos), var9, var8, var1);
             }
 
             if (this.hint != null && var4.isEmpty() && !this.isFocused()) {
-                this.font.drawShadow(param0, this.hint, (float)var9, (float)var8, var1);
+                param0.drawString(this.font, this.hint, var9, var8, var1);
             }
 
             if (!var11 && this.suggestion != null) {
-                this.font.drawShadow(param0, this.suggestion, (float)(var12 - 1), (float)var8, -8355712);
+                param0.drawString(this.font, this.suggestion, var12 - 1, var8, -8355712);
             }
 
             if (var6) {
                 if (var11) {
-                    GuiComponent.fill(param0, var12, var8 - 1, var12 + 1, var8 + 1 + 9, -3092272);
+                    param0.fill(var12, var8 - 1, var12 + 1, var8 + 1 + 9, -3092272);
                 } else {
-                    this.font.drawShadow(param0, "_", (float)var12, (float)var8, var1);
+                    param0.drawString(this.font, "_", var12, var8, var1);
                 }
             }
 
@@ -427,7 +426,7 @@ public class EditBox extends AbstractWidget implements Renderable {
         }
     }
 
-    private void renderHighlight(PoseStack param0, int param1, int param2, int param3, int param4) {
+    private void renderHighlight(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         if (param1 < param3) {
             int var0 = param1;
             param1 = param3;
@@ -450,7 +449,7 @@ public class EditBox extends AbstractWidget implements Renderable {
 
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        fill(param0, param1, param2, param3, param4, -16776961);
+        param0.fill(param1, param2, param3, param4, -16776961);
         RenderSystem.disableColorLogicOp();
     }
 

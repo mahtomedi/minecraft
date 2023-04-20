@@ -2,7 +2,6 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.Unit;
 import com.mojang.realmsclient.client.FileDownload;
@@ -15,6 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -148,10 +148,10 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.downloadTitle, this.width / 2, 20, 16777215);
-        drawCenteredString(param0, this.font, this.status, this.width / 2, 50, 16777215);
+        param0.drawCenteredString(this.font, this.downloadTitle, this.width / 2, 20, 16777215);
+        param0.drawCenteredString(this.font, this.status, this.width / 2, 50, 16777215);
         if (this.showDots) {
             this.drawDots(param0);
         }
@@ -162,32 +162,32 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
         }
 
         if (this.errorMessage != null) {
-            drawCenteredString(param0, this.font, this.errorMessage, this.width / 2, 110, 16711680);
+            param0.drawCenteredString(this.font, this.errorMessage, this.width / 2, 110, 16711680);
         }
 
         super.render(param0, param1, param2, param3);
     }
 
-    private void drawDots(PoseStack param0) {
+    private void drawDots(GuiGraphics param0) {
         int var0 = this.font.width(this.status);
         if (this.animTick % 10 == 0) {
             ++this.dotIndex;
         }
 
-        this.font.draw(param0, DOTS[this.dotIndex % DOTS.length], (float)(this.width / 2 + var0 / 2 + 5), 50.0F, 16777215);
+        param0.drawString(this.font, DOTS[this.dotIndex % DOTS.length], this.width / 2 + var0 / 2 + 5, 50, 16777215, false);
     }
 
-    private void drawProgressBar(PoseStack param0) {
+    private void drawProgressBar(GuiGraphics param0) {
         double var0 = Math.min((double)this.downloadStatus.bytesWritten / (double)this.downloadStatus.totalBytes, 1.0);
         this.progress = String.format(Locale.ROOT, "%.1f", var0 * 100.0);
         int var1 = (this.width - 200) / 2;
         int var2 = var1 + (int)Math.round(200.0 * var0);
-        fill(param0, var1 - 1, 79, var2 + 1, 96, -2501934);
-        fill(param0, var1, 80, var2, 95, -8355712);
-        drawCenteredString(param0, this.font, this.progress + " %", this.width / 2, 84, 16777215);
+        param0.fill(var1 - 1, 79, var2 + 1, 96, -2501934);
+        param0.fill(var1, 80, var2, 95, -8355712);
+        param0.drawCenteredString(this.font, this.progress + " %", this.width / 2, 84, 16777215);
     }
 
-    private void drawDownloadSpeed(PoseStack param0) {
+    private void drawDownloadSpeed(GuiGraphics param0) {
         if (this.animTick % 20 == 0) {
             if (this.previousWrittenBytes != null) {
                 long var0 = Util.getMillis() - this.previousTimeSnapshot;
@@ -207,11 +207,11 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
 
     }
 
-    private void drawDownloadSpeed0(PoseStack param0, long param1) {
+    private void drawDownloadSpeed0(GuiGraphics param0, long param1) {
         if (param1 > 0L) {
             int var0 = this.font.width(this.progress);
             String var1 = "(" + Unit.humanReadable(param1) + "/s)";
-            this.font.draw(param0, var1, (float)(this.width / 2 + var0 / 2 + 15), 84.0F, 16777215);
+            param0.drawString(this.font, var1, this.width / 2 + var0 / 2 + 15, 84, 16777215, false);
         }
 
     }

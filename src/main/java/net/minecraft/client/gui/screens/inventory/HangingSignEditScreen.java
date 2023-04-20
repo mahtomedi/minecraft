@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
@@ -24,16 +22,15 @@ public class HangingSignEditScreen extends AbstractSignEditScreen {
     }
 
     @Override
-    protected void offsetSign(PoseStack param0, BlockState param1) {
-        param0.translate((float)this.width / 2.0F, 125.0F, 50.0F);
+    protected void offsetSign(GuiGraphics param0, BlockState param1) {
+        param0.pose().translate((float)this.width / 2.0F, 125.0F, 50.0F);
     }
 
     @Override
-    protected void renderSignBackground(PoseStack param0, MultiBufferSource.BufferSource param1, BlockState param2) {
-        param0.translate(0.0F, -13.0F, 0.0F);
-        RenderSystem.setShaderTexture(0, this.texture);
-        param0.scale(4.5F, 4.5F, 1.0F);
-        blit(param0, -8, -8, 0.0F, 0.0F, 16, 16, 16, 16);
+    protected void renderSignBackground(GuiGraphics param0, BlockState param1) {
+        param0.pose().translate(0.0F, -13.0F, 0.0F);
+        param0.pose().scale(4.5F, 4.5F, 1.0F);
+        param0.blit(this.texture, -8, -8, 0.0F, 0.0F, 16, 16, 16, 16);
     }
 
     @Override

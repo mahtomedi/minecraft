@@ -108,7 +108,7 @@ public class DecoratedPotRenderer implements BlockEntityRenderer<DecoratedPotBlo
         this.neck.render(param2, var1, param4, param5);
         this.top.render(param2, var1, param4, param5);
         this.bottom.render(param2, var1, param4, param5);
-        List<Item> var2 = param0.getShards();
+        List<Item> var2 = param0.getSherds();
         this.renderSide(this.frontSide, param2, param3, param4, param5, getMaterial(var2.get(3)));
         this.renderSide(this.backSide, param2, param3, param4, param5, getMaterial(var2.get(0)));
         this.renderSide(this.leftSide, param2, param3, param4, param5, getMaterial(var2.get(1)));

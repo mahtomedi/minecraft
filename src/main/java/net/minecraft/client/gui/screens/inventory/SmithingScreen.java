@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -90,13 +90,13 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         this.renderOnboardingTooltips(param0, param1, param2);
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         super.renderBg(param0, param1, param2, param3);
         this.templateIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
         this.baseIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
@@ -132,14 +132,14 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     }
 
     @Override
-    protected void renderErrorIcon(PoseStack param0, int param1, int param2) {
+    protected void renderErrorIcon(GuiGraphics param0, int param1, int param2) {
         if (this.hasRecipeError()) {
-            blit(param0, param1 + 65, param2 + 46, this.imageWidth, 0, 28, 21);
+            param0.blit(SMITHING_LOCATION, param1 + 65, param2 + 46, this.imageWidth, 0, 28, 21);
         }
 
     }
 
-    private void renderOnboardingTooltips(PoseStack param0, int param1, int param2) {
+    private void renderOnboardingTooltips(GuiGraphics param0, int param1, int param2) {
         Optional<Component> var0 = Optional.empty();
         if (this.hasRecipeError() && this.isHovering(65, 46, 28, 21, (double)param1, (double)param2)) {
             var0 = Optional.of(ERROR_TOOLTIP);
@@ -164,7 +164,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
             }
         }
 
-        var0.ifPresent(param3 -> this.renderTooltip(param0, this.font.split(param3, 115), param1, param2));
+        var0.ifPresent(param3 -> param0.renderTooltip(this.font, this.font.split(param3, 115), param1, param2));
     }
 
     private boolean hasRecipeError() {

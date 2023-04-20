@@ -1,8 +1,7 @@
 package net.minecraft.realms;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,8 +22,8 @@ public class RealmsLabel implements Renderable {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
-        GuiComponent.drawCenteredString(param0, Minecraft.getInstance().font, this.text, this.x, this.y, this.color);
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        param0.drawCenteredString(Minecraft.getInstance().font, this.text, this.x, this.y, this.color);
     }
 
     public Component getText() {

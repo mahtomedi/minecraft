@@ -3,13 +3,14 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -86,14 +87,14 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
         this.renderBg(param0, param3, param1, param2);
         RenderSystem.disableDepthTest();
         super.render(param0, param1, param2, param3);
-        param0.pushPose();
-        param0.translate((float)var0, (float)var1, 0.0F);
+        param0.pose().pushPose();
+        param0.pose().translate((float)var0, (float)var1, 0.0F);
         this.hoveredSlot = null;
 
         for(int var2 = 0; var2 < this.menu.slots.size(); ++var2) {
@@ -106,7 +107,9 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 this.hoveredSlot = var3;
                 int var4 = var3.x;
                 int var5 = var3.y;
-                renderSlotHighlight(param0, var4, var5, 0);
+                if (this.hoveredSlot.isHighlightable()) {
+                    renderSlotHighlight(param0, var4, var5, 0);
+                }
             }
         }
 
@@ -142,41 +145,46 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             this.renderFloatingItem(param0, this.snapbackItem, var13, var14, null);
         }
 
-        param0.popPose();
+        param0.pose().popPose();
         RenderSystem.enableDepthTest();
     }
 
-    public static void renderSlotHighlight(PoseStack param0, int param1, int param2, int param3) {
+    public static void renderSlotHighlight(GuiGraphics param0, int param1, int param2, int param3) {
         RenderSystem.disableDepthTest();
         RenderSystem.colorMask(true, true, true, false);
-        fillGradient(param0, param1, param2, param1 + 16, param2 + 16, -2130706433, -2130706433, param3);
+        param0.fillGradient(param1, param2, param1 + 16, param2 + 16, param3, -2130706433, -2130706433);
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.enableDepthTest();
     }
 
-    protected void renderTooltip(PoseStack param0, int param1, int param2) {
+    protected void renderTooltip(GuiGraphics param0, int param1, int param2) {
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
-            this.renderTooltip(param0, this.hoveredSlot.getItem(), param1, param2);
+            ItemStack var0 = this.hoveredSlot.getItem();
+            param0.renderTooltip(this.font, this.getTooltipFromContainerItem(var0), var0.getTooltipImage(), param1, param2);
         }
 
     }
 
-    private void renderFloatingItem(PoseStack param0, ItemStack param1, int param2, int param3, String param4) {
-        param0.pushPose();
-        param0.translate(0.0F, 0.0F, 232.0F);
-        this.itemRenderer.renderAndDecorateItem(param0, param1, param2, param3);
-        this.itemRenderer.renderGuiItemDecorations(param0, this.font, param1, param2, param3 - (this.draggingItem.isEmpty() ? 0 : 8), param4);
-        param0.popPose();
+    protected List<Component> getTooltipFromContainerItem(ItemStack param0) {
+        return getTooltipFromItem(this.minecraft, param0);
     }
 
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
-        this.font.draw(param0, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 4210752);
-        this.font.draw(param0, this.playerInventoryTitle, (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
+    private void renderFloatingItem(GuiGraphics param0, ItemStack param1, int param2, int param3, String param4) {
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, 0.0F, 232.0F);
+        param0.renderItem(param1, param2, param3);
+        param0.renderItemDecorations(this.font, param1, param2, param3 - (this.draggingItem.isEmpty() ? 0 : 8), param4);
+        param0.pose().popPose();
     }
 
-    protected abstract void renderBg(PoseStack var1, float var2, int var3, int var4);
+    protected void renderLabels(GuiGraphics param0, int param1, int param2) {
+        param0.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        param0.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
+    }
 
-    private void renderSlot(PoseStack param0, Slot param1) {
+    protected abstract void renderBg(GuiGraphics var1, float var2, int var3, int var4);
+
+    private void renderSlot(GuiGraphics param0, Slot param1) {
         int var0 = param1.x;
         int var1 = param1.y;
         ItemStack var2 = param1.getItem();
@@ -208,28 +216,27 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
             }
         }
 
-        param0.pushPose();
-        param0.translate(0.0F, 0.0F, 100.0F);
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, 0.0F, 100.0F);
         if (var2.isEmpty() && param1.isActive()) {
             Pair<ResourceLocation, ResourceLocation> var10 = param1.getNoItemIcon();
             if (var10 != null) {
                 TextureAtlasSprite var11 = this.minecraft.getTextureAtlas(var10.getFirst()).apply(var10.getSecond());
-                RenderSystem.setShaderTexture(0, var11.atlasLocation());
-                blit(param0, var0, var1, 0, 16, 16, var11);
+                param0.blit(var0, var1, 0, 16, 16, var11);
                 var4 = true;
             }
         }
 
         if (!var4) {
             if (var3) {
-                fill(param0, var0, var1, var0 + 16, var1 + 16, -2130706433);
+                param0.fill(var0, var1, var0 + 16, var1 + 16, -2130706433);
             }
 
-            this.itemRenderer.renderAndDecorateItem(param0, this.minecraft.player, var2, var0, var1, param1.x + param1.y * this.imageWidth);
-            this.itemRenderer.renderGuiItemDecorations(param0, this.font, var2, var0, var1, var6);
+            param0.renderItem(var2, var0, var1, param1.x + param1.y * this.imageWidth);
+            param0.renderItemDecorations(this.font, var2, var0, var1, var6);
         }
 
-        param0.popPose();
+        param0.pose().popPose();
     }
 
     private void recalculateQuickCraftRemaining() {

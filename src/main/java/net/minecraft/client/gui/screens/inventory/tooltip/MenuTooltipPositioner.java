@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory.tooltip;
 
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,16 +20,16 @@ public class MenuTooltipPositioner implements ClientTooltipPositioner {
     }
 
     @Override
-    public Vector2ic positionTooltip(Screen param0, int param1, int param2, int param3, int param4) {
-        Vector2i var0 = new Vector2i(param1 + 12, param2);
-        if (var0.x + param3 > param0.width - 5) {
-            var0.x = Math.max(param1 - 12 - param3, 9);
+    public Vector2ic positionTooltip(int param0, int param1, int param2, int param3, int param4, int param5) {
+        Vector2i var0 = new Vector2i(param2 + 12, param3);
+        if (var0.x + param4 > param0 - 5) {
+            var0.x = Math.max(param2 - 12 - param4, 9);
         }
 
         var0.y += 3;
-        int var1 = param4 + 3 + 3;
+        int var1 = param5 + 3 + 3;
         int var2 = this.widget.getY() + this.widget.getHeight() + 3 + getOffset(0, 0, this.widget.getHeight());
-        int var3 = param0.height - 5;
+        int var3 = param1 - 5;
         if (var2 + var1 <= var3) {
             var0.y += getOffset(var0.y, this.widget.getY(), this.widget.getHeight());
         } else {

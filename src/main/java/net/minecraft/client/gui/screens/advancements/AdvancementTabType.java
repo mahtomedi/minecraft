@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.advancements;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,7 +30,7 @@ enum AdvancementTabType {
         return this.max;
     }
 
-    public void draw(PoseStack param0, int param1, int param2, boolean param3, int param4) {
+    public void draw(GuiGraphics param0, int param1, int param2, boolean param3, int param4) {
         int var0 = this.textureX;
         if (param4 > 0) {
             var0 += this.width;
@@ -43,10 +41,10 @@ enum AdvancementTabType {
         }
 
         int var1 = param3 ? this.textureY + this.height : this.textureY;
-        GuiComponent.blit(param0, param1 + this.getX(param4), param2 + this.getY(param4), var0, var1, this.width, this.height);
+        param0.blit(AdvancementsScreen.TABS_LOCATION, param1 + this.getX(param4), param2 + this.getY(param4), var0, var1, this.width, this.height);
     }
 
-    public void drawIcon(PoseStack param0, int param1, int param2, int param3, ItemRenderer param4, ItemStack param5) {
+    public void drawIcon(GuiGraphics param0, int param1, int param2, int param3, ItemStack param4) {
         int var0 = param1 + this.getX(param3);
         int var1 = param2 + this.getY(param3);
         switch(this) {
@@ -67,7 +65,7 @@ enum AdvancementTabType {
                 var1 += 5;
         }
 
-        param4.renderAndDecorateFakeItem(param0, param5, var0, var1);
+        param0.renderFakeItem(param4, var0, var1);
     }
 
     public int getX(int param0) {

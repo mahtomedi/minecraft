@@ -8,8 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CalibratedSculkSensorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
-import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
+import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 
 public class CalibratedSculkSensorBlockEntity extends SculkSensorBlockEntity {
     public CalibratedSculkSensorBlockEntity(BlockPos param0, BlockState param1) {
@@ -17,13 +16,13 @@ public class CalibratedSculkSensorBlockEntity extends SculkSensorBlockEntity {
     }
 
     @Override
-    public VibrationListener.Config createVibrationConfig() {
-        return new CalibratedSculkSensorBlockEntity.VibrationConfig(this);
+    public VibrationSystem.User createVibrationUser() {
+        return new CalibratedSculkSensorBlockEntity.VibrationUser(this.getBlockPos());
     }
 
-    public static class VibrationConfig extends SculkSensorBlockEntity.VibrationConfig {
-        public VibrationConfig(SculkSensorBlockEntity param0) {
-            super(param0);
+    protected class VibrationUser extends SculkSensorBlockEntity.VibrationUser {
+        public VibrationUser(BlockPos param1) {
+            super(param1);
         }
 
         @Override
@@ -32,10 +31,9 @@ public class CalibratedSculkSensorBlockEntity extends SculkSensorBlockEntity {
         }
 
         @Override
-        public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable GameEvent.Context param4) {
-            BlockPos var0 = this.sculkSensor.getBlockPos();
-            int var1 = this.getBackSignal(param0, var0, this.sculkSensor.getBlockState());
-            return var1 != 0 && VibrationListener.getGameEventFrequency(param3) != var1 ? false : super.shouldListen(param0, param1, param2, param3, param4);
+        public boolean canReceiveVibration(ServerLevel param0, BlockPos param1, GameEvent param2, @Nullable GameEvent.Context param3) {
+            int var0 = this.getBackSignal(param0, this.blockPos, CalibratedSculkSensorBlockEntity.this.getBlockState());
+            return var0 != 0 && VibrationSystem.getGameEventFrequency(param2) != var0 ? false : super.canReceiveVibration(param0, param1, param2, param3);
         }
 
         private int getBackSignal(Level param0, BlockPos param1, BlockState param2) {

@@ -1,5 +1,6 @@
 package net.minecraft.world.level.chunk;
 
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.util.VisibleForDebug;
@@ -11,19 +12,22 @@ public class DataLayer {
     private static final int NIBBLE_SIZE = 4;
     @Nullable
     protected byte[] data;
+    private final int defaultValue;
 
     public DataLayer() {
+        this(0);
+    }
+
+    public DataLayer(int param0) {
+        this.defaultValue = param0;
     }
 
     public DataLayer(byte[] param0) {
         this.data = param0;
+        this.defaultValue = 0;
         if (param0.length != 2048) {
             throw (IllegalArgumentException)Util.pauseInIde(new IllegalArgumentException("DataLayer should be 2048 bytes not: " + param0.length));
         }
-    }
-
-    protected DataLayer(int param0) {
-        this.data = new byte[param0];
     }
 
     public int get(int param0, int param1, int param2) {
@@ -40,7 +44,7 @@ public class DataLayer {
 
     private int get(int param0) {
         if (this.data == null) {
-            return 0;
+            return this.defaultValue;
         } else {
             int var0 = getByteIndex(param0);
             int var1 = getNibbleIndex(param0);
@@ -49,15 +53,12 @@ public class DataLayer {
     }
 
     private void set(int param0, int param1) {
-        if (this.data == null) {
-            this.data = new byte[2048];
-        }
-
-        int var0 = getByteIndex(param0);
-        int var1 = getNibbleIndex(param0);
-        int var2 = ~(15 << 4 * var1);
-        int var3 = (param1 & 15) << 4 * var1;
-        this.data[var0] = (byte)(this.data[var0] & var2 | var3);
+        byte[] var0 = this.getData();
+        int var1 = getByteIndex(param0);
+        int var2 = getNibbleIndex(param0);
+        int var3 = ~(15 << 4 * var2);
+        int var4 = (param1 & 15) << 4 * var2;
+        var0[var1] = (byte)(var0[var1] & var3 | var4);
     }
 
     private static int getNibbleIndex(int param0) {
@@ -68,16 +69,29 @@ public class DataLayer {
         return param0 >> 1;
     }
 
+    private static byte packFilled(int param0) {
+        byte var0 = (byte)param0;
+
+        for(int var1 = 4; var1 < 8; var1 += 4) {
+            var0 = (byte)(var0 | param0 << var1);
+        }
+
+        return var0;
+    }
+
     public byte[] getData() {
         if (this.data == null) {
             this.data = new byte[2048];
+            if (this.defaultValue != 0) {
+                Arrays.fill(this.data, packFilled(this.defaultValue));
+            }
         }
 
         return this.data;
     }
 
     public DataLayer copy() {
-        return this.data == null ? new DataLayer() : new DataLayer((byte[])this.data.clone());
+        return this.data == null ? new DataLayer(this.defaultValue) : new DataLayer((byte[])this.data.clone());
     }
 
     @Override
@@ -112,7 +126,15 @@ public class DataLayer {
         return var0.toString();
     }
 
-    public boolean isEmpty() {
+    public boolean isDefinitelyHomogenous() {
         return this.data == null;
+    }
+
+    public boolean isDefinitelyFilledWith(int param0) {
+        return this.data == null && this.defaultValue == param0;
+    }
+
+    public boolean isEmpty() {
+        return this.data == null && this.defaultValue == 0;
     }
 }

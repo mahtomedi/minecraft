@@ -5,12 +5,11 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.util.UUIDTypeAdapter;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -62,10 +61,9 @@ public class RealmsUtil {
         return convertToAgePresentation(System.currentTimeMillis() - param0.getTime());
     }
 
-    public static void renderPlayerFace(PoseStack param0, int param1, int param2, int param3, String param4) {
+    public static void renderPlayerFace(GuiGraphics param0, int param1, int param2, int param3, String param4) {
         GameProfile var0 = getGameProfile(param4);
         ResourceLocation var1 = Minecraft.getInstance().getSkinManager().getInsecureSkinLocation(var0);
-        RenderSystem.setShaderTexture(0, var1);
-        PlayerFaceRenderer.draw(param0, param1, param2, param3);
+        PlayerFaceRenderer.draw(param0, var1, param1, param2, param3);
     }
 }

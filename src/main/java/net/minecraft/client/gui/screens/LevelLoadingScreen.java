@@ -1,10 +1,10 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -28,12 +28,11 @@ public class LevelLoadingScreen extends Screen {
         param0.put(ChunkStatus.BIOMES, 8434258);
         param0.put(ChunkStatus.NOISE, 13750737);
         param0.put(ChunkStatus.SURFACE, 7497737);
-        param0.put(ChunkStatus.CARVERS, 7169628);
-        param0.put(ChunkStatus.LIQUID_CARVERS, 3159410);
+        param0.put(ChunkStatus.CARVERS, 3159410);
         param0.put(ChunkStatus.FEATURES, 2213376);
-        param0.put(ChunkStatus.LIGHT, 13421772);
+        param0.put(ChunkStatus.INITIALIZE_LIGHT, 13421772);
+        param0.put(ChunkStatus.LIGHT, 16769184);
         param0.put(ChunkStatus.SPAWN, 15884384);
-        param0.put(ChunkStatus.HEIGHTMAPS, 15658734);
         param0.put(ChunkStatus.FULL, 16777215);
     });
 
@@ -74,7 +73,7 @@ public class LevelLoadingScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
@@ -86,10 +85,10 @@ public class LevelLoadingScreen extends Screen {
         int var2 = this.height / 2;
         int var3 = 30;
         renderChunks(param0, this.progressListener, var1, var2 + 30, 2, 0);
-        drawCenteredString(param0, this.font, this.getFormattedProgress(), var1, var2 - 9 / 2 - 30, 16777215);
+        param0.drawCenteredString(this.font, this.getFormattedProgress(), var1, var2 - 9 / 2 - 30, 16777215);
     }
 
-    public static void renderChunks(PoseStack param0, StoringChunkProgressListener param1, int param2, int param3, int param4, int param5) {
+    public static void renderChunks(GuiGraphics param0, StoringChunkProgressListener param1, int param2, int param3, int param4, int param5) {
         int var0 = param4 + param5;
         int var1 = param1.getFullDiameter();
         int var2 = var1 * var0 - param5;
@@ -100,10 +99,10 @@ public class LevelLoadingScreen extends Screen {
         int var7 = var2 / 2 + 1;
         int var8 = -16772609;
         if (param5 != 0) {
-            fill(param0, param2 - var7, param3 - var7, param2 - var7 + 1, param3 + var7, -16772609);
-            fill(param0, param2 + var7 - 1, param3 - var7, param2 + var7, param3 + var7, -16772609);
-            fill(param0, param2 - var7, param3 - var7, param2 + var7, param3 - var7 + 1, -16772609);
-            fill(param0, param2 - var7, param3 + var7 - 1, param2 + var7, param3 + var7, -16772609);
+            param0.fill(param2 - var7, param3 - var7, param2 - var7 + 1, param3 + var7, -16772609);
+            param0.fill(param2 + var7 - 1, param3 - var7, param2 + var7, param3 + var7, -16772609);
+            param0.fill(param2 - var7, param3 - var7, param2 + var7, param3 - var7 + 1, -16772609);
+            param0.fill(param2 - var7, param3 + var7 - 1, param2 + var7, param3 + var7, -16772609);
         }
 
         for(int var9 = 0; var9 < var3; ++var9) {
@@ -111,7 +110,7 @@ public class LevelLoadingScreen extends Screen {
                 ChunkStatus var11 = param1.getStatus(var9, var10);
                 int var12 = var5 + var9 * var0;
                 int var13 = var6 + var10 * var0;
-                fill(param0, var12, var13, var12 + param4, var13 + param4, COLORS.getInt(var11) | 0xFF000000);
+                param0.fill(var12, var13, var12 + param4, var13 + param4, COLORS.getInt(var11) | 0xFF000000);
             }
         }
 

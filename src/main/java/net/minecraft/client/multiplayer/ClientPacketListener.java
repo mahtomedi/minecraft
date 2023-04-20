@@ -1815,7 +1815,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                 param1.setChatSession(var2);
             } catch (ProfilePublicKey.ValidationException var6) {
                 LOGGER.error("Failed to validate profile key for player: '{}'", var0.getName(), var6);
-                this.connection.disconnect(var6.getComponent());
+                param1.clearChatSession(this.enforcesSecureChat());
             }
         } else {
             param1.clearChatSession(this.enforcesSecureChat());

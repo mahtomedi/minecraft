@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.screens;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.CommonComponents;
@@ -47,10 +47,10 @@ public class MouseSettingsScreen extends OptionsSubScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 5, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 5, 16777215);
         super.render(param0, param1, param2, param3);
     }
 }

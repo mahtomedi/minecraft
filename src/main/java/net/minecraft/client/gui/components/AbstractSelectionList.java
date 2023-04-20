@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -19,6 +18,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -189,48 +189,56 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected void clickedHeader(int param0, int param1) {
     }
 
-    protected void renderHeader(PoseStack param0, int param1, int param2) {
+    protected void renderHeader(GuiGraphics param0, int param1, int param2) {
     }
 
-    protected void renderBackground(PoseStack param0) {
+    protected void renderBackground(GuiGraphics param0) {
     }
 
-    protected void renderDecorations(PoseStack param0, int param1, int param2) {
+    protected void renderDecorations(GuiGraphics param0, int param1, int param2) {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         int var0 = this.getScrollbarPosition();
         int var1 = var0 + 6;
         this.hovered = this.isMouseOver((double)param1, (double)param2) ? this.getEntryAtPosition((double)param1, (double)param2) : null;
         if (this.renderBackground) {
-            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
-            RenderSystem.setShaderColor(0.125F, 0.125F, 0.125F, 1.0F);
+            param0.setColor(0.125F, 0.125F, 0.125F, 1.0F);
             int var2 = 32;
-            blit(param0, this.x0, this.y0, (float)this.x1, (float)(this.y1 + (int)this.getScrollAmount()), this.x1 - this.x0, this.y1 - this.y0, 32, 32);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.blit(
+                Screen.BACKGROUND_LOCATION,
+                this.x0,
+                this.y0,
+                (float)this.x1,
+                (float)(this.y1 + (int)this.getScrollAmount()),
+                this.x1 - this.x0,
+                this.y1 - this.y0,
+                32,
+                32
+            );
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         int var3 = this.getRowLeft();
         int var4 = this.y0 + 4 - (int)this.getScrollAmount();
-        this.enableScissor();
+        this.enableScissor(param0);
         if (this.renderHeader) {
             this.renderHeader(param0, var3, var4);
         }
 
         this.renderList(param0, param1, param2, param3);
-        disableScissor();
+        param0.disableScissor();
         if (this.renderTopAndBottom) {
-            RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
             int var5 = 32;
-            RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
-            blit(param0, this.x0, 0, 0.0F, 0.0F, this.width, this.y0, 32, 32);
-            blit(param0, this.x0, this.y1, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.setColor(0.25F, 0.25F, 0.25F, 1.0F);
+            param0.blit(Screen.BACKGROUND_LOCATION, this.x0, 0, 0.0F, 0.0F, this.width, this.y0, 32, 32);
+            param0.blit(Screen.BACKGROUND_LOCATION, this.x0, this.y1, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var6 = 4;
-            fillGradient(param0, this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
-            fillGradient(param0, this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
+            param0.fillGradient(this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
+            param0.fillGradient(this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
         }
 
         int var7 = this.getMaxScroll();
@@ -242,17 +250,17 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 var9 = this.y0;
             }
 
-            fill(param0, var0, this.y0, var1, this.y1, -16777216);
-            fill(param0, var0, var9, var1, var9 + var8, -8355712);
-            fill(param0, var0, var9, var1 - 1, var9 + var8 - 1, -4144960);
+            param0.fill(var0, this.y0, var1, this.y1, -16777216);
+            param0.fill(var0, var9, var1, var9 + var8, -8355712);
+            param0.fill(var0, var9, var1 - 1, var9 + var8 - 1, -4144960);
         }
 
         this.renderDecorations(param0, param1, param2);
         RenderSystem.disableBlend();
     }
 
-    protected void enableScissor() {
-        enableScissor(this.x0, this.y0, this.x1, this.y1);
+    protected void enableScissor(GuiGraphics param0) {
+        param0.enableScissor(this.x0, this.y0, this.x1, this.y1);
     }
 
     protected void centerScrollOn(E param0) {
@@ -424,7 +432,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return param1 >= (double)this.y0 && param1 <= (double)this.y1 && param0 >= (double)this.x0 && param0 <= (double)this.x1;
     }
 
-    protected void renderList(PoseStack param0, int param1, int param2, float param3) {
+    protected void renderList(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.getRowLeft();
         int var1 = this.getRowWidth();
         int var2 = this.itemHeight - 4;
@@ -440,7 +448,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     }
 
-    protected void renderItem(PoseStack param0, int param1, int param2, float param3, int param4, int param5, int param6, int param7, int param8) {
+    protected void renderItem(GuiGraphics param0, int param1, int param2, float param3, int param4, int param5, int param6, int param7, int param8) {
         E var0 = this.getEntry(param4);
         var0.renderBack(param0, param4, param6, param5, param7, param8, param1, param2, Objects.equals(this.hovered, var0), param3);
         if (this.renderSelection && this.isSelectedItem(param4)) {
@@ -451,11 +459,11 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         var0.render(param0, param4, param6, param5, param7, param8, param1, param2, Objects.equals(this.hovered, var0), param3);
     }
 
-    protected void renderSelection(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
+    protected void renderSelection(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5) {
         int var0 = this.x0 + (this.width - param2) / 2;
         int var1 = this.x0 + (this.width + param2) / 2;
-        fill(param0, var0, param1 - 2, var1, param1 + param3 + 2, param4);
-        fill(param0, var0 + 1, param1 - 1, var1 - 1, param1 + param3 + 1, param5);
+        param0.fill(var0, param1 - 2, var1, param1 + param3 + 2, param4);
+        param0.fill(var0 + 1, param1 - 1, var1 - 1, param1 + param3 + 1, param5);
     }
 
     public int getRowLeft() {
@@ -537,10 +545,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             return this.list.getFocused() == this;
         }
 
-        public abstract void render(PoseStack var1, int var2, int var3, int var4, int var5, int var6, int var7, int var8, boolean var9, float var10);
+        public abstract void render(GuiGraphics var1, int var2, int var3, int var4, int var5, int var6, int var7, int var8, boolean var9, float var10);
 
         public void renderBack(
-            PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+            GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
         ) {
         }
 

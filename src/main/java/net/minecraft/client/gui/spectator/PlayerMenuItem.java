@@ -1,9 +1,8 @@
 package net.minecraft.client.gui.spectator;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
@@ -35,11 +34,10 @@ public class PlayerMenuItem implements SpectatorMenuItem {
     }
 
     @Override
-    public void renderIcon(PoseStack param0, float param1, int param2) {
-        RenderSystem.setShaderTexture(0, this.location);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, (float)param2 / 255.0F);
-        PlayerFaceRenderer.draw(param0, 2, 2, 12);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    public void renderIcon(GuiGraphics param0, float param1, int param2) {
+        param0.setColor(1.0F, 1.0F, 1.0F, (float)param2 / 255.0F);
+        PlayerFaceRenderer.draw(param0, this.location, 2, 2, 12);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRenameItemPacket;
@@ -81,7 +81,7 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
     }
 
     @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
+    protected void renderLabels(GuiGraphics param0, int param1, int param2) {
         super.renderLabels(param0, param1, param2);
         int var0 = this.menu.getCost();
         if (var0 > 0) {
@@ -102,28 +102,28 @@ public class AnvilScreen extends ItemCombinerScreen<AnvilMenu> {
             if (var2 != null) {
                 int var5 = this.imageWidth - 8 - this.font.width(var2) - 2;
                 int var6 = 69;
-                fill(param0, var5 - 2, 67, this.imageWidth - 8, 79, 1325400064);
-                this.font.drawShadow(param0, var2, (float)var5, 69.0F, var1);
+                param0.fill(var5 - 2, 67, this.imageWidth - 8, 79, 1325400064);
+                param0.drawString(this.font, var2, var5, 69, var1);
             }
         }
 
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         super.renderBg(param0, param1, param2, param3);
-        blit(param0, this.leftPos + 59, this.topPos + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
+        param0.blit(ANVIL_LOCATION, this.leftPos + 59, this.topPos + 20, 0, this.imageHeight + (this.menu.getSlot(0).hasItem() ? 0 : 16), 110, 16);
     }
 
     @Override
-    public void renderFg(PoseStack param0, int param1, int param2, float param3) {
+    public void renderFg(GuiGraphics param0, int param1, int param2, float param3) {
         this.name.render(param0, param1, param2, param3);
     }
 
     @Override
-    protected void renderErrorIcon(PoseStack param0, int param1, int param2) {
+    protected void renderErrorIcon(GuiGraphics param0, int param1, int param2) {
         if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()) {
-            blit(param0, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
+            param0.blit(ANVIL_LOCATION, param1 + 99, param2 + 45, this.imageWidth, 0, 28, 21);
         }
 
     }

@@ -1,14 +1,13 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -31,7 +30,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractWidget extends GuiComponent implements Renderable, GuiEventListener, LayoutElement, NarratableEntry {
+public abstract class AbstractWidget implements Renderable, GuiEventListener, LayoutElement, NarratableEntry {
     public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     public static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
     private static final double PERIOD_PER_SCROLLED_PIXEL = 0.5;
@@ -67,7 +66,7 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.visible) {
             this.isHovered = param1 >= this.getX() && param2 >= this.getY() && param1 < this.getX() + this.width && param2 < this.getY() + this.height;
             this.renderWidget(param0, param1, param2, param3);
@@ -123,9 +122,9 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
         return Component.translatable("gui.narrate.button", param0);
     }
 
-    public abstract void renderWidget(PoseStack var1, int var2, int var3, float var4);
+    public abstract void renderWidget(GuiGraphics var1, int var2, int var3, float var4);
 
-    protected static void renderScrollingString(PoseStack param0, Font param1, Component param2, int param3, int param4, int param5, int param6, int param7) {
+    protected static void renderScrollingString(GuiGraphics param0, Font param1, Component param2, int param3, int param4, int param5, int param6, int param7) {
         int var0 = param1.width(param2);
         int var1 = (param4 + param6 - 9) / 2 + 1;
         int var2 = param5 - param3;
@@ -135,25 +134,34 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
             double var5 = Math.max((double)var3 * 0.5, 3.0);
             double var6 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * var4 / var5)) / 2.0 + 0.5;
             double var7 = Mth.lerp(var6, 0.0, (double)var3);
-            enableScissor(param3, param4, param5, param6);
-            drawString(param0, param1, param2, param3 - (int)var7, var1, param7);
-            disableScissor();
+            param0.enableScissor(param3, param4, param5, param6);
+            param0.drawString(param1, param2, param3 - (int)var7, var1, param7);
+            param0.disableScissor();
         } else {
-            drawCenteredString(param0, param1, param2, (param3 + param5) / 2, var1, param7);
+            param0.drawCenteredString(param1, param2, (param3 + param5) / 2, var1, param7);
         }
 
     }
 
-    protected void renderScrollingString(PoseStack param0, Font param1, int param2, int param3) {
+    protected void renderScrollingString(GuiGraphics param0, Font param1, int param2, int param3) {
         int var0 = this.getX() + param2;
         int var1 = this.getX() + this.getWidth() - param2;
         renderScrollingString(param0, param1, this.getMessage(), var0, this.getY(), var1, this.getY() + this.getHeight(), param3);
     }
 
     public void renderTexture(
-        PoseStack param0, ResourceLocation param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10
+        GuiGraphics param0,
+        ResourceLocation param1,
+        int param2,
+        int param3,
+        int param4,
+        int param5,
+        int param6,
+        int param7,
+        int param8,
+        int param9,
+        int param10
     ) {
-        RenderSystem.setShaderTexture(0, param1);
         int var0 = param5;
         if (!this.isActive()) {
             var0 = param5 + param6 * 2;
@@ -162,7 +170,7 @@ public abstract class AbstractWidget extends GuiComponent implements Renderable,
         }
 
         RenderSystem.enableDepthTest();
-        blit(param0, param2, param3, (float)param4, (float)var0, param7, param8, param9, param10);
+        param0.blit(param1, param2, param3, (float)param4, (float)var0, param7, param8, param9, param10);
     }
 
     public void onClick(double param0, double param1) {

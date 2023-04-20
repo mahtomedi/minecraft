@@ -1,7 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.Ops;
@@ -12,6 +10,7 @@ import com.mojang.realmsclient.util.RealmsUtil;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -187,26 +186,25 @@ public class RealmsPlayerScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.invitedObjectSelectionList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
         int var0 = row(12) + 20;
-        RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND);
-        RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
-        blit(param0, 0, var0, 0.0F, 0.0F, this.width, this.height - var0, 32, 32);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(0.25F, 0.25F, 0.25F, 1.0F);
+        param0.blit(OPTIONS_BACKGROUND, 0, var0, 0.0F, 0.0F, this.width, this.height - var0, 32, 32);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.serverData.players != null) {
-            this.font
-                .draw(
-                    param0,
-                    Component.empty().append(INVITED_LABEL).append(" (").append(Integer.toString(this.serverData.players.size())).append(")"),
-                    (float)this.column1X,
-                    (float)row(0),
-                    10526880
-                );
+            param0.drawString(
+                this.font,
+                Component.empty().append(INVITED_LABEL).append(" (").append(Integer.toString(this.serverData.players.size())).append(")"),
+                this.column1X,
+                row(0),
+                10526880,
+                false
+            );
         } else {
-            this.font.draw(param0, INVITED_LABEL, (float)this.column1X, (float)row(0), 10526880);
+            param0.drawString(this.font, INVITED_LABEL, this.column1X, row(0), 10526880, false);
         }
 
         super.render(param0, param1, param2, param3);
@@ -264,7 +262,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             int var0;
             if (!this.playerInfo.getAccepted()) {
                 var0 = 10526880;
@@ -275,7 +273,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
             }
 
             RealmsUtil.renderPlayerFace(param0, RealmsPlayerScreen.this.column1X + 2 + 2, param2 + 1, 8, this.playerInfo.getUuid());
-            RealmsPlayerScreen.this.font.draw(param0, this.playerInfo.getName(), (float)(RealmsPlayerScreen.this.column1X + 3 + 12), (float)(param2 + 1), var0);
+            param0.drawString(RealmsPlayerScreen.this.font, this.playerInfo.getName(), RealmsPlayerScreen.this.column1X + 3 + 12, param2 + 1, var0, false);
             this.children.forEach(param5x -> {
                 param5x.setY(param2 + 1);
                 param5x.render(param0, param6, param7, param9);
@@ -328,7 +326,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground(PoseStack param0) {
+        public void renderBackground(GuiGraphics param0) {
             RealmsPlayerScreen.this.renderBackground(param0);
         }
 

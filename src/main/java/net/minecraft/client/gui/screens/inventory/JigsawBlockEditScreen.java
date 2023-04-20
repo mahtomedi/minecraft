@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -188,18 +188,18 @@ public class JigsawBlockEditScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawString(param0, this.font, POOL_LABEL, this.width / 2 - 153, 10, 10526880);
+        param0.drawString(this.font, POOL_LABEL, this.width / 2 - 153, 10, 10526880);
         this.poolEdit.render(param0, param1, param2, param3);
-        drawString(param0, this.font, NAME_LABEL, this.width / 2 - 153, 45, 10526880);
+        param0.drawString(this.font, NAME_LABEL, this.width / 2 - 153, 45, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
-        drawString(param0, this.font, TARGET_LABEL, this.width / 2 - 153, 80, 10526880);
+        param0.drawString(this.font, TARGET_LABEL, this.width / 2 - 153, 80, 10526880);
         this.targetEdit.render(param0, param1, param2, param3);
-        drawString(param0, this.font, FINAL_STATE_LABEL, this.width / 2 - 153, 115, 10526880);
+        param0.drawString(this.font, FINAL_STATE_LABEL, this.width / 2 - 153, 115, 10526880);
         this.finalStateEdit.render(param0, param1, param2, param3);
         if (JigsawBlock.getFrontFacing(this.jigsawEntity.getBlockState()).getAxis().isVertical()) {
-            drawString(param0, this.font, JOINT_LABEL, this.width / 2 - 153, 156, 16777215);
+            param0.drawString(this.font, JOINT_LABEL, this.width / 2 - 153, 156, 16777215);
         }
 
         super.render(param0, param1, param2, param3);

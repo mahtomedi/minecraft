@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -52,17 +52,16 @@ public class Checkbox extends AbstractButton {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, TEXTURE);
         RenderSystem.enableDepthTest();
         Font var1 = var0.font;
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        param0.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
-        blit(param0, this.getX(), this.getY(), this.isFocused() ? 20.0F : 0.0F, this.selected ? 20.0F : 0.0F, 20, this.height, 64, 64);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(TEXTURE, this.getX(), this.getY(), this.isFocused() ? 20.0F : 0.0F, this.selected ? 20.0F : 0.0F, 20, this.height, 64, 64);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (this.showLabel) {
-            drawString(param0, var1, this.getMessage(), this.getX() + 24, this.getY() + (this.height - 8) / 2, 14737632 | Mth.ceil(this.alpha * 255.0F) << 24);
+            param0.drawString(var1, this.getMessage(), this.getX() + 24, this.getY() + (this.height - 8) / 2, 14737632 | Mth.ceil(this.alpha * 255.0F) << 24);
         }
 
     }

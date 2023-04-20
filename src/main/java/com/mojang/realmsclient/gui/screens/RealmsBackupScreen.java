@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.Backup;
@@ -15,6 +14,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -195,13 +195,13 @@ public class RealmsBackupScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.backupObjectSelectionList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 12, 16777215);
-        this.font.draw(param0, TITLE, (float)((this.width - 150) / 2 - 90), 20.0F, 10526880);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 12, 16777215);
+        param0.drawString(this.font, TITLE, (this.width - 150) / 2 - 90, 20, 10526880, false);
         if (this.noBackups) {
-            this.font.draw(param0, NO_BACKUPS_LABEL, 20.0F, (float)(this.height / 2 - 10), 16777215);
+            param0.drawString(this.font, NO_BACKUPS_LABEL, 20, this.height / 2 - 10, 16777215, false);
         }
 
         this.downloadButton.active = !this.noBackups;
@@ -229,7 +229,7 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground(PoseStack param0) {
+        public void renderBackground(GuiGraphics param0) {
             RealmsBackupScreen.this.renderBackground(param0);
         }
 
@@ -365,18 +365,17 @@ public class RealmsBackupScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             int var0 = this.backup.isUploadedVersion() ? -8388737 : 16777215;
-            RealmsBackupScreen.this.font
-                .draw(
-                    param0,
-                    "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(this.backup.lastModifiedDate) + ")",
-                    (float)param3,
-                    (float)(param2 + 1),
-                    var0
-                );
-            RealmsBackupScreen.this.font
-                .draw(param0, this.getMediumDatePresentation(this.backup.lastModifiedDate), (float)param3, (float)(param2 + 12), 5000268);
+            param0.drawString(
+                RealmsBackupScreen.this.font,
+                "Backup (" + RealmsUtil.convertToAgePresentationFromInstant(this.backup.lastModifiedDate) + ")",
+                param3,
+                param2 + 1,
+                var0,
+                false
+            );
+            param0.drawString(RealmsBackupScreen.this.font, this.getMediumDatePresentation(this.backup.lastModifiedDate), param3, param2 + 12, 5000268, false);
             this.children.forEach(param5x -> {
                 param5x.setY(param2 + 2);
                 param5x.render(param0, param6, param7, param9);

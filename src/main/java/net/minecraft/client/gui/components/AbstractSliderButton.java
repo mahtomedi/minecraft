@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.CommonInputs;
@@ -67,16 +67,17 @@ public abstract class AbstractSliderButton extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, SLIDER_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        param0.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        blitNineSliced(param0, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
-        blitNineSliced(param0, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 8, 20, 20, 4, 200, 20, 0, this.getHandleTextureY());
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blitNineSliced(SLIDER_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+        param0.blitNineSliced(
+            SLIDER_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 8, 20, 20, 4, 200, 20, 0, this.getHandleTextureY()
+        );
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         int var1 = this.active ? 16777215 : 10526880;
         this.renderScrollingString(param0, var0.font, 2, var1 | Mth.ceil(this.alpha * 255.0F) << 24);
     }

@@ -1,13 +1,12 @@
 package net.minecraft.client.gui.screens;
 
 import com.ibm.icu.text.Collator;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
@@ -68,11 +67,11 @@ public class CreateBuffetWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderDirtBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
-        drawCenteredString(param0, this.font, BIOME_SELECT_INFO, this.width / 2, 28, 10526880);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
+        param0.drawCenteredString(this.font, BIOME_SELECT_INFO, this.width / 2, 28, 10526880);
         super.render(param0, param1, param2, param3);
     }
 
@@ -128,9 +127,9 @@ public class CreateBuffetWorldScreen extends Screen {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                GuiComponent.drawString(param0, CreateBuffetWorldScreen.this.font, this.name, param3 + 5, param2 + 2, 16777215);
+                param0.drawString(CreateBuffetWorldScreen.this.font, this.name, param3 + 5, param2 + 2, 16777215);
             }
 
             @Override

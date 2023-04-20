@@ -18,10 +18,9 @@ import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 
 public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>> extends SectionTracker {
-    protected static final int LIGHT_AND_DATA = 0;
-    protected static final int LIGHT_ONLY = 1;
-    protected static final int EMPTY = 2;
-    protected static final DataLayer EMPTY_DATA = new DataLayer();
+    public static final int LIGHT_AND_DATA = 0;
+    public static final int LIGHT_ONLY = 1;
+    public static final int EMPTY = 2;
     private static final Direction[] DIRECTIONS = Direction.values();
     private final LightLayer layer;
     private final LightChunkGetter chunkSource;
@@ -81,11 +80,13 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
 
     protected void setStoredLevel(long param0, int param1) {
         long var0 = SectionPos.blockToSection(param0);
+        DataLayer var1;
         if (this.changedSections.add(var0)) {
-            this.updatingSectionData.copyDataLayer(var0);
+            var1 = this.updatingSectionData.copyDataLayer(var0);
+        } else {
+            var1 = this.getDataLayer(var0, true);
         }
 
-        DataLayer var1 = this.getDataLayer(var0, true);
         var1.set(
             SectionPos.sectionRelative(BlockPos.getX(param0)),
             SectionPos.sectionRelative(BlockPos.getY(param0)),
@@ -135,17 +136,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
                 this.updatingSectionData.setLayer(param0, this.createDataLayer(param0));
                 this.changedSections.add(param0);
                 this.onNodeAdded(param0);
-                int var1 = SectionPos.x(param0);
-                int var2 = SectionPos.y(param0);
-                int var3 = SectionPos.z(param0);
-
-                for(int var4 = -1; var4 <= 1; ++var4) {
-                    for(int var5 = -1; var5 <= 1; ++var5) {
-                        for(int var6 = -1; var6 <= 1; ++var6) {
-                            this.sectionsAffectedByLightUpdates.add(SectionPos.asLong(var1 + var5, var2 + var6, var3 + var4));
-                        }
-                    }
-                }
+                this.markSectionAndNeighborsAsAffected(param0);
             }
         }
 
@@ -154,6 +145,21 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
         }
 
         this.hasToRemove = !this.toRemove.isEmpty();
+    }
+
+    protected void markSectionAndNeighborsAsAffected(long param0) {
+        int var0 = SectionPos.x(param0);
+        int var1 = SectionPos.y(param0);
+        int var2 = SectionPos.z(param0);
+
+        for(int var3 = -1; var3 <= 1; ++var3) {
+            for(int var4 = -1; var4 <= 1; ++var4) {
+                for(int var5 = -1; var5 <= 1; ++var5) {
+                    this.sectionsAffectedByLightUpdates.add(SectionPos.asLong(var0 + var4, var1 + var5, var2 + var3));
+                }
+            }
+        }
+
     }
 
     protected DataLayer createDataLayer(long param0) {
@@ -206,6 +212,7 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
 
             for(long var3 : this.toRemove) {
                 this.onNodeRemoved(var3);
+                this.changedSections.add(var3);
             }
 
             this.toRemove.clear();

@@ -2,10 +2,8 @@ package net.minecraft.client.gui.spectator;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.gui.spectator.categories.SpectatorPage;
 import net.minecraft.network.chat.CommonComponents;
@@ -34,7 +32,7 @@ public class SpectatorMenu {
         }
 
         @Override
-        public void renderIcon(PoseStack param0, float param1, int param2) {
+        public void renderIcon(GuiGraphics param0, float param1, int param2) {
         }
 
         @Override
@@ -126,9 +124,8 @@ public class SpectatorMenu {
         }
 
         @Override
-        public void renderIcon(PoseStack param0, float param1, int param2) {
-            RenderSystem.setShaderTexture(0, SpectatorGui.SPECTATOR_LOCATION);
-            GuiComponent.blit(param0, 0, 0, 128.0F, 0.0F, 16, 16, 256, 256);
+        public void renderIcon(GuiGraphics param0, float param1, int param2) {
+            param0.blit(SpectatorGui.SPECTATOR_LOCATION, 0, 0, 128.0F, 0.0F, 16, 16, 256, 256);
         }
 
         @Override
@@ -158,12 +155,11 @@ public class SpectatorMenu {
         }
 
         @Override
-        public void renderIcon(PoseStack param0, float param1, int param2) {
-            RenderSystem.setShaderTexture(0, SpectatorGui.SPECTATOR_LOCATION);
+        public void renderIcon(GuiGraphics param0, float param1, int param2) {
             if (this.direction < 0) {
-                GuiComponent.blit(param0, 0, 0, 144.0F, 0.0F, 16, 16, 256, 256);
+                param0.blit(SpectatorGui.SPECTATOR_LOCATION, 0, 0, 144.0F, 0.0F, 16, 16, 256, 256);
             } else {
-                GuiComponent.blit(param0, 0, 0, 160.0F, 0.0F, 16, 16, 256, 256);
+                param0.blit(SpectatorGui.SPECTATOR_LOCATION, 0, 0, 160.0F, 0.0F, 16, 16, 256, 256);
             }
 
         }

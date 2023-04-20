@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Iterator;
@@ -13,7 +11,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.StateSwitchingButton;
@@ -40,7 +38,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ingredient>, Renderable, GuiEventListener, NarratableEntry, RecipeShownListener {
+public class RecipeBookComponent implements PlaceRecipe<Ingredient>, Renderable, GuiEventListener, NarratableEntry, RecipeShownListener {
     protected static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
     private static final Component SEARCH_HINT = Component.translatable("gui.recipebook.search_hint")
         .withStyle(ChatFormatting.ITALIC)
@@ -244,14 +242,13 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.isVisible()) {
-            param0.pushPose();
-            param0.translate(0.0F, 0.0F, 100.0F);
-            RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
+            param0.pose().pushPose();
+            param0.pose().translate(0.0F, 0.0F, 100.0F);
             int var0 = (this.width - 147) / 2 - this.xOffset;
             int var1 = (this.height - 166) / 2;
-            blit(param0, var0, var1, 1, 1, 147, 166);
+            param0.blit(RECIPE_BOOK_LOCATION, var0, var1, 1, 1, 147, 166);
             this.searchBox.render(param0, param1, param2, param3);
 
             for(RecipeBookTabButton var2 : this.tabButtons) {
@@ -260,11 +257,11 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
 
             this.filterButton.render(param0, param1, param2, param3);
             this.recipeBookPage.render(param0, var0, var1, param1, param2, param3);
-            param0.popPose();
+            param0.pose().popPose();
         }
     }
 
-    public void renderTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
+    public void renderTooltip(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         if (this.isVisible()) {
             this.recipeBookPage.renderTooltip(param0, param3, param4);
             this.renderGhostRecipeTooltip(param0, param1, param2, param3, param4);
@@ -275,7 +272,7 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
         return ONLY_CRAFTABLES_TOOLTIP;
     }
 
-    private void renderGhostRecipeTooltip(PoseStack param0, int param1, int param2, int param3, int param4) {
+    private void renderGhostRecipeTooltip(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         ItemStack var0 = null;
 
         for(int var1 = 0; var1 < this.ghostRecipe.size(); ++var1) {
@@ -288,12 +285,12 @@ public class RecipeBookComponent extends GuiComponent implements PlaceRecipe<Ing
         }
 
         if (var0 != null && this.minecraft.screen != null) {
-            this.minecraft.screen.renderComponentTooltip(param0, this.minecraft.screen.getTooltipFromItem(var0), param3, param4);
+            param0.renderComponentTooltip(this.minecraft.font, Screen.getTooltipFromItem(this.minecraft, var0), param3, param4);
         }
 
     }
 
-    public void renderGhostRecipe(PoseStack param0, int param1, int param2, boolean param3, float param4) {
+    public void renderGhostRecipe(GuiGraphics param0, int param1, int param2, boolean param3, float param4) {
         this.ghostRecipe.render(param0, this.minecraft, param1, param2, param3, param4);
     }
 

@@ -3,8 +3,6 @@ package net.minecraft.client.gui.screens.inventory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,6 +15,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.HotbarManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.inventory.Hotbar;
@@ -78,7 +77,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     public CreativeModeInventoryScreen(Player param0, FeatureFlagSet param1, boolean param2) {
         super(new CreativeModeInventoryScreen.ItemPickerMenu(param0), param0.getInventory(), CommonComponents.EMPTY);
         param0.containerMenu = this.menu;
-        this.passEvents = true;
         this.imageHeight = 136;
         this.imageWidth = 195;
         this.displayOperatorCreativeTab = param2;
@@ -416,9 +414,9 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     }
 
     @Override
-    protected void renderLabels(PoseStack param0, int param1, int param2) {
+    protected void renderLabels(GuiGraphics param0, int param1, int param2) {
         if (selectedTab.showTitle()) {
-            this.font.draw(param0, selectedTab.getDisplayName(), 8.0F, 6.0F, 4210752);
+            param0.drawString(this.font, selectedTab.getDisplayName(), 8, 6, 4210752, false);
         }
 
     }
@@ -611,7 +609,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
 
@@ -624,29 +622,28 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         if (this.destroyItemSlot != null
             && selectedTab.getType() == CreativeModeTab.Type.INVENTORY
             && this.isHovering(this.destroyItemSlot.x, this.destroyItemSlot.y, 16, 16, (double)param1, (double)param2)) {
-            this.renderTooltip(param0, TRASH_SLOT_TOOLTIP, param1, param2);
+            param0.renderTooltip(this.font, TRASH_SLOT_TOOLTIP, param1, param2);
         }
 
         this.renderTooltip(param0, param1, param2);
     }
 
     @Override
-    protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
+    public List<Component> getTooltipFromContainerItem(ItemStack param0) {
         boolean var0 = this.hoveredSlot != null && this.hoveredSlot instanceof CreativeModeInventoryScreen.CustomCreativeSlot;
         boolean var1 = selectedTab.getType() == CreativeModeTab.Type.CATEGORY;
         boolean var2 = selectedTab.getType() == CreativeModeTab.Type.SEARCH;
         TooltipFlag.Default var3 = this.minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL;
         TooltipFlag var4 = var0 ? var3.asCreative() : var3;
-        List<Component> var5 = param1.getTooltipLines(this.minecraft.player, var4);
-        List<Component> var9;
+        List<Component> var5 = param0.getTooltipLines(this.minecraft.player, var4);
         if (var1 && var0) {
-            var9 = var5;
+            return var5;
         } else {
-            var9 = Lists.newArrayList(var5);
+            List<Component> var6 = Lists.newArrayList(var5);
             if (var2 && var0) {
-                this.visibleTags.forEach(param2x -> {
-                    if (param1.is(param2x)) {
-                        var9.add(1, Component.literal("#" + param2x.location()).withStyle(ChatFormatting.DARK_PURPLE));
+                this.visibleTags.forEach(param2 -> {
+                    if (param0.is(param2)) {
+                        var6.add(1, Component.literal("#" + param2.location()).withStyle(ChatFormatting.DARK_PURPLE));
                     }
 
                 });
@@ -655,33 +652,38 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             int var7 = 1;
 
             for(CreativeModeTab var8 : CreativeModeTabs.tabs()) {
-                if (var8.getType() != CreativeModeTab.Type.SEARCH && var8.contains(param1)) {
-                    var9.add(var7++, var8.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
+                if (var8.getType() != CreativeModeTab.Type.SEARCH && var8.contains(param0)) {
+                    var6.add(var7++, var8.getDisplayName().copy().withStyle(ChatFormatting.BLUE));
                 }
             }
-        }
 
-        this.renderTooltip(param0, var9, param1.getTooltipImage(), param2, param3);
+            return var6;
+        }
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         for(CreativeModeTab var0 : CreativeModeTabs.tabs()) {
-            RenderSystem.setShaderTexture(0, CREATIVE_TABS_LOCATION);
             if (var0 != selectedTab) {
                 this.renderTabButton(param0, var0);
             }
         }
 
-        RenderSystem.setShaderTexture(0, new ResourceLocation("textures/gui/container/creative_inventory/tab_" + selectedTab.getBackgroundSuffix()));
-        blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(
+            new ResourceLocation("textures/gui/container/creative_inventory/tab_" + selectedTab.getBackgroundSuffix()),
+            this.leftPos,
+            this.topPos,
+            0,
+            0,
+            this.imageWidth,
+            this.imageHeight
+        );
         this.searchBox.render(param0, param2, param3, param1);
         int var1 = this.leftPos + 175;
         int var2 = this.topPos + 18;
         int var3 = var2 + 112;
-        RenderSystem.setShaderTexture(0, CREATIVE_TABS_LOCATION);
         if (selectedTab.canScroll()) {
-            blit(param0, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
+            param0.blit(CREATIVE_TABS_LOCATION, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
         }
 
         this.renderTabButton(param0, selectedTab);
@@ -727,18 +729,18 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         return param1 >= (double)var0 && param1 <= (double)(var0 + 26) && param2 >= (double)var1 && param2 <= (double)(var1 + 32);
     }
 
-    protected boolean checkTabHovering(PoseStack param0, CreativeModeTab param1, int param2, int param3) {
+    protected boolean checkTabHovering(GuiGraphics param0, CreativeModeTab param1, int param2, int param3) {
         int var0 = this.getTabX(param1);
         int var1 = this.getTabY(param1);
         if (this.isHovering(var0 + 3, var1 + 3, 21, 27, (double)param2, (double)param3)) {
-            this.renderTooltip(param0, param1.getDisplayName(), param2, param3);
+            param0.renderTooltip(this.font, param1.getDisplayName(), param2, param3);
             return true;
         } else {
             return false;
         }
     }
 
-    protected void renderTabButton(PoseStack param0, CreativeModeTab param1) {
+    protected void renderTabButton(GuiGraphics param0, CreativeModeTab param1) {
         boolean var0 = param1 == selectedTab;
         boolean var1 = param1.row() == CreativeModeTab.Row.TOP;
         int var2 = param1.column();
@@ -758,15 +760,15 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
             var6 += this.imageHeight - 4;
         }
 
-        blit(param0, var5, var6, var3, var4, 26, 32);
-        param0.pushPose();
-        param0.translate(0.0F, 0.0F, 100.0F);
+        param0.blit(CREATIVE_TABS_LOCATION, var5, var6, var3, var4, 26, 32);
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, 0.0F, 100.0F);
         var5 += 5;
         var6 += 8 + (var1 ? 1 : -1);
         ItemStack var8 = param1.getIconItem();
-        this.itemRenderer.renderAndDecorateItem(param0, var8, var5, var6);
-        this.itemRenderer.renderGuiItemDecorations(param0, this.font, var8, var5, var6);
-        param0.popPose();
+        param0.renderItem(var8, var5, var6);
+        param0.renderItemDecorations(this.font, var8, var5, var6);
+        param0.pose().popPose();
     }
 
     public boolean isInventoryOpen() {

@@ -2,11 +2,11 @@ package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.stats.RecipeBook;
@@ -92,11 +92,11 @@ public class RecipeBookPage {
         this.backButton.visible = this.totalPages > 1 && this.currentPage > 0;
     }
 
-    public void render(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
+    public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, float param5) {
         if (this.totalPages > 1) {
             String var0 = this.currentPage + 1 + "/" + this.totalPages;
             int var1 = this.minecraft.font.width(var0);
-            this.minecraft.font.draw(param0, var0, (float)(param1 - var1 / 2 + 73), (float)(param2 + 141), -1);
+            param0.drawString(this.minecraft.font, var0, param1 - var1 / 2 + 73, param2 + 141, -1, false);
         }
 
         this.hoveredButton = null;
@@ -113,9 +113,9 @@ public class RecipeBookPage {
         this.overlay.render(param0, param3, param4, param5);
     }
 
-    public void renderTooltip(PoseStack param0, int param1, int param2) {
+    public void renderTooltip(GuiGraphics param0, int param1, int param2) {
         if (this.minecraft.screen != null && this.hoveredButton != null && !this.overlay.isVisible()) {
-            this.minecraft.screen.renderComponentTooltip(param0, this.hoveredButton.getTooltipText(this.minecraft.screen), param1, param2);
+            param0.renderComponentTooltip(this.minecraft.font, this.hoveredButton.getTooltipText(), param1, param2);
         }
 
     }

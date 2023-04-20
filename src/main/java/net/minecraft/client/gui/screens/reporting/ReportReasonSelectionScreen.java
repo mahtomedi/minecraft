@@ -1,12 +1,11 @@
 package net.minecraft.client.gui.screens.reporting;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.Optionull;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -70,13 +69,13 @@ public class ReportReasonSelectionScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.reasonSelectionList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 16, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
         super.render(param0, param1, param2, param3);
-        fill(param0, this.contentLeft(), this.descriptionTop(), this.contentRight(), this.descriptionBottom(), 2130706432);
-        drawString(param0, this.font, REASON_DESCRIPTION, this.contentLeft() + 4, this.descriptionTop() + 4, -8421505);
+        param0.fill(this.contentLeft(), this.descriptionTop(), this.contentRight(), this.descriptionBottom(), 2130706432);
+        param0.drawString(this.font, REASON_DESCRIPTION, this.contentLeft() + 4, this.descriptionTop() + 4, -8421505);
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = this.reasonSelectionList.getSelected();
         if (var0 != null) {
             int var1 = this.contentLeft() + 4 + 16;
@@ -86,7 +85,7 @@ public class ReportReasonSelectionScreen extends Screen {
             int var5 = var2 - var1;
             int var6 = var4 - var3;
             int var7 = this.font.wordWrapHeight(var0.reason.description(), var5);
-            this.font.drawWordWrap(param0, var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
+            param0.drawWordWrap(this.font, var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
         }
 
     }
@@ -157,11 +156,11 @@ public class ReportReasonSelectionScreen extends Screen {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
                 int var0 = param3 + 1;
                 int var1 = param2 + (param5 - 9) / 2 + 1;
-                GuiComponent.drawString(param0, ReportReasonSelectionScreen.this.font, this.reason.title(), var0, var1, -1);
+                param0.drawString(ReportReasonSelectionScreen.this.font, this.reason.title(), var0, var1, -1);
             }
 
             @Override

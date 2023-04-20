@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.network.chat.CommonComponents;
@@ -65,12 +65,12 @@ public class GenericWaitingScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 80, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 80, 16777215);
         if (this.message == null) {
             String var0 = LoadingDotsText.get(Util.getMillis());
-            drawCenteredString(param0, this.font, var0, this.width / 2, 120, 10526880);
+            param0.drawCenteredString(this.font, var0, this.width / 2, 120, 10526880);
         } else {
             this.message.renderCentered(param0, this.width / 2, 120);
         }

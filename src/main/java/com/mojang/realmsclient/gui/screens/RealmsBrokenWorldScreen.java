@@ -1,8 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -19,13 +17,14 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.realms.RealmsScreen;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -154,13 +153,13 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
 
         for(int var0 = 0; var0 < this.message.length; ++var0) {
-            drawCenteredString(param0, this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
+            param0.drawCenteredString(this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
         }
 
         if (this.serverData != null) {
@@ -289,7 +288,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     }
 
     private void drawSlotFrame(
-        PoseStack param0,
+        GuiGraphics param0,
         int param1,
         int param2,
         int param3,
@@ -301,37 +300,37 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
         @Nullable String param9,
         boolean param10
     ) {
+        ResourceLocation var0;
         if (param10) {
-            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.EMPTY_SLOT_LOCATION);
+            var0 = RealmsWorldSlotButton.EMPTY_SLOT_LOCATION;
         } else if (param9 != null && param8 != -1L) {
-            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
+            var0 = RealmsTextureManager.worldTemplate(String.valueOf(param8), param9);
         } else if (param7 == 1) {
-            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_1);
+            var0 = RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_1;
         } else if (param7 == 2) {
-            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_2);
+            var0 = RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_2;
         } else if (param7 == 3) {
-            RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_3);
+            var0 = RealmsWorldSlotButton.DEFAULT_WORLD_SLOT_3;
         } else {
-            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(this.serverData.minigameId), this.serverData.minigameImage));
+            var0 = RealmsTextureManager.worldTemplate(String.valueOf(this.serverData.minigameId), this.serverData.minigameImage);
         }
 
         if (!param5) {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         } else if (param5) {
-            float var0 = 0.9F + 0.1F * Mth.cos((float)this.animTick * 0.2F);
-            RenderSystem.setShaderColor(var0, var0, var0, 1.0F);
+            float var6 = 0.9F + 0.1F * Mth.cos((float)this.animTick * 0.2F);
+            param0.setColor(var6, var6, var6, 1.0F);
         }
 
-        GuiComponent.blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
-        RenderSystem.setShaderTexture(0, RealmsWorldSlotButton.SLOT_FRAME_LOCATION);
+        param0.blit(var0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
         if (param5) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
-        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
-        drawCenteredString(param0, this.font, param6, param1 + 40, param2 + 66, 16777215);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(RealmsWorldSlotButton.SLOT_FRAME_LOCATION, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
+        param0.drawCenteredString(this.font, param6, param1 + 40, param2 + 66, 16777215);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

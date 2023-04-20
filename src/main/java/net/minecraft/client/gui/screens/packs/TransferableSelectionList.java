@@ -1,10 +1,8 @@
 package net.minecraft.client.gui.screens.packs;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.ConfirmScreen;
@@ -35,11 +33,11 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
     }
 
     @Override
-    protected void renderHeader(PoseStack param0, int param1, int param2) {
+    protected void renderHeader(GuiGraphics param0, int param1, int param2) {
         Component var0 = Component.empty().append(this.title).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
-        this.minecraft
-            .font
-            .draw(param0, var0, (float)(param1 + this.width / 2 - this.minecraft.font.width(var0) / 2), (float)Math.min(this.y0 + 3, param2), 16777215);
+        param0.drawString(
+            this.minecraft.font, var0, param1 + this.width / 2 - this.minecraft.font.width(var0) / 2, Math.min(this.y0 + 3, param2), 16777215, false
+        );
     }
 
     @Override
@@ -126,20 +124,18 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             PackCompatibility var0 = this.pack.getCompatibility();
             if (!var0.isCompatible()) {
-                GuiComponent.fill(param0, param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
+                param0.fill(param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
             }
 
-            RenderSystem.setShaderTexture(0, this.pack.getIconTexture());
-            GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
+            param0.blit(this.pack.getIconTexture(), param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             FormattedCharSequence var1 = this.nameDisplayCache;
             MultiLineLabel var2 = this.descriptionDisplayCache;
             if (this.showHoverOverlay()
                 && (this.minecraft.options.touchscreen().get() || param8 || this.parent.getSelected() == this && this.parent.isFocused())) {
-                RenderSystem.setShaderTexture(0, TransferableSelectionList.ICON_OVERLAY_LOCATION);
-                GuiComponent.fill(param0, param3, param2, param3 + 32, param2 + 32, -1601138544);
+                param0.fill(param3, param2, param3 + 32, param2 + 32, -1601138544);
                 int var3 = param6 - param3;
                 int var4 = param7 - param2;
                 if (!this.pack.getCompatibility().isCompatible()) {
@@ -149,38 +145,38 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
 
                 if (this.pack.canSelect()) {
                     if (var3 < 32) {
-                        GuiComponent.blit(param0, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
+                        param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(param0, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
+                        param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 0.0F, 0.0F, 32, 32, 256, 256);
                     }
                 } else {
                     if (this.pack.canUnselect()) {
                         if (var3 < 16) {
-                            GuiComponent.blit(param0, param3, param2, 32.0F, 32.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 32.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param0, param3, param2, 32.0F, 0.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 32.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.pack.canMoveUp()) {
                         if (var3 < 32 && var3 > 16 && var4 < 16) {
-                            GuiComponent.blit(param0, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param0, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.pack.canMoveDown()) {
                         if (var3 < 32 && var3 > 16 && var4 > 16) {
-                            GuiComponent.blit(param0, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 64.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(param0, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);
+                            param0.blit(TransferableSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 64.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
                 }
             }
 
-            this.minecraft.font.drawShadow(param0, var1, (float)(param3 + 32 + 2), (float)(param2 + 1), 16777215);
+            param0.drawString(this.minecraft.font, var1, param3 + 32 + 2, param2 + 1, 16777215);
             var2.renderLeftAligned(param0, param3 + 32 + 2, param2 + 12, 10, 8421504);
         }
 

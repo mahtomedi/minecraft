@@ -144,28 +144,30 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         );
     }
 
-    public CompletableFuture<ChunkAccess> retainData(ChunkAccess param0) {
+    public CompletableFuture<ChunkAccess> initializeLight(ChunkAccess param0) {
         ChunkPos var0 = param0.getPos();
-        return CompletableFuture.supplyAsync(Util.name(() -> {
-            super.retainData(var0, true);
-            return param0;
-        }, () -> "retainData: " + var0), param1 -> this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.PRE_UPDATE, param1));
-    }
-
-    public CompletableFuture<ChunkAccess> lightChunk(ChunkAccess param0, boolean param1) {
-        ChunkPos var0 = param0.getPos();
-        param0.setLightCorrect(false);
         this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.PRE_UPDATE, Util.name(() -> {
             LevelChunkSection[] var0x = param0.getSections();
 
             for(int var1x = 0; var1x < param0.getSectionsCount(); ++var1x) {
                 LevelChunkSection var2x = var0x[var1x];
                 if (!var2x.hasOnlyAir()) {
-                    int var3x = this.levelHeightAccessor.getSectionYFromSectionIndex(var1x);
-                    super.updateSectionStatus(SectionPos.of(var0, var3x), false);
+                    int var3 = this.levelHeightAccessor.getSectionYFromSectionIndex(var1x);
+                    super.updateSectionStatus(SectionPos.of(var0, var3), false);
                 }
             }
 
+        }, () -> "initializeLight: " + var0));
+        return CompletableFuture.supplyAsync(() -> {
+            super.retainData(var0, false);
+            return param0;
+        }, param1 -> this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.POST_UPDATE, param1));
+    }
+
+    public CompletableFuture<ChunkAccess> lightChunk(ChunkAccess param0, boolean param1) {
+        ChunkPos var0 = param0.getPos();
+        param0.setLightCorrect(false);
+        this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.PRE_UPDATE, Util.name(() -> {
             super.enableLightSources(var0, true);
             if (!param1) {
                 param0.getLights().forEach(param1x -> super.onBlockEmissionIncrease(param1x, param0.getLightEmission(param1x)));
@@ -174,7 +176,6 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         }, () -> "lightChunk " + var0 + " " + param1));
         return CompletableFuture.supplyAsync(() -> {
             param0.setLightCorrect(true);
-            super.retainData(var0, false);
             this.chunkMap.releaseLightTicket(var0);
             return param0;
         }, param1x -> this.addTask(var0.x, var0.z, ThreadedLevelLightEngine.TaskType.POST_UPDATE, param1x));

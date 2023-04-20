@@ -194,6 +194,10 @@ public abstract class LayerLightEngine<M extends DataLayerStorageMap<M>, S exten
         return this.storage.getLevel(param0) + "";
     }
 
+    public int getDebugSectionLevel(long param0) {
+        return this.storage.getLevel(param0);
+    }
+
     @Override
     public void checkBlock(BlockPos param0) {
         long var0 = param0.asLong();

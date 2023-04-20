@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.components.toasts;
 
 import com.google.common.collect.Queues;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Deque;
@@ -9,13 +8,13 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ToastComponent extends GuiComponent {
+public class ToastComponent {
     private static final int SLOT_COUNT = 5;
     private static final int NO_SPACE = -1;
     final Minecraft minecraft;
@@ -27,7 +26,7 @@ public class ToastComponent extends GuiComponent {
         this.minecraft = param0;
     }
 
-    public void render(PoseStack param0) {
+    public void render(GuiGraphics param0) {
         if (!this.minecraft.options.hideGui) {
             int var0 = this.minecraft.getWindow().getGuiScaledWidth();
             this.visible.removeIf(param2 -> {
@@ -136,7 +135,7 @@ public class ToastComponent extends GuiComponent {
             return this.visibility == Toast.Visibility.HIDE ? 1.0F - var0 : var0;
         }
 
-        public boolean render(int param0, PoseStack param1) {
+        public boolean render(int param0, GuiGraphics param1) {
             long var0 = Util.getMillis();
             if (this.animationTime == -1L) {
                 this.animationTime = var0;
@@ -147,10 +146,10 @@ public class ToastComponent extends GuiComponent {
                 this.visibleTime = var0;
             }
 
-            param1.pushPose();
-            param1.translate((float)param0 - (float)this.toast.width() * this.getVisibility(var0), (float)(this.index * 32), 800.0F);
+            param1.pose().pushPose();
+            param1.pose().translate((float)param0 - (float)this.toast.width() * this.getVisibility(var0), (float)(this.index * 32), 800.0F);
             Toast.Visibility var1 = this.toast.render(param1, ToastComponent.this, var0 - this.visibleTime);
-            param1.popPose();
+            param1.pose().popPose();
             if (var1 != this.visibility) {
                 this.animationTime = var0 - (long)((int)((1.0F - this.getVisibility(var0)) * 600.0F));
                 this.visibility = var1;

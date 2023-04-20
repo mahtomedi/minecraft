@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.CycleButton;
@@ -133,15 +133,15 @@ public abstract class AbstractCommandBlockEditScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, SET_COMMAND_LABEL, this.width / 2, 20, 16777215);
-        drawString(param0, this.font, COMMAND_LABEL, this.width / 2 - 150, 40, 10526880);
+        param0.drawCenteredString(this.font, SET_COMMAND_LABEL, this.width / 2, 20, 16777215);
+        param0.drawString(this.font, COMMAND_LABEL, this.width / 2 - 150, 40, 10526880);
         this.commandEdit.render(param0, param1, param2, param3);
         int var0 = 75;
         if (!this.previousEdit.getValue().isEmpty()) {
             var0 += 5 * 9 + 1 + this.getPreviousY() - 135;
-            drawString(param0, this.font, PREVIOUS_OUTPUT_LABEL, this.width / 2 - 150, var0 + 4, 10526880);
+            param0.drawString(this.font, PREVIOUS_OUTPUT_LABEL, this.width / 2 - 150, var0 + 4, 10526880);
             this.previousEdit.render(param0, param1, param2, param3);
         }
 

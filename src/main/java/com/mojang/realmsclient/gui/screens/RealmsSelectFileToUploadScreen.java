@@ -1,7 +1,6 @@
 package com.mojang.realmsclient.gui.screens;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -9,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.CommonComponents;
@@ -108,10 +108,10 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.worldSelectionList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 13, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 13, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
@@ -159,7 +159,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderItem(param0, param1, param3, param2);
         }
 
@@ -169,7 +169,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             return true;
         }
 
-        protected void renderItem(PoseStack param0, int param1, int param2, int param3) {
+        protected void renderItem(GuiGraphics param0, int param1, int param2, int param3) {
             String var0;
             if (this.name.isEmpty()) {
                 var0 = RealmsSelectFileToUploadScreen.WORLD_TEXT + " " + (param1 + 1);
@@ -177,9 +177,9 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
                 var0 = this.name;
             }
 
-            RealmsSelectFileToUploadScreen.this.font.draw(param0, var0, (float)(param2 + 2), (float)(param3 + 1), 16777215);
-            RealmsSelectFileToUploadScreen.this.font.draw(param0, this.id, (float)(param2 + 2), (float)(param3 + 12), 8421504);
-            RealmsSelectFileToUploadScreen.this.font.draw(param0, this.info, (float)(param2 + 2), (float)(param3 + 12 + 10), 8421504);
+            param0.drawString(RealmsSelectFileToUploadScreen.this.font, var0, param2 + 2, param3 + 1, 16777215, false);
+            param0.drawString(RealmsSelectFileToUploadScreen.this.font, this.id, param2 + 2, param3 + 12, 8421504, false);
+            param0.drawString(RealmsSelectFileToUploadScreen.this.font, this.info, param2 + 2, param3 + 12 + 10, 8421504, false);
         }
 
         @Override
@@ -215,7 +215,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderBackground(PoseStack param0) {
+        public void renderBackground(GuiGraphics param0) {
             RealmsSelectFileToUploadScreen.this.renderBackground(param0);
         }
 

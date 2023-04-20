@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.math.Axis;
 import com.mojang.realmsclient.client.Ping;
@@ -45,7 +44,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
@@ -829,11 +828,10 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.realmSelectionList.render(param0, param1, param2, param3);
-        RenderSystem.setShaderTexture(0, LOGO_LOCATION);
-        blit(param0, this.width / 2 - 64, 5, 0.0F, 0.0F, 128, 34, 128, 64);
+        param0.blit(LOGO_LOCATION, this.width / 2 - 64, 5, 0.0F, 0.0F, 128, 34, 128, 64);
         if (RealmsClient.currentEnvironment == RealmsClient.Environment.STAGE) {
             this.renderStage(param0);
         }
@@ -843,10 +841,10 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         if (this.shouldShowPopup()) {
-            param0.pushPose();
-            param0.translate(0.0F, 0.0F, 100.0F);
+            param0.pose().pushPose();
+            param0.pose().translate(0.0F, 0.0F, 100.0F);
             this.drawPopup(param0);
-            param0.popPose();
+            param0.pose().popPose();
         } else {
             if (this.showingPopup) {
                 this.updateButtonStates(null);
@@ -863,7 +861,6 @@ public class RealmsMainScreen extends RealmsScreen {
 
         super.render(param0, param1, param2, param3);
         if (this.trialsAvailable && !this.createdTrial && this.shouldShowPopup()) {
-            RenderSystem.setShaderTexture(0, TRIAL_ICON_LOCATION);
             int var0 = 8;
             int var1 = 8;
             int var2 = 0;
@@ -871,8 +868,8 @@ public class RealmsMainScreen extends RealmsScreen {
                 var2 = 8;
             }
 
-            GuiComponent.blit(
-                param0,
+            param0.blit(
+                TRIAL_ICON_LOCATION,
                 this.createTrialButton.getX() + this.createTrialButton.getWidth() - 8 - 4,
                 this.createTrialButton.getY() + this.createTrialButton.getHeight() / 2 - 4,
                 0.0F,
@@ -903,7 +900,7 @@ public class RealmsMainScreen extends RealmsScreen {
         return param0 < (double)(var0 - 5) || param0 > (double)(var0 + 315) || param1 < (double)(var1 - 5) || param1 > (double)(var1 + 171);
     }
 
-    private void drawPopup(PoseStack param0) {
+    private void drawPopup(GuiGraphics param0) {
         int var0 = this.popupX0();
         int var1 = this.popupY0();
         if (!this.showingPopup) {
@@ -923,19 +920,16 @@ public class RealmsMainScreen extends RealmsScreen {
             this.showingPopup = true;
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.7F);
+        param0.setColor(1.0F, 1.0F, 1.0F, 0.7F);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderTexture(0, DARKEN_LOCATION);
         int var2 = 0;
         int var3 = 32;
-        GuiComponent.blit(param0, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
+        param0.blit(DARKEN_LOCATION, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
         RenderSystem.disableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, POPUP_LOCATION);
-        GuiComponent.blit(param0, var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(POPUP_LOCATION, var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
         if (!teaserImages.isEmpty()) {
-            RenderSystem.setShaderTexture(0, teaserImages.get(this.carouselIndex));
-            GuiComponent.blit(param0, var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
+            param0.blit(teaserImages.get(this.carouselIndex), var0 + 7, var1 + 7, 0.0F, 0.0F, 195, 152, 195, 152);
             if (this.carouselTick % 95 < 5) {
                 if (!this.hasSwitchedCarouselImage) {
                     this.carouselIndex = (this.carouselIndex + 1) % teaserImages.size();
@@ -985,9 +979,8 @@ public class RealmsMainScreen extends RealmsScreen {
         return this.isSelfOwnedServer(param0) && !param0.expired;
     }
 
-    void drawExpired(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.setShaderTexture(0, EXPIRED_ICON_LOCATION);
-        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+    void drawExpired(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        param0.blit(EXPIRED_ICON_LOCATION, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
             && param4 >= param2
@@ -1000,12 +993,11 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    void drawExpiring(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
-        RenderSystem.setShaderTexture(0, EXPIRES_SOON_ICON_LOCATION);
+    void drawExpiring(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5) {
         if (this.animTick % 20 < 10) {
-            GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
+            param0.blit(EXPIRES_SOON_ICON_LOCATION, param1, param2, 0.0F, 0.0F, 10, 28, 20, 28);
         } else {
-            GuiComponent.blit(param0, param1, param2, 10.0F, 0.0F, 10, 28, 20, 28);
+            param0.blit(EXPIRES_SOON_ICON_LOCATION, param1, param2, 10.0F, 0.0F, 10, 28, 20, 28);
         }
 
         if (param3 >= param1
@@ -1026,9 +1018,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    void drawOpen(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.setShaderTexture(0, ON_ICON_LOCATION);
-        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+    void drawOpen(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        param0.blit(ON_ICON_LOCATION, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
             && param4 >= param2
@@ -1041,9 +1032,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    void drawClose(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.setShaderTexture(0, OFF_ICON_LOCATION);
-        GuiComponent.blit(param0, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
+    void drawClose(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        param0.blit(OFF_ICON_LOCATION, param1, param2, 0.0F, 0.0F, 10, 28, 10, 28);
         if (param3 >= param1
             && param3 <= param1 + 9
             && param4 >= param2
@@ -1056,51 +1046,49 @@ public class RealmsMainScreen extends RealmsScreen {
 
     }
 
-    void renderNews(PoseStack param0, int param1, int param2, boolean param3, int param4, int param5, boolean param6, boolean param7) {
+    void renderNews(GuiGraphics param0, int param1, int param2, boolean param3, int param4, int param5, boolean param6, boolean param7) {
         boolean var0 = false;
         if (param1 >= param4 && param1 <= param4 + 20 && param2 >= param5 && param2 <= param5 + 20) {
             var0 = true;
         }
 
-        RenderSystem.setShaderTexture(0, NEWS_LOCATION);
         if (!param7) {
-            RenderSystem.setShaderColor(0.5F, 0.5F, 0.5F, 1.0F);
+            param0.setColor(0.5F, 0.5F, 0.5F, 1.0F);
         }
 
         boolean var1 = param7 && param6;
         float var2 = var1 ? 20.0F : 0.0F;
-        GuiComponent.blit(param0, param4, param5, var2, 0.0F, 20, 20, 40, 20);
+        param0.blit(NEWS_LOCATION, param4, param5, var2, 0.0F, 20, 20, 40, 20);
         if (var0 && param7) {
             this.setTooltipForNextRenderPass(NEWS_TOOLTIP);
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (param3 && param7) {
             int var3 = var0 ? 0 : (int)(Math.max(0.0F, Math.max(Mth.sin((float)(10 + this.animTick) * 0.57F), Mth.cos((float)this.animTick * 0.35F))) * -6.0F);
-            RenderSystem.setShaderTexture(0, INVITATION_ICONS_LOCATION);
-            GuiComponent.blit(param0, param4 + 10, param5 + 2 + var3, 40.0F, 0.0F, 8, 8, 48, 16);
+            param0.blit(INVITATION_ICONS_LOCATION, param4 + 10, param5 + 2 + var3, 40.0F, 0.0F, 8, 8, 48, 16);
         }
 
     }
 
-    private void renderLocal(PoseStack param0) {
+    private void renderLocal(GuiGraphics param0) {
         String var0 = "LOCAL!";
-        param0.pushPose();
-        param0.translate((float)(this.width / 2 - 25), 20.0F, 0.0F);
-        param0.mulPose(Axis.ZP.rotationDegrees(-20.0F));
-        param0.scale(1.5F, 1.5F, 1.5F);
-        this.font.draw(param0, "LOCAL!", 0.0F, 0.0F, 8388479);
-        param0.popPose();
+        param0.pose().pushPose();
+        param0.pose().translate((float)(this.width / 2 - 25), 20.0F, 0.0F);
+        param0.pose().mulPose(Axis.ZP.rotationDegrees(-20.0F));
+        param0.pose().scale(1.5F, 1.5F, 1.5F);
+        param0.drawString(this.font, "LOCAL!", 0, 0, 8388479, false);
+        param0.pose().popPose();
     }
 
-    private void renderStage(PoseStack param0) {
+    private void renderStage(GuiGraphics param0) {
         String var0 = "STAGE!";
-        param0.pushPose();
-        param0.translate((float)(this.width / 2 - 25), 20.0F, 0.0F);
-        param0.mulPose(Axis.ZP.rotationDegrees(-20.0F));
-        param0.scale(1.5F, 1.5F, 1.5F);
-        this.font.draw(param0, "STAGE!", 0.0F, 0.0F, -256);
-        param0.popPose();
+        param0.pose().pushPose();
+        param0.pose().translate((float)(this.width / 2 - 25), 20.0F, 0.0F);
+        param0.pose().mulPose(Axis.ZP.rotationDegrees(-20.0F));
+        param0.pose().scale(1.5F, 1.5F, 1.5F);
+        param0.drawString(this.font, "STAGE!", 0, 0, -256, false);
+        param0.pose().popPose();
     }
 
     public RealmsMainScreen newScreen() {
@@ -1135,7 +1123,7 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.button.setPosition(this.xPos, param2 + 4);
             this.button.render(param0, param6, param7, param9);
         }
@@ -1170,10 +1158,9 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-            RenderSystem.setShaderTexture(0, RealmsMainScreen.CROSS_ICON_LOCATION);
+        public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
             float var0 = this.isHoveredOrFocused() ? 14.0F : 0.0F;
-            blit(param0, this.getX(), this.getY(), 0.0F, var0, 14, 14, 14, 28);
+            param0.blit(RealmsMainScreen.CROSS_ICON_LOCATION, this.getX(), this.getY(), 0.0F, var0, 14, 14, 14, 28);
         }
     }
 
@@ -1205,7 +1192,7 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
             RealmsMainScreen.this.renderNews(
                 param0, param1, param2, RealmsMainScreen.this.hasUnreadNews, this.getX(), this.getY(), this.isHoveredOrFocused(), this.active
             );
@@ -1278,14 +1265,14 @@ public class RealmsMainScreen extends RealmsScreen {
 
         @Override
         public void renderBack(
-            PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+            GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
         ) {
             super.renderBack(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
-            GuiComponent.renderOutline(param0, param3 - 2, param2 - 2, param4, 70, -12303292);
+            param0.renderOutline(param3 - 2, param2 - 2, param4, 70, -12303292);
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.gridLayout.setPosition(param3, param2);
             this.updateEntryWidth(param4 - 4);
             this.children.forEach(param4x -> param4x.render(param0, param6, param7, param9));
@@ -1341,15 +1328,14 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
             super.renderWidget(param0, param1, param2, param3);
             this.drawInvitations(param0);
         }
 
-        private void drawInvitations(PoseStack param0) {
+        private void drawInvitations(GuiGraphics param0) {
             boolean var0 = this.active && RealmsMainScreen.this.numberOfPendingInvites != 0;
             if (var0) {
-                RenderSystem.setShaderTexture(0, RealmsMainScreen.INVITATION_ICONS_LOCATION);
                 int var1 = (Math.min(RealmsMainScreen.this.numberOfPendingInvites, 6) - 1) * 8;
                 int var2 = (int)(
                     Math.max(
@@ -1359,7 +1345,7 @@ public class RealmsMainScreen extends RealmsScreen {
                         * -6.0F
                 );
                 float var3 = this.isHoveredOrFocused() ? 8.0F : 0.0F;
-                GuiComponent.blit(param0, this.getX() + 11, this.getY() + var2, (float)var1, var3, 8, 8, 48, 16);
+                param0.blit(RealmsMainScreen.INVITATION_ICONS_LOCATION, this.getX() + 11, this.getY() + var2, (float)var1, var3, 8, 8, 48, 16);
             }
 
         }
@@ -1407,7 +1393,7 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderMcoServerItem(this.serverData, param0, param3, param2, param6, param7);
         }
 
@@ -1438,26 +1424,23 @@ public class RealmsMainScreen extends RealmsScreen {
             }
         }
 
-        private void renderMcoServerItem(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5) {
+        private void renderMcoServerItem(RealmsServer param0, GuiGraphics param1, int param2, int param3, int param4, int param5) {
             this.renderLegacy(param0, param1, param2 + 36, param3, param4, param5);
         }
 
-        private void renderLegacy(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5) {
+        private void renderLegacy(RealmsServer param0, GuiGraphics param1, int param2, int param3, int param4, int param5) {
             if (param0.state == RealmsServer.State.UNINITIALIZED) {
-                RenderSystem.setShaderTexture(0, RealmsMainScreen.WORLDICON_LOCATION);
-                GuiComponent.blit(param1, param2 + 10, param3 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
+                param1.blit(RealmsMainScreen.WORLDICON_LOCATION, param2 + 10, param3 + 6, 0.0F, 0.0F, 40, 20, 40, 20);
                 float var0 = 0.5F + (1.0F + Mth.sin((float)RealmsMainScreen.this.animTick * 0.25F)) * 0.25F;
                 int var1 = 0xFF000000 | (int)(127.0F * var0) << 16 | (int)(255.0F * var0) << 8 | (int)(127.0F * var0);
-                GuiComponent.drawCenteredString(
-                    param1, RealmsMainScreen.this.font, RealmsMainScreen.SERVER_UNITIALIZED_TEXT, param2 + 10 + 40 + 75, param3 + 12, var1
-                );
+                param1.drawCenteredString(RealmsMainScreen.this.font, RealmsMainScreen.SERVER_UNITIALIZED_TEXT, param2 + 10 + 40 + 75, param3 + 12, var1);
             } else {
                 int var2 = 225;
                 int var3 = 2;
                 this.renderStatusLights(param0, param1, param2, param3, param4, param5, 225, 2);
                 if (!"0".equals(param0.serverPing.nrOfPlayers)) {
                     String var4 = ChatFormatting.GRAY + param0.serverPing.nrOfPlayers;
-                    RealmsMainScreen.this.font.draw(param1, var4, (float)(param2 + 207 - RealmsMainScreen.this.font.width(var4)), (float)(param3 + 3), 8421504);
+                    param1.drawString(RealmsMainScreen.this.font, var4, param2 + 207 - RealmsMainScreen.this.font.width(var4), param3 + 3, 8421504, false);
                     if (param4 >= param2 + 207 - RealmsMainScreen.this.font.width(var4)
                         && param4 <= param2 + 207
                         && param5 >= param3 + 1
@@ -1472,28 +1455,28 @@ public class RealmsMainScreen extends RealmsScreen {
                 if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.expired) {
                     Component var5 = param0.expiredTrial ? RealmsMainScreen.TRIAL_EXPIRED_TEXT : RealmsMainScreen.SUBSCRIPTION_EXPIRED_TEXT;
                     int var6 = param3 + 11 + 5;
-                    RealmsMainScreen.this.font.draw(param1, var5, (float)(param2 + 2), (float)(var6 + 1), 15553363);
+                    param1.drawString(RealmsMainScreen.this.font, var5, param2 + 2, var6 + 1, 15553363, false);
                 } else {
                     if (param0.worldType == RealmsServer.WorldType.MINIGAME) {
                         int var7 = 13413468;
                         int var8 = RealmsMainScreen.this.font.width(RealmsMainScreen.SELECT_MINIGAME_PREFIX);
-                        RealmsMainScreen.this.font.draw(param1, RealmsMainScreen.SELECT_MINIGAME_PREFIX, (float)(param2 + 2), (float)(param3 + 12), 13413468);
-                        RealmsMainScreen.this.font.draw(param1, param0.getMinigameName(), (float)(param2 + 2 + var8), (float)(param3 + 12), 7105644);
+                        param1.drawString(RealmsMainScreen.this.font, RealmsMainScreen.SELECT_MINIGAME_PREFIX, param2 + 2, param3 + 12, 13413468, false);
+                        param1.drawString(RealmsMainScreen.this.font, param0.getMinigameName(), param2 + 2 + var8, param3 + 12, 7105644, false);
                     } else {
-                        RealmsMainScreen.this.font.draw(param1, param0.getDescription(), (float)(param2 + 2), (float)(param3 + 12), 7105644);
+                        param1.drawString(RealmsMainScreen.this.font, param0.getDescription(), param2 + 2, param3 + 12, 7105644, false);
                     }
 
                     if (!RealmsMainScreen.this.isSelfOwnedServer(param0)) {
-                        RealmsMainScreen.this.font.draw(param1, param0.owner, (float)(param2 + 2), (float)(param3 + 12 + 11), 5000268);
+                        param1.drawString(RealmsMainScreen.this.font, param0.owner, param2 + 2, param3 + 12 + 11, 5000268, false);
                     }
                 }
 
-                RealmsMainScreen.this.font.draw(param1, param0.getName(), (float)(param2 + 2), (float)(param3 + 1), 16777215);
+                param1.drawString(RealmsMainScreen.this.font, param0.getName(), param2 + 2, param3 + 1, 16777215, false);
                 RealmsUtil.renderPlayerFace(param1, param2 - 36, param3, 32, param0.ownerUUID);
             }
         }
 
-        private void renderStatusLights(RealmsServer param0, PoseStack param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        private void renderStatusLights(RealmsServer param0, GuiGraphics param1, int param2, int param3, int param4, int param5, int param6, int param7) {
             int var0 = param2 + param6 + 22;
             if (param0.expired) {
                 RealmsMainScreen.this.drawExpired(param1, var0, param3 + param7, param4, param5);
@@ -1524,7 +1507,7 @@ public class RealmsMainScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class TrialEntry extends RealmsMainScreen.Entry {
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderTrialItem(param0, param1, param3, param2, param6, param7);
         }
 
@@ -1534,7 +1517,7 @@ public class RealmsMainScreen extends RealmsScreen {
             return true;
         }
 
-        private void renderTrialItem(PoseStack param0, int param1, int param2, int param3, int param4, int param5) {
+        private void renderTrialItem(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5) {
             int var0 = param3 + 8;
             int var1 = 0;
             boolean var2 = false;
@@ -1548,7 +1531,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             for(Component var4 : RealmsMainScreen.TRIAL_MESSAGE_LINES) {
-                GuiComponent.drawCenteredString(param0, RealmsMainScreen.this.font, var4, RealmsMainScreen.this.width / 2, var0 + var1, var3);
+                param0.drawCenteredString(RealmsMainScreen.this.font, var4, RealmsMainScreen.this.width / 2, var0 + var1, var3);
                 var1 += 10;
             }
 

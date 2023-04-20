@@ -2,11 +2,10 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -102,18 +101,17 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     }
 
     @Override
-    protected void renderContents(PoseStack param0, int param1, int param2, float param3) {
+    protected void renderContents(GuiGraphics param0, int param1, int param2, float param3) {
         String var0 = this.textField.value();
         if (var0.isEmpty() && !this.isFocused()) {
-            this.font
-                .drawWordWrap(
-                    param0,
-                    this.placeholder,
-                    this.getX() + this.innerPadding(),
-                    this.getY() + this.innerPadding(),
-                    this.width - this.totalInnerPadding(),
-                    -857677600
-                );
+            param0.drawWordWrap(
+                this.font,
+                this.placeholder,
+                this.getX() + this.innerPadding(),
+                this.getY() + this.innerPadding(),
+                this.width - this.totalInnerPadding(),
+                -857677600
+            );
         } else {
             int var1 = this.textField.cursor();
             boolean var2 = this.isFocused() && this.frame / 6 % 2 == 0;
@@ -126,22 +124,15 @@ public class MultiLineEditBox extends AbstractScrollWidget {
                 boolean var8 = this.withinContentAreaTopBottom(var6, var6 + 9);
                 if (var2 && var3 && var1 >= var7.beginIndex() && var1 <= var7.endIndex()) {
                     if (var8) {
-                        var4 = this.font
-                                .drawShadow(param0, var0.substring(var7.beginIndex(), var1), (float)(this.getX() + this.innerPadding()), (float)var6, -2039584)
-                            - 1;
-                        GuiComponent.fill(param0, var4, var6 - 1, var4 + 1, var6 + 1 + 9, -3092272);
-                        this.font.drawShadow(param0, var0.substring(var1, var7.endIndex()), (float)var4, (float)var6, -2039584);
+                        var4 = param0.drawString(this.font, var0.substring(var7.beginIndex(), var1), this.getX() + this.innerPadding(), var6, -2039584) - 1;
+                        param0.fill(var4, var6 - 1, var4 + 1, var6 + 1 + 9, -3092272);
+                        param0.drawString(this.font, var0.substring(var1, var7.endIndex()), var4, var6, -2039584);
                     }
                 } else {
                     if (var8) {
-                        var4 = this.font
-                                .drawShadow(
-                                    param0,
-                                    var0.substring(var7.beginIndex(), var7.endIndex()),
-                                    (float)(this.getX() + this.innerPadding()),
-                                    (float)var6,
-                                    -2039584
-                                )
+                        var4 = param0.drawString(
+                                this.font, var0.substring(var7.beginIndex(), var7.endIndex()), this.getX() + this.innerPadding(), var6, -2039584
+                            )
                             - 1;
                     }
 
@@ -152,7 +143,7 @@ public class MultiLineEditBox extends AbstractScrollWidget {
             }
 
             if (var2 && !var3 && this.withinContentAreaTopBottom(var5, var5 + 9)) {
-                this.font.drawShadow(param0, "_", (float)var4, (float)var5, -3092272);
+                param0.drawString(this.font, "_", var4, var5, -3092272);
             }
 
             if (this.textField.hasSelection()) {
@@ -189,12 +180,12 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     }
 
     @Override
-    protected void renderDecorations(PoseStack param0) {
+    protected void renderDecorations(GuiGraphics param0) {
         super.renderDecorations(param0);
         if (this.textField.hasCharacterLimit()) {
             int var0 = this.textField.characterLimit();
             Component var1 = Component.translatable("gui.multiLineEditBox.character_limit", this.textField.value().length(), var0);
-            drawString(param0, this.font, var1, this.getX() + this.width - this.font.width(var1), this.getY() + this.height + 4, 10526880);
+            param0.drawString(this.font, var1, this.getX() + this.width - this.font.width(var1), this.getY() + this.height + 4, 10526880);
         }
 
     }
@@ -214,10 +205,10 @@ public class MultiLineEditBox extends AbstractScrollWidget {
         return 9.0 / 2.0;
     }
 
-    private void renderHighlight(PoseStack param0, int param1, int param2, int param3, int param4) {
+    private void renderHighlight(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        fill(param0, param1, param2, param3, param4, -16776961);
+        param0.fill(param1, param2, param3, param4, -16776961);
         RenderSystem.disableColorLogicOp();
     }
 

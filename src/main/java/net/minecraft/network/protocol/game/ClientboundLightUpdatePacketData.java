@@ -68,7 +68,7 @@ public class ClientboundLightUpdatePacketData {
                 param5.set(param3);
             } else {
                 param4.set(param3);
-                param6.add((byte[])var0.getData().clone());
+                param6.add(var0.copy().getData());
             }
         }
 

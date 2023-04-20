@@ -1,6 +1,5 @@
 package net.minecraft.world.item;
 
-import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -10,7 +9,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,11 +23,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
 
 public class BrushItem extends Item {
     public static final int ANIMATION_DURATION = 10;
     private static final int USE_DURATION = 200;
+    private static final double MAX_BRUSH_DISTANCE = Math.sqrt(ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE) - 1.0;
 
     public BrushItem(Item.Properties param0) {
         super(param0);
@@ -38,22 +36,11 @@ public class BrushItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext param0) {
         Player var0 = param0.getPlayer();
-        if (var0 != null) {
-            if (this.calculateUseHit(var0).getType() != HitResult.Type.BLOCK) {
-                return InteractionResult.FAIL;
-            }
-
+        if (var0 != null && this.calculateHitResult(var0).getType() == HitResult.Type.BLOCK) {
             var0.startUsingItem(param0.getHand());
         }
 
         return InteractionResult.CONSUME;
-    }
-
-    @NotNull
-    private HitResult calculateUseHit(LivingEntity param0) {
-        return ProjectileUtil.getHitResultOnViewVector(
-            param0, Predicate.not(Entity::isSpectator), Math.sqrt(ServerGamePacketListenerImpl.MAX_INTERACTION_DISTANCE) - 1.0
-        );
     }
 
     @Override
@@ -69,7 +56,7 @@ public class BrushItem extends Item {
     @Override
     public void onUseTick(Level param0, LivingEntity param1, ItemStack param2, int param3) {
         if (param3 >= 0 && param1 instanceof Player var0) {
-            HitResult var2 = this.calculateUseHit(param1);
+            HitResult var2 = this.calculateHitResult(param1);
             if (var2 instanceof BlockHitResult var3 && var2.getType() == HitResult.Type.BLOCK) {
                 int var5 = this.getUseDuration(param2) - param3 + 1;
                 boolean var6 = var5 % 10 == 5;
@@ -105,6 +92,10 @@ public class BrushItem extends Item {
         } else {
             param1.releaseUsingItem();
         }
+    }
+
+    private HitResult calculateHitResult(LivingEntity param0) {
+        return ProjectileUtil.getHitResultOnViewVector(param0, param0x -> !param0x.isSpectator() && param0x.isPickable(), MAX_BRUSH_DISTANCE);
     }
 
     public void spawnDustParticles(Level param0, BlockHitResult param1, BlockState param2, Vec3 param3, boolean param4) {

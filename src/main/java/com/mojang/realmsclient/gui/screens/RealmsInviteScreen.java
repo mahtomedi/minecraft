@@ -1,11 +1,11 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import javax.annotation.Nullable;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -96,11 +96,11 @@ public class RealmsInviteScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 100), (float)row(1), 10526880);
+        param0.drawString(this.font, NAME_LABEL, this.width / 2 - 100, row(1), 10526880, false);
         if (this.errorMsg != null) {
-            drawCenteredString(param0, this.font, this.errorMsg, this.width / 2, row(5), 16711680);
+            param0.drawCenteredString(this.font, this.errorMsg, this.width / 2, row(5), 16711680);
         }
 
         this.profileName.render(param0, param1, param2, param3);

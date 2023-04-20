@@ -1,11 +1,10 @@
 package net.minecraft.client.gui.components.spectator;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.spectator.SpectatorMenu;
 import net.minecraft.client.gui.spectator.SpectatorMenuItem;
 import net.minecraft.client.gui.spectator.SpectatorMenuListener;
@@ -17,7 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SpectatorGui extends GuiComponent implements SpectatorMenuListener {
+public class SpectatorGui implements SpectatorMenuListener {
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     public static final ResourceLocation SPECTATOR_LOCATION = new ResourceLocation("textures/gui/spectator_widgets.png");
     private static final long FADE_OUT_DELAY = 5000L;
@@ -46,33 +45,32 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
         return Mth.clamp((float)var0 / 2000.0F, 0.0F, 1.0F);
     }
 
-    public void renderHotbar(PoseStack param0) {
+    public void renderHotbar(GuiGraphics param0) {
         if (this.menu != null) {
             float var0 = this.getHotbarAlpha();
             if (var0 <= 0.0F) {
                 this.menu.exit();
             } else {
                 int var1 = this.minecraft.getWindow().getGuiScaledWidth() / 2;
-                param0.pushPose();
-                param0.translate(0.0F, 0.0F, -90.0F);
+                param0.pose().pushPose();
+                param0.pose().translate(0.0F, 0.0F, -90.0F);
                 int var2 = Mth.floor((float)this.minecraft.getWindow().getGuiScaledHeight() - 22.0F * var0);
                 SpectatorPage var3 = this.menu.getCurrentPage();
                 this.renderPage(param0, var0, var1, var2, var3);
-                param0.popPose();
+                param0.pose().popPose();
             }
         }
     }
 
-    protected void renderPage(PoseStack param0, float param1, int param2, int param3, SpectatorPage param4) {
+    protected void renderPage(GuiGraphics param0, float param1, int param2, int param3, SpectatorPage param4) {
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, param1);
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        blit(param0, param2 - 91, param3, 0, 0, 182, 22);
+        param0.setColor(1.0F, 1.0F, 1.0F, param1);
+        param0.blit(WIDGETS_LOCATION, param2 - 91, param3, 0, 0, 182, 22);
         if (param4.getSelectedSlot() >= 0) {
-            blit(param0, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
+            param0.blit(WIDGETS_LOCATION, param2 - 91 - 1 + param4.getSelectedSlot() * 20, param3 - 1, 0, 22, 24, 22);
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var0 = 0; var0 < 9; ++var0) {
             this.renderSlot(
@@ -83,28 +81,25 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
         RenderSystem.disableBlend();
     }
 
-    private void renderSlot(PoseStack param0, int param1, int param2, float param3, float param4, SpectatorMenuItem param5) {
-        RenderSystem.setShaderTexture(0, SPECTATOR_LOCATION);
+    private void renderSlot(GuiGraphics param0, int param1, int param2, float param3, float param4, SpectatorMenuItem param5) {
         if (param5 != SpectatorMenu.EMPTY_SLOT) {
             int var0 = (int)(param4 * 255.0F);
-            param0.pushPose();
-            param0.translate((float)param2, param3, 0.0F);
+            param0.pose().pushPose();
+            param0.pose().translate((float)param2, param3, 0.0F);
             float var1 = param5.isEnabled() ? 1.0F : 0.25F;
-            RenderSystem.setShaderColor(var1, var1, var1, param4);
+            param0.setColor(var1, var1, var1, param4);
             param5.renderIcon(param0, var1, var0);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            param0.popPose();
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            param0.pose().popPose();
             if (var0 > 3 && param5.isEnabled()) {
                 Component var2 = this.minecraft.options.keyHotbarSlots[param1].getTranslatedKeyMessage();
-                this.minecraft
-                    .font
-                    .drawShadow(param0, var2, (float)(param2 + 19 - 2 - this.minecraft.font.width(var2)), param3 + 6.0F + 3.0F, 16777215 + (var0 << 24));
+                param0.drawString(this.minecraft.font, var2, param2 + 19 - 2 - this.minecraft.font.width(var2), (int)param3 + 6 + 3, 16777215 + (var0 << 24));
             }
         }
 
     }
 
-    public void renderTooltip(PoseStack param0) {
+    public void renderTooltip(GuiGraphics param0) {
         int var0 = (int)(this.getHotbarAlpha() * 255.0F);
         if (var0 > 3 && this.menu != null) {
             SpectatorMenuItem var1 = this.menu.getSelectedItem();
@@ -112,7 +107,7 @@ public class SpectatorGui extends GuiComponent implements SpectatorMenuListener 
             if (var2 != null) {
                 int var3 = (this.minecraft.getWindow().getGuiScaledWidth() - this.minecraft.font.width(var2)) / 2;
                 int var4 = this.minecraft.getWindow().getGuiScaledHeight() - 35;
-                this.minecraft.font.drawShadow(param0, var2, (float)var3, (float)var4, 16777215 + (var0 << 24));
+                param0.drawString(this.minecraft.font, var2, var3, var4, 16777215 + (var0 << 24));
             }
         }
 

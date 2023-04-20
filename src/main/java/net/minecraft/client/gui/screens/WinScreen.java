@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -16,7 +15,7 @@ import java.io.Reader;
 import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GameNarrator;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -209,8 +208,7 @@ public class WinScreen extends Screen {
         this.lines.add(param0.getVisualOrderText());
     }
 
-    private void renderBg(PoseStack param0) {
-        RenderSystem.setShaderTexture(0, GuiComponent.BACKGROUND_LOCATION);
+    private void renderBg(GuiGraphics param0) {
         int var0 = this.width;
         float var1 = this.scroll * 0.5F;
         int var2 = 64;
@@ -228,20 +226,20 @@ public class WinScreen extends Screen {
 
         var4 *= var4;
         var4 = var4 * 96.0F / 255.0F;
-        RenderSystem.setShaderColor(var4, var4, var4, 1.0F);
-        blit(param0, 0, 0, 0, 0.0F, var1, var0, this.height, 64, 64);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(var4, var4, var4, 1.0F);
+        param0.blit(BACKGROUND_LOCATION, 0, 0, 0, 0.0F, var1, var0, this.height, 64, 64);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.scroll += param3 * this.scrollSpeed;
         this.renderBg(param0);
         int var0 = this.width / 2 - 128;
         int var1 = this.height + 50;
         float var2 = -this.scroll;
-        param0.pushPose();
-        param0.translate(0.0F, var2, 0.0F);
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, var2, 0.0F);
         this.logoRenderer.renderLogo(param0, this.width, 1.0F, var1);
         int var3 = var1 + 100;
 
@@ -249,27 +247,26 @@ public class WinScreen extends Screen {
             if (var4 == this.lines.size() - 1) {
                 float var5 = (float)var3 + var2 - (float)(this.height / 2 - 6);
                 if (var5 < 0.0F) {
-                    param0.translate(0.0F, -var5, 0.0F);
+                    param0.pose().translate(0.0F, -var5, 0.0F);
                 }
             }
 
             if ((float)var3 + var2 + 12.0F + 8.0F > 0.0F && (float)var3 + var2 < (float)this.height) {
                 FormattedCharSequence var6 = this.lines.get(var4);
                 if (this.centeredLines.contains(var4)) {
-                    this.font.drawShadow(param0, var6, (float)(var0 + (256 - this.font.width(var6)) / 2), (float)var3, 16777215);
+                    param0.drawCenteredString(this.font, var6, var0 + 128, var3, 16777215);
                 } else {
-                    this.font.drawShadow(param0, var6, (float)var0, (float)var3, 16777215);
+                    param0.drawString(this.font, var6, var0, var3, 16777215);
                 }
             }
 
             var3 += 12;
         }
 
-        param0.popPose();
-        RenderSystem.setShaderTexture(0, VIGNETTE_LOCATION);
+        param0.pose().popPose();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR);
-        blit(param0, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+        param0.blit(VIGNETTE_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
         super.render(param0, param1, param2, param3);

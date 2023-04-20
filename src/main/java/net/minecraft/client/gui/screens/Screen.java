@@ -4,24 +4,15 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.logging.LogUtils;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -34,7 +25,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.TabOrderedElement;
@@ -48,45 +39,35 @@ import net.minecraft.client.gui.narration.ScreenNarrationCollector;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
-import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.Music;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix4f;
-import org.joml.Vector2ic;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Screen extends AbstractContainerEventHandler implements Renderable {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Set<String> ALLOWED_PROTOCOLS = Sets.newHashSet("http", "https");
-    private static final int EXTRA_SPACE_AFTER_FIRST_TOOLTIP_LINE = 2;
     private static final Component USAGE_NARRATION = Component.translatable("narrator.screen.usage");
+    public static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation("textures/gui/options_background.png");
     protected final Component title;
     private final List<GuiEventListener> children = Lists.newArrayList();
     private final List<NarratableEntry> narratables = Lists.newArrayList();
     @Nullable
     protected Minecraft minecraft;
     private boolean initialized;
-    protected ItemRenderer itemRenderer;
     public int width;
     public int height;
     private final List<Renderable> renderables = Lists.newArrayList();
-    public boolean passEvents;
     protected Font font;
     @Nullable
     private URI clickedLink;
@@ -115,17 +96,17 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         return this.getTitle();
     }
 
-    public final void renderWithTooltip(PoseStack param0, int param1, int param2, float param3) {
+    public final void renderWithTooltip(GuiGraphics param0, int param1, int param2, float param3) {
         this.render(param0, param1, param2, param3);
         if (this.deferredTooltipRendering != null) {
-            this.renderTooltip(param0, this.deferredTooltipRendering, param1, param2);
+            param0.renderTooltip(this.font, this.deferredTooltipRendering.tooltip(), this.deferredTooltipRendering.positioner(), param1, param2);
             this.deferredTooltipRendering = null;
         }
 
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         for(Renderable var0 : this.renderables) {
             var0.render(param0, param1, param2, param3);
         }
@@ -237,126 +218,8 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
         this.narratables.clear();
     }
 
-    protected void renderTooltip(PoseStack param0, ItemStack param1, int param2, int param3) {
-        this.renderTooltip(param0, this.getTooltipFromItem(param1), param1.getTooltipImage(), param2, param3);
-    }
-
-    public void renderTooltip(PoseStack param0, List<Component> param1, Optional<TooltipComponent> param2, int param3, int param4) {
-        List<ClientTooltipComponent> var0 = param1.stream().map(Component::getVisualOrderText).map(ClientTooltipComponent::create).collect(Collectors.toList());
-        param2.ifPresent(param1x -> var0.add(1, ClientTooltipComponent.create(param1x)));
-        this.renderTooltipInternal(param0, var0, param3, param4, DefaultTooltipPositioner.INSTANCE);
-    }
-
-    public List<Component> getTooltipFromItem(ItemStack param0) {
-        return param0.getTooltipLines(
-            this.minecraft.player, this.minecraft.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL
-        );
-    }
-
-    public void renderTooltip(PoseStack param0, Component param1, int param2, int param3) {
-        this.renderTooltip(param0, Arrays.asList(param1.getVisualOrderText()), param2, param3);
-    }
-
-    public void renderComponentTooltip(PoseStack param0, List<Component> param1, int param2, int param3) {
-        this.renderTooltip(param0, Lists.transform(param1, Component::getVisualOrderText), param2, param3);
-    }
-
-    public void renderTooltip(PoseStack param0, List<? extends FormattedCharSequence> param1, int param2, int param3) {
-        this.renderTooltipInternal(
-            param0, param1.stream().map(ClientTooltipComponent::create).collect(Collectors.toList()), param2, param3, DefaultTooltipPositioner.INSTANCE
-        );
-    }
-
-    private void renderTooltip(PoseStack param0, Screen.DeferredTooltipRendering param1, int param2, int param3) {
-        this.renderTooltipInternal(
-            param0, param1.tooltip().stream().map(ClientTooltipComponent::create).collect(Collectors.toList()), param2, param3, param1.positioner()
-        );
-    }
-
-    private void renderTooltipInternal(PoseStack param0, List<ClientTooltipComponent> param1, int param2, int param3, ClientTooltipPositioner param4) {
-        if (!param1.isEmpty()) {
-            int var0 = 0;
-            int var1 = param1.size() == 1 ? -2 : 0;
-
-            for(ClientTooltipComponent var2 : param1) {
-                int var3 = var2.getWidth(this.font);
-                if (var3 > var0) {
-                    var0 = var3;
-                }
-
-                var1 += var2.getHeight();
-            }
-
-            Vector2ic var6 = param4.positionTooltip(this, param2, param3, var0, var1);
-            int var7 = var6.x();
-            int var8 = var6.y();
-            param0.pushPose();
-            int var9 = 400;
-            Tesselator var10 = Tesselator.getInstance();
-            BufferBuilder var11 = var10.getBuilder();
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            var11.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            Matrix4f var12 = param0.last().pose();
-            TooltipRenderUtil.renderTooltipBackground(
-                (param0x, param1x, param2x, param3x, param4x, param5, param6, param7, param8) -> GuiComponent.fillGradient(
-                        param0x, param1x, param2x, param3x, param4x, param5, param6, param7, param8
-                    ),
-                var12,
-                var11,
-                var7,
-                var8,
-                var0,
-                var1,
-                400
-            );
-            RenderSystem.enableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            BufferUploader.drawWithShader(var11.end());
-            MultiBufferSource.BufferSource var13 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            param0.translate(0.0F, 0.0F, 400.0F);
-            int var14 = var8;
-
-            for(int var15 = 0; var15 < param1.size(); ++var15) {
-                ClientTooltipComponent var16 = param1.get(var15);
-                var16.renderText(this.font, var7, var14, var12, var13);
-                var14 += var16.getHeight() + (var15 == 0 ? 2 : 0);
-            }
-
-            var13.endBatch();
-            var14 = var8;
-
-            for(int var17 = 0; var17 < param1.size(); ++var17) {
-                ClientTooltipComponent var18 = param1.get(var17);
-                var18.renderImage(this.font, var7, var14, param0, this.itemRenderer);
-                var14 += var18.getHeight() + (var17 == 0 ? 2 : 0);
-            }
-
-            param0.popPose();
-        }
-    }
-
-    protected void renderComponentHoverEffect(PoseStack param0, @Nullable Style param1, int param2, int param3) {
-        if (param1 != null && param1.getHoverEvent() != null) {
-            HoverEvent var0 = param1.getHoverEvent();
-            HoverEvent.ItemStackInfo var1 = var0.getValue(HoverEvent.Action.SHOW_ITEM);
-            if (var1 != null) {
-                this.renderTooltip(param0, var1.getItemStack(), param2, param3);
-            } else {
-                HoverEvent.EntityTooltipInfo var2 = var0.getValue(HoverEvent.Action.SHOW_ENTITY);
-                if (var2 != null) {
-                    if (this.minecraft.options.advancedItemTooltips) {
-                        this.renderComponentTooltip(param0, var2.getTooltipLines(), param2, param3);
-                    }
-                } else {
-                    Component var3 = var0.getValue(HoverEvent.Action.SHOW_TEXT);
-                    if (var3 != null) {
-                        this.renderTooltip(param0, this.minecraft.font.split(var3, Math.max(this.width / 2, 200)), param2, param3);
-                    }
-                }
-            }
-
-        }
+    public static List<Component> getTooltipFromItem(Minecraft param0, ItemStack param1) {
+        return param1.getTooltipLines(param0.player, param0.options.advancedItemTooltips ? TooltipFlag.Default.ADVANCED : TooltipFlag.Default.NORMAL);
     }
 
     protected void insertText(String param0, boolean param1) {
@@ -426,7 +289,6 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
 
     public final void init(Minecraft param0, int param1, int param2) {
         this.minecraft = param0;
-        this.itemRenderer = param0.getItemRenderer();
         this.font = param0.font;
         this.width = param1;
         this.height = param2;
@@ -464,21 +326,20 @@ public abstract class Screen extends AbstractContainerEventHandler implements Re
     public void added() {
     }
 
-    public void renderBackground(PoseStack param0) {
+    public void renderBackground(GuiGraphics param0) {
         if (this.minecraft.level != null) {
-            fillGradient(param0, 0, 0, this.width, this.height, -1072689136, -804253680);
+            param0.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
             this.renderDirtBackground(param0);
         }
 
     }
 
-    public void renderDirtBackground(PoseStack param0) {
-        RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-        RenderSystem.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
+    public void renderDirtBackground(GuiGraphics param0) {
+        param0.setColor(0.25F, 0.25F, 0.25F, 1.0F);
         int var0 = 32;
-        blit(param0, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(BACKGROUND_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     public boolean isPauseScreen() {

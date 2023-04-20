@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -26,19 +26,18 @@ public abstract class AbstractButton extends AbstractWidget {
     public abstract void onPress();
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
+        param0.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
-        blitNineSliced(param0, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blitNineSliced(WIDGETS_LOCATION, this.getX(), this.getY(), this.getWidth(), this.getHeight(), 20, 4, 200, 20, 0, this.getTextureY());
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         int var1 = this.active ? 16777215 : 10526880;
         this.renderString(param0, var0.font, var1 | Mth.ceil(this.alpha * 255.0F) << 24);
     }
 
-    public void renderString(PoseStack param0, Font param1, int param2) {
+    public void renderString(GuiGraphics param0, Font param1, int param2) {
         this.renderScrollingString(param0, param1, 2, param2);
     }
 

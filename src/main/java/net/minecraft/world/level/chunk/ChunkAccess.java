@@ -25,6 +25,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -52,6 +53,7 @@ import net.minecraft.world.ticks.TickContainerAccess;
 import org.slf4j.Logger;
 
 public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiomeSource, StructureAccess {
+    public static final int NO_FILLED_SECTION = -1;
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final LongSet EMPTY_REFERENCE_SET = new LongOpenHashSet();
     protected final ShortList[] postProcessing;
@@ -99,13 +101,13 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
             }
         }
 
-        replaceMissingSections(param2, param3, this.sections);
+        replaceMissingSections(param3, this.sections);
     }
 
-    private static void replaceMissingSections(LevelHeightAccessor param0, Registry<Biome> param1, LevelChunkSection[] param2) {
-        for(int var0 = 0; var0 < param2.length; ++var0) {
-            if (param2[var0] == null) {
-                param2[var0] = new LevelChunkSection(param0.getSectionYFromSectionIndex(var0), param1);
+    private static void replaceMissingSections(Registry<Biome> param0, LevelChunkSection[] param1) {
+        for(int var0 = 0; var0 < param1.length; ++var0) {
+            if (param1[var0] == null) {
+                param1[var0] = new LevelChunkSection(param0);
             }
         }
 
@@ -122,23 +124,22 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
 
     public abstract void addEntity(Entity var1);
 
-    @Nullable
-    public LevelChunkSection getHighestSection() {
+    public int getHighestFilledSectionIndex() {
         LevelChunkSection[] var0 = this.getSections();
 
         for(int var1 = var0.length - 1; var1 >= 0; --var1) {
             LevelChunkSection var2 = var0[var1];
             if (!var2.hasOnlyAir()) {
-                return var2;
+                return var1;
             }
         }
 
-        return null;
+        return -1;
     }
 
     public int getHighestSectionPosition() {
-        LevelChunkSection var0 = this.getHighestSection();
-        return var0 == null ? this.getMinBuildHeight() : var0.bottomBlockY();
+        int var0 = this.getHighestFilledSectionIndex();
+        return var0 == -1 ? this.getMinBuildHeight() : SectionPos.sectionToBlockCoord(this.getSectionYFromSectionIndex(var0));
     }
 
     public Set<BlockPos> getBlockEntitiesPos() {
@@ -393,7 +394,8 @@ public abstract class ChunkAccess implements BlockGetter, BiomeManager.NoiseBiom
 
         for(int var4 = var3.getMinSection(); var4 < var3.getMaxSection(); ++var4) {
             LevelChunkSection var5 = this.getSection(this.getSectionIndexFromSectionY(var4));
-            var5.fillBiomesFromNoise(param0, param1, var1, var2);
+            int var6 = QuartPos.fromSection(var4);
+            var5.fillBiomesFromNoise(param0, param1, var1, var6, var2);
         }
 
     }

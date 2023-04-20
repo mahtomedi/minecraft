@@ -1,9 +1,9 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.realmsclient.exception.RealmsServiceException;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -73,9 +73,9 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.lines.getFirst(), this.width / 2, 80, 16777215);
+        param0.drawCenteredString(this.font, this.lines.getFirst(), this.width / 2, 80, 16777215);
         this.line2Split.renderCentered(param0, this.width / 2, 100, 9, 16711680);
         super.render(param0, param1, param2, param3);
     }

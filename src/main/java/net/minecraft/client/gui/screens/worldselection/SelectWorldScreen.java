@@ -1,7 +1,7 @@
 package net.minecraft.client.gui.screens.worldselection;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -106,10 +106,10 @@ public class SelectWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.list.render(param0, param1, param2, param3);
         this.searchBox.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         super.render(param0, param1, param2, param3);
     }
 

@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -13,6 +12,7 @@ import java.util.TimeZone;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -139,19 +139,19 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         int var0 = this.width / 2 - 100;
-        drawCenteredString(param0, this.font, SUBSCRIPTION_TITLE, this.width / 2, 17, 16777215);
-        this.font.draw(param0, SUBSCRIPTION_START_LABEL, (float)var0, (float)row(0), 10526880);
-        this.font.draw(param0, this.startDate, (float)var0, (float)row(1), 16777215);
+        param0.drawCenteredString(this.font, SUBSCRIPTION_TITLE, this.width / 2, 17, 16777215);
+        param0.drawString(this.font, SUBSCRIPTION_START_LABEL, var0, row(0), 10526880, false);
+        param0.drawString(this.font, this.startDate, var0, row(1), 16777215, false);
         if (this.type == Subscription.SubscriptionType.NORMAL) {
-            this.font.draw(param0, TIME_LEFT_LABEL, (float)var0, (float)row(3), 10526880);
+            param0.drawString(this.font, TIME_LEFT_LABEL, var0, row(3), 10526880, false);
         } else if (this.type == Subscription.SubscriptionType.RECURRING) {
-            this.font.draw(param0, DAYS_LEFT_LABEL, (float)var0, (float)row(3), 10526880);
+            param0.drawString(this.font, DAYS_LEFT_LABEL, var0, row(3), 10526880, false);
         }
 
-        this.font.draw(param0, this.daysLeft, (float)var0, (float)row(4), 16777215);
+        param0.drawString(this.font, this.daysLeft, var0, row(4), 16777215, false);
         super.render(param0, param1, param2, param3);
     }
 

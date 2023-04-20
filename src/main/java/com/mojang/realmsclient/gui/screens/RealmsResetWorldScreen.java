@@ -1,7 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
@@ -14,7 +12,7 @@ import com.mojang.realmsclient.util.task.ResettingGeneratedWorldTask;
 import com.mojang.realmsclient.util.task.ResettingTemplateWorldTask;
 import com.mojang.realmsclient.util.task.SwitchSlotTask;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -220,24 +218,22 @@ public class RealmsResetWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 7, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 7, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
-    void drawFrame(PoseStack param0, int param1, int param2, Component param3, ResourceLocation param4, boolean param5, boolean param6) {
-        RenderSystem.setShaderTexture(0, param4);
+    void drawFrame(GuiGraphics param0, int param1, int param2, Component param3, ResourceLocation param4, boolean param5, boolean param6) {
         if (param5) {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
-        GuiComponent.blit(param0, param1 + 2, param2 + 14, 0.0F, 0.0F, 56, 56, 56, 56);
-        RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
-        GuiComponent.blit(param0, param1, param2 + 12, 0.0F, 0.0F, 60, 60, 60, 60);
+        param0.blit(param4, param1 + 2, param2 + 14, 0.0F, 0.0F, 56, 56, 56, 56);
+        param0.blit(SLOT_FRAME_LOCATION, param1, param2 + 12, 0.0F, 0.0F, 60, 60, 60, 60);
         int var0 = param5 ? 10526880 : 16777215;
-        drawCenteredString(param0, this.font, param3, param1 + 30, param2, var0);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.drawCenteredString(this.font, param3, param1 + 30, param2, var0);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private void startTask(LongRunningTask param0) {
@@ -283,7 +279,7 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         }
 
         @Override
-        public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+        public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
             RealmsResetWorldScreen.this.drawFrame(
                 param0, this.getX(), this.getY(), this.getMessage(), this.image, this.isHoveredOrFocused(), this.isMouseOver((double)param1, (double)param2)
             );

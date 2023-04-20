@@ -2,8 +2,6 @@ package net.minecraft.client.gui.screens.worldselection;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
@@ -24,8 +22,10 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.FileUtil;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -99,6 +99,7 @@ public class CreateWorldScreen extends Screen {
     private static final int VERTICAL_BUTTON_SPACING = 8;
     public static final ResourceLocation HEADER_SEPERATOR = new ResourceLocation("textures/gui/header_separator.png");
     public static final ResourceLocation FOOTER_SEPERATOR = new ResourceLocation("textures/gui/footer_separator.png");
+    public static final ResourceLocation LIGHT_DIRT_BACKGROUND = new ResourceLocation("textures/gui/light_dirt_background.png");
     final WorldCreationUiState uiState;
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, param1x -> this.removeWidget(param1x));
     private boolean recreated;
@@ -281,18 +282,16 @@ public class CreateWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        RenderSystem.setShaderTexture(0, FOOTER_SEPERATOR);
-        blit(param0, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
+        param0.blit(FOOTER_SEPERATOR, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
         super.render(param0, param1, param2, param3);
     }
 
     @Override
-    public void renderDirtBackground(PoseStack param0) {
-        RenderSystem.setShaderTexture(0, LIGHT_DIRT_BACKGROUND);
+    public void renderDirtBackground(GuiGraphics param0) {
         int var0 = 32;
-        blit(param0, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
+        param0.blit(LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
     }
 
     @Override
@@ -614,14 +613,17 @@ public class CreateWorldScreen extends Screen {
                 var4.setValue(CreateWorldScreen.this.uiState.isAllowCheats());
                 var4.active = !CreateWorldScreen.this.uiState.isDebug() && !CreateWorldScreen.this.uiState.isHardcore();
             });
-            param0.addChild(
-                Button.builder(
-                        CreateWorldScreen.EXPERIMENTS_LABEL,
-                        param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
-                    )
-                    .width(210)
-                    .build()
-            );
+            if (!SharedConstants.getCurrentVersion().isStable()) {
+                param0.addChild(
+                    Button.builder(
+                            CreateWorldScreen.EXPERIMENTS_LABEL,
+                            param0x -> CreateWorldScreen.this.openExperimentsScreen(CreateWorldScreen.this.uiState.getSettings().dataConfiguration())
+                        )
+                        .width(210)
+                        .build()
+                );
+            }
+
         }
 
         @Override

@@ -8,7 +8,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.ItemLike;
 
@@ -100,6 +102,9 @@ public class CreativeModeTab {
 
     public void buildContents(CreativeModeTab.ItemDisplayParameters param0) {
         CreativeModeTab.ItemDisplayBuilder var0 = new CreativeModeTab.ItemDisplayBuilder(this, param0.enabledFeatures);
+        ResourceKey<CreativeModeTab> var1 = BuiltInRegistries.CREATIVE_MODE_TAB
+            .getResourceKey(this)
+            .orElseThrow(() -> new IllegalStateException("Unregistered creative tab: " + this));
         this.displayItemsGenerator.accept(param0, var0);
         this.displayItems = var0.tabContents;
         this.displayItemsSearchTab = var0.searchTabContents;
@@ -257,7 +262,7 @@ public class CreativeModeTab {
         }
     }
 
-    protected interface Output {
+    public interface Output {
         void accept(ItemStack var1, CreativeModeTab.TabVisibility var2);
 
         default void accept(ItemStack param0) {

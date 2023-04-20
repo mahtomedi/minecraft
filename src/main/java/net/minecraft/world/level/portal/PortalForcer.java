@@ -174,7 +174,7 @@ public class PortalForcer {
         for(int var1 = -1; var1 < 3; ++var1) {
             for(int var2 = -1; var2 < 4; ++var2) {
                 param1.setWithOffset(param0, param2.getStepX() * var1 + var0.getStepX() * param3, var2, param2.getStepZ() * var1 + var0.getStepZ() * param3);
-                if (var2 < 0 && !this.level.getBlockState(param1).getMaterial().isSolid()) {
+                if (var2 < 0 && !this.level.getBlockState(param1).isSolid()) {
                     return false;
                 }
 

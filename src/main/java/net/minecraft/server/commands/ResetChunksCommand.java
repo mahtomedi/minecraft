@@ -88,7 +88,7 @@ public class ResetChunksCommand {
         int var15 = (param1 * 2 + 1) * (param1 * 2 + 1);
 
         for(ChunkStatus var16 : ImmutableList.of(
-            ChunkStatus.BIOMES, ChunkStatus.NOISE, ChunkStatus.SURFACE, ChunkStatus.CARVERS, ChunkStatus.LIQUID_CARVERS, ChunkStatus.FEATURES
+            ChunkStatus.BIOMES, ChunkStatus.NOISE, ChunkStatus.SURFACE, ChunkStatus.CARVERS, ChunkStatus.FEATURES, ChunkStatus.INITIALIZE_LIGHT
         )) {
             long var17 = System.currentTimeMillis();
             CompletableFuture<Unit> var18 = CompletableFuture.supplyAsync(() -> Unit.INSTANCE, var13::tell);
@@ -120,7 +120,7 @@ public class ResetChunksCommand {
                         var18 = var18.thenComposeAsync(
                             param5 -> var16.generate(var13::tell, var0, var1.getGenerator(), var0.getStructureManager(), var1.getLightEngine(), param0x -> {
                                     throw new UnsupportedOperationException("Not creating full chunks here");
-                                }, var23, true).thenApply(param1x -> {
+                                }, var23).thenApply(param1x -> {
                                     if (var16 == ChunkStatus.NOISE) {
                                         param1x.left().ifPresent(param0x -> Heightmap.primeHeightmaps(param0x, ChunkStatus.POST_FEATURES));
                                     }

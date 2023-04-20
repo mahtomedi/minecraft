@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -141,16 +141,12 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
 
     @Nullable
     @Override
-    public <T extends BlockEntity> GameEventListener getListener(ServerLevel param0, T param1) {
-        return param1 instanceof SculkShriekerBlockEntity var0 ? var0.getListener() : null;
-    }
-
-    @Nullable
-    @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level param0, BlockState param1, BlockEntityType<T> param2) {
         return !param0.isClientSide
             ? BaseEntityBlock.createTickerHelper(
-                param2, BlockEntityType.SCULK_SHRIEKER, (param0x, param1x, param2x, param3) -> param3.getListener().tick(param0x)
+                param2,
+                BlockEntityType.SCULK_SHRIEKER,
+                (param0x, param1x, param2x, param3) -> VibrationSystem.Ticker.tick(param0x, param3.getVibrationData(), param3.getVibrationUser())
             )
             : null;
     }

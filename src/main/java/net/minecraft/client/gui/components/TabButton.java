@@ -1,9 +1,8 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -36,9 +35,8 @@ public class TabButton extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
-        RenderSystem.setShaderTexture(0, TEXTURE_LOCATION);
-        blitNineSliced(param0, this.getX(), this.getY(), this.width, this.height, 2, 2, 2, 0, 130, 24, 0, this.getTextureY());
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
+        param0.blitNineSliced(TEXTURE_LOCATION, this.getX(), this.getY(), this.width, this.height, 2, 2, 2, 0, 130, 24, 0, this.getTextureY());
         Font var0 = Minecraft.getInstance().font;
         int var1 = this.active ? -1 : -6250336;
         this.renderString(param0, var0, var1);
@@ -48,7 +46,7 @@ public class TabButton extends AbstractWidget {
 
     }
 
-    public void renderString(PoseStack param0, Font param1, int param2) {
+    public void renderString(GuiGraphics param0, Font param1, int param2) {
         int var0 = this.getX() + 1;
         int var1 = this.getY() + (this.isSelected() ? 0 : 3);
         int var2 = this.getX() + this.getWidth() - 1;
@@ -56,11 +54,11 @@ public class TabButton extends AbstractWidget {
         renderScrollingString(param0, param1, this.getMessage(), var0, var1, var2, var3, param2);
     }
 
-    private void renderFocusUnderline(PoseStack param0, Font param1, int param2) {
+    private void renderFocusUnderline(GuiGraphics param0, Font param1, int param2) {
         int var0 = Math.min(param1.width(this.getMessage()), this.getWidth() - 4);
         int var1 = this.getX() + (this.getWidth() - var0) / 2;
         int var2 = this.getY() + this.getHeight() - 2;
-        fill(param0, var1, var2, var1 + var0, var2 + 1, param2);
+        param0.fill(var1, var2, var1 + var0, var2 + 1, param2);
     }
 
     protected int getTextureY() {

@@ -2,8 +2,6 @@ package net.minecraft.client.gui.screens.achievement;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
@@ -38,6 +36,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class StatsScreen extends Screen implements StatsUpdateListener {
     private static final Component PENDING_TEXT = Component.translatable("multiplayer.downloadingStats");
+    private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
     StatsScreen.ItemStatisticsList itemStatsList;
@@ -109,21 +108,16 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.isLoading) {
             this.renderBackground(param0);
-            drawCenteredString(param0, this.font, PENDING_TEXT, this.width / 2, this.height / 2, 16777215);
-            drawCenteredString(
-                param0,
-                this.font,
-                LOADING_SYMBOLS[(int)(Util.getMillis() / 150L % (long)LOADING_SYMBOLS.length)],
-                this.width / 2,
-                this.height / 2 + 9 * 2,
-                16777215
+            param0.drawCenteredString(this.font, PENDING_TEXT, this.width / 2, this.height / 2, 16777215);
+            param0.drawCenteredString(
+                this.font, LOADING_SYMBOLS[(int)(Util.getMillis() / 150L % (long)LOADING_SYMBOLS.length)], this.width / 2, this.height / 2 + 9 * 2, 16777215
             );
         } else {
             this.getActiveList().render(param0, param1, param2, param3);
-            drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+            param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
             super.render(param0, param1, param2, param3);
         }
 
@@ -170,14 +164,13 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         return 115 + 40 * param0;
     }
 
-    void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
+    void blitSlot(GuiGraphics param0, int param1, int param2, Item param3) {
         this.blitSlotIcon(param0, param1 + 1, param2 + 1, 0, 0);
-        this.itemRenderer.renderGuiItem(param0, param3.getDefaultInstance(), param1 + 2, param2 + 2);
+        param0.renderFakeItem(param3.getDefaultInstance(), param1 + 2, param2 + 2);
     }
 
-    void blitSlotIcon(PoseStack param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.setShaderTexture(0, STATS_ICON_LOCATION);
-        blit(param0, param1, param2, 0, (float)param3, (float)param4, 18, 18, 128, 128);
+    void blitSlotIcon(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        param0.blit(STATS_ICON_LOCATION, param1, param2, 0, (float)param3, (float)param4, 18, 18, 128, 128);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -194,7 +187,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderBackground(PoseStack param0) {
+        protected void renderBackground(GuiGraphics param0) {
             StatsScreen.this.renderBackground(param0);
         }
 
@@ -214,12 +207,12 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                GuiComponent.drawString(param0, StatsScreen.this.font, this.statDisplay, param3 + 2, param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192);
+                param0.drawString(StatsScreen.this.font, this.statDisplay, param3 + 2, param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192);
                 String var0 = this.getValueText();
-                GuiComponent.drawString(
-                    param0, StatsScreen.this.font, var0, param3 + 2 + 213 - StatsScreen.this.font.width(var0), param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
+                param0.drawString(
+                    StatsScreen.this.font, var0, param3 + 2 + 213 - StatsScreen.this.font.width(var0), param2 + 1, param1 % 2 == 0 ? 16777215 : 9474192
                 );
             }
 
@@ -288,7 +281,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderHeader(PoseStack param0, int param1, int param2) {
+        protected void renderHeader(GuiGraphics param0, int param1, int param2) {
             if (!this.minecraft.mouseHandler.isLeftPressed()) {
                 this.headerPressed = -1;
             }
@@ -323,7 +316,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderBackground(PoseStack param0) {
+        protected void renderBackground(GuiGraphics param0) {
             StatsScreen.this.renderBackground(param0);
         }
 
@@ -361,7 +354,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderDecorations(PoseStack param0, int param1, int param2) {
+        protected void renderDecorations(GuiGraphics param0, int param1, int param2) {
             if (param2 >= this.y0 && param2 <= this.y1) {
                 StatsScreen.ItemStatisticsList.ItemRow var0 = this.getHovered();
                 int var1 = (this.width - this.getRowWidth()) / 2;
@@ -390,16 +383,16 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             }
         }
 
-        protected void renderMousehoverTooltip(PoseStack param0, @Nullable Component param1, int param2, int param3) {
+        protected void renderMousehoverTooltip(GuiGraphics param0, @Nullable Component param1, int param2, int param3) {
             if (param1 != null) {
                 int var0 = param2 + 12;
                 int var1 = param3 - 12;
                 int var2 = StatsScreen.this.font.width(param1);
-                fillGradient(param0, var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-                param0.pushPose();
-                param0.translate(0.0F, 0.0F, 400.0F);
-                StatsScreen.this.font.drawShadow(param0, param1, (float)var0, (float)var1, -1);
-                param0.popPose();
+                param0.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
+                param0.pose().pushPose();
+                param0.pose().translate(0.0F, 0.0F, 400.0F);
+                param0.drawString(StatsScreen.this.font, param1, var0, var1, -1);
+                param0.pose().popPose();
             }
         }
 
@@ -435,7 +428,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
                 StatsScreen.this.blitSlot(param0, param3 + 40, param2, this.item);
 
@@ -462,11 +455,9 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             }
 
-            protected void renderStat(PoseStack param0, @Nullable Stat<?> param1, int param2, int param3, boolean param4) {
+            protected void renderStat(GuiGraphics param0, @Nullable Stat<?> param1, int param2, int param3, boolean param4) {
                 String var0 = param1 == null ? "-" : param1.format(StatsScreen.this.stats.getValue(param1));
-                GuiComponent.drawString(
-                    param0, StatsScreen.this.font, var0, param2 - StatsScreen.this.font.width(var0), param3 + 5, param4 ? 16777215 : 9474192
-                );
+                param0.drawString(StatsScreen.this.font, var0, param2 - StatsScreen.this.font.width(var0), param3 + 5, param4 ? 16777215 : 9474192);
             }
 
             @Override
@@ -517,7 +508,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderBackground(PoseStack param0) {
+        protected void renderBackground(GuiGraphics param0) {
             StatsScreen.this.renderBackground(param0);
         }
 
@@ -553,11 +544,11 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                GuiComponent.drawString(param0, StatsScreen.this.font, this.mobName, param3 + 2, param2 + 1, 16777215);
-                GuiComponent.drawString(param0, StatsScreen.this.font, this.kills, param3 + 2 + 10, param2 + 1 + 9, this.hasKills ? 9474192 : 6316128);
-                GuiComponent.drawString(param0, StatsScreen.this.font, this.killedBy, param3 + 2 + 10, param2 + 1 + 9 * 2, this.wasKilledBy ? 9474192 : 6316128);
+                param0.drawString(StatsScreen.this.font, this.mobName, param3 + 2, param2 + 1, 16777215);
+                param0.drawString(StatsScreen.this.font, this.kills, param3 + 2 + 10, param2 + 1 + 9, this.hasKills ? 9474192 : 6316128);
+                param0.drawString(StatsScreen.this.font, this.killedBy, param3 + 2 + 10, param2 + 1 + 9 * 2, this.wasKilledBy ? 9474192 : 6316128);
             }
 
             @Override

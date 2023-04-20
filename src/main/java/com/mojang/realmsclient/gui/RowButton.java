@@ -1,7 +1,7 @@
 package com.mojang.realmsclient.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.realms.RealmsObjectSelectionList;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,14 +21,14 @@ public abstract class RowButton {
         this.yOffset = param3;
     }
 
-    public void drawForRowAt(PoseStack param0, int param1, int param2, int param3, int param4) {
+    public void drawForRowAt(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         int var0 = param1 + this.xOffset;
         int var1 = param2 + this.yOffset;
         boolean var2 = param3 >= var0 && param3 <= var0 + this.width && param4 >= var1 && param4 <= var1 + this.height;
         this.draw(param0, var0, var1, var2);
     }
 
-    protected abstract void draw(PoseStack var1, int var2, int var3, boolean var4);
+    protected abstract void draw(GuiGraphics var1, int var2, int var3, boolean var4);
 
     public int getRight() {
         return this.xOffset + this.width;
@@ -41,7 +41,7 @@ public abstract class RowButton {
     public abstract void onClick(int var1);
 
     public static void drawButtonsInRow(
-        PoseStack param0, List<RowButton> param1, RealmsObjectSelectionList<?> param2, int param3, int param4, int param5, int param6
+        GuiGraphics param0, List<RowButton> param1, RealmsObjectSelectionList<?> param2, int param3, int param4, int param5, int param6
     ) {
         for(RowButton var0 : param1) {
             if (param2.getRowWidth() > var0.getRight()) {

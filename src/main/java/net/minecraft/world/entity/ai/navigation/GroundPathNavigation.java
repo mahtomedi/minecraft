@@ -58,12 +58,12 @@ public class GroundPathNavigation extends PathNavigation {
             param0 = var0;
         }
 
-        if (!this.level.getBlockState(param0).getMaterial().isSolid()) {
+        if (!this.level.getBlockState(param0).isSolid()) {
             return super.createPath(param0, param1);
         } else {
             BlockPos var1 = param0.above();
 
-            while(var1.getY() < this.level.getMaxBuildHeight() && this.level.getBlockState(var1).getMaterial().isSolid()) {
+            while(var1.getY() < this.level.getMaxBuildHeight() && this.level.getBlockState(var1).isSolid()) {
                 var1 = var1.above();
             }
 

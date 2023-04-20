@@ -1,11 +1,10 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.dto.Backup;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
@@ -55,10 +54,10 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.backupInfoList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
@@ -112,10 +111,10 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             Font var0 = RealmsBackupInfoScreen.this.minecraft.font;
-            GuiComponent.drawString(param0, var0, this.key, param3, param2, 10526880);
-            GuiComponent.drawString(param0, var0, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215);
+            param0.drawString(var0, this.key, param3, param2, 10526880);
+            param0.drawString(var0, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215);
         }
 
         @Override

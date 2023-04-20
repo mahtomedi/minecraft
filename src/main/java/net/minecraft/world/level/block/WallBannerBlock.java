@@ -44,7 +44,7 @@ public class WallBannerBlock extends AbstractBannerBlock {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        return param1.getBlockState(param2.relative(param0.getValue(FACING).getOpposite())).getMaterial().isSolid();
+        return param1.getBlockState(param2.relative(param0.getValue(FACING).getOpposite())).isSolid();
     }
 
     @Override

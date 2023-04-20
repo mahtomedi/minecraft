@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.ImmutableList.Builder;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -69,10 +68,10 @@ public class EditGameRulesScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.tooltip = null;
         this.rules.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
@@ -104,7 +103,7 @@ public class EditGameRulesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderLabel(param0, param2, param3);
             this.checkbox.setX(param3 + param4 - 45);
             this.checkbox.setY(param2);
@@ -122,8 +121,8 @@ public class EditGameRulesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            GuiComponent.drawCenteredString(param0, EditGameRulesScreen.this.minecraft.font, this.label, param3 + param4 / 2, param2 + 5, 16777215);
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            param0.drawCenteredString(EditGameRulesScreen.this.minecraft.font, this.label, param3 + param4 / 2, param2 + 5, 16777215);
         }
 
         @Override
@@ -173,12 +172,12 @@ public class EditGameRulesScreen extends Screen {
             return this.children;
         }
 
-        protected void renderLabel(PoseStack param0, int param1, int param2) {
+        protected void renderLabel(GuiGraphics param0, int param1, int param2) {
             if (this.label.size() == 1) {
-                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(0), (float)param2, (float)(param1 + 5), 16777215);
+                param0.drawString(EditGameRulesScreen.this.minecraft.font, this.label.get(0), param2, param1 + 5, 16777215, false);
             } else if (this.label.size() >= 2) {
-                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(0), (float)param2, (float)param1, 16777215);
-                EditGameRulesScreen.this.minecraft.font.draw(param0, this.label.get(1), (float)param2, (float)(param1 + 10), 16777215);
+                param0.drawString(EditGameRulesScreen.this.minecraft.font, this.label.get(0), param2, param1, 16777215, false);
+                param0.drawString(EditGameRulesScreen.this.minecraft.font, this.label.get(1), param2, param1 + 10, 16777215, false);
             }
 
         }
@@ -206,7 +205,7 @@ public class EditGameRulesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderLabel(param0, param2, param3);
             this.input.setX(param3 + param4 - 44);
             this.input.setY(param2);
@@ -296,7 +295,7 @@ public class EditGameRulesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, float param3) {
+        public void render(GuiGraphics param0, int param1, int param2, float param3) {
             super.render(param0, param1, param2, param3);
             EditGameRulesScreen.RuleEntry var0 = this.getHovered();
             if (var0 != null && var0.tooltip != null) {

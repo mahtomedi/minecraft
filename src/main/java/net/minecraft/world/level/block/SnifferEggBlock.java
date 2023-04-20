@@ -82,8 +82,8 @@ public class SnifferEggBlock extends Block {
     @Override
     public void onPlace(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
         boolean var0 = hatchBoost(param1, param2);
-        if (!param1.isClientSide()) {
-            param1.levelEvent(3009, param2, var0 ? 1 : 0);
+        if (!param1.isClientSide() && var0) {
+            param1.levelEvent(3009, param2, 0);
         }
 
         int var1 = var0 ? 12000 : 24000;

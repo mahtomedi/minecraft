@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.worldselection;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
@@ -9,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.Registry;
@@ -102,31 +102,31 @@ public class OptimizeWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 20, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
         int var0 = this.width / 2 - 150;
         int var1 = this.width / 2 + 150;
         int var2 = this.height / 4 + 100;
         int var3 = var2 + 10;
-        drawCenteredString(param0, this.font, this.upgrader.getStatus(), this.width / 2, var2 - 9 - 2, 10526880);
+        param0.drawCenteredString(this.font, this.upgrader.getStatus(), this.width / 2, var2 - 9 - 2, 10526880);
         if (this.upgrader.getTotalChunks() > 0) {
-            fill(param0, var0 - 1, var2 - 1, var1 + 1, var3 + 1, -16777216);
-            drawString(param0, this.font, Component.translatable("optimizeWorld.info.converted", this.upgrader.getConverted()), var0, 40, 10526880);
-            drawString(param0, this.font, Component.translatable("optimizeWorld.info.skipped", this.upgrader.getSkipped()), var0, 40 + 9 + 3, 10526880);
-            drawString(param0, this.font, Component.translatable("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880);
+            param0.fill(var0 - 1, var2 - 1, var1 + 1, var3 + 1, -16777216);
+            param0.drawString(this.font, Component.translatable("optimizeWorld.info.converted", this.upgrader.getConverted()), var0, 40, 10526880);
+            param0.drawString(this.font, Component.translatable("optimizeWorld.info.skipped", this.upgrader.getSkipped()), var0, 40 + 9 + 3, 10526880);
+            param0.drawString(this.font, Component.translatable("optimizeWorld.info.total", this.upgrader.getTotalChunks()), var0, 40 + (9 + 3) * 2, 10526880);
             int var4 = 0;
 
             for(ResourceKey<Level> var5 : this.upgrader.levels()) {
                 int var6 = Mth.floor(this.upgrader.dimensionProgress(var5) * (float)(var1 - var0));
-                fill(param0, var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5));
+                param0.fill(var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5));
                 var4 += var6;
             }
 
             int var7 = this.upgrader.getConverted() + this.upgrader.getSkipped();
-            drawCenteredString(param0, this.font, var7 + " / " + this.upgrader.getTotalChunks(), this.width / 2, var2 + 2 * 9 + 2, 10526880);
-            drawCenteredString(
-                param0, this.font, Mth.floor(this.upgrader.getProgress() * 100.0F) + "%", this.width / 2, var2 + (var3 - var2) / 2 - 9 / 2, 10526880
+            param0.drawCenteredString(this.font, var7 + " / " + this.upgrader.getTotalChunks(), this.width / 2, var2 + 2 * 9 + 2, 10526880);
+            param0.drawCenteredString(
+                this.font, Mth.floor(this.upgrader.getProgress() * 100.0F) + "%", this.width / 2, var2 + (var3 - var2) / 2 - 9 / 2, 10526880
             );
         }
 

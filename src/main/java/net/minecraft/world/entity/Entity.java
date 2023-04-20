@@ -642,31 +642,23 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                     this.walkDist += (float)var0.horizontalDistance() * 0.6F;
                     this.moveDist += (float)Math.sqrt(var10 * var10 + var11 * var11 + var12 * var12) * 0.6F;
                     if (this.moveDist > this.nextStep && !var6.isAir()) {
-                        if (!this.onGround && !var13 && (!this.isCrouching() || param1.y != 0.0)) {
-                            if (this.isInWater()) {
-                                this.nextStep = this.nextStep();
-                                if (var9.emitsSounds()) {
-                                    Entity var14 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
-                                    float var15 = var14 == this ? 0.35F : 0.4F;
-                                    Vec3 var16 = var14.getDeltaMovement();
-                                    float var17 = Math.min(
-                                        1.0F, (float)Math.sqrt(var16.x * var16.x * 0.2F + var16.y * var16.y + var16.z * var16.z * 0.2F) * var15
-                                    );
-                                    this.playSwimSound(var17);
-                                }
-
-                                if (var9.emitsEvents()) {
-                                    this.gameEvent(GameEvent.SWIM);
-                                }
-                            }
-                        } else {
+                        if (this.walkingOnBlock(var13, param1)) {
                             this.nextStep = this.nextStep();
                             if (var9.emitsSounds()) {
-                                this.handleStepSounds(var5, var6);
+                                this.walkingStepSound(var5, var6);
                             }
 
                             if (var9.emitsEvents()) {
                                 this.level.gameEvent(GameEvent.STEP, this.position, GameEvent.Context.of(this, this.getBlockStateOn()));
+                            }
+                        } else if (this.isInWater()) {
+                            this.nextStep = this.nextStep();
+                            if (var9.emitsSounds()) {
+                                this.waterSwimSound();
+                            }
+
+                            if (var9.emitsEvents()) {
+                                this.gameEvent(GameEvent.SWIM);
                             }
                         }
                     } else if (var6.isAir()) {
@@ -675,8 +667,8 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 }
 
                 this.tryCheckInsideBlocks();
-                float var18 = this.getBlockSpeedFactor();
-                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var18, 1.0, (double)var18));
+                float var14 = this.getBlockSpeedFactor();
+                this.setDeltaMovement(this.getDeltaMovement().multiply((double)var14, 1.0, (double)var14));
                 if (this.level
                     .getBlockStatesIfLoaded(this.getBoundingBox().deflate(1.0E-6))
                     .noneMatch(param0x -> param0x.is(BlockTags.FIRE) || param0x.is(Blocks.LAVA))) {
@@ -952,36 +944,37 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.gameEvent(param0, this);
     }
 
-    private void handleStepSounds(BlockPos param0, BlockState param1) {
-        BlockPos var0 = this.getPrimaryStepSoundBlockPos(param0);
-        if (this instanceof Player && !param0.equals(var0)) {
-            BlockState var1 = this.level.getBlockState(var0);
-            if (var1.is(BlockTags.COMBINATION_STEP_SOUND_BLOCKS)) {
-                this.playCombinationStepSounds(var1, param1);
-            } else {
-                this.playStepSound(var0, var1);
-            }
-        } else {
-            this.playStepSound(param0, param1);
-        }
-
+    private void walkingStepSound(BlockPos param0, BlockState param1) {
+        this.playStepSound(param0, param1);
         if (this.shouldPlayAmethystStepSound(param1)) {
             this.playAmethystStepSound();
         }
 
     }
 
-    private BlockPos getPrimaryStepSoundBlockPos(BlockPos param0) {
+    protected void waterSwimSound() {
+        Entity var0 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
+        float var1 = var0 == this ? 0.35F : 0.4F;
+        Vec3 var2 = var0.getDeltaMovement();
+        float var3 = Math.min(1.0F, (float)Math.sqrt(var2.x * var2.x * 0.2F + var2.y * var2.y + var2.z * var2.z * 0.2F) * var1);
+        this.playSwimSound(var3);
+    }
+
+    protected BlockPos getPrimaryStepSoundBlockPos(BlockPos param0) {
         BlockPos var0 = param0.above();
         BlockState var1 = this.level.getBlockState(var0);
         return !var1.is(BlockTags.INSIDE_STEP_SOUND_BLOCKS) && !var1.is(BlockTags.COMBINATION_STEP_SOUND_BLOCKS) ? param0 : var0;
     }
 
-    private void playCombinationStepSounds(BlockState param0, BlockState param1) {
+    protected void playCombinationStepSounds(BlockState param0, BlockState param1) {
         SoundType var0 = param0.getSoundType();
-        SoundType var1 = param1.getSoundType();
         this.playSound(var0.getStepSound(), var0.getVolume() * 0.15F, var0.getPitch());
-        this.playSound(var1.getStepSound(), var1.getVolume() * 0.05F, var1.getPitch() * 0.8F);
+        this.playMuffledStepSound(param1);
+    }
+
+    protected void playMuffledStepSound(BlockState param0) {
+        SoundType var0 = param0.getSoundType();
+        this.playSound(var0.getStepSound(), var0.getVolume() * 0.05F, var0.getPitch() * 0.8F);
     }
 
     protected void playStepSound(BlockPos param0, BlockState param1) {
@@ -1081,6 +1074,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
             return false;
         }
+    }
+
+    public boolean walkingOnBlock(boolean param0, Vec3 param1) {
+        return (this.onGround || param0 || this.isCrouching() && param1.y == 0.0) && !this.isSwimming();
     }
 
     public boolean isInWater() {

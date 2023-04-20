@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
@@ -49,7 +48,7 @@ public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceMenu> exten
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
             this.renderBg(param0, param3, param1, param2);
@@ -65,18 +64,17 @@ public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceMenu> exten
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, this.texture);
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(this.texture, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         if (this.menu.isLit()) {
             int var2 = this.menu.getLitProgress();
-            blit(param0, var0 + 56, var1 + 36 + 12 - var2, 176, 12 - var2, 14, var2 + 1);
+            param0.blit(this.texture, var0 + 56, var1 + 36 + 12 - var2, 176, 12 - var2, 14, var2 + 1);
         }
 
         int var3 = this.menu.getBurnProgress();
-        blit(param0, var0 + 79, var1 + 34, 176, 14, var3 + 1, 16);
+        param0.blit(this.texture, var0 + 79, var1 + 34, 176, 14, var3 + 1, 16);
     }
 
     @Override

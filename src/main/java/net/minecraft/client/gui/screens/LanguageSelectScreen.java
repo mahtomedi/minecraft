@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.LanguageInfo;
@@ -47,10 +47,10 @@ public class LanguageSelectScreen extends OptionsSubScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.packSelectionList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 16, 16777215);
-        drawCenteredString(param0, this.font, WARNING_LABEL, this.width / 2, this.height - 56, 8421504);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
+        param0.drawCenteredString(this.font, WARNING_LABEL, this.width / 2, this.height - 56, 8421504);
         super.render(param0, param1, param2, param3);
     }
 
@@ -84,7 +84,7 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         }
 
         @Override
-        protected void renderBackground(PoseStack param0) {
+        protected void renderBackground(GuiGraphics param0) {
             LanguageSelectScreen.this.renderBackground(param0);
         }
 
@@ -100,16 +100,9 @@ public class LanguageSelectScreen extends OptionsSubScreen {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                LanguageSelectScreen.this.font
-                    .drawShadow(
-                        param0,
-                        this.language,
-                        (float)(LanguageSelectionList.this.width / 2 - LanguageSelectScreen.this.font.width(this.language) / 2),
-                        (float)(param2 + 1),
-                        16777215
-                    );
+                param0.drawCenteredString(LanguageSelectScreen.this.font, this.language, LanguageSelectionList.this.width / 2, param2 + 1, 16777215);
             }
 
             @Override

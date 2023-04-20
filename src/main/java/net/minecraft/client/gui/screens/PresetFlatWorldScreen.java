@@ -2,8 +2,6 @@ package net.minecraft.client.gui.screens;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.util.Collections;
 import java.util.Iterator;
@@ -13,7 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -224,15 +222,15 @@ public class PresetFlatWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        param0.pushPose();
-        param0.translate(0.0F, 0.0F, 400.0F);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
-        drawString(param0, this.font, this.shareText, 50, 30, 10526880);
-        drawString(param0, this.font, this.listText, 50, 70, 10526880);
-        param0.popPose();
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, 0.0F, 400.0F);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
+        param0.drawString(this.font, this.shareText, 50, 30, 10526880);
+        param0.drawString(this.font, this.listText, 50, 70, 10526880);
+        param0.pose().popPose();
         this.export.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);
     }
@@ -302,6 +300,7 @@ public class PresetFlatWorldScreen extends Screen {
 
         @OnlyIn(Dist.CLIENT)
         public class Entry extends ObjectSelectionList.Entry<PresetFlatWorldScreen.PresetsList.Entry> {
+            private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
             private final FlatLevelGeneratorPreset preset;
             private final Component name;
 
@@ -314,10 +313,10 @@ public class PresetFlatWorldScreen extends Screen {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
                 this.blitSlot(param0, param3, param2, this.preset.displayItem().value());
-                PresetFlatWorldScreen.this.font.draw(param0, this.name, (float)(param3 + 18 + 5), (float)(param2 + 6), 16777215);
+                param0.drawString(PresetFlatWorldScreen.this.font, this.name, param3 + 18 + 5, param2 + 6, 16777215, false);
             }
 
             @Override
@@ -336,14 +335,13 @@ public class PresetFlatWorldScreen extends Screen {
                 PresetFlatWorldScreen.this.export.moveCursorToStart();
             }
 
-            private void blitSlot(PoseStack param0, int param1, int param2, Item param3) {
+            private void blitSlot(GuiGraphics param0, int param1, int param2, Item param3) {
                 this.blitSlotBg(param0, param1 + 1, param2 + 1);
-                PresetFlatWorldScreen.this.itemRenderer.renderGuiItem(param0, new ItemStack(param3), param1 + 2, param2 + 2);
+                param0.renderFakeItem(new ItemStack(param3), param1 + 2, param2 + 2);
             }
 
-            private void blitSlotBg(PoseStack param0, int param1, int param2) {
-                RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
+            private void blitSlotBg(GuiGraphics param0, int param1, int param2) {
+                param0.blit(STATS_ICON_LOCATION, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
             }
 
             @Override

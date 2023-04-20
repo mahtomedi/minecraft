@@ -332,50 +332,52 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
             var0.advanceCellX(var12);
 
             for(int var13 = 0; var13 < var11; ++var13) {
-                LevelChunkSection var14 = param3.getSection(param3.getSectionsCount() - 1);
+                int var14 = param3.getSectionsCount() - 1;
+                LevelChunkSection var15 = param3.getSection(var14);
 
-                for(int var15 = param5 - 1; var15 >= 0; --var15) {
-                    var0.selectCellYZ(var15, var13);
+                for(int var16 = param5 - 1; var16 >= 0; --var16) {
+                    var0.selectCellYZ(var16, var13);
 
-                    for(int var16 = var9 - 1; var16 >= 0; --var16) {
-                        int var17 = (param4 + var15) * var9 + var16;
-                        int var18 = var17 & 15;
-                        int var19 = param3.getSectionIndex(var17);
-                        if (param3.getSectionIndex(var14.bottomBlockY()) != var19) {
-                            var14 = param3.getSection(var19);
+                    for(int var17 = var9 - 1; var17 >= 0; --var17) {
+                        int var18 = (param4 + var16) * var9 + var17;
+                        int var19 = var18 & 15;
+                        int var20 = param3.getSectionIndex(var18);
+                        if (var14 != var20) {
+                            var14 = var20;
+                            var15 = param3.getSection(var20);
                         }
 
-                        double var20 = (double)var16 / (double)var9;
-                        var0.updateForY(var17, var20);
+                        double var21 = (double)var17 / (double)var9;
+                        var0.updateForY(var18, var21);
 
-                        for(int var21 = 0; var21 < var8; ++var21) {
-                            int var22 = var4 + var12 * var8 + var21;
-                            int var23 = var22 & 15;
-                            double var24 = (double)var21 / (double)var8;
-                            var0.updateForX(var22, var24);
+                        for(int var22 = 0; var22 < var8; ++var22) {
+                            int var23 = var4 + var12 * var8 + var22;
+                            int var24 = var23 & 15;
+                            double var25 = (double)var22 / (double)var8;
+                            var0.updateForX(var23, var25);
 
-                            for(int var25 = 0; var25 < var8; ++var25) {
-                                int var26 = var5 + var13 * var8 + var25;
-                                int var27 = var26 & 15;
-                                double var28 = (double)var25 / (double)var8;
-                                var0.updateForZ(var26, var28);
-                                BlockState var29 = var0.getInterpolatedState();
-                                if (var29 == null) {
-                                    var29 = this.settings.value().defaultBlock();
+                            for(int var26 = 0; var26 < var8; ++var26) {
+                                int var27 = var5 + var13 * var8 + var26;
+                                int var28 = var27 & 15;
+                                double var29 = (double)var26 / (double)var8;
+                                var0.updateForZ(var27, var29);
+                                BlockState var30 = var0.getInterpolatedState();
+                                if (var30 == null) {
+                                    var30 = this.settings.value().defaultBlock();
                                 }
 
-                                var29 = this.debugPreliminarySurfaceLevel(var0, var22, var17, var26, var29);
-                                if (var29 != AIR && !SharedConstants.debugVoidTerrain(param3.getPos())) {
-                                    if (var29.getLightEmission() != 0 && param3 instanceof ProtoChunk) {
-                                        var7.set(var22, var17, var26);
+                                var30 = this.debugPreliminarySurfaceLevel(var0, var23, var18, var27, var30);
+                                if (var30 != AIR && !SharedConstants.debugVoidTerrain(param3.getPos())) {
+                                    if (var30.getLightEmission() != 0 && param3 instanceof ProtoChunk) {
+                                        var7.set(var23, var18, var27);
                                         ((ProtoChunk)param3).addLight(var7);
                                     }
 
-                                    var14.setBlockState(var23, var18, var27, var29, false);
-                                    var1.update(var23, var17, var27, var29);
-                                    var2.update(var23, var17, var27, var29);
-                                    if (var6.shouldScheduleFluidUpdate() && !var29.getFluidState().isEmpty()) {
-                                        var7.set(var22, var17, var26);
+                                    var15.setBlockState(var24, var19, var28, var30, false);
+                                    var1.update(var24, var18, var28, var30);
+                                    var2.update(var24, var18, var28, var30);
+                                    if (var6.shouldScheduleFluidUpdate() && !var30.getFluidState().isEmpty()) {
+                                        var7.set(var23, var18, var27);
                                         param3.markPosForPostprocessing(var7);
                                     }
                                 }

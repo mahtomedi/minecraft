@@ -29,7 +29,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.AnimationState;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -65,7 +64,6 @@ public class Sniffer extends Animal {
     public final AnimationState feelingHappyAnimationState = new AnimationState();
     public final AnimationState scentingAnimationState = new AnimationState();
     public final AnimationState sniffingAnimationState = new AnimationState();
-    public final AnimationState searchingAnimationState = new AnimationState();
     public final AnimationState diggingAnimationState = new AnimationState();
     public final AnimationState risingAnimationState = new AnimationState();
     public final AnimationState babyTransformationState = new AnimationState();
@@ -93,12 +91,16 @@ public class Sniffer extends Animal {
         return this.brain.getMemory(MemoryModuleType.IS_PANICKING).isPresent();
     }
 
+    public boolean isSearching() {
+        return this.getState() == Sniffer.State.SEARCHING;
+    }
+
     public boolean isTempted() {
         return this.brain.getMemory(MemoryModuleType.IS_TEMPTED).orElse(false);
     }
 
     public boolean canSniff() {
-        return !this.isTempted() && !this.isPanicking() && !this.isInWater() && !this.isInLove();
+        return !this.isTempted() && !this.isPanicking() && !this.isInWater() && !this.isInLove() && this.onGround && !this.isPassenger();
     }
 
     public boolean canPlayDiggingSound() {
@@ -131,9 +133,6 @@ public class Sniffer extends Animal {
                 case SNIFFING:
                     this.sniffingAnimationState.startIfStopped(this.tickCount);
                     break;
-                case SEARCHING:
-                    this.searchingAnimationState.startIfStopped(this.tickCount);
-                    break;
                 case DIGGING:
                     this.diggingAnimationState.startIfStopped(this.tickCount);
                     break;
@@ -149,7 +148,6 @@ public class Sniffer extends Animal {
     }
 
     private void resetAnimations() {
-        this.searchingAnimationState.stop();
         this.diggingAnimationState.stop();
         this.sniffingAnimationState.stop();
         this.risingAnimationState.stop();
@@ -166,9 +164,6 @@ public class Sniffer extends Animal {
                 this.playSound(SoundEvents.SNIFFER_SNIFFING, 1.0F, 1.0F);
                 this.setState(Sniffer.State.SNIFFING);
                 break;
-            case SEARCHING:
-                this.setState(Sniffer.State.SEARCHING);
-                break;
             case DIGGING:
                 this.setState(Sniffer.State.DIGGING).onDiggingStart();
                 break;
@@ -182,6 +177,9 @@ public class Sniffer extends Animal {
                 break;
             case IDLING:
                 this.setState(Sniffer.State.IDLING);
+                break;
+            case SEARCHING:
+                this.setState(Sniffer.State.SEARCHING);
         }
 
         return this;
@@ -217,13 +215,14 @@ public class Sniffer extends Animal {
             .findFirst();
     }
 
-    @Override
-    protected boolean canRide(Entity param0) {
-        return false;
-    }
-
     boolean canDig() {
-        return !this.isPanicking() && !this.isTempted() && !this.isBaby() && !this.isInWater() && this.canDig(this.getHeadPosition().below());
+        return !this.isPanicking()
+            && !this.isTempted()
+            && !this.isBaby()
+            && !this.isInWater()
+            && this.onGround
+            && !this.isPassenger()
+            && this.canDig(this.getHeadPosition().below());
     }
 
     private boolean canDig(BlockPos param0) {
@@ -299,7 +298,7 @@ public class Sniffer extends Animal {
         ItemEntity var2 = new ItemEntity(param0, (double)var0.getX(), (double)var0.getY(), (double)var0.getZ(), var1);
         var2.setDefaultPickUpDelay();
         this.finalizeSpawnChildFromBreeding(param0, param1, null);
-        this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.5F);
+        this.playSound(SoundEvents.SNIFFER_EGG_PLOP, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 0.5F);
         param0.addFreshEntity(var2);
     }
 
@@ -312,11 +311,11 @@ public class Sniffer extends Animal {
     @Override
     public void tick() {
         switch(this.getState()) {
-            case SEARCHING:
-                this.playSearchingSound();
-                break;
             case DIGGING:
                 this.emitDiggingParticles(this.diggingAnimationState).dropSeed();
+                break;
+            case SEARCHING:
+                this.playSearchingSound();
         }
 
         this.babyTransformationState.animateWhen(this.isBaby(), this.tickCount);
@@ -326,12 +325,13 @@ public class Sniffer extends Animal {
     @Override
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
-        InteractionResult var1 = super.mobInteract(param0, param1);
-        if (var1.consumesAction() && this.isFood(var0)) {
+        boolean var1 = this.isFood(var0);
+        InteractionResult var2 = super.mobInteract(param0, param1);
+        if (var2.consumesAction() && var1) {
             this.level.playSound(null, this, this.getEatingSound(var0), SoundSource.NEUTRAL, 1.0F, Mth.randomBetween(this.level.random, 0.8F, 1.2F));
         }
 
-        return var1;
+        return var2;
     }
 
     @Override

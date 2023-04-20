@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.social;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -10,7 +8,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
@@ -153,26 +151,25 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+    public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
         int var0 = param3 + 4;
         int var1 = param2 + (param5 - 24) / 2;
         int var2 = var0 + 24 + 4;
         Component var3 = this.getStatusComponent();
         int var4;
         if (var3 == CommonComponents.EMPTY) {
-            GuiComponent.fill(param0, param3, param2, param3 + param4, param2 + param5, BG_FILL);
+            param0.fill(param3, param2, param3 + param4, param2 + param5, BG_FILL);
             var4 = param2 + (param5 - 9) / 2;
         } else {
-            GuiComponent.fill(param0, param3, param2, param3 + param4, param2 + param5, BG_FILL_REMOVED);
+            param0.fill(param3, param2, param3 + param4, param2 + param5, BG_FILL_REMOVED);
             var4 = param2 + (param5 - (9 + 9)) / 2;
-            this.minecraft.font.draw(param0, var3, (float)var2, (float)(var4 + 12), PLAYER_STATUS_COLOR);
+            param0.drawString(this.minecraft.font, var3, var2, var4 + 12, PLAYER_STATUS_COLOR, false);
         }
 
-        RenderSystem.setShaderTexture(0, this.skinGetter.get());
-        PlayerFaceRenderer.draw(param0, var0, var1, 24);
-        this.minecraft.font.draw(param0, this.playerName, (float)var2, (float)var4, PLAYERNAME_COLOR);
+        PlayerFaceRenderer.draw(param0, this.skinGetter.get(), var0, var1, 24);
+        param0.drawString(this.minecraft.font, this.playerName, var2, var4, PLAYERNAME_COLOR, false);
         if (this.isRemoved) {
-            GuiComponent.fill(param0, var0, var1, var0 + 24, var1 + 24, SKIN_SHADE);
+            param0.fill(var0, var1, var0 + 24, var1 + 24, SKIN_SHADE);
         }
 
         if (this.hideButton != null && this.showButton != null && this.reportButton != null) {
@@ -192,8 +189,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         }
 
         if (this.hasDraftReport && this.reportButton != null) {
-            RenderSystem.setShaderTexture(0, AbstractWidget.WIDGETS_LOCATION);
-            GuiComponent.blit(param0, this.reportButton.getX() + 5, this.reportButton.getY() + 1, 182.0F, 24.0F, 15, 15, 256, 256);
+            param0.blit(AbstractWidget.WIDGETS_LOCATION, this.reportButton.getX() + 5, this.reportButton.getY() + 1, 182.0F, 24.0F, 15, 15, 256, 256);
         }
 
     }

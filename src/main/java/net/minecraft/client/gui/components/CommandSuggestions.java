@@ -3,7 +3,6 @@ package net.minecraft.client.gui.components;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.Message;
 import com.mojang.brigadier.ParseResults;
@@ -30,7 +29,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.commands.Commands;
@@ -56,7 +55,7 @@ public class CommandSuggestions {
         .map(Style.EMPTY::withColor)
         .collect(ImmutableList.toImmutableList());
     final Minecraft minecraft;
-    final Screen screen;
+    private final Screen screen;
     final EditBox input;
     final Font font;
     private final boolean commandsOnly;
@@ -337,14 +336,14 @@ public class CommandSuggestions {
         return FormattedCharSequence.composite(var0);
     }
 
-    public void render(PoseStack param0, int param1, int param2) {
+    public void render(GuiGraphics param0, int param1, int param2) {
         if (!this.renderSuggestions(param0, param1, param2)) {
             this.renderUsage(param0);
         }
 
     }
 
-    public boolean renderSuggestions(PoseStack param0, int param1, int param2) {
+    public boolean renderSuggestions(GuiGraphics param0, int param1, int param2) {
         if (this.suggestions != null) {
             this.suggestions.render(param0, param1, param2);
             return true;
@@ -353,13 +352,13 @@ public class CommandSuggestions {
         }
     }
 
-    public void renderUsage(PoseStack param0) {
+    public void renderUsage(GuiGraphics param0) {
         int var0 = 0;
 
         for(FormattedCharSequence var1 : this.commandUsage) {
             int var2 = this.anchorToBottom ? this.screen.height - 14 - 13 - 12 * var0 : 72 + 12 * var0;
-            GuiComponent.fill(param0, this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor);
-            this.font.drawShadow(param0, var1, (float)this.commandUsagePosition, (float)(var2 + 2), -1);
+            param0.fill(this.commandUsagePosition - 1, var2, this.commandUsagePosition + this.commandUsageWidth + 1, var2 + 12, this.fillColor);
+            param0.drawString(this.font, var1, this.commandUsagePosition, var2 + 2, -1);
             ++var0;
         }
 
@@ -390,7 +389,7 @@ public class CommandSuggestions {
             this.select(0);
         }
 
-        public void render(PoseStack param0, int param1, int param2) {
+        public void render(GuiGraphics param0, int param1, int param2) {
             int var0 = Math.min(this.suggestionList.size(), CommandSuggestions.this.suggestionLineLimit);
             int var1 = -5592406;
             boolean var2 = this.offset > 0;
@@ -402,16 +401,10 @@ public class CommandSuggestions {
             }
 
             if (var4) {
-                GuiComponent.fill(
-                    param0,
-                    this.rect.getX(),
-                    this.rect.getY() - 1,
-                    this.rect.getX() + this.rect.getWidth(),
-                    this.rect.getY(),
-                    CommandSuggestions.this.fillColor
+                param0.fill(
+                    this.rect.getX(), this.rect.getY() - 1, this.rect.getX() + this.rect.getWidth(), this.rect.getY(), CommandSuggestions.this.fillColor
                 );
-                GuiComponent.fill(
-                    param0,
+                param0.fill(
                     this.rect.getX(),
                     this.rect.getY() + this.rect.getHeight(),
                     this.rect.getX() + this.rect.getWidth(),
@@ -421,7 +414,7 @@ public class CommandSuggestions {
                 if (var2) {
                     for(int var6 = 0; var6 < this.rect.getWidth(); ++var6) {
                         if (var6 % 2 == 0) {
-                            GuiComponent.fill(param0, this.rect.getX() + var6, this.rect.getY() - 1, this.rect.getX() + var6 + 1, this.rect.getY(), -1);
+                            param0.fill(this.rect.getX() + var6, this.rect.getY() - 1, this.rect.getX() + var6 + 1, this.rect.getY(), -1);
                         }
                     }
                 }
@@ -429,8 +422,7 @@ public class CommandSuggestions {
                 if (var3) {
                     for(int var7 = 0; var7 < this.rect.getWidth(); ++var7) {
                         if (var7 % 2 == 0) {
-                            GuiComponent.fill(
-                                param0,
+                            param0.fill(
                                 this.rect.getX() + var7,
                                 this.rect.getY() + this.rect.getHeight(),
                                 this.rect.getX() + var7 + 1,
@@ -446,8 +438,7 @@ public class CommandSuggestions {
 
             for(int var9 = 0; var9 < var0; ++var9) {
                 Suggestion var10 = this.suggestionList.get(var9 + this.offset);
-                GuiComponent.fill(
-                    param0,
+                param0.fill(
                     this.rect.getX(),
                     this.rect.getY() + 12 * var9,
                     this.rect.getX() + this.rect.getWidth(),
@@ -465,20 +456,19 @@ public class CommandSuggestions {
                     var8 = true;
                 }
 
-                CommandSuggestions.this.font
-                    .drawShadow(
-                        param0,
-                        var10.getText(),
-                        (float)(this.rect.getX() + 1),
-                        (float)(this.rect.getY() + 2 + 12 * var9),
-                        var9 + this.offset == this.current ? -256 : -5592406
-                    );
+                param0.drawString(
+                    CommandSuggestions.this.font,
+                    var10.getText(),
+                    this.rect.getX() + 1,
+                    this.rect.getY() + 2 + 12 * var9,
+                    var9 + this.offset == this.current ? -256 : -5592406
+                );
             }
 
             if (var8) {
                 Message var11 = this.suggestionList.get(this.current).getTooltip();
                 if (var11 != null) {
-                    CommandSuggestions.this.screen.renderTooltip(param0, ComponentUtils.fromMessage(var11), param1, param2);
+                    param0.renderTooltip(CommandSuggestions.this.font, ComponentUtils.fromMessage(var11), param1, param2);
                 }
             }
 

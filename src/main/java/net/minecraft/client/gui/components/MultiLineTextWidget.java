@@ -1,9 +1,9 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.OptionalInt;
 import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.SingleKeyCache;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,7 +61,7 @@ public class MultiLineTextWidget extends AbstractStringWidget {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         MultiLineLabel var0 = this.cache.getValue(this.getFreshCacheKey());
         int var1 = this.getX();
         int var2 = this.getY();

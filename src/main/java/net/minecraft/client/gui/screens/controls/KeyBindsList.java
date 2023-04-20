@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.controls;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.Tooltip;
@@ -85,10 +84,15 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            KeyBindsList.this.minecraft
-                .font
-                .draw(param0, this.name, (float)(KeyBindsList.this.minecraft.screen.width / 2 - this.width / 2), (float)(param2 + param5 - 9 - 1), 16777215);
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            param0.drawString(
+                KeyBindsList.this.minecraft.font,
+                this.name,
+                KeyBindsList.this.minecraft.screen.width / 2 - this.width / 2,
+                param2 + param5 - 9 - 1,
+                16777215,
+                false
+            );
         }
 
         @Nullable
@@ -157,9 +161,9 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            float var10003 = (float)(param3 + 90 - KeyBindsList.this.maxNameWidth);
-            KeyBindsList.this.minecraft.font.draw(param0, this.name, var10003, (float)(param2 + param5 / 2 - 9 / 2), 16777215);
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            int var10003 = param3 + 90 - KeyBindsList.this.maxNameWidth;
+            param0.drawString(KeyBindsList.this.minecraft.font, this.name, var10003, param2 + param5 / 2 - 9 / 2, 16777215, false);
             this.resetButton.setX(param3 + 190);
             this.resetButton.setY(param2);
             this.resetButton.render(param0, param6, param7, param9);
@@ -168,7 +172,7 @@ public class KeyBindsList extends ContainerObjectSelectionList<KeyBindsList.Entr
             if (this.hasCollision) {
                 int var0 = 3;
                 int var1 = this.changeButton.getX() - 6;
-                GuiComponent.fill(param0, var1, param2 + 2, var1 + 3, param2 + param5 + 2, ChatFormatting.RED.getColor() | 0xFF000000);
+                param0.fill(var1, param2 + 2, var1 + 3, param2 + param5 + 2, ChatFormatting.RED.getColor() | 0xFF000000);
             }
 
             this.changeButton.render(param0, param6, param7, param9);

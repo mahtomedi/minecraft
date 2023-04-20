@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
@@ -123,6 +124,7 @@ public class ServerFunctionManager {
         private final ServerFunctionManager.TraceCallbacks tracer;
         private final Deque<ServerFunctionManager.QueuedCommand> commandQueue = Queues.newArrayDeque();
         private final List<ServerFunctionManager.QueuedCommand> nestedCalls = Lists.newArrayList();
+        boolean abortCurrentDepth = false;
 
         ExecutionContext(ServerFunctionManager.TraceCallbacks param0) {
             this.tracer = param0;
@@ -130,41 +132,59 @@ public class ServerFunctionManager {
 
         void delayFunctionCall(CommandFunction param0, CommandSourceStack param1) {
             int var0 = ServerFunctionManager.this.getCommandLimit();
+            CommandSourceStack var1 = this.wrapSender(param1);
             if (this.commandQueue.size() + this.nestedCalls.size() < var0) {
-                this.nestedCalls.add(new ServerFunctionManager.QueuedCommand(param1, this.depth, new CommandFunction.FunctionEntry(param0)));
+                this.nestedCalls.add(new ServerFunctionManager.QueuedCommand(var1, this.depth, new CommandFunction.FunctionEntry(param0)));
             }
 
         }
 
+        private CommandSourceStack wrapSender(CommandSourceStack param0) {
+            IntConsumer var0 = param0.getReturnValueConsumer();
+            return var0 instanceof ServerFunctionManager.ExecutionContext.AbortingReturnValueConsumer
+                ? param0
+                : param0.withReturnValueConsumer(new ServerFunctionManager.ExecutionContext.AbortingReturnValueConsumer(var0));
+        }
+
         int runTopCommand(CommandFunction param0, CommandSourceStack param1) {
             int var0 = ServerFunctionManager.this.getCommandLimit();
-            int var1 = 0;
-            CommandFunction.Entry[] var2 = param0.getEntries();
+            CommandSourceStack var1 = this.wrapSender(param1);
+            int var2 = 0;
+            CommandFunction.Entry[] var3 = param0.getEntries();
 
-            for(int var3 = var2.length - 1; var3 >= 0; --var3) {
-                this.commandQueue.push(new ServerFunctionManager.QueuedCommand(param1, 0, var2[var3]));
+            for(int var4 = var3.length - 1; var4 >= 0; --var4) {
+                this.commandQueue.push(new ServerFunctionManager.QueuedCommand(var1, 0, var3[var4]));
             }
 
             while(!this.commandQueue.isEmpty()) {
                 try {
-                    ServerFunctionManager.QueuedCommand var4 = this.commandQueue.removeFirst();
-                    ServerFunctionManager.this.server.getProfiler().push(var4::toString);
-                    this.depth = var4.depth;
-                    var4.execute(ServerFunctionManager.this, this.commandQueue, var0, this.tracer);
-                    if (!this.nestedCalls.isEmpty()) {
-                        Lists.reverse(this.nestedCalls).forEach(this.commandQueue::addFirst);
-                        this.nestedCalls.clear();
+                    ServerFunctionManager.QueuedCommand var5 = this.commandQueue.removeFirst();
+                    ServerFunctionManager.this.server.getProfiler().push(var5::toString);
+                    this.depth = var5.depth;
+                    var5.execute(ServerFunctionManager.this, this.commandQueue, var0, this.tracer);
+                    if (!this.abortCurrentDepth) {
+                        if (!this.nestedCalls.isEmpty()) {
+                            Lists.reverse(this.nestedCalls).forEach(this.commandQueue::addFirst);
+                        }
+                    } else {
+                        while(!this.commandQueue.isEmpty() && this.commandQueue.peek().depth >= this.depth) {
+                            this.commandQueue.removeFirst();
+                        }
+
+                        this.abortCurrentDepth = false;
                     }
+
+                    this.nestedCalls.clear();
                 } finally {
                     ServerFunctionManager.this.server.getProfiler().pop();
                 }
 
-                if (++var1 >= var0) {
-                    return var1;
+                if (++var2 >= var0) {
+                    return var2;
                 }
             }
 
-            return var1;
+            return var2;
         }
 
         public void reportError(String param0) {
@@ -172,6 +192,20 @@ public class ServerFunctionManager {
                 this.tracer.onError(this.depth, param0);
             }
 
+        }
+
+        class AbortingReturnValueConsumer implements IntConsumer {
+            private final IntConsumer wrapped;
+
+            AbortingReturnValueConsumer(IntConsumer param0) {
+                this.wrapped = param0;
+            }
+
+            @Override
+            public void accept(int param0) {
+                this.wrapped.accept(param0);
+                ExecutionContext.this.abortCurrentDepth = true;
+            }
         }
     }
 

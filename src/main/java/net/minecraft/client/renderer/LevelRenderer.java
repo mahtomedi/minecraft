@@ -2805,19 +2805,13 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         ParticleOptions param0, boolean param1, boolean param2, double param3, double param4, double param5, double param6, double param7, double param8
     ) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        if (this.minecraft != null && var0.isInitialized() && this.minecraft.particleEngine != null) {
-            ParticleStatus var1 = this.calculateParticleLevel(param2);
-            if (param1) {
-                return this.minecraft.particleEngine.createParticle(param0, param3, param4, param5, param6, param7, param8);
-            } else if (var0.getPosition().distanceToSqr(param3, param4, param5) > 1024.0) {
-                return null;
-            } else {
-                return var1 == ParticleStatus.MINIMAL
-                    ? null
-                    : this.minecraft.particleEngine.createParticle(param0, param3, param4, param5, param6, param7, param8);
-            }
-        } else {
+        ParticleStatus var1 = this.calculateParticleLevel(param2);
+        if (param1) {
+            return this.minecraft.particleEngine.createParticle(param0, param3, param4, param5, param6, param7, param8);
+        } else if (var0.getPosition().distanceToSqr(param3, param4, param5) > 1024.0) {
             return null;
+        } else {
+            return var1 == ParticleStatus.MINIMAL ? null : this.minecraft.particleEngine.createParticle(param0, param3, param4, param5, param6, param7, param8);
         }
     }
 
@@ -3396,7 +3390,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 this.level.addDestroyBlockEffect(param1, var37);
                 break;
             case 3009:
-                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param1, ParticleTypes.EGG_CRACK, param2 == 1 ? UniformInt.of(3, 6) : UniformInt.of(1, 3));
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param1, ParticleTypes.EGG_CRACK, UniformInt.of(3, 6));
         }
 
     }

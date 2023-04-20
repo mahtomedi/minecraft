@@ -63,7 +63,7 @@ public abstract class FlowingFluid extends Fluid {
                 float var5 = var4.getOwnHeight();
                 float var6 = 0.0F;
                 if (var5 == 0.0F) {
-                    if (!param0.getBlockState(var2).getMaterial().blocksMotion()) {
+                    if (!param0.getBlockState(var2).blocksMotion()) {
                         BlockPos var7 = var2.below();
                         FluidState var8 = param0.getFluidState(var7);
                         if (this.affectsFlow(var8)) {
@@ -174,7 +174,7 @@ public abstract class FlowingFluid extends Fluid {
         if (this.canConvertToSource(param0) && var1 >= 2) {
             BlockState var6 = param0.getBlockState(param1.below());
             FluidState var7 = var6.getFluidState();
-            if (var6.getMaterial().isSolid() || this.isSourceBlockOfThisType(var7)) {
+            if (var6.isSolid() || this.isSourceBlockOfThisType(var7)) {
                 return this.getSource(false);
             }
         }
@@ -393,7 +393,7 @@ public abstract class FlowingFluid extends Fluid {
             || param2.is(Blocks.BUBBLE_COLUMN)) {
             return false;
         } else if (!param2.is(Blocks.NETHER_PORTAL) && !param2.is(Blocks.END_PORTAL) && !param2.is(Blocks.END_GATEWAY) && !param2.is(Blocks.STRUCTURE_VOID)) {
-            return !param2.getMaterial().blocksMotion();
+            return !param2.blocksMotion();
         } else {
             return false;
         }

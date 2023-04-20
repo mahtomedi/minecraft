@@ -44,13 +44,9 @@ public class QuickPlay {
         param2.done().thenRunAsync(() -> {
             if (!StringUtils.isBlank(var0)) {
                 joinSingleplayerWorld(param0, var0);
-            }
-
-            if (!StringUtils.isBlank(var1)) {
+            } else if (!StringUtils.isBlank(var1)) {
                 joinMultiplayerWorld(param0, var1);
-            }
-
-            if (!StringUtils.isBlank(var2)) {
+            } else if (!StringUtils.isBlank(var2)) {
                 joinRealmsWorld(param0, param3, var2);
             }
 

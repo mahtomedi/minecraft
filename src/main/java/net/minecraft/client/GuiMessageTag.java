@@ -1,10 +1,8 @@
 package net.minecraft.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -58,9 +56,8 @@ public record GuiMessageTag(int indicatorColor, @Nullable GuiMessageTag.Icon ico
             this.height = param3;
         }
 
-        public void draw(PoseStack param0, int param1, int param2) {
-            RenderSystem.setShaderTexture(0, GuiMessageTag.TEXTURE_LOCATION);
-            GuiComponent.blit(param0, param1, param2, (float)this.u, (float)this.v, this.width, this.height, 32, 32);
+        public void draw(GuiGraphics param0, int param1, int param2) {
+            param0.blit(GuiMessageTag.TEXTURE_LOCATION, param1, param2, (float)this.u, (float)this.v, this.width, this.height, 32, 32);
         }
     }
 }

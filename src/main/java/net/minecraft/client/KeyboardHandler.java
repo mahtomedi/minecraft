@@ -406,7 +406,7 @@ public class KeyboardHandler {
                 }
             }
 
-            if (this.minecraft.screen == null || this.minecraft.screen.passEvents) {
+            if (this.minecraft.screen == null) {
                 InputConstants.Key var4 = InputConstants.getKey(param1, param2);
                 if (param3 == 0) {
                     KeyMapping.set(var4, false);
@@ -425,17 +425,15 @@ public class KeyboardHandler {
                     }
 
                     boolean var5 = false;
-                    if (this.minecraft.screen == null) {
-                        if (param1 == 256) {
-                            boolean var6 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292);
-                            this.minecraft.pauseGame(var6);
-                        }
+                    if (param1 == 256) {
+                        boolean var6 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292);
+                        this.minecraft.pauseGame(var6);
+                    }
 
-                        var5 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292) && this.handleDebugKeys(param1);
-                        this.handledDebugKey |= var5;
-                        if (param1 == 290) {
-                            this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
-                        }
+                    var5 = InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), 292) && this.handleDebugKeys(param1);
+                    this.handledDebugKey |= var5;
+                    if (param1 == 290) {
+                        this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
                     }
 
                     if (var5) {

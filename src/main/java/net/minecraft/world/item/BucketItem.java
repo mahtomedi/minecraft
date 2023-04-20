@@ -25,7 +25,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -102,17 +101,16 @@ public class BucketItem extends Item implements DispensibleContainerItem {
         } else {
             BlockState var0 = param1.getBlockState(param2);
             Block var1 = var0.getBlock();
-            Material var2 = var0.getMaterial();
-            boolean var3 = var0.canBeReplaced(this.content);
-            boolean var4 = var0.isAir()
-                || var3
+            boolean var2 = var0.canBeReplaced(this.content);
+            boolean var3 = var0.isAir()
+                || var2
                 || var1 instanceof LiquidBlockContainer && ((LiquidBlockContainer)var1).canPlaceLiquid(param1, param2, var0, this.content);
-            if (!var4) {
+            if (!var3) {
                 return param3 != null && this.emptyContents(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
             } else if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
-                int var5 = param2.getX();
-                int var6 = param2.getY();
-                int var7 = param2.getZ();
+                int var4 = param2.getX();
+                int var5 = param2.getY();
+                int var6 = param2.getZ();
                 param1.playSound(
                     param0,
                     param2,
@@ -122,9 +120,9 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                     2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
                 );
 
-                for(int var8 = 0; var8 < 8; ++var8) {
+                for(int var7 = 0; var7 < 8; ++var7) {
                     param1.addParticle(
-                        ParticleTypes.LARGE_SMOKE, (double)var5 + Math.random(), (double)var6 + Math.random(), (double)var7 + Math.random(), 0.0, 0.0, 0.0
+                        ParticleTypes.LARGE_SMOKE, (double)var4 + Math.random(), (double)var5 + Math.random(), (double)var6 + Math.random(), 0.0, 0.0, 0.0
                     );
                 }
 
@@ -134,7 +132,7 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                 this.playEmptySound(param0, param1, param2);
                 return true;
             } else {
-                if (!param1.isClientSide && var3 && !var0.liquid()) {
+                if (!param1.isClientSide && var2 && !var0.liquid()) {
                     param1.destroyBlock(param2, true);
                 }
 

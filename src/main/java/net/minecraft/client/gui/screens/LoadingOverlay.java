@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screens;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +11,7 @@ import java.util.function.Consumer;
 import java.util.function.IntSupplier;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
@@ -65,7 +65,7 @@ public class LoadingOverlay extends Overlay {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.minecraft.getWindow().getGuiScaledWidth();
         int var1 = this.minecraft.getWindow().getGuiScaledHeight();
         long var2 = Util.getMillis();
@@ -82,7 +82,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var5 = Mth.ceil((1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            fill(param0, 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var5));
+            param0.fill(0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var5));
             var6 = 1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F);
         } else if (this.fadeIn) {
             if (this.minecraft.screen != null && var4 < 1.0F) {
@@ -90,7 +90,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var7 = Mth.ceil(Mth.clamp((double)var4, 0.15, 1.0) * 255.0);
-            fill(param0, 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
+            param0.fill(0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
             var6 = Mth.clamp(var4, 0.0F, 1.0F);
         } else {
             int var9 = BRAND_BACKGROUND.getAsInt();
@@ -108,13 +108,12 @@ public class LoadingOverlay extends Overlay {
         int var17 = (int)(var16 * 0.5);
         double var18 = var16 * 4.0;
         int var19 = (int)(var18 * 0.5);
-        RenderSystem.setShaderTexture(0, MOJANG_STUDIOS_LOGO_LOCATION);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(770, 1);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, var6);
-        blit(param0, var14 - var19, var15 - var17, var19, (int)var16, -0.0625F, 0.0F, 120, 60, 120, 120);
-        blit(param0, var14, var15 - var17, var19, (int)var16, 0.0625F, 60.0F, 120, 60, 120, 120);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(1.0F, 1.0F, 1.0F, var6);
+        param0.blit(MOJANG_STUDIOS_LOGO_LOCATION, var14 - var19, var15 - var17, var19, (int)var16, -0.0625F, 0.0F, 120, 60, 120, 120);
+        param0.blit(MOJANG_STUDIOS_LOGO_LOCATION, var14, var15 - var17, var19, (int)var16, 0.0625F, 60.0F, 120, 60, 120, 120);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         int var20 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325);
@@ -144,15 +143,15 @@ public class LoadingOverlay extends Overlay {
 
     }
 
-    private void drawProgressBar(PoseStack param0, int param1, int param2, int param3, int param4, float param5) {
+    private void drawProgressBar(GuiGraphics param0, int param1, int param2, int param3, int param4, float param5) {
         int var0 = Mth.ceil((float)(param3 - param1 - 2) * this.currentProgress);
         int var1 = Math.round(param5 * 255.0F);
         int var2 = FastColor.ARGB32.color(var1, 255, 255, 255);
-        fill(param0, param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
-        fill(param0, param1 + 1, param2, param3 - 1, param2 + 1, var2);
-        fill(param0, param1 + 1, param4, param3 - 1, param4 - 1, var2);
-        fill(param0, param1, param2, param1 + 1, param4, var2);
-        fill(param0, param3, param2, param3 - 1, param4, var2);
+        param0.fill(param1 + 2, param2 + 2, param1 + var0, param4 - 2, var2);
+        param0.fill(param1 + 1, param2, param3 - 1, param2 + 1, var2);
+        param0.fill(param1 + 1, param4, param3 - 1, param4 - 1, var2);
+        param0.fill(param1, param2, param1 + 1, param4, var2);
+        param0.fill(param3, param2, param3 - 1, param4, var2);
     }
 
     @Override

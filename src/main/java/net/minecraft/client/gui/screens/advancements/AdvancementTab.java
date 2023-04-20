@@ -1,15 +1,13 @@
 package net.minecraft.client.gui.screens.advancements;
 
 import com.google.common.collect.Maps;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +17,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AdvancementTab extends GuiComponent {
+public class AdvancementTab {
     private final Minecraft minecraft;
     private final AdvancementsScreen screen;
     private final AdvancementTabType type;
@@ -72,31 +70,25 @@ public class AdvancementTab extends GuiComponent {
         return this.display;
     }
 
-    public void drawTab(PoseStack param0, int param1, int param2, boolean param3) {
+    public void drawTab(GuiGraphics param0, int param1, int param2, boolean param3) {
         this.type.draw(param0, param1, param2, param3, this.index);
     }
 
-    public void drawIcon(PoseStack param0, int param1, int param2, ItemRenderer param3) {
-        this.type.drawIcon(param0, param1, param2, this.index, param3, this.icon);
+    public void drawIcon(GuiGraphics param0, int param1, int param2) {
+        this.type.drawIcon(param0, param1, param2, this.index, this.icon);
     }
 
-    public void drawContents(PoseStack param0, int param1, int param2) {
+    public void drawContents(GuiGraphics param0, int param1, int param2) {
         if (!this.centered) {
             this.scrollX = (double)(117 - (this.maxX + this.minX) / 2);
             this.scrollY = (double)(56 - (this.maxY + this.minY) / 2);
             this.centered = true;
         }
 
-        enableScissor(param1, param2, param1 + 234, param2 + 113);
-        param0.pushPose();
-        param0.translate((float)param1, (float)param2, 0.0F);
-        ResourceLocation var0 = this.display.getBackground();
-        if (var0 != null) {
-            RenderSystem.setShaderTexture(0, var0);
-        } else {
-            RenderSystem.setShaderTexture(0, TextureManager.INTENTIONAL_MISSING_TEXTURE);
-        }
-
+        param0.enableScissor(param1, param2, param1 + 234, param2 + 113);
+        param0.pose().pushPose();
+        param0.pose().translate((float)param1, (float)param2, 0.0F);
+        ResourceLocation var0 = Objects.requireNonNullElse(this.display.getBackground(), TextureManager.INTENTIONAL_MISSING_TEXTURE);
         int var1 = Mth.floor(this.scrollX);
         int var2 = Mth.floor(this.scrollY);
         int var3 = var1 % 16;
@@ -104,21 +96,21 @@ public class AdvancementTab extends GuiComponent {
 
         for(int var5 = -1; var5 <= 15; ++var5) {
             for(int var6 = -1; var6 <= 8; ++var6) {
-                blit(param0, var3 + 16 * var5, var4 + 16 * var6, 0.0F, 0.0F, 16, 16, 16, 16);
+                param0.blit(var0, var3 + 16 * var5, var4 + 16 * var6, 0.0F, 0.0F, 16, 16, 16, 16);
             }
         }
 
         this.root.drawConnectivity(param0, var1, var2, true);
         this.root.drawConnectivity(param0, var1, var2, false);
         this.root.draw(param0, var1, var2);
-        param0.popPose();
-        disableScissor();
+        param0.pose().popPose();
+        param0.disableScissor();
     }
 
-    public void drawTooltips(PoseStack param0, int param1, int param2, int param3, int param4) {
-        param0.pushPose();
-        param0.translate(0.0F, 0.0F, -200.0F);
-        fill(param0, 0, 0, 234, 113, Mth.floor(this.fade * 255.0F) << 24);
+    public void drawTooltips(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        param0.pose().pushPose();
+        param0.pose().translate(0.0F, 0.0F, -200.0F);
+        param0.fill(0, 0, 234, 113, Mth.floor(this.fade * 255.0F) << 24);
         boolean var0 = false;
         int var1 = Mth.floor(this.scrollX);
         int var2 = Mth.floor(this.scrollY);
@@ -132,7 +124,7 @@ public class AdvancementTab extends GuiComponent {
             }
         }
 
-        param0.popPose();
+        param0.pose().popPose();
         if (var0) {
             this.fade = Mth.clamp(this.fade + 0.02F, 0.0F, 0.3F);
         } else {

@@ -49,10 +49,14 @@ public class NoteBlock extends Block {
     }
 
     private BlockState setInstrument(LevelAccessor param0, BlockPos param1, BlockState param2) {
-        BlockState var0 = param0.getBlockState(param1.above());
-        return param2.setValue(
-            INSTRUMENT, NoteBlockInstrument.byStateAbove(var0).orElseGet(() -> NoteBlockInstrument.byStateBelow(param0.getBlockState(param1.below())))
-        );
+        NoteBlockInstrument var0 = param0.getBlockState(param1.above()).instrument();
+        if (var0.worksAboveNoteBlock()) {
+            return param2.setValue(INSTRUMENT, var0);
+        } else {
+            NoteBlockInstrument var1 = param0.getBlockState(param1.below()).instrument();
+            NoteBlockInstrument var2 = var1.worksAboveNoteBlock() ? NoteBlockInstrument.HARP : var1;
+            return param2.setValue(INSTRUMENT, var2);
+        }
     }
 
     @Override
@@ -80,7 +84,7 @@ public class NoteBlock extends Block {
     }
 
     private void playNote(@Nullable Entity param0, BlockState param1, Level param2, BlockPos param3) {
-        if (!param1.getValue(INSTRUMENT).requiresAirAbove() || param2.getBlockState(param3.above()).isAir()) {
+        if (param1.getValue(INSTRUMENT).worksAboveNoteBlock() || param2.getBlockState(param3.above()).isAir()) {
             param2.blockEvent(param3, this, 0, 0);
             param2.gameEvent(param0, GameEvent.NOTE_BLOCK_PLAY, param3);
         }

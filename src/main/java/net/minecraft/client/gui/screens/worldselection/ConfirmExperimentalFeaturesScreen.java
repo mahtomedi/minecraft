@@ -1,10 +1,9 @@
 package net.minecraft.client.gui.screens.worldselection;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.util.Collection;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
@@ -72,7 +71,7 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
     }
@@ -106,10 +105,10 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, float param3) {
+        public void render(GuiGraphics param0, int param1, int param2, float param3) {
             this.renderBackground(param0);
             this.packList.render(param0, param1, param2, param3);
-            drawCenteredString(param0, this.font, this.title, this.width / 2, 10, 16777215);
+            param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
             super.render(param0, param1, param2, param3);
         }
 
@@ -151,9 +150,9 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
 
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
-                GuiComponent.drawString(param0, DetailsScreen.this.minecraft.font, this.packId, param3, param2, 16777215);
+                param0.drawString(DetailsScreen.this.minecraft.font, this.packId, param3, param2, 16777215);
                 this.splitMessage.renderLeftAligned(param0, param3, param2 + 12, 9, 16777215);
             }
 

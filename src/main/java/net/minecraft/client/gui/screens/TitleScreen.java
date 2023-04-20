@@ -2,9 +2,7 @@ package net.minecraft.client.gui.screens;
 
 import com.mojang.authlib.minecraft.BanDetails;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
-import com.mojang.math.Axis;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.gui.screens.RealmsNotificationsScreen;
 import java.io.IOException;
@@ -16,12 +14,14 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.PlainTextButton;
+import net.minecraft.client.gui.components.SplashRenderer;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -53,7 +53,7 @@ public class TitleScreen extends Screen {
     public static final CubeMap CUBE_MAP = new CubeMap(new ResourceLocation("textures/gui/title/background/panorama"));
     private static final ResourceLocation PANORAMA_OVERLAY = new ResourceLocation("textures/gui/title/background/panorama_overlay.png");
     @Nullable
-    private String splash;
+    private SplashRenderer splash;
     private Button resetDemoButton;
     @Nullable
     private RealmsNotificationsScreen realmsNotificationsScreen;
@@ -300,18 +300,17 @@ public class TitleScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.fadeInStart == 0L && this.fading) {
             this.fadeInStart = Util.getMillis();
         }
 
         float var0 = this.fading ? (float)(Util.getMillis() - this.fadeInStart) / 1000.0F : 1.0F;
         this.panorama.render(param3, Mth.clamp(var0, 0.0F, 1.0F));
-        RenderSystem.setShaderTexture(0, PANORAMA_OVERLAY);
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.fading ? (float)Mth.ceil(Mth.clamp(var0, 0.0F, 1.0F)) : 1.0F);
-        blit(param0, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(1.0F, 1.0F, 1.0F, this.fading ? (float)Mth.ceil(Mth.clamp(var0, 0.0F, 1.0F)) : 1.0F);
+        param0.blit(PANORAMA_OVERLAY, 0, 0, this.width, this.height, 0.0F, 0.0F, 16, 128, 16, 128);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         float var1 = this.fading ? Mth.clamp(var0 - 1.0F, 0.0F, 1.0F) : 1.0F;
         this.logoRenderer.renderLogo(param0, this.width, var1);
         int var2 = Mth.ceil(var1 * 255.0F) << 24;
@@ -321,32 +320,25 @@ public class TitleScreen extends Screen {
             }
 
             if (this.splash != null) {
-                param0.pushPose();
-                param0.translate((float)(this.width / 2 + 90), 70.0F, 0.0F);
-                param0.mulPose(Axis.ZP.rotationDegrees(-20.0F));
-                float var3 = 1.8F - Mth.abs(Mth.sin((float)(Util.getMillis() % 1000L) / 1000.0F * (float) (Math.PI * 2)) * 0.1F);
-                var3 = var3 * 100.0F / (float)(this.font.width(this.splash) + 32);
-                param0.scale(var3, var3, var3);
-                drawCenteredString(param0, this.font, this.splash, 0, -8, 16776960 | var2);
-                param0.popPose();
+                this.splash.render(param0, this.width, this.font, var2);
             }
 
-            String var4 = "Minecraft " + SharedConstants.getCurrentVersion().getName();
+            String var3 = "Minecraft " + SharedConstants.getCurrentVersion().getName();
             if (this.minecraft.isDemo()) {
-                var4 = var4 + " Demo";
+                var3 = var3 + " Demo";
             } else {
-                var4 = var4 + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
+                var3 = var3 + ("release".equalsIgnoreCase(this.minecraft.getVersionType()) ? "" : "/" + this.minecraft.getVersionType());
             }
 
             if (Minecraft.checkModStatus().shouldReportAsModified()) {
-                var4 = var4 + I18n.get("menu.modded");
+                var3 = var3 + I18n.get("menu.modded");
             }
 
-            drawString(param0, this.font, var4, 2, this.height - 10, 16777215 | var2);
+            param0.drawString(this.font, var3, 2, this.height - 10, 16777215 | var2);
 
-            for(GuiEventListener var5 : this.children()) {
-                if (var5 instanceof AbstractWidget) {
-                    ((AbstractWidget)var5).setAlpha(var1);
+            for(GuiEventListener var4 : this.children()) {
+                if (var4 instanceof AbstractWidget) {
+                    ((AbstractWidget)var4).setAlpha(var1);
                 }
             }
 
@@ -400,7 +392,7 @@ public class TitleScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     static record WarningLabel(Font font, MultiLineLabel label, int x, int y) {
-        public void render(PoseStack param0, int param1) {
+        public void render(GuiGraphics param0, int param1) {
             this.label.renderBackgroundCentered(param0, this.x, this.y, 9, 2, 2097152 | Math.min(param1, 1426063360));
             this.label.renderCentered(param0, this.x, this.y, 9, 16777215 | param1);
         }

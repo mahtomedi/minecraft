@@ -1,10 +1,9 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -59,13 +58,12 @@ public class RecipeButton extends AbstractWidget {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         if (!Screen.hasControlDown()) {
             this.time += param3;
         }
 
         Minecraft var0 = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, RECIPE_BOOK_LOCATION);
         int var1 = 29;
         if (!this.collection.hasCraftable()) {
             var1 += 25;
@@ -79,26 +77,26 @@ public class RecipeButton extends AbstractWidget {
         boolean var3 = this.animationTime > 0.0F;
         if (var3) {
             float var4 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            param0.pushPose();
-            param0.translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
-            param0.scale(var4, var4, 1.0F);
-            param0.translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
+            param0.pose().pushPose();
+            param0.pose().translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
+            param0.pose().scale(var4, var4, 1.0F);
+            param0.pose().translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
             this.animationTime -= param3;
         }
 
-        blit(param0, this.getX(), this.getY(), var1, var2, this.width, this.height);
+        param0.blit(RECIPE_BOOK_LOCATION, this.getX(), this.getY(), var1, var2, this.width, this.height);
         List<Recipe<?>> var5 = this.getOrderedRecipes();
         this.currentIndex = Mth.floor(this.time / 30.0F) % var5.size();
         ItemStack var6 = var5.get(this.currentIndex).getResultItem(this.collection.registryAccess());
         int var7 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            var0.getItemRenderer().renderAndDecorateItem(param0, var6, this.getX() + var7 + 1, this.getY() + var7 + 1, 0, 10);
+            param0.renderItem(var6, this.getX() + var7 + 1, this.getY() + var7 + 1, 0, 10);
             --var7;
         }
 
-        var0.getItemRenderer().renderAndDecorateFakeItem(param0, var6, this.getX() + var7, this.getY() + var7);
+        param0.renderFakeItem(var6, this.getX() + var7, this.getY() + var7);
         if (var3) {
-            param0.popPose();
+            param0.pose().popPose();
         }
 
     }
@@ -121,9 +119,9 @@ public class RecipeButton extends AbstractWidget {
         return var0.get(this.currentIndex);
     }
 
-    public List<Component> getTooltipText(Screen param0) {
+    public List<Component> getTooltipText() {
         ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem(this.collection.registryAccess());
-        List<Component> var1 = Lists.newArrayList(param0.getTooltipFromItem(var0));
+        List<Component> var1 = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), var0));
         if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
             var1.add(MORE_RECIPES_TOOLTIP);
         }

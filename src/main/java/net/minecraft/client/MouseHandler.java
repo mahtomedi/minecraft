@@ -96,7 +96,7 @@ public class MouseHandler {
                 }
             }
 
-            if (!var2[0] && (this.minecraft.screen == null || this.minecraft.screen.passEvents) && this.minecraft.getOverlay() == null) {
+            if (!var2[0] && this.minecraft.screen == null && this.minecraft.getOverlay() == null) {
                 if (var1 == 0) {
                     this.isLeftPressed = var0;
                 } else if (var1 == 2) {

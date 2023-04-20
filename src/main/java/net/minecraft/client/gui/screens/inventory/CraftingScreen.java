@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
@@ -48,7 +47,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
             this.renderBg(param0, param3, param1, param2);
@@ -64,11 +63,10 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, CRAFTING_TABLE_LOCATION);
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         int var0 = this.leftPos;
         int var1 = (this.height - this.imageHeight) / 2;
-        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(CRAFTING_TABLE_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override

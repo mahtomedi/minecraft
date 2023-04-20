@@ -42,7 +42,7 @@ public class DolphinJumpGoal extends JumpGoal {
 
     private boolean waterIsClear(BlockPos param0, int param1, int param2, int param3) {
         BlockPos var0 = param0.offset(param1 * param3, 0, param2 * param3);
-        return this.dolphin.level.getFluidState(var0).is(FluidTags.WATER) && !this.dolphin.level.getBlockState(var0).getMaterial().blocksMotion();
+        return this.dolphin.level.getFluidState(var0).is(FluidTags.WATER) && !this.dolphin.level.getBlockState(var0).blocksMotion();
     }
 
     private boolean surfaceIsClear(BlockPos param0, int param1, int param2, int param3) {

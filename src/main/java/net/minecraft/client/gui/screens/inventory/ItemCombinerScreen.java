@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,24 +37,23 @@ public abstract class ItemCombinerScreen<T extends ItemCombinerMenu> extends Abs
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderFg(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
     }
 
-    protected void renderFg(PoseStack param0, int param1, int param2, float param3) {
+    protected void renderFg(GuiGraphics param0, int param1, int param2, float param3) {
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, this.menuResource);
-        blit(param0, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
+        param0.blit(this.menuResource, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         this.renderErrorIcon(param0, this.leftPos, this.topPos);
     }
 
-    protected abstract void renderErrorIcon(PoseStack var1, int var2, int var3);
+    protected abstract void renderErrorIcon(GuiGraphics var1, int var2, int var3);
 
     @Override
     public void dataChanged(AbstractContainerMenu param0, int param1, int param2) {

@@ -77,14 +77,14 @@ import org.slf4j.Logger;
 public final class ItemStack {
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(param0x -> param0x.item),
-                    Codec.INT.fieldOf("Count").forGetter(param0x -> param0x.count),
-                    CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.tag))
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(ItemStack::getItem),
+                    Codec.INT.fieldOf("Count").forGetter(ItemStack::getCount),
+                    CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.getTag()))
                 )
                 .apply(param0, ItemStack::new)
     );
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final ItemStack EMPTY = new ItemStack((Item)null);
+    public static final ItemStack EMPTY = new ItemStack((Void)null);
     public static final DecimalFormat ATTRIBUTE_MODIFIER_FORMAT = Util.make(
         new DecimalFormat("#.##"), param0 -> param0.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ROOT))
     );
@@ -105,6 +105,7 @@ public final class ItemStack {
     private int count;
     private int popTime;
     @Deprecated
+    @Nullable
     private final Item item;
     @Nullable
     private CompoundTag tag;
@@ -137,12 +138,16 @@ public final class ItemStack {
     }
 
     public ItemStack(ItemLike param0, int param1) {
-        this.item = param0 == null ? null : param0.asItem();
+        this.item = param0.asItem();
         this.count = param1;
-        if (this.item != null && this.item.canBeDepleted()) {
+        if (this.item.canBeDepleted()) {
             this.setDamageValue(this.getDamageValue());
         }
 
+    }
+
+    private ItemStack(@Nullable Void param0) {
+        this.item = null;
     }
 
     private ItemStack(CompoundTag param0) {
@@ -345,15 +350,15 @@ public final class ItemStack {
     }
 
     public boolean isBarVisible() {
-        return this.item.isBarVisible(this);
+        return this.getItem().isBarVisible(this);
     }
 
     public int getBarWidth() {
-        return this.item.getBarWidth(this);
+        return this.getItem().getBarWidth(this);
     }
 
     public int getBarColor() {
-        return this.item.getBarColor(this);
+        return this.getItem().getBarColor(this);
     }
 
     public boolean overrideStackedOnOther(Slot param0, ClickAction param1, Player param2) {

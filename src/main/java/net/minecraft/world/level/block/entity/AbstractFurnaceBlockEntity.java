@@ -472,12 +472,19 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     @Override
-    public void awardUsedRecipes(Player param0) {
+    public void awardUsedRecipes(Player param0, List<ItemStack> param1) {
     }
 
     public void awardUsedRecipesAndPopExperience(ServerPlayer param0) {
         List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.getLevel(), param0.position());
         param0.awardRecipes(var0);
+
+        for(Recipe<?> var1 : var0) {
+            if (var1 != null) {
+                param0.triggerRecipeCrafted(var1, this.items);
+            }
+        }
+
         this.recipesUsed.clear();
     }
 

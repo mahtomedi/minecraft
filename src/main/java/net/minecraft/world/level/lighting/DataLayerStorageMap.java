@@ -19,9 +19,11 @@ public abstract class DataLayerStorageMap<M extends DataLayerStorageMap<M>> {
 
     public abstract M copy();
 
-    public void copyDataLayer(long param0) {
-        this.map.put(param0, this.map.get(param0).copy());
+    public DataLayer copyDataLayer(long param0) {
+        DataLayer var0 = this.map.get(param0).copy();
+        this.map.put(param0, var0);
         this.clearCache();
+        return var0;
     }
 
     public boolean hasLayer(long param0) {

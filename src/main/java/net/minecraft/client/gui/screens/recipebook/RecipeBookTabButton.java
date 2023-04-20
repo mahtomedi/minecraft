@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.RecipeBookMenu;
@@ -43,17 +43,16 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.animationTime > 0.0F) {
             float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            param0.pushPose();
-            param0.translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
-            param0.scale(1.0F, var0, 1.0F);
-            param0.translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
+            param0.pose().pushPose();
+            param0.pose().translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
+            param0.pose().scale(1.0F, var0, 1.0F);
+            param0.pose().translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
         }
 
         Minecraft var1 = Minecraft.getInstance();
-        RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();
         int var2 = this.xTexStart;
         int var3 = this.yTexStart;
@@ -70,24 +69,24 @@ public class RecipeBookTabButton extends StateSwitchingButton {
             var4 -= 2;
         }
 
-        blit(param0, var4, this.getY(), var2, var3, this.width, this.height);
+        param0.blit(this.resourceLocation, var4, this.getY(), var2, var3, this.width, this.height);
         RenderSystem.enableDepthTest();
         this.renderIcon(param0, var1.getItemRenderer());
         if (this.animationTime > 0.0F) {
-            param0.popPose();
+            param0.pose().popPose();
             this.animationTime -= param3;
         }
 
     }
 
-    private void renderIcon(PoseStack param0, ItemRenderer param1) {
+    private void renderIcon(GuiGraphics param0, ItemRenderer param1) {
         List<ItemStack> var0 = this.category.getIconItems();
         int var1 = this.isStateTriggered ? -2 : 0;
         if (var0.size() == 1) {
-            param1.renderAndDecorateFakeItem(param0, var0.get(0), this.getX() + 9 + var1, this.getY() + 5);
+            param0.renderFakeItem(var0.get(0), this.getX() + 9 + var1, this.getY() + 5);
         } else if (var0.size() == 2) {
-            param1.renderAndDecorateFakeItem(param0, var0.get(0), this.getX() + 3 + var1, this.getY() + 5);
-            param1.renderAndDecorateFakeItem(param0, var0.get(1), this.getX() + 14 + var1, this.getY() + 5);
+            param0.renderFakeItem(var0.get(0), this.getX() + 3 + var1, this.getY() + 5);
+            param0.renderFakeItem(var0.get(1), this.getX() + 14 + var1, this.getY() + 5);
         }
 
     }

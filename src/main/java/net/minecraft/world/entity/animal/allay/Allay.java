@@ -63,12 +63,12 @@ import net.minecraft.world.level.gameevent.EntityPositionSource;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
-import net.minecraft.world.level.gameevent.vibrations.VibrationListener;
+import net.minecraft.world.level.gameevent.vibrations.VibrationSystem;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-public class Allay extends PathfinderMob implements InventoryCarrier {
+public class Allay extends PathfinderMob implements InventoryCarrier, VibrationSystem {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Vec3i ITEM_PICKUP_REACH = new Vec3i(1, 1, 1);
     private static final int LIFTING_ITEM_ANIMATION_DURATION = 5;
@@ -100,8 +100,9 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     public static final ImmutableList<Float> THROW_SOUND_PITCHES = ImmutableList.of(
         0.5625F, 0.625F, 0.75F, 0.9375F, 1.0F, 1.0F, 1.125F, 1.25F, 1.5F, 1.875F, 2.0F, 2.25F, 2.5F, 3.0F, 3.75F, 4.0F
     );
-    private final DynamicGameEventListener<VibrationListener> dynamicVibrationListener;
-    private final VibrationListener.Config vibrationListenerConfig;
+    private final DynamicGameEventListener<VibrationSystem.Listener> dynamicVibrationListener;
+    private VibrationSystem.Data vibrationData;
+    private final VibrationSystem.User vibrationUser;
     private final DynamicGameEventListener<Allay.JukeboxListener> dynamicJukeboxListener;
     private final SimpleContainer inventory = new SimpleContainer(1);
     @Nullable
@@ -117,10 +118,12 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         super(param0, param1);
         this.moveControl = new FlyingMoveControl(this, 20, true);
         this.setCanPickUpLoot(this.canPickUpLoot());
-        PositionSource var0 = new EntityPositionSource(this, this.getEyeHeight());
-        this.vibrationListenerConfig = new Allay.AllayVibrationListenerConfig();
-        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationListener(var0, this.vibrationListenerConfig));
-        this.dynamicJukeboxListener = new DynamicGameEventListener<>(new Allay.JukeboxListener(var0, GameEvent.JUKEBOX_PLAY.getNotificationRadius()));
+        this.vibrationUser = new Allay.VibrationUser();
+        this.vibrationData = new VibrationSystem.Data();
+        this.dynamicVibrationListener = new DynamicGameEventListener<>(new VibrationSystem.Listener(this));
+        this.dynamicJukeboxListener = new DynamicGameEventListener<>(
+            new Allay.JukeboxListener(this.vibrationUser.getPositionSource(), GameEvent.JUKEBOX_PLAY.getNotificationRadius())
+        );
     }
 
     @Override
@@ -283,7 +286,7 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
                 this.spinningAnimationTicks0 = 0.0F;
             }
         } else {
-            this.dynamicVibrationListener.getListener().tick(this.level);
+            VibrationSystem.Ticker.tick(this.level, this.vibrationData, this.vibrationUser);
             if (this.isPanicking()) {
                 this.setDancing(false);
             }
@@ -482,8 +485,8 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
         this.writeInventoryToTag(param0);
-        VibrationListener.codec(this.vibrationListenerConfig)
-            .encodeStart(NbtOps.INSTANCE, this.dynamicVibrationListener.getListener())
+        VibrationSystem.Data.CODEC
+            .encodeStart(NbtOps.INSTANCE, this.vibrationData)
             .resultOrPartial(LOGGER::error)
             .ifPresent(param1 -> param0.put("listener", param1));
         param0.putLong("DuplicationCooldown", this.duplicationCooldown);
@@ -495,10 +498,10 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         super.readAdditionalSaveData(param0);
         this.readInventoryFromTag(param0);
         if (param0.contains("listener", 10)) {
-            VibrationListener.codec(this.vibrationListenerConfig)
+            VibrationSystem.Data.CODEC
                 .parse(new Dynamic<>(NbtOps.INSTANCE, param0.getCompound("listener")))
                 .resultOrPartial(LOGGER::error)
-                .ifPresent(param0x -> this.dynamicVibrationListener.updateListener(param0x, this.level));
+                .ifPresent(param0x -> this.vibrationData = param0x);
         }
 
         this.duplicationCooldown = (long)param0.getInt("DuplicationCooldown");
@@ -582,43 +585,14 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
         this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
     }
 
-    class AllayVibrationListenerConfig implements VibrationListener.Config {
-        private static final int VIBRATION_EVENT_LISTENER_RANGE = 16;
+    @Override
+    public VibrationSystem.Data getVibrationData() {
+        return this.vibrationData;
+    }
 
-        @Override
-        public boolean shouldListen(ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, GameEvent.Context param4) {
-            if (Allay.this.isNoAi()) {
-                return false;
-            } else {
-                Optional<GlobalPos> var0 = Allay.this.getBrain().getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
-                if (var0.isEmpty()) {
-                    return true;
-                } else {
-                    GlobalPos var1 = var0.get();
-                    return var1.dimension().equals(param0.dimension()) && var1.pos().equals(param2);
-                }
-            }
-        }
-
-        @Override
-        public void onSignalReceive(
-            ServerLevel param0, GameEventListener param1, BlockPos param2, GameEvent param3, @Nullable Entity param4, @Nullable Entity param5, float param6
-        ) {
-            if (param3 == GameEvent.NOTE_BLOCK_PLAY) {
-                AllayAi.hearNoteblock(Allay.this, new BlockPos(param2));
-            }
-
-        }
-
-        @Override
-        public int getListenerRadius() {
-            return 16;
-        }
-
-        @Override
-        public TagKey<GameEvent> getListenableEvents() {
-            return GameEventTags.ALLAY_CAN_LISTEN;
-        }
+    @Override
+    public VibrationSystem.User getVibrationUser() {
+        return this.vibrationUser;
     }
 
     class JukeboxListener implements GameEventListener {
@@ -651,6 +625,49 @@ public class Allay extends PathfinderMob implements InventoryCarrier {
             } else {
                 return false;
             }
+        }
+    }
+
+    class VibrationUser implements VibrationSystem.User {
+        private static final int VIBRATION_EVENT_LISTENER_RANGE = 16;
+        private final PositionSource positionSource = new EntityPositionSource(Allay.this, Allay.this.getEyeHeight());
+
+        @Override
+        public int getListenerRadius() {
+            return 16;
+        }
+
+        @Override
+        public PositionSource getPositionSource() {
+            return this.positionSource;
+        }
+
+        @Override
+        public boolean canReceiveVibration(ServerLevel param0, BlockPos param1, GameEvent param2, GameEvent.Context param3) {
+            if (Allay.this.isNoAi()) {
+                return false;
+            } else {
+                Optional<GlobalPos> var0 = Allay.this.getBrain().getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
+                if (var0.isEmpty()) {
+                    return true;
+                } else {
+                    GlobalPos var1 = var0.get();
+                    return var1.dimension().equals(param0.dimension()) && var1.pos().equals(param1);
+                }
+            }
+        }
+
+        @Override
+        public void onReceiveVibration(ServerLevel param0, BlockPos param1, GameEvent param2, @Nullable Entity param3, @Nullable Entity param4, float param5) {
+            if (param2 == GameEvent.NOTE_BLOCK_PLAY) {
+                AllayAi.hearNoteblock(Allay.this, new BlockPos(param1));
+            }
+
+        }
+
+        @Override
+        public TagKey<GameEvent> getListenableEvents() {
+            return GameEventTags.ALLAY_CAN_LISTEN;
         }
     }
 }

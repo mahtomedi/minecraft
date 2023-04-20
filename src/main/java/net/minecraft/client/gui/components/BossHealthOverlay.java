@@ -2,11 +2,10 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -15,7 +14,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BossHealthOverlay extends GuiComponent {
+public class BossHealthOverlay {
     private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
     private static final int BAR_WIDTH = 182;
     private static final int BAR_HEIGHT = 5;
@@ -27,20 +26,19 @@ public class BossHealthOverlay extends GuiComponent {
         this.minecraft = param0;
     }
 
-    public void render(PoseStack param0) {
+    public void render(GuiGraphics param0) {
         if (!this.events.isEmpty()) {
             int var0 = this.minecraft.getWindow().getGuiScaledWidth();
             int var1 = 12;
 
             for(LerpingBossEvent var2 : this.events.values()) {
                 int var3 = var0 / 2 - 91;
-                RenderSystem.setShaderTexture(0, GUI_BARS_LOCATION);
                 this.drawBar(param0, var3, var1, var2);
                 Component var5 = var2.getName();
                 int var6 = this.minecraft.font.width(var5);
                 int var7 = var0 / 2 - var6 / 2;
                 int var8 = var1 - 9;
-                this.minecraft.font.drawShadow(param0, var5, (float)var7, (float)var8, 16777215);
+                param0.drawString(this.minecraft.font, var5, var7, var8, 16777215);
                 var1 += 10 + 9;
                 if (var1 >= this.minecraft.getWindow().getGuiScaledHeight() / 3) {
                     break;
@@ -50,7 +48,7 @@ public class BossHealthOverlay extends GuiComponent {
         }
     }
 
-    private void drawBar(PoseStack param0, int param1, int param2, BossEvent param3) {
+    private void drawBar(GuiGraphics param0, int param1, int param2, BossEvent param3) {
         this.drawBar(param0, param1, param2, param3, 182, 0);
         int var0 = (int)(param3.getProgress() * 183.0F);
         if (var0 > 0) {
@@ -59,11 +57,11 @@ public class BossHealthOverlay extends GuiComponent {
 
     }
 
-    private void drawBar(PoseStack param0, int param1, int param2, BossEvent param3, int param4, int param5) {
-        blit(param0, param1, param2, 0, param3.getColor().ordinal() * 5 * 2 + param5, param4, 5);
+    private void drawBar(GuiGraphics param0, int param1, int param2, BossEvent param3, int param4, int param5) {
+        param0.blit(GUI_BARS_LOCATION, param1, param2, 0, param3.getColor().ordinal() * 5 * 2 + param5, param4, 5);
         if (param3.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
             RenderSystem.enableBlend();
-            blit(param0, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2 + param5, param4, 5);
+            param0.blit(GUI_BARS_LOCATION, param1, param2, 0, 80 + (param3.getOverlay().ordinal() - 1) * 5 * 2 + param5, param4, 5);
             RenderSystem.disableBlend();
         }
 

@@ -1,10 +1,7 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import javax.annotation.Nullable;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,18 +23,17 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         this.renderBackground(param0);
-        RenderSystem.setShaderTexture(0, BG_LOCATION);
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(BG_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         ItemStack var2 = this.menu.getSlot(1).getItem();
         boolean var3 = var2.is(Items.MAP);
         boolean var4 = var2.is(Items.PAPER);
@@ -53,13 +49,13 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
                 if (var9.locked) {
                     var7 = true;
                     if (var4 || var5) {
-                        blit(param0, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
+                        param0.blit(BG_LOCATION, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
                     }
                 }
 
                 if (var4 && var9.scale >= 4) {
                     var7 = true;
-                    blit(param0, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
+                    param0.blit(BG_LOCATION, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
                 }
             }
         } else {
@@ -71,46 +67,43 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
     }
 
     private void renderResultingMap(
-        PoseStack param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, boolean param3, boolean param4, boolean param5, boolean param6
+        GuiGraphics param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, boolean param3, boolean param4, boolean param5, boolean param6
     ) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
         if (param4 && !param6) {
-            blit(param0, var0 + 67, var1 + 13, this.imageWidth, 66, 66, 66);
+            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 66, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 85, var1 + 31, 0.226F);
         } else if (param3) {
-            blit(param0, var0 + 67 + 16, var1 + 13, this.imageWidth, 132, 50, 66);
+            param0.blit(BG_LOCATION, var0 + 67 + 16, var1 + 13, this.imageWidth, 132, 50, 66);
             this.renderMap(param0, param1, param2, var0 + 86, var1 + 16, 0.34F);
-            RenderSystem.setShaderTexture(0, BG_LOCATION);
-            param0.pushPose();
-            param0.translate(0.0F, 0.0F, 1.0F);
-            blit(param0, var0 + 67, var1 + 13 + 16, this.imageWidth, 132, 50, 66);
+            param0.pose().pushPose();
+            param0.pose().translate(0.0F, 0.0F, 1.0F);
+            param0.blit(BG_LOCATION, var0 + 67, var1 + 13 + 16, this.imageWidth, 132, 50, 66);
             this.renderMap(param0, param1, param2, var0 + 70, var1 + 32, 0.34F);
-            param0.popPose();
+            param0.pose().popPose();
         } else if (param5) {
-            blit(param0, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
+            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
-            RenderSystem.setShaderTexture(0, BG_LOCATION);
-            param0.pushPose();
-            param0.translate(0.0F, 0.0F, 1.0F);
-            blit(param0, var0 + 66, var1 + 12, 0, this.imageHeight, 66, 66);
-            param0.popPose();
+            param0.pose().pushPose();
+            param0.pose().translate(0.0F, 0.0F, 1.0F);
+            param0.blit(BG_LOCATION, var0 + 66, var1 + 12, 0, this.imageHeight, 66, 66);
+            param0.pose().popPose();
         } else {
-            blit(param0, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
+            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
         }
 
     }
 
-    private void renderMap(PoseStack param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, int param3, int param4, float param5) {
+    private void renderMap(GuiGraphics param0, @Nullable Integer param1, @Nullable MapItemSavedData param2, int param3, int param4, float param5) {
         if (param1 != null && param2 != null) {
-            param0.pushPose();
-            param0.translate((float)param3, (float)param4, 1.0F);
-            param0.scale(param5, param5, 1.0F);
-            MultiBufferSource.BufferSource var0 = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            this.minecraft.gameRenderer.getMapRenderer().render(param0, var0, param1, param2, true, 15728880);
-            var0.endBatch();
-            param0.popPose();
+            param0.pose().pushPose();
+            param0.pose().translate((float)param3, (float)param4, 1.0F);
+            param0.pose().scale(param5, param5, 1.0F);
+            this.minecraft.gameRenderer.getMapRenderer().render(param0.pose(), param0.bufferSource(), param1, param2, true, 15728880);
+            param0.flush();
+            param0.pose().popPose();
         }
 
     }

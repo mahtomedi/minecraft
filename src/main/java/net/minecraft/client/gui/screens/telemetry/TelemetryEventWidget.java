@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens.telemetry;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -9,6 +8,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -93,13 +93,13 @@ public class TelemetryEventWidget extends AbstractScrollWidget {
     }
 
     @Override
-    protected void renderContents(PoseStack param0, int param1, int param2, float param3) {
+    protected void renderContents(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.getY() + this.innerPadding();
         int var1 = this.getX() + this.innerPadding();
-        param0.pushPose();
-        param0.translate((double)var1, (double)var0, 0.0);
+        param0.pose().pushPose();
+        param0.pose().translate((double)var1, (double)var0, 0.0);
         this.content.container().visitWidgets(param4 -> param4.render(param0, param1, param2, param3));
-        param0.popPose();
+        param0.pose().popPose();
     }
 
     @Override

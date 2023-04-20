@@ -29,7 +29,7 @@ public class DecoratedPotRecipe extends CustomRecipe {
                     case 3:
                     case 5:
                     case 7:
-                        if (!var1.is(ItemTags.DECORATED_POT_SHARDS)) {
+                        if (!var1.is(ItemTags.DECORATED_POT_SHERDS)) {
                             return false;
                         }
                         break;
@@ -50,7 +50,7 @@ public class DecoratedPotRecipe extends CustomRecipe {
     public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
         ItemStack var0 = Items.DECORATED_POT.getDefaultInstance();
         CompoundTag var1 = new CompoundTag();
-        DecoratedPotBlockEntity.saveShards(
+        DecoratedPotBlockEntity.saveSherds(
             List.of(param0.getItem(1).getItem(), param0.getItem(3).getItem(), param0.getItem(5).getItem(), param0.getItem(7).getItem()), var1
         );
         BlockItem.setBlockEntityData(var0, BlockEntityType.DECORATED_POT, var1);

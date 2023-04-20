@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import net.minecraft.DefaultUncaughtExceptionHandler;
 import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
@@ -162,7 +162,7 @@ public class ConnectScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
@@ -170,7 +170,7 @@ public class ConnectScreen extends Screen {
             this.minecraft.getNarrator().sayNow(Component.translatable("narrator.joining"));
         }
 
-        drawCenteredString(param0, this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
+        param0.drawCenteredString(this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
         super.render(param0, param1, param2, param3);
     }
 }

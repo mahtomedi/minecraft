@@ -1,6 +1,5 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
@@ -9,6 +8,7 @@ import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.util.task.GetServerDetailsTask;
 import java.util.concurrent.locks.ReentrantLock;
 import net.minecraft.Util;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -95,17 +95,17 @@ public class RealmsTermsScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
-        this.font.draw(param0, TERMS_STATIC_TEXT, (float)(this.width / 2 - 120), (float)row(5), 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawString(this.font, TERMS_STATIC_TEXT, this.width / 2 - 120, row(5), 16777215, false);
         int var0 = this.font.width(TERMS_STATIC_TEXT);
         int var1 = this.width / 2 - 121 + var0;
         int var2 = row(5);
         int var3 = var1 + this.font.width(TERMS_LINK_TEXT) + 1;
         int var4 = var2 + 1 + 9;
         this.onLink = var1 <= param1 && param1 <= var3 && var2 <= param2 && param2 <= var4;
-        this.font.draw(param0, TERMS_LINK_TEXT, (float)(this.width / 2 - 120 + var0), (float)row(5), this.onLink ? 7107012 : 3368635);
+        param0.drawString(this.font, TERMS_LINK_TEXT, this.width / 2 - 120 + var0, row(5), this.onLink ? 7107012 : 3368635, false);
         super.render(param0, param1, param2, param3);
     }
 }

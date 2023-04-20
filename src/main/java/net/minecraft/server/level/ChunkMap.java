@@ -289,68 +289,74 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     private CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> getChunkRangeFuture(
-        ChunkPos param0, int param1, IntFunction<ChunkStatus> param2
+        ChunkHolder param0, int param1, IntFunction<ChunkStatus> param2
     ) {
-        List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var0 = new ArrayList<>();
-        List<ChunkHolder> var1 = new ArrayList<>();
-        int var2 = param0.x;
-        int var3 = param0.z;
+        if (param1 == 0) {
+            ChunkStatus var0 = param2.apply(0);
+            return param0.getOrScheduleFuture(var0, this).thenApply(param0x -> param0x.mapLeft(List::of));
+        } else {
+            List<CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var1 = new ArrayList<>();
+            List<ChunkHolder> var2 = new ArrayList<>();
+            ChunkPos var3 = param0.getPos();
+            int var4 = var3.x;
+            int var5 = var3.z;
 
-        for(int var4 = -param1; var4 <= param1; ++var4) {
-            for(int var5 = -param1; var5 <= param1; ++var5) {
-                int var6 = Math.max(Math.abs(var5), Math.abs(var4));
-                final ChunkPos var7 = new ChunkPos(var2 + var5, var3 + var4);
-                long var8 = var7.toLong();
-                ChunkHolder var9 = this.getUpdatingChunkIfPresent(var8);
-                if (var9 == null) {
-                    return CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
-                        @Override
-                        public String toString() {
-                            return "Unloaded " + var7;
-                        }
-                    }));
+            for(int var6 = -param1; var6 <= param1; ++var6) {
+                for(int var7 = -param1; var7 <= param1; ++var7) {
+                    int var8 = Math.max(Math.abs(var7), Math.abs(var6));
+                    final ChunkPos var9 = new ChunkPos(var4 + var7, var5 + var6);
+                    long var10 = var9.toLong();
+                    ChunkHolder var11 = this.getUpdatingChunkIfPresent(var10);
+                    if (var11 == null) {
+                        return CompletableFuture.completedFuture(Either.right(new ChunkHolder.ChunkLoadingFailure() {
+                            @Override
+                            public String toString() {
+                                return "Unloaded " + var9;
+                            }
+                        }));
+                    }
+
+                    ChunkStatus var12 = param2.apply(var8);
+                    CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var13 = var11.getOrScheduleFuture(var12, this);
+                    var2.add(var11);
+                    var1.add(var13);
                 }
-
-                ChunkStatus var10 = param2.apply(var6);
-                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var11 = var9.getOrScheduleFuture(var10, this);
-                var1.add(var9);
-                var0.add(var11);
-            }
-        }
-
-        CompletableFuture<List<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var12 = Util.sequence(var0);
-        CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var13 = var12.thenApply(param3 -> {
-            List<ChunkAccess> var0x = Lists.newArrayList();
-            int var1x = 0;
-
-            for(final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2x : param3) {
-                if (var2x == null) {
-                    throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
-                }
-
-                Optional<ChunkAccess> var3x = var2x.left();
-                if (!var3x.isPresent()) {
-                    final int var4x = var1x;
-                    return Either.right(new ChunkHolder.ChunkLoadingFailure() {
-                        @Override
-                        public String toString() {
-                            return "Unloaded " + new ChunkPos(var2 + var4x % (param1 * 2 + 1), var3 + var4x / (param1 * 2 + 1)) + " " + var2x.right().get();
-                        }
-                    });
-                }
-
-                var0x.add(var3x.get());
-                ++var1x;
             }
 
-            return Either.left(var0x);
-        });
+            CompletableFuture<List<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>> var14 = Util.sequence(var1);
+            CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var15 = var14.thenApply(param3 -> {
+                List<ChunkAccess> var0x = Lists.newArrayList();
+                int var1x = 0;
 
-        for(ChunkHolder var14 : var1) {
-            var14.addSaveDependency("getChunkRangeFuture " + param0 + " " + param1, var13);
+                for(final Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> var2x : param3) {
+                    if (var2x == null) {
+                        throw this.debugFuturesAndCreateReportedException(new IllegalStateException("At least one of the chunk futures were null"), "n/a");
+                    }
+
+                    Optional<ChunkAccess> var3x = var2x.left();
+                    if (!var3x.isPresent()) {
+                        final int var4x = var1x;
+                        return Either.right(new ChunkHolder.ChunkLoadingFailure() {
+                            @Override
+                            public String toString() {
+                                return "Unloaded " + new ChunkPos(var4 + var4x % (param1 * 2 + 1), var5 + var4x / (param1 * 2 + 1)) + " " + var2x.right().get();
+                            }
+                        });
+                    }
+
+                    var0x.add(var3x.get());
+                    ++var1x;
+                }
+
+                return Either.left(var0x);
+            });
+
+            for(ChunkHolder var16 : var2) {
+                var16.addSaveDependency("getChunkRangeFuture " + var3 + " " + param1, var15);
+            }
+
+            return var15;
         }
-
-        return var13;
     }
 
     public ReportedException debugFuturesAndCreateReportedException(IllegalStateException param0, String param1) {
@@ -374,7 +380,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return new ReportedException(var2);
     }
 
-    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkPos param0) {
+    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkHolder param0) {
         return this.getChunkRangeFuture(param0, 2, param0x -> ChunkStatus.FULL)
             .thenApplyAsync(param0x -> param0x.mapLeft(param0xx -> (LevelChunk)param0xx.get(param0xx.size() / 2)), this.mainThreadExecutor);
     }
@@ -565,16 +571,18 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.LIGHT), var0);
             }
 
-            Optional<ChunkAccess> var1 = param0.getOrScheduleFuture(param1.getParent(), this).getNow(ChunkHolder.UNLOADED_CHUNK).left();
-            if (var1.isPresent() && var1.get().getStatus().isOrAfter(param1)) {
-                CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = param1.load(
-                    this.level, this.structureTemplateManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1.get()
-                );
-                this.progressListener.onStatusChange(var0, param1);
-                return var2;
-            } else {
-                return this.scheduleChunkGeneration(param0, param1);
+            if (!param1.hasLoadDependencies()) {
+                Optional<ChunkAccess> var1 = param0.getOrScheduleFuture(param1.getParent(), this).getNow(ChunkHolder.UNLOADED_CHUNK).left();
+                if (var1.isPresent() && var1.get().getStatus().isOrAfter(param1)) {
+                    CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var2 = param1.load(
+                        this.level, this.structureTemplateManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var1.get()
+                    );
+                    this.progressListener.onStatusChange(var0, param1);
+                    return var2;
+                }
             }
+
+            return this.scheduleChunkGeneration(param0, param1);
         }
     }
 
@@ -634,7 +642,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> scheduleChunkGeneration(ChunkHolder param0, ChunkStatus param1) {
         ChunkPos var0 = param0.getPos();
         CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var1 = this.getChunkRangeFuture(
-            var0, param1.getRange(), param1x -> this.getDependencyStatus(param1, param1x)
+            param0, param1.getRange(), param1x -> this.getDependencyStatus(param1, param1x)
         );
         this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + param1.getName());
         Executor var2 = param1x -> this.worldgenMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1x));
@@ -642,29 +650,37 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             param4 -> param4.map(
                     param4x -> {
                         try {
-                            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var0x = param1.generate(
-                                var2,
-                                this.level,
-                                this.generator,
-                                this.structureTemplateManager,
-                                this.lightEngine,
-                                param1x -> this.protoChunkToFullChunk(param0),
-                                param4x,
-                                false
-                            );
+                            ChunkAccess var3x = param4x.get(param4x.size() / 2);
+                            CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var1x;
+                            if (var3x.getStatus().isOrAfter(param1)) {
+                                var1x = param1.load(
+                                    this.level, this.structureTemplateManager, this.lightEngine, param1x -> this.protoChunkToFullChunk(param0), var3x
+                                );
+                            } else {
+                                var1x = param1.generate(
+                                    var2,
+                                    this.level,
+                                    this.generator,
+                                    this.structureTemplateManager,
+                                    this.lightEngine,
+                                    param1x -> this.protoChunkToFullChunk(param0),
+                                    param4x
+                                );
+                            }
+        
                             this.progressListener.onStatusChange(var0, param1);
-                            return var0x;
+                            return var1x;
                         } catch (Exception var9) {
                             var9.getStackTrace();
-                            CrashReport var2x = CrashReport.forThrowable(var9, "Exception generating new chunk");
-                            CrashReportCategory var3x = var2x.addCategory("Chunk to be generated");
-                            var3x.setDetail("Location", String.format(Locale.ROOT, "%d,%d", var0.x, var0.z));
-                            var3x.setDetail("Position hash", ChunkPos.asLong(var0.x, var0.z));
-                            var3x.setDetail("Generator", this.generator);
+                            CrashReport var4x = CrashReport.forThrowable(var9, "Exception generating new chunk");
+                            CrashReportCategory var5x = var4x.addCategory("Chunk to be generated");
+                            var5x.setDetail("Location", String.format(Locale.ROOT, "%d,%d", var0.x, var0.z));
+                            var5x.setDetail("Position hash", ChunkPos.asLong(var0.x, var0.z));
+                            var5x.setDetail("Generator", this.generator);
                             this.mainThreadExecutor.execute(() -> {
-                                throw new ReportedException(var2x);
+                                throw new ReportedException(var4x);
                             });
-                            throw new ReportedException(var2x);
+                            throw new ReportedException(var4x);
                         }
                     },
                     param1x -> {
@@ -733,9 +749,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareTickingChunk(ChunkHolder param0) {
-        ChunkPos var0 = param0.getPos();
-        CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var1 = this.getChunkRangeFuture(var0, 1, param0x -> ChunkStatus.FULL);
-        CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var2 = var1.<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>>thenApplyAsync(
+        CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var0 = this.getChunkRangeFuture(param0, 1, param0x -> ChunkStatus.FULL);
+        CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var1 = var0.<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>>thenApplyAsync(
                 param0x -> param0x.mapLeft(param0xx -> (LevelChunk)param0xx.get(param0xx.size() / 2)),
                 param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1))
             )
@@ -743,16 +758,16 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     param0xx.postProcessGeneration();
                     this.level.startTickingChunk(param0xx);
                 }), this.mainThreadExecutor);
-        var2.thenAcceptAsync(param1 -> param1.ifLeft(param1x -> {
+        var1.thenAcceptAsync(param1 -> param1.ifLeft(param1x -> {
                 this.tickingGenerated.getAndIncrement();
                 MutableObject<ClientboundLevelChunkWithLightPacket> var0x = new MutableObject<>();
-                this.getPlayers(var0, false).forEach(param2 -> this.playerLoadedChunk(param2, var0x, param1x));
+                this.getPlayers(param0.getPos(), false).forEach(param2 -> this.playerLoadedChunk(param2, var0x, param1x));
             }), param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1)));
-        return var2;
+        return var1;
     }
 
     public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareAccessibleChunk(ChunkHolder param0) {
-        return this.getChunkRangeFuture(param0.getPos(), 1, ChunkStatus::getStatusAroundFullChunk)
+        return this.getChunkRangeFuture(param0, 1, ChunkStatus::getStatusAroundFullChunk)
             .thenApplyAsync(
                 param0x -> param0x.mapLeft(param0xx -> (LevelChunk)param0xx.get(param0xx.size() / 2)),
                 param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1))

@@ -40,7 +40,7 @@ public final class ProjectileUtil {
             var0 = var1.getLocation();
         }
 
-        HitResult var2 = getEntityHitResult(param4, param1, param0, var0, param1.getBoundingBox().expandTowards(param1.getDeltaMovement()).inflate(1.0), param2);
+        HitResult var2 = getEntityHitResult(param4, param1, param0, var0, param1.getBoundingBox().expandTowards(param3).inflate(1.0), param2);
         if (var2 != null) {
             var1 = var2;
         }

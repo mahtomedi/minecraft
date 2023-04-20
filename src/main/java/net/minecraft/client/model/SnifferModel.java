@@ -14,10 +14,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T> {
-    private static final float WALK_ANIMATION_SPEED_FACTOR = 40000.0F;
     private static final float WALK_ANIMATION_SPEED_MAX = 9.0F;
     private static final float WALK_ANIMATION_SCALE_FACTOR = 75.0F;
-    private static final float SEARCHING_ANIMATION_SPEED_MAX = 1.0F;
     private final ModelPart root;
     private final ModelPart head;
 
@@ -108,10 +106,13 @@ public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T>
         this.root().getAllParts().forEach(ModelPart::resetPose);
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
-        float var0 = Math.min((float)param0.getDeltaMovement().horizontalDistanceSqr() * 40000.0F, 9.0F);
-        this.animateWalk(SnifferAnimation.SNIFFER_WALK, param1, param2, 9.0F, 75.0F);
+        if (param0.isSearching()) {
+            this.animateWalk(SnifferAnimation.SNIFFER_SNIFF_SEARCH, param1, param2, 9.0F, 75.0F);
+        } else {
+            this.animateWalk(SnifferAnimation.SNIFFER_WALK, param1, param2, 9.0F, 75.0F);
+        }
+
         this.animate(param0.diggingAnimationState, SnifferAnimation.SNIFFER_DIG, param3);
-        this.animate(param0.searchingAnimationState, SnifferAnimation.SNIFFER_SNIFF_SEARCH, param3, Math.min(var0, 1.0F));
         this.animate(param0.sniffingAnimationState, SnifferAnimation.SNIFFER_LONGSNIFF, param3);
         this.animate(param0.risingAnimationState, SnifferAnimation.SNIFFER_STAND_UP, param3);
         this.animate(param0.feelingHappyAnimationState, SnifferAnimation.SNIFFER_HAPPY, param3);

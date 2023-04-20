@@ -1,8 +1,8 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ProgressListener;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,7 +61,7 @@ public class ProgressScreen extends Screen implements ProgressListener {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.stop) {
             if (this.clearScreenAfterStop) {
                 this.minecraft.setScreen(null);
@@ -70,11 +70,11 @@ public class ProgressScreen extends Screen implements ProgressListener {
         } else {
             this.renderBackground(param0);
             if (this.header != null) {
-                drawCenteredString(param0, this.font, this.header, this.width / 2, 70, 16777215);
+                param0.drawCenteredString(this.font, this.header, this.width / 2, 70, 16777215);
             }
 
             if (this.stage != null && this.progress != 0) {
-                drawCenteredString(param0, this.font, Component.empty().append(this.stage).append(" " + this.progress + "%"), this.width / 2, 90, 16777215);
+                param0.drawCenteredString(this.font, Component.empty().append(this.stage).append(" " + this.progress + "%"), this.width / 2, 90, 16777215);
             }
 
             super.render(param0, param1, param2, param3);

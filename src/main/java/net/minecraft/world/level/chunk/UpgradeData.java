@@ -173,33 +173,35 @@ public class UpgradeData {
             if (var6 != null && var6.length > 0) {
                 Direction[] var7 = Direction.values();
                 PalettedContainer<BlockState> var8 = var5.getStates();
+                int var9 = param0.getSectionYFromSectionIndex(var4);
+                int var10 = SectionPos.sectionToBlockCoord(var9);
 
-                for(int var9 : var6) {
-                    int var10 = var9 & 15;
-                    int var11 = var9 >> 8 & 15;
-                    int var12 = var9 >> 4 & 15;
-                    var0.set(var2.getMinBlockX() + var10, var5.bottomBlockY() + var11, var2.getMinBlockZ() + var12);
-                    BlockState var13 = var8.get(var9);
-                    BlockState var14 = var13;
+                for(int var11 : var6) {
+                    int var12 = var11 & 15;
+                    int var13 = var11 >> 8 & 15;
+                    int var14 = var11 >> 4 & 15;
+                    var0.set(var2.getMinBlockX() + var12, var10 + var13, var2.getMinBlockZ() + var14);
+                    BlockState var15 = var8.get(var11);
+                    BlockState var16 = var15;
 
-                    for(Direction var15 : var7) {
-                        var1.setWithOffset(var0, var15);
+                    for(Direction var17 : var7) {
+                        var1.setWithOffset(var0, var17);
                         if (SectionPos.blockToSectionCoord(var0.getX()) == var2.x && SectionPos.blockToSectionCoord(var0.getZ()) == var2.z) {
-                            var14 = updateState(var14, var15, var3, var0, var1);
+                            var16 = updateState(var16, var17, var3, var0, var1);
                         }
                     }
 
-                    Block.updateOrDestroy(var13, var14, var3, var0, 18);
+                    Block.updateOrDestroy(var15, var16, var3, var0, 18);
                 }
             }
         }
 
-        for(int var16 = 0; var16 < this.index.length; ++var16) {
-            if (this.index[var16] != null) {
-                LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var3.getSectionYFromSectionIndex(var16), var2.x, var2.z);
+        for(int var18 = 0; var18 < this.index.length; ++var18) {
+            if (this.index[var18] != null) {
+                LOGGER.warn("Discarding update data for section {} for chunk ({} {})", var3.getSectionYFromSectionIndex(var18), var2.x, var2.z);
             }
 
-            this.index[var16] = null;
+            this.index[var18] = null;
         }
 
     }

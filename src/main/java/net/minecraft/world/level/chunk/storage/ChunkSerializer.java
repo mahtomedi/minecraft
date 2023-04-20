@@ -120,74 +120,75 @@ public class ChunkSerializer {
                     var18 = new PalettedContainer<>(var9.asHolderIdMap(), var9.getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES);
                 }
 
-                LevelChunkSection var20 = new LevelChunkSection(var14, var16, var18);
+                LevelChunkSection var20 = new LevelChunkSection(var16, var18);
                 var5[var15] = var20;
-                param1.checkConsistencyWithBlocks(param2, var20);
+                SectionPos var21 = SectionPos.of(param2, var14);
+                param1.checkConsistencyWithBlocks(var21, var20);
             }
 
-            boolean var21 = var13.contains("BlockLight", 7);
-            boolean var22 = var6 && var13.contains("SkyLight", 7);
-            if (var21 || var22) {
+            boolean var22 = var13.contains("BlockLight", 7);
+            boolean var23 = var6 && var13.contains("SkyLight", 7);
+            if (var22 || var23) {
                 if (!var11) {
                     var8.retainData(param2, true);
                     var11 = true;
                 }
 
-                if (var21) {
+                if (var22) {
                     var8.queueSectionData(LightLayer.BLOCK, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("BlockLight")), true);
                 }
 
-                if (var22) {
+                if (var23) {
                     var8.queueSectionData(LightLayer.SKY, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("SkyLight")), true);
                 }
             }
         }
 
-        long var23 = param3.getLong("InhabitedTime");
-        ChunkStatus.ChunkType var24 = getChunkTypeFromTag(param3);
-        BlendingData var25;
+        long var24 = param3.getLong("InhabitedTime");
+        ChunkStatus.ChunkType var25 = getChunkTypeFromTag(param3);
+        BlendingData var26;
         if (param3.contains("blending_data", 10)) {
-            var25 = BlendingData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param3.getCompound("blending_data"))).resultOrPartial(LOGGER::error).orElse(null);
+            var26 = BlendingData.CODEC.parse(new Dynamic<>(NbtOps.INSTANCE, param3.getCompound("blending_data"))).resultOrPartial(LOGGER::error).orElse(null);
         } else {
-            var25 = null;
+            var26 = null;
         }
 
-        ChunkAccess var29;
-        if (var24 == ChunkStatus.ChunkType.LEVELCHUNK) {
-            LevelChunkTicks<Block> var27 = LevelChunkTicks.load(
+        ChunkAccess var30;
+        if (var25 == ChunkStatus.ChunkType.LEVELCHUNK) {
+            LevelChunkTicks<Block> var28 = LevelChunkTicks.load(
                 param3.getList("block_ticks", 10), param0x -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
-            LevelChunkTicks<Fluid> var28 = LevelChunkTicks.load(
+            LevelChunkTicks<Fluid> var29 = LevelChunkTicks.load(
                 param3.getList("fluid_ticks", 10), param0x -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
-            var29 = new LevelChunk(param0.getLevel(), param2, var1, var27, var28, var23, var5, postLoadChunk(param0, param3), var25);
+            var30 = new LevelChunk(param0.getLevel(), param2, var1, var28, var29, var24, var5, postLoadChunk(param0, param3), var26);
         } else {
-            ProtoChunkTicks<Block> var30 = ProtoChunkTicks.load(
+            ProtoChunkTicks<Block> var31 = ProtoChunkTicks.load(
                 param3.getList("block_ticks", 10), param0x -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
-            ProtoChunkTicks<Fluid> var31 = ProtoChunkTicks.load(
+            ProtoChunkTicks<Fluid> var32 = ProtoChunkTicks.load(
                 param3.getList("fluid_ticks", 10), param0x -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(param0x)), param2
             );
-            ProtoChunk var32 = new ProtoChunk(param2, var1, var5, var30, var31, param0, var9, var25);
-            var29 = var32;
-            var32.setInhabitedTime(var23);
+            ProtoChunk var33 = new ProtoChunk(param2, var1, var5, var31, var32, param0, var9, var26);
+            var30 = var33;
+            var33.setInhabitedTime(var24);
             if (param3.contains("below_zero_retrogen", 10)) {
                 BelowZeroRetrogen.CODEC
                     .parse(new Dynamic<>(NbtOps.INSTANCE, param3.getCompound("below_zero_retrogen")))
                     .resultOrPartial(LOGGER::error)
-                    .ifPresent(var32::setBelowZeroRetrogen);
+                    .ifPresent(var33::setBelowZeroRetrogen);
             }
 
-            ChunkStatus var34 = ChunkStatus.byName(param3.getString("Status"));
-            var32.setStatus(var34);
-            if (var34.isOrAfter(ChunkStatus.FEATURES)) {
-                var32.setLightEngine(var8);
+            ChunkStatus var35 = ChunkStatus.byName(param3.getString("Status"));
+            var33.setStatus(var35);
+            if (var35.isOrAfter(ChunkStatus.INITIALIZE_LIGHT)) {
+                var33.setLightEngine(var8);
             }
 
-            BelowZeroRetrogen var35 = var32.getBelowZeroRetrogen();
-            boolean var36 = var34.isOrAfter(ChunkStatus.LIGHT) || var35 != null && var35.targetStatus().isOrAfter(ChunkStatus.LIGHT);
-            if (!var2 && var36) {
-                for(BlockPos var37 : BlockPos.betweenClosed(
+            BelowZeroRetrogen var36 = var33.getBelowZeroRetrogen();
+            boolean var37 = var35.isOrAfter(ChunkStatus.LIGHT) || var36 != null && var36.targetStatus().isOrAfter(ChunkStatus.LIGHT);
+            if (!var2 && var37) {
+                for(BlockPos var38 : BlockPos.betweenClosed(
                     param2.getMinBlockX(),
                     param0.getMinBuildHeight(),
                     param2.getMinBlockZ(),
@@ -195,82 +196,82 @@ public class ChunkSerializer {
                     param0.getMaxBuildHeight() - 1,
                     param2.getMaxBlockZ()
                 )) {
-                    if (var29.getBlockState(var37).getLightEmission() != 0) {
-                        var32.addLight(var37);
+                    if (var30.getBlockState(var38).getLightEmission() != 0) {
+                        var33.addLight(var38);
                     }
                 }
             }
         }
 
-        var29.setLightCorrect(var2);
-        CompoundTag var38 = param3.getCompound("Heightmaps");
-        EnumSet<Heightmap.Types> var39 = EnumSet.noneOf(Heightmap.Types.class);
+        var30.setLightCorrect(var2);
+        CompoundTag var39 = param3.getCompound("Heightmaps");
+        EnumSet<Heightmap.Types> var40 = EnumSet.noneOf(Heightmap.Types.class);
 
-        for(Heightmap.Types var40 : var29.getStatus().heightmapsAfter()) {
-            String var41 = var40.getSerializationKey();
-            if (var38.contains(var41, 12)) {
-                var29.setHeightmap(var40, var38.getLongArray(var41));
+        for(Heightmap.Types var41 : var30.getStatus().heightmapsAfter()) {
+            String var42 = var41.getSerializationKey();
+            if (var39.contains(var42, 12)) {
+                var30.setHeightmap(var41, var39.getLongArray(var42));
             } else {
-                var39.add(var40);
+                var40.add(var41);
             }
         }
 
-        Heightmap.primeHeightmaps(var29, var39);
-        CompoundTag var42 = param3.getCompound("structures");
-        var29.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var42, param0.getSeed()));
-        var29.setAllReferences(unpackStructureReferences(param0.registryAccess(), param2, var42));
+        Heightmap.primeHeightmaps(var30, var40);
+        CompoundTag var43 = param3.getCompound("structures");
+        var30.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var43, param0.getSeed()));
+        var30.setAllReferences(unpackStructureReferences(param0.registryAccess(), param2, var43));
         if (param3.getBoolean("shouldSave")) {
-            var29.setUnsaved(true);
+            var30.setUnsaved(true);
         }
 
-        ListTag var43 = param3.getList("PostProcessing", 9);
+        ListTag var44 = param3.getList("PostProcessing", 9);
 
-        for(int var44 = 0; var44 < var43.size(); ++var44) {
-            ListTag var45 = var43.getList(var44);
+        for(int var45 = 0; var45 < var44.size(); ++var45) {
+            ListTag var46 = var44.getList(var45);
 
-            for(int var46 = 0; var46 < var45.size(); ++var46) {
-                var29.addPackedPostProcess(var45.getShort(var46), var44);
+            for(int var47 = 0; var47 < var46.size(); ++var47) {
+                var30.addPackedPostProcess(var46.getShort(var47), var45);
             }
         }
 
-        if (var24 == ChunkStatus.ChunkType.LEVELCHUNK) {
-            return new ImposterProtoChunk((LevelChunk)var29, false);
+        if (var25 == ChunkStatus.ChunkType.LEVELCHUNK) {
+            return new ImposterProtoChunk((LevelChunk)var30, false);
         } else {
-            ProtoChunk var47 = (ProtoChunk)var29;
-            ListTag var48 = param3.getList("entities", 10);
+            ProtoChunk var48 = (ProtoChunk)var30;
+            ListTag var49 = param3.getList("entities", 10);
 
-            for(int var49 = 0; var49 < var48.size(); ++var49) {
-                var47.addEntity(var48.getCompound(var49));
+            for(int var50 = 0; var50 < var49.size(); ++var50) {
+                var48.addEntity(var49.getCompound(var50));
             }
 
-            ListTag var50 = param3.getList("block_entities", 10);
+            ListTag var51 = param3.getList("block_entities", 10);
 
-            for(int var51 = 0; var51 < var50.size(); ++var51) {
-                CompoundTag var52 = var50.getCompound(var51);
-                var29.setBlockEntityNbt(var52);
+            for(int var52 = 0; var52 < var51.size(); ++var52) {
+                CompoundTag var53 = var51.getCompound(var52);
+                var30.setBlockEntityNbt(var53);
             }
 
-            ListTag var53 = param3.getList("Lights", 9);
+            ListTag var54 = param3.getList("Lights", 9);
 
-            for(int var54 = 0; var54 < var53.size(); ++var54) {
-                LevelChunkSection var55 = var5[var54];
-                if (var55 != null && !var55.hasOnlyAir()) {
-                    ListTag var56 = var53.getList(var54);
+            for(int var55 = 0; var55 < var54.size(); ++var55) {
+                LevelChunkSection var56 = var5[var55];
+                if (var56 != null && !var56.hasOnlyAir()) {
+                    ListTag var57 = var54.getList(var55);
 
-                    for(int var57 = 0; var57 < var56.size(); ++var57) {
-                        var47.addLight(var56.getShort(var57), var54);
+                    for(int var58 = 0; var58 < var57.size(); ++var58) {
+                        var48.addLight(var57.getShort(var58), var55);
                     }
                 }
             }
 
-            CompoundTag var58 = param3.getCompound("CarvingMasks");
+            CompoundTag var59 = param3.getCompound("CarvingMasks");
 
-            for(String var59 : var58.getAllKeys()) {
-                GenerationStep.Carving var60 = GenerationStep.Carving.valueOf(var59);
-                var47.setCarvingMask(var60, new CarvingMask(var58.getLongArray(var59), var29.getMinBuildHeight()));
+            for(String var60 : var59.getAllKeys()) {
+                GenerationStep.Carving var61 = GenerationStep.Carving.valueOf(var60);
+                var48.setCarvingMask(var61, new CarvingMask(var59.getLongArray(var60), var30.getMinBuildHeight()));
             }
 
-            return var47;
+            return var48;
         }
     }
 

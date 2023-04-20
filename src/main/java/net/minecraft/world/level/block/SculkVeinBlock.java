@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
 
 public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, SimpleWaterloggedBlock {
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -193,13 +192,10 @@ public class SculkVeinBlock extends MultifaceBlock implements SculkBehaviour, Si
                 FluidState var2 = param4.getFluidState();
                 if (!var2.isEmpty() && !var2.is(Fluids.WATER)) {
                     return false;
+                } else if (param4.is(BlockTags.FIRE)) {
+                    return false;
                 } else {
-                    Material var3 = param4.getMaterial();
-                    if (param4.is(BlockTags.FIRE)) {
-                        return false;
-                    } else {
-                        return param4.canBeReplaced() || super.stateCanBeReplaced(param0, param1, param2, param3, param4);
-                    }
+                    return param4.canBeReplaced() || super.stateCanBeReplaced(param0, param1, param2, param3, param4);
                 }
             } else {
                 return false;

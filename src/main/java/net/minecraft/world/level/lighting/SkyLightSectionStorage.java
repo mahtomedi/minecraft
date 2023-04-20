@@ -4,7 +4,6 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
-import java.util.Arrays;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -157,24 +156,25 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
         if (var0 != null) {
             return var0;
         } else {
-            long var1 = SectionPos.offset(param0, Direction.UP);
-            int var2 = this.updatingSectionData.topSections.get(SectionPos.getZeroNode(param0));
-            if (var2 != this.updatingSectionData.currentLowestY && SectionPos.y(var1) < var2) {
+            int var1 = this.updatingSectionData.topSections.get(SectionPos.getZeroNode(param0));
+            if (var1 != this.updatingSectionData.currentLowestY && SectionPos.y(param0) < var1) {
+                long var2 = SectionPos.offset(param0, Direction.UP);
+
                 DataLayer var3;
-                while((var3 = this.getDataLayer(var1, true)) == null) {
-                    var1 = SectionPos.offset(var1, Direction.UP);
+                while((var3 = this.getDataLayer(var2, true)) == null) {
+                    var2 = SectionPos.offset(var2, Direction.UP);
                 }
 
                 return repeatFirstLayer(var3);
             } else {
-                return new DataLayer();
+                return this.lightOnInSection(param0) ? new DataLayer(15) : new DataLayer();
             }
         }
     }
 
     private static DataLayer repeatFirstLayer(DataLayer param0) {
-        if (param0.isEmpty()) {
-            return new DataLayer();
+        if (param0.isDefinitelyHomogenous()) {
+            return param0.copy();
         } else {
             byte[] var0 = param0.getData();
             byte[] var1 = new byte[2048];
@@ -197,11 +197,13 @@ public class SkyLightSectionStorage extends LayerLightSectionStorage<SkyLightSec
                     if (var1 != 2 && !this.sectionsToRemoveSourcesFrom.contains(var0) && this.sectionsWithSources.add(var0)) {
                         if (var1 == 1) {
                             this.clearQueuedSectionBlocks(param0, var0);
-                            if (this.changedSections.add(var0)) {
-                                this.updatingSectionData.copyDataLayer(var0);
+                            if (!this.getDataLayer(var0, true).isDefinitelyFilledWith(15)) {
+                                this.updatingSectionData.setLayer(var0, new DataLayer(15));
+                                this.updatingSectionData.clearCache();
+                                this.changedSections.add(var0);
+                                this.markSectionAndNeighborsAsAffected(var0);
                             }
 
-                            Arrays.fill(this.getDataLayer(var0, true).getData(), (byte)-1);
                             int var2 = SectionPos.sectionToBlockCoord(SectionPos.x(var0));
                             int var3 = SectionPos.sectionToBlockCoord(SectionPos.y(var0));
                             int var4 = SectionPos.sectionToBlockCoord(SectionPos.z(var0));

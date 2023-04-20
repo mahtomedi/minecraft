@@ -1,7 +1,7 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.dto.RealmsServer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.CommonComponents;
@@ -86,11 +86,11 @@ public class RealmsSettingsScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
-        this.font.draw(param0, NAME_LABEL, (float)(this.width / 2 - 106), (float)row(3), 10526880);
-        this.font.draw(param0, DESCRIPTION_LABEL, (float)(this.width / 2 - 106), (float)row(7), 10526880);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawString(this.font, NAME_LABEL, this.width / 2 - 106, row(3), 10526880, false);
+        param0.drawString(this.font, DESCRIPTION_LABEL, this.width / 2 - 106, row(7), 10526880, false);
         this.nameEdit.render(param0, param1, param2, param3);
         this.descEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);

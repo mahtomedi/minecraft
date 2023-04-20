@@ -28,7 +28,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.scores.Team;
 
@@ -351,7 +350,6 @@ public class SpreadPlayersCommand {
         public boolean isSafe(BlockGetter param0, int param1) {
             BlockPos var0 = BlockPos.containing(this.x, (double)(this.getSpawnY(param0, param1) - 1), this.z);
             BlockState var1 = param0.getBlockState(var0);
-            Material var2 = var1.getMaterial();
             return var0.getY() < param1 && !var1.liquid() && !var1.is(BlockTags.FIRE);
         }
 

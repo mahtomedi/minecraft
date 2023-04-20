@@ -17,7 +17,7 @@ import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.GlDebug;
 import com.mojang.blaze3d.platform.GlUtil;
-import com.mojang.blaze3d.platform.MacosUtil;
+import com.mojang.blaze3d.platform.IconSet;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -34,9 +34,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.gui.RealmsDataFetcher;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.Proxy;
 import java.net.SocketAddress;
@@ -74,6 +72,7 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
@@ -185,7 +184,6 @@ import net.minecraft.server.packs.repository.FolderRepositorySource;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.repository.RepositorySource;
-import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -445,11 +443,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.setWindowActive(true);
 
         try {
-            if (ON_OSX) {
-                MacosUtil.loadIcon(this.getIconFile("icons", "minecraft.icns"));
-            } else {
-                this.window.setIcon(this.getIconFile("icons", "icon_16x16.png"), this.getIconFile("icons", "icon_32x32.png"));
-            }
+            this.window.setIcon(this.vanillaPackResources, SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
         } catch (IOException var101) {
             LOGGER.error("Couldn't set icon", (Throwable)var101);
         }
@@ -595,15 +589,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.setScreen(new TitleScreen(true));
         }
 
-    }
-
-    private IoSupplier<InputStream> getIconFile(String... param0) throws IOException {
-        IoSupplier<InputStream> var0 = this.vanillaPackResources.getRootResource(param0);
-        if (var0 == null) {
-            throw new FileNotFoundException(String.join("/", param0));
-        } else {
-            return var0;
-        }
     }
 
     private static boolean countryEqualsISO3(Object param0x) {
@@ -907,7 +892,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 TextureAtlasSprite var9 = var1.getParticleIcon(var8);
                 if (!var8.isAir() && var9 == var6) {
                     LOGGER.debug("Missing particle icon for: {}", var8);
-                    var0 = true;
                 }
             }
         }
@@ -1126,7 +1110,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         if (this.fpsPieResults != null) {
             this.profiler.push("fpsPie");
-            this.renderFpsMeter(new PoseStack(), this.fpsPieResults);
+            GuiGraphics var8 = new GuiGraphics(this, this.renderBuffers.bufferSource());
+            this.renderFpsMeter(var8, this.fpsPieResults);
+            var8.flush();
             this.profiler.pop();
         }
 
@@ -1140,9 +1126,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         this.profiler.popPush("updateDisplay");
         this.window.updateDisplay();
-        int var8 = this.getFramerateLimit();
-        if (var8 < 260) {
-            RenderSystem.limitDisplayFPS(var8);
+        int var9 = this.getFramerateLimit();
+        if (var9 < 260) {
+            RenderSystem.limitDisplayFPS(var9);
         }
 
         this.profiler.popPush("yield");
@@ -1150,38 +1136,38 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.pop();
         this.window.setErrorSection("Post render");
         ++this.frames;
-        boolean var9 = this.hasSingleplayerServer()
+        boolean var10 = this.hasSingleplayerServer()
             && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen())
             && !this.singleplayerServer.isPublished();
-        if (this.pause != var9) {
+        if (this.pause != var10) {
             if (this.pause) {
                 this.pausePartialTick = this.timer.partialTick;
             } else {
                 this.timer.partialTick = this.pausePartialTick;
             }
 
-            this.pause = var9;
+            this.pause = var10;
         }
 
-        long var10 = Util.getNanos();
-        long var11 = var10 - this.lastNanoTime;
+        long var11 = Util.getNanos();
+        long var12 = var11 - this.lastNanoTime;
         if (var7) {
-            this.savedCpuDuration = var11;
+            this.savedCpuDuration = var12;
         }
 
-        this.frameTimer.logFrameDuration(var11);
-        this.lastNanoTime = var10;
+        this.frameTimer.logFrameDuration(var12);
+        this.lastNanoTime = var11;
         this.profiler.push("fpsUpdate");
         if (this.currentFrameProfile != null && this.currentFrameProfile.isDone()) {
             this.gpuUtilization = (double)this.currentFrameProfile.get() * 100.0 / (double)this.savedCpuDuration;
         }
 
         while(Util.getMillis() >= this.lastTime + 1000L) {
-            String var12;
+            String var13;
             if (this.gpuUtilization > 0.0) {
-                var12 = " GPU: " + (this.gpuUtilization > 100.0 ? ChatFormatting.RED + "100%" : Math.round(this.gpuUtilization) + "%");
+                var13 = " GPU: " + (this.gpuUtilization > 100.0 ? ChatFormatting.RED + "100%" : Math.round(this.gpuUtilization) + "%");
             } else {
-                var12 = "";
+                var13 = "";
             }
 
             fps = this.frames;
@@ -1189,14 +1175,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 Locale.ROOT,
                 "%d fps T: %s%s%s%s B: %d%s",
                 fps,
-                var8 == 260 ? "inf" : var8,
+                var9 == 260 ? "inf" : var9,
                 this.options.enableVsync().get() ? " vsync" : "",
                 this.options.graphicsMode().get(),
                 this.options.cloudStatus().get() == CloudStatus.OFF
                     ? ""
                     : (this.options.cloudStatus().get() == CloudStatus.FAST ? " fast-clouds" : " fancy-clouds"),
                 this.options.biomeBlendRadius().get(),
-                var12
+                var13
             );
             this.lastTime += 1000L;
             this.frames = 0;
@@ -1441,7 +1427,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
     }
 
-    private void renderFpsMeter(PoseStack param0, ProfileResults param1) {
+    private void renderFpsMeter(GuiGraphics param0, ProfileResults param1) {
         List<ResultField> var0 = param1.getTimes(this.debugPath);
         ResultField var1 = var0.remove(0);
         RenderSystem.clear(256, ON_OSX);
@@ -1519,9 +1505,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         int var27 = 16777215;
-        this.font.drawShadow(param0, var26, (float)(var7 - 160), (float)(var8 - 80 - 16), 16777215);
+        param0.drawString(this.font, var26, var7 - 160, var8 - 80 - 16, 16777215);
         var26 = var24.format(var1.globalPercentage) + "%";
-        this.font.drawShadow(param0, var26, (float)(var7 + 160 - this.font.width(var26)), (float)(var8 - 80 - 16), 16777215);
+        param0.drawString(this.font, var26, var7 + 160 - this.font.width(var26), var8 - 80 - 16, 16777215);
 
         for(int var28 = 0; var28 < var0.size(); ++var28) {
             ResultField var29 = var0.get(var28);
@@ -1533,11 +1519,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             }
 
             String var31 = var30.append(var29.name).toString();
-            this.font.drawShadow(param0, var31, (float)(var7 - 160), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
+            param0.drawString(this.font, var31, var7 - 160, var8 + 80 + var28 * 8 + 20, var29.getColor());
             var31 = var24.format(var29.percentage) + "%";
-            this.font.drawShadow(param0, var31, (float)(var7 + 160 - 50 - this.font.width(var31)), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
+            param0.drawString(this.font, var31, var7 + 160 - 50 - this.font.width(var31), var8 + 80 + var28 * 8 + 20, var29.getColor());
             var31 = var24.format(var29.globalPercentage) + "%";
-            this.font.drawShadow(param0, var31, (float)(var7 + 160 - this.font.width(var31)), (float)(var8 + 80 + var28 * 8 + 20), var29.getColor());
+            param0.drawString(this.font, var31, var7 + 160 - this.font.width(var31), var8 + 80 + var28 * 8 + 20, var29.getColor());
         }
 
         var3.popPose();
@@ -1756,7 +1742,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.gui.clearCache();
         }
 
-        if (this.overlay == null && (this.screen == null || this.screen.passEvents)) {
+        if (this.overlay == null && this.screen == null) {
             this.profiler.popPush("Keybindings");
             this.handleKeybinds();
             if (this.missTime > 0) {

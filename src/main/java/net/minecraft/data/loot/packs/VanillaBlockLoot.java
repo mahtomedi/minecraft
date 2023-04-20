@@ -1406,12 +1406,12 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
                 LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1.0F))
                     .add(
-                        DynamicLoot.dynamicEntry(DecoratedPotBlock.SHARDS)
+                        DynamicLoot.dynamicEntry(DecoratedPotBlock.SHERDS)
                             .when(MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.BREAKS_DECORATED_POTS)))
                             .when(HAS_NO_SILK_TOUCH)
                             .otherwise(
                                 LootItem.lootTableItem(param0)
-                                    .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy("shards", "BlockEntityTag.shards"))
+                                    .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY).copy("sherds", "BlockEntityTag.sherds"))
                             )
                     )
             );

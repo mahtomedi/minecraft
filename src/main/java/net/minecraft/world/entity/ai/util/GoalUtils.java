@@ -39,6 +39,6 @@ public class GoalUtils {
     }
 
     public static boolean isSolid(PathfinderMob param0, BlockPos param1) {
-        return param0.level.getBlockState(param1).getMaterial().isSolid();
+        return param0.level.getBlockState(param1).isSolid();
     }
 }

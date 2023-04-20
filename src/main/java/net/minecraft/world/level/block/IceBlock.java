@@ -13,7 +13,6 @@ import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 
 public class IceBlock extends HalfTransparentBlock {
     public IceBlock(BlockBehaviour.Properties param0) {
@@ -34,8 +33,7 @@ public class IceBlock extends HalfTransparentBlock {
             }
 
             BlockState var0 = param0.getBlockState(param2.below());
-            Material var1 = var0.getMaterial();
-            if (var1.blocksMotion() || var0.liquid()) {
+            if (var0.blocksMotion() || var0.liquid()) {
                 param0.setBlockAndUpdate(param2, meltsInto());
             }
         }

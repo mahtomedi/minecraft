@@ -1,12 +1,11 @@
 package net.minecraft.client.gui.components.events;
 
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractContainerEventHandler extends GuiComponent implements ContainerEventHandler {
+public abstract class AbstractContainerEventHandler implements ContainerEventHandler {
     @Nullable
     private GuiEventListener focused;
     private boolean isDragging;

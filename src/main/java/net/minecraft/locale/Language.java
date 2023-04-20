@@ -35,24 +35,17 @@ public abstract class Language {
     private static Language loadDefault() {
         Builder<String, String> var0 = ImmutableMap.builder();
         BiConsumer<String, String> var1 = var0::put;
-        String var2 = "/assets/minecraft/lang/en_us.json";
-
-        try (InputStream var3 = Language.class.getResourceAsStream("/assets/minecraft/lang/en_us.json")) {
-            loadFromJson(var3, var1);
-        } catch (JsonParseException | IOException var8) {
-            LOGGER.error("Couldn't read strings from {}", "/assets/minecraft/lang/en_us.json", var8);
-        }
-
-        final Map<String, String> var5 = var0.build();
+        parseTranslations(var1, "/assets/minecraft/lang/en_us.json");
+        final Map<String, String> var2 = var0.build();
         return new Language() {
             @Override
             public String getOrDefault(String param0, String param1) {
-                return var5.getOrDefault(param0, param1);
+                return var2.getOrDefault(param0, param1);
             }
 
             @Override
             public boolean has(String param0) {
-                return var5.containsKey(param0);
+                return var2.containsKey(param0);
             }
 
             @Override
@@ -69,6 +62,15 @@ public abstract class Language {
                         .isPresent();
             }
         };
+    }
+
+    private static void parseTranslations(BiConsumer<String, String> param0, String param1) {
+        try (InputStream var0 = Language.class.getResourceAsStream(param1)) {
+            loadFromJson(var0, param0);
+        } catch (JsonParseException | IOException var7) {
+            LOGGER.error("Couldn't read strings from {}", param1, var7);
+        }
+
     }
 
     public static void loadFromJson(InputStream param0, BiConsumer<String, String> param1) {

@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +17,7 @@ public class GrindstoneScreen extends AbstractContainerScreen<GrindstoneMenu> {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.renderBg(param0, param3, param1, param2);
         super.render(param0, param1, param2, param3);
@@ -26,13 +25,12 @@ public class GrindstoneScreen extends AbstractContainerScreen<GrindstoneMenu> {
     }
 
     @Override
-    protected void renderBg(PoseStack param0, float param1, int param2, int param3) {
-        RenderSystem.setShaderTexture(0, GRINDSTONE_LOCATION);
+    protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
-        blit(param0, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
+        param0.blit(GRINDSTONE_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         if ((this.menu.getSlot(0).hasItem() || this.menu.getSlot(1).hasItem()) && !this.menu.getSlot(2).hasItem()) {
-            blit(param0, var0 + 92, var1 + 31, this.imageWidth, 0, 28, 21);
+            param0.blit(GRINDSTONE_LOCATION, var0 + 92, var1 + 31, this.imageWidth, 0, 28, 21);
         }
 
     }

@@ -372,7 +372,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     public boolean isPossibleToRespawnInThis(BlockState param0) {
-        return !this.material.isSolid() && !param0.liquid();
+        return !param0.isSolid() && !param0.liquid();
     }
 
     public MutableComponent getName() {

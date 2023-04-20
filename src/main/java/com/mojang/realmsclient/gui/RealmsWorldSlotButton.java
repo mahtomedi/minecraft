@@ -1,7 +1,6 @@
 package com.mojang.realmsclient.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsWorldOptions;
@@ -10,6 +9,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -127,7 +127,7 @@ public class RealmsWorldSlotButton extends Button {
     }
 
     @Override
-    public void renderWidget(PoseStack param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.state != null) {
             this.drawSlotFrame(
                 param0,
@@ -149,7 +149,7 @@ public class RealmsWorldSlotButton extends Button {
     }
 
     private void drawSlotFrame(
-        PoseStack param0,
+        GuiGraphics param0,
         int param1,
         int param2,
         int param3,
@@ -170,48 +170,49 @@ public class RealmsWorldSlotButton extends Button {
         }
 
         Minecraft var1 = Minecraft.getInstance();
+        ResourceLocation var2;
         if (param11) {
-            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
+            var2 = RealmsTextureManager.worldTemplate(String.valueOf(param8), param9);
         } else if (param10) {
-            RenderSystem.setShaderTexture(0, EMPTY_SLOT_LOCATION);
+            var2 = EMPTY_SLOT_LOCATION;
         } else if (param9 != null && param8 != -1L) {
-            RenderSystem.setShaderTexture(0, RealmsTextureManager.worldTemplate(String.valueOf(param8), param9));
+            var2 = RealmsTextureManager.worldTemplate(String.valueOf(param8), param9);
         } else if (param7 == 1) {
-            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_1);
+            var2 = DEFAULT_WORLD_SLOT_1;
         } else if (param7 == 2) {
-            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_2);
+            var2 = DEFAULT_WORLD_SLOT_2;
         } else if (param7 == 3) {
-            RenderSystem.setShaderTexture(0, DEFAULT_WORLD_SLOT_3);
+            var2 = DEFAULT_WORLD_SLOT_3;
+        } else {
+            var2 = EMPTY_SLOT_LOCATION;
         }
 
         if (param5) {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
-        blit(param0, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
-        RenderSystem.setShaderTexture(0, SLOT_FRAME_LOCATION);
-        boolean var2 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
-        if (var2) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(var2, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
+        boolean var9 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
+        if (var9) {
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else if (param5) {
-            RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 1.0F);
+            param0.setColor(0.8F, 0.8F, 0.8F, 1.0F);
         } else {
-            RenderSystem.setShaderColor(0.56F, 0.56F, 0.56F, 1.0F);
+            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
-        blit(param0, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.blit(SLOT_FRAME_LOCATION, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         if (param5) {
             this.renderCheckMark(param0, param1, param2);
         }
 
-        drawCenteredString(param0, var1.font, param6, param1 + 40, param2 + 66, 16777215);
+        param0.drawCenteredString(var1.font, param6, param1 + 40, param2 + 66, 16777215);
     }
 
-    private void renderCheckMark(PoseStack param0, int param1, int param2) {
-        RenderSystem.setShaderTexture(0, CHECK_MARK_LOCATION);
+    private void renderCheckMark(GuiGraphics param0, int param1, int param2) {
         RenderSystem.enableBlend();
-        blit(param0, param1 + 67, param2 + 4, 0.0F, 0.0F, 9, 8, 9, 8);
+        param0.blit(CHECK_MARK_LOCATION, param1 + 67, param2 + 4, 0.0F, 0.0F, 9, 8, 9, 8);
         RenderSystem.disableBlend();
     }
 

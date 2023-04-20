@@ -475,21 +475,25 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            for(LevelChunkSection var19 : param0.getSections()) {
-                if (var19.isRandomlyTicking()) {
-                    int var20 = var19.bottomBlockY();
+            LevelChunkSection[] var19 = param0.getSections();
 
-                    for(int var21 = 0; var21 < param1; ++var21) {
-                        BlockPos var22 = this.getBlockRandomPos(var2, var20, var3, 15);
+            for(int var20 = 0; var20 < var19.length; ++var20) {
+                LevelChunkSection var21 = var19[var20];
+                if (var21.isRandomlyTicking()) {
+                    int var22 = param0.getSectionYFromSectionIndex(var20);
+                    int var23 = SectionPos.sectionToBlockCoord(var22);
+
+                    for(int var24 = 0; var24 < param1; ++var24) {
+                        BlockPos var25 = this.getBlockRandomPos(var2, var23, var3, 15);
                         var4.push("randomTick");
-                        BlockState var23 = var19.getBlockState(var22.getX() - var2, var22.getY() - var20, var22.getZ() - var3);
-                        if (var23.isRandomlyTicking()) {
-                            var23.randomTick(this, var22, this.random);
+                        BlockState var26 = var21.getBlockState(var25.getX() - var2, var25.getY() - var23, var25.getZ() - var3);
+                        if (var26.isRandomlyTicking()) {
+                            var26.randomTick(this, var25, this.random);
                         }
 
-                        FluidState var24 = var23.getFluidState();
-                        if (var24.isRandomlyTicking()) {
-                            var24.randomTick(this, var22, this.random);
+                        FluidState var27 = var26.getFluidState();
+                        if (var27.isRandomlyTicking()) {
+                            var27.randomTick(this, var25, this.random);
                         }
 
                         var4.pop();

@@ -2,7 +2,6 @@ package net.minecraft.client.gui.components;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraftforge.api.distmarker.Dist;
@@ -93,7 +93,7 @@ public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry>
         }
 
         @Override
-        public void render(PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.children.forEach(param5x -> {
                 param5x.setY(param2);
                 param5x.render(param0, param6, param7, param9);

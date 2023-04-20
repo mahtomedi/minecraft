@@ -1,10 +1,10 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.text2speech.Narrator;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.AccessibilityOnboardingTextWidget;
 import net.minecraft.client.gui.components.Button;
@@ -88,10 +88,10 @@ public class AccessibilityOnboardingScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.handleInitialNarrationDelay();
         this.panorama.render(0.0F, 1.0F);
-        fill(param0, 0, 0, this.width, this.height, -1877995504);
+        param0.fill(0, 0, this.width, this.height, -1877995504);
         this.logoRenderer.renderLogo(param0, this.width, 1.0F);
         if (this.textWidget != null) {
             this.textWidget.render(param0, param1, param2, param3);

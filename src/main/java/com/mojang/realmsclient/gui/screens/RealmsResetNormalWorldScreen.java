@@ -1,9 +1,9 @@
 package com.mojang.realmsclient.gui.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.realmsclient.util.LevelType;
 import com.mojang.realmsclient.util.WorldGenerationInfo;
 import java.util.function.Consumer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -74,10 +74,10 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 17, 16777215);
-        this.font.draw(param0, SEED_LABEL, (float)(this.width / 2 - 100), (float)row(1), 10526880);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawString(this.font, SEED_LABEL, this.width / 2 - 100, row(1), 10526880, false);
         this.seedEdit.render(param0, param1, param2, param3);
         super.render(param0, param1, param2, param3);
     }

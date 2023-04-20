@@ -9,10 +9,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.shaders.Program;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import com.mojang.datafixers.util.Pair;
@@ -37,6 +35,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -1010,14 +1009,14 @@ public class GameRenderer implements AutoCloseable {
             var4.translate(0.0F, 0.0F, -2000.0F);
             RenderSystem.applyModelViewMatrix();
             Lighting.setupFor3DItems();
-            PoseStack var5 = new PoseStack();
+            GuiGraphics var5 = new GuiGraphics(this.minecraft, this.renderBuffers.bufferSource());
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
                 if (this.minecraft.player != null) {
                     float var6 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
                     float var7 = this.minecraft.options.screenEffectScale().get().floatValue();
                     if (var6 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && var7 < 1.0F) {
-                        this.renderConfusionOverlay(var6 * (1.0F - var7));
+                        this.renderConfusionOverlay(var5, var6 * (1.0F - var7));
                     }
                 }
 
@@ -1087,6 +1086,7 @@ public class GameRenderer implements AutoCloseable {
             this.minecraft.getProfiler().push("toasts");
             this.minecraft.getToasts().render(var5);
             this.minecraft.getProfiler().pop();
+            var5.flush();
             var4.popPose();
             RenderSystem.applyModelViewMatrix();
         }
@@ -1276,39 +1276,31 @@ public class GameRenderer implements AutoCloseable {
         }
     }
 
-    private void renderConfusionOverlay(float param0) {
+    private void renderConfusionOverlay(GuiGraphics param0, float param1) {
         int var0 = this.minecraft.getWindow().getGuiScaledWidth();
         int var1 = this.minecraft.getWindow().getGuiScaledHeight();
-        double var2 = Mth.lerp((double)param0, 2.0, 1.0);
-        float var3 = 0.2F * param0;
-        float var4 = 0.4F * param0;
-        float var5 = 0.2F * param0;
-        double var6 = (double)var0 * var2;
-        double var7 = (double)var1 * var2;
-        double var8 = ((double)var0 - var6) / 2.0;
-        double var9 = ((double)var1 - var7) / 2.0;
+        param0.pose().pushPose();
+        float var2 = Mth.lerp(param1, 2.0F, 1.0F);
+        param0.pose().translate((float)var0 / 2.0F, (float)var1 / 2.0F, 0.0F);
+        param0.pose().scale(var2, var2, var2);
+        param0.pose().translate((float)(-var0) / 2.0F, (float)(-var1) / 2.0F, 0.0F);
+        float var3 = 0.2F * param1;
+        float var4 = 0.4F * param1;
+        float var5 = 0.2F * param1;
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE
         );
-        RenderSystem.setShaderColor(var3, var4, var5, 1.0F);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, NAUSEA_LOCATION);
-        Tesselator var10 = Tesselator.getInstance();
-        BufferBuilder var11 = var10.getBuilder();
-        var11.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        var11.vertex(var8, var9 + var7, -90.0).uv(0.0F, 1.0F).endVertex();
-        var11.vertex(var8 + var6, var9 + var7, -90.0).uv(1.0F, 1.0F).endVertex();
-        var11.vertex(var8 + var6, var9, -90.0).uv(1.0F, 0.0F).endVertex();
-        var11.vertex(var8, var9, -90.0).uv(0.0F, 0.0F).endVertex();
-        var10.end();
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        param0.setColor(var3, var4, var5, 1.0F);
+        param0.blit(NAUSEA_LOCATION, 0, 0, -90, 0.0F, 0.0F, var0, var1, var0, var1);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();
+        param0.pose().popPose();
     }
 
     public Minecraft getMinecraft() {

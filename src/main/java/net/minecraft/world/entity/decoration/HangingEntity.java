@@ -121,7 +121,7 @@ public abstract class HangingEntity extends Entity {
                     int var8 = (var1 - 1) / -2;
                     var4.set(var2).move(var3, var5 + var7).move(Direction.UP, var6 + var8);
                     BlockState var9 = this.level.getBlockState(var4);
-                    if (!var9.getMaterial().isSolid() && !DiodeBlock.isDiode(var9)) {
+                    if (!var9.isSolid() && !DiodeBlock.isDiode(var9)) {
                         return false;
                     }
                 }

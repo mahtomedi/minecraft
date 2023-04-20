@@ -1,16 +1,15 @@
 package net.minecraft.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -103,18 +102,20 @@ public class CreateFlatWorldScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.list.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         int var0 = this.width / 2 - 92 - 16;
-        drawString(param0, this.font, this.columnType, var0, 32, 16777215);
-        drawString(param0, this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
+        param0.drawString(this.font, this.columnType, var0, 32, 16777215);
+        param0.drawString(this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
         super.render(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)
     class DetailsList extends ObjectSelectionList<CreateFlatWorldScreen.DetailsList.Entry> {
+        static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
+
         public DetailsList() {
             super(
                 CreateFlatWorldScreen.this.minecraft,
@@ -160,7 +161,7 @@ public class CreateFlatWorldScreen extends Screen {
         class Entry extends ObjectSelectionList.Entry<CreateFlatWorldScreen.DetailsList.Entry> {
             @Override
             public void render(
-                PoseStack param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
+                GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
             ) {
                 FlatLayerInfo var0 = CreateFlatWorldScreen.this.generator
                     .getLayersInfo()
@@ -168,7 +169,7 @@ public class CreateFlatWorldScreen extends Screen {
                 BlockState var1 = var0.getBlockState();
                 ItemStack var2 = this.getDisplayItem(var1);
                 this.blitSlot(param0, param3, param2, var2);
-                CreateFlatWorldScreen.this.font.draw(param0, var2.getHoverName(), (float)(param3 + 18 + 5), (float)(param2 + 3), 16777215);
+                param0.drawString(CreateFlatWorldScreen.this.font, var2.getHoverName(), param3 + 18 + 5, param2 + 3, 16777215, false);
                 Component var3;
                 if (param1 == 0) {
                     var3 = Component.translatable("createWorld.customize.flat.layer.top", var0.getHeight());
@@ -178,8 +179,9 @@ public class CreateFlatWorldScreen extends Screen {
                     var3 = Component.translatable("createWorld.customize.flat.layer", var0.getHeight());
                 }
 
-                CreateFlatWorldScreen.this.font
-                    .draw(param0, var3, (float)(param3 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var3)), (float)(param2 + 3), 16777215);
+                param0.drawString(
+                    CreateFlatWorldScreen.this.font, var3, param3 + 2 + 213 - CreateFlatWorldScreen.this.font.width(var3), param2 + 3, 16777215, false
+                );
             }
 
             private ItemStack getDisplayItem(BlockState param0) {
@@ -214,17 +216,16 @@ public class CreateFlatWorldScreen extends Screen {
                 }
             }
 
-            private void blitSlot(PoseStack param0, int param1, int param2, ItemStack param3) {
+            private void blitSlot(GuiGraphics param0, int param1, int param2, ItemStack param3) {
                 this.blitSlotBg(param0, param1 + 1, param2 + 1);
                 if (!param3.isEmpty()) {
-                    CreateFlatWorldScreen.this.itemRenderer.renderGuiItem(param0, param3, param1 + 2, param2 + 2);
+                    param0.renderFakeItem(param3, param1 + 2, param2 + 2);
                 }
 
             }
 
-            private void blitSlotBg(PoseStack param0, int param1, int param2) {
-                RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(param0, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
+            private void blitSlotBg(GuiGraphics param0, int param1, int param2) {
+                param0.blit(CreateFlatWorldScreen.DetailsList.STATS_ICON_LOCATION, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
             }
         }
     }

@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBlock, FarmableBlock {
+public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBlock {
     public static final IntegerProperty AGE = BlockStateProperties.AGE_4;
     public static final int MAX_AGE = 4;
     private static final int DOUBLE_PLANT_AGE_INTERSECTION = 3;
@@ -95,7 +95,7 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
         return param0.getValue(HALF) == DoubleBlockHalf.UPPER
-            ? UPPER_SHAPE_BY_AGE[Math.abs(4 - (param0.getValue(AGE) + 1))]
+            ? UPPER_SHAPE_BY_AGE[Math.min(Math.abs(4 - (param0.getValue(AGE) + 1)), UPPER_SHAPE_BY_AGE.length - 1)]
             : LOWER_SHAPE_BY_AGE[param0.getValue(AGE)];
     }
 

@@ -4,13 +4,12 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
 
 public class DynamicGameEventListener<T extends GameEventListener> {
-    private T listener;
+    private final T listener;
     @Nullable
     private SectionPos lastSection;
 
@@ -20,18 +19,6 @@ public class DynamicGameEventListener<T extends GameEventListener> {
 
     public void add(ServerLevel param0) {
         this.move(param0);
-    }
-
-    public void updateListener(T param0, @Nullable Level param1) {
-        T var0 = this.listener;
-        if (var0 != param0) {
-            if (param1 instanceof ServerLevel var1) {
-                ifChunkExists(var1, this.lastSection, param1x -> param1x.unregister(var0));
-                ifChunkExists(var1, this.lastSection, param1x -> param1x.register(param0));
-            }
-
-            this.listener = param0;
-        }
     }
 
     public T getListener() {

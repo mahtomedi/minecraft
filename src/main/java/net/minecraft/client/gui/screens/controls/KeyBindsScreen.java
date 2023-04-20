@@ -1,11 +1,11 @@
 package net.minecraft.client.gui.screens.controls;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -75,10 +75,10 @@ public class KeyBindsScreen extends OptionsSubScreen {
     }
 
     @Override
-    public void render(PoseStack param0, int param1, int param2, float param3) {
+    public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.renderBackground(param0);
         this.keyBindsList.render(param0, param1, param2, param3);
-        drawCenteredString(param0, this.font, this.title, this.width / 2, 8, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         boolean var0 = false;
 
         for(KeyMapping var1 : this.options.keyMappings) {

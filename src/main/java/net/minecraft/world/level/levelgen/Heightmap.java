@@ -15,6 +15,7 @@ import net.minecraft.util.SimpleBitStorage;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ import org.slf4j.Logger;
 public class Heightmap {
     private static final Logger LOGGER = LogUtils.getLogger();
     static final Predicate<BlockState> NOT_AIR = param0 -> !param0.isAir();
-    static final Predicate<BlockState> MATERIAL_MOTION_BLOCKING = param0 -> param0.getMaterial().blocksMotion();
+    static final Predicate<BlockState> MATERIAL_MOTION_BLOCKING = BlockBehaviour.BlockStateBase::blocksMotion;
     private final BitStorage data;
     private final Predicate<BlockState> isOpaque;
     private final ChunkAccess chunk;
@@ -139,11 +140,11 @@ public class Heightmap {
         WORLD_SURFACE("WORLD_SURFACE", Heightmap.Usage.CLIENT, Heightmap.NOT_AIR),
         OCEAN_FLOOR_WG("OCEAN_FLOOR_WG", Heightmap.Usage.WORLDGEN, Heightmap.MATERIAL_MOTION_BLOCKING),
         OCEAN_FLOOR("OCEAN_FLOOR", Heightmap.Usage.LIVE_WORLD, Heightmap.MATERIAL_MOTION_BLOCKING),
-        MOTION_BLOCKING("MOTION_BLOCKING", Heightmap.Usage.CLIENT, param0 -> param0.getMaterial().blocksMotion() || !param0.getFluidState().isEmpty()),
+        MOTION_BLOCKING("MOTION_BLOCKING", Heightmap.Usage.CLIENT, param0 -> param0.blocksMotion() || !param0.getFluidState().isEmpty()),
         MOTION_BLOCKING_NO_LEAVES(
             "MOTION_BLOCKING_NO_LEAVES",
             Heightmap.Usage.LIVE_WORLD,
-            param0 -> (param0.getMaterial().blocksMotion() || !param0.getFluidState().isEmpty()) && !(param0.getBlock() instanceof LeavesBlock)
+            param0 -> (param0.blocksMotion() || !param0.getFluidState().isEmpty()) && !(param0.getBlock() instanceof LeavesBlock)
         );
 
         public static final Codec<Heightmap.Types> CODEC = StringRepresentable.fromEnum(Heightmap.Types::values);

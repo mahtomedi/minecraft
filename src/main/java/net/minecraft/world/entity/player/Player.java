@@ -41,6 +41,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
@@ -1435,6 +1436,9 @@ public abstract class Player extends LivingEntity {
         return 0;
     }
 
+    public void triggerRecipeCrafted(Recipe<?> param0, List<ItemStack> param1) {
+    }
+
     public void awardRecipesByKey(ResourceLocation[] param0) {
     }
 
@@ -1613,6 +1617,27 @@ public abstract class Player extends LivingEntity {
     protected void doWaterSplashEffect() {
         if (!this.isSpectator()) {
             super.doWaterSplashEffect();
+        }
+
+    }
+
+    @Override
+    protected void playStepSound(BlockPos param0, BlockState param1) {
+        if (this.isInWater()) {
+            this.waterSwimSound();
+            this.playMuffledStepSound(param1);
+        } else {
+            BlockPos var0 = this.getPrimaryStepSoundBlockPos(param0);
+            if (!param0.equals(var0)) {
+                BlockState var1 = this.level.getBlockState(var0);
+                if (var1.is(BlockTags.COMBINATION_STEP_SOUND_BLOCKS)) {
+                    this.playCombinationStepSounds(var1, param1);
+                } else {
+                    super.playStepSound(var0, var1);
+                }
+            } else {
+                super.playStepSound(param0, param1);
+            }
         }
 
     }

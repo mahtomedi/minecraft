@@ -4,14 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.datafixers.DataFixUtils;
-import com.mojang.math.Transformation;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import it.unimi.dsi.fastutil.longs.LongSets;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -35,8 +28,7 @@ import net.minecraft.Util;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
@@ -71,10 +63,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
-public class DebugScreenOverlay extends GuiComponent {
+public class DebugScreenOverlay {
     private static final int COLOR_GREY = 14737632;
     private static final int MARGIN_RIGHT = 2;
     private static final int MARGIN_LEFT = 2;
@@ -113,7 +104,7 @@ public class DebugScreenOverlay extends GuiComponent {
         this.clientChunk = null;
     }
 
-    public void render(PoseStack param0) {
+    public void render(GuiGraphics param0) {
         this.minecraft.getProfiler().push("debug");
         Entity var0 = this.minecraft.getCameraEntity();
         this.block = var0.pick(20.0, 0.0F, false);
@@ -132,7 +123,7 @@ public class DebugScreenOverlay extends GuiComponent {
         this.minecraft.getProfiler().pop();
     }
 
-    protected void drawGameInformation(PoseStack param0) {
+    protected void drawGameInformation(GuiGraphics param0) {
         List<String> var0 = this.getGameInformation();
         var0.add("");
         boolean var1 = this.minecraft.getSingleplayerServer() != null;
@@ -152,14 +143,14 @@ public class DebugScreenOverlay extends GuiComponent {
                 int var5 = this.font.width(var3);
                 int var6 = 2;
                 int var7 = 2 + var4 * var2;
-                fill(param0, 1, var7 - 1, 2 + var5 + 1, var7 + var4 - 1, -1873784752);
-                this.font.draw(param0, var3, 2.0F, (float)var7, 14737632);
+                param0.fill(1, var7 - 1, 2 + var5 + 1, var7 + var4 - 1, -1873784752);
+                param0.drawString(this.font, var3, 2, var7, 14737632, false);
             }
         }
 
     }
 
-    protected void drawSystemInformation(PoseStack param0) {
+    protected void drawSystemInformation(GuiGraphics param0) {
         List<String> var0 = this.getSystemInformation();
 
         for(int var1 = 0; var1 < var0.size(); ++var1) {
@@ -169,8 +160,8 @@ public class DebugScreenOverlay extends GuiComponent {
                 int var4 = this.font.width(var2);
                 int var5 = this.minecraft.getWindow().getGuiScaledWidth() - 2 - var4;
                 int var6 = 2 + var3 * var1;
-                fill(param0, var5 - 1, var6 - 1, var5 + var4 + 1, var6 + var3 - 1, -1873784752);
-                this.font.draw(param0, var2, (float)var5, (float)var6, 14737632);
+                param0.fill(var5 - 1, var6 - 1, var5 + var4 + 1, var6 + var3 - 1, -1873784752);
+                param0.drawString(this.font, var2, var5, var6, 14737632, false);
             }
         }
 
@@ -505,7 +496,7 @@ public class DebugScreenOverlay extends GuiComponent {
         return var0.getName() + ": " + var2;
     }
 
-    private void drawChart(PoseStack param0, FrameTimer param1, int param2, int param3, boolean param4) {
+    private void drawChart(GuiGraphics param0, FrameTimer param1, int param2, int param3, boolean param4) {
         RenderSystem.disableDepthTest();
         int var0 = param1.getLogStart();
         int var1 = param1.getLogEnd();
@@ -526,58 +517,44 @@ public class DebugScreenOverlay extends GuiComponent {
         }
 
         int var12 = this.minecraft.getWindow().getGuiScaledHeight();
-        fill(param0, param2, var12 - 60, param2 + var6, var12, -1873784752);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        BufferBuilder var13 = Tesselator.getInstance().getBuilder();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        var13.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        param0.fill(param2, var12 - 60, param2 + var6, var12, -1873784752);
 
-        for(Matrix4f var14 = Transformation.identity().getMatrix(); var3 != var1; var3 = param1.wrapIndex(var3 + 1)) {
-            int var15 = param1.scaleSampleTo(var2[var3], param4 ? 30 : 60, param4 ? 60 : 20);
-            int var16 = param4 ? 100 : 60;
-            int var17 = this.getSampleColor(Mth.clamp(var15, 0, var16), 0, var16 / 2, var16);
-            int var18 = var17 >> 24 & 0xFF;
-            int var19 = var17 >> 16 & 0xFF;
-            int var20 = var17 >> 8 & 0xFF;
-            int var21 = var17 & 0xFF;
-            var13.vertex(var14, (float)(var4 + 1), (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
-            var13.vertex(var14, (float)(var4 + 1), (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
-            var13.vertex(var14, (float)var4, (float)(var12 - var15 + 1), 0.0F).color(var19, var20, var21, var18).endVertex();
-            var13.vertex(var14, (float)var4, (float)var12, 0.0F).color(var19, var20, var21, var18).endVertex();
+        while(var3 != var1) {
+            int var13 = param1.scaleSampleTo(var2[var3], param4 ? 30 : 60, param4 ? 60 : 20);
+            int var14 = param4 ? 100 : 60;
+            int var15 = this.getSampleColor(Mth.clamp(var13, 0, var14), 0, var14 / 2, var14);
+            param0.fill(var4, var12 - var13, var4 + 1, var12, var15);
             ++var4;
+            var3 = param1.wrapIndex(var3 + 1);
         }
 
-        BufferUploader.drawWithShader(var13.end());
-        RenderSystem.disableBlend();
         if (param4) {
-            fill(param0, param2 + 1, var12 - 30 + 1, param2 + 14, var12 - 30 + 10, -1873784752);
-            this.font.draw(param0, "60 FPS", (float)(param2 + 2), (float)(var12 - 30 + 2), 14737632);
-            hLine(param0, param2, param2 + var6 - 1, var12 - 30, -1);
-            fill(param0, param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
-            this.font.draw(param0, "30 FPS", (float)(param2 + 2), (float)(var12 - 60 + 2), 14737632);
-            hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
+            param0.fill(param2 + 1, var12 - 30 + 1, param2 + 14, var12 - 30 + 10, -1873784752);
+            param0.drawString(this.font, "60 FPS", param2 + 2, var12 - 30 + 2, 14737632, false);
+            param0.hLine(param2, param2 + var6 - 1, var12 - 30, -1);
+            param0.fill(param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
+            param0.drawString(this.font, "30 FPS", param2 + 2, var12 - 60 + 2, 14737632, false);
+            param0.hLine(param2, param2 + var6 - 1, var12 - 60, -1);
         } else {
-            fill(param0, param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
-            this.font.draw(param0, "20 TPS", (float)(param2 + 2), (float)(var12 - 60 + 2), 14737632);
-            hLine(param0, param2, param2 + var6 - 1, var12 - 60, -1);
+            param0.fill(param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
+            param0.drawString(this.font, "20 TPS", param2 + 2, var12 - 60 + 2, 14737632, false);
+            param0.hLine(param2, param2 + var6 - 1, var12 - 60, -1);
         }
 
-        hLine(param0, param2, param2 + var6 - 1, var12 - 1, -1);
-        vLine(param0, param2, var12 - 60, var12, -1);
-        vLine(param0, param2 + var6 - 1, var12 - 60, var12, -1);
-        int var22 = this.minecraft.options.framerateLimit().get();
-        if (param4 && var22 > 0 && var22 <= 250) {
-            hLine(param0, param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var22), -16711681);
+        param0.hLine(param2, param2 + var6 - 1, var12 - 1, -1);
+        param0.vLine(param2, var12 - 60, var12, -1);
+        param0.vLine(param2 + var6 - 1, var12 - 60, var12, -1);
+        int var16 = this.minecraft.options.framerateLimit().get();
+        if (param4 && var16 > 0 && var16 <= 250) {
+            param0.hLine(param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var16), -16711681);
         }
 
-        String var23 = var8 + " ms min";
-        String var24 = var7 / (long)var6 + " ms avg";
-        String var25 = var9x + " ms max";
-        this.font.drawShadow(param0, var23, (float)(param2 + 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var24, (float)(param2 + var6 / 2 - this.font.width(var24) / 2), (float)(var12 - 60 - 9), 14737632);
-        this.font.drawShadow(param0, var25, (float)(param2 + var6 - this.font.width(var25)), (float)(var12 - 60 - 9), 14737632);
-        RenderSystem.enableDepthTest();
+        String var17 = var8 + " ms min";
+        String var18 = var7 / (long)var6 + " ms avg";
+        String var19 = var9x + " ms max";
+        param0.drawString(this.font, var17, param2 + 2, var12 - 60 - 9, 14737632);
+        param0.drawCenteredString(this.font, var18, param2 + var6 / 2, var12 - 60 - 9, 14737632);
+        param0.drawString(this.font, var19, param2 + var6 - this.font.width(var19), var12 - 60 - 9, 14737632);
     }
 
     private int getSampleColor(int param0, int param1, int param2, int param3) {

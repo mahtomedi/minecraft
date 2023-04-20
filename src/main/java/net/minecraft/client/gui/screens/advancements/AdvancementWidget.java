@@ -2,7 +2,6 @@ package net.minecraft.client.gui.screens.advancements;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
@@ -10,7 +9,7 @@ import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -23,7 +22,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class AdvancementWidget extends GuiComponent {
+public class AdvancementWidget {
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/advancements/widgets.png");
     private static final int HEIGHT = 26;
     private static final int BOX_X = 0;
@@ -111,7 +110,7 @@ public class AdvancementWidget extends GuiComponent {
         return param0 != null && param0.getDisplay() != null ? this.tab.getWidget(param0) : null;
     }
 
-    public void drawConnectivity(PoseStack param0, int param1, int param2, boolean param3) {
+    public void drawConnectivity(GuiGraphics param0, int param1, int param2, boolean param3) {
         if (this.parent != null) {
             int var0 = param1 + this.parent.x + 13;
             int var1 = param1 + this.parent.x + 26 + 4;
@@ -120,18 +119,18 @@ public class AdvancementWidget extends GuiComponent {
             int var4 = param2 + this.y + 13;
             int var5 = param3 ? -16777216 : -1;
             if (param3) {
-                hLine(param0, var1, var0, var2 - 1, var5);
-                hLine(param0, var1 + 1, var0, var2, var5);
-                hLine(param0, var1, var0, var2 + 1, var5);
-                hLine(param0, var3, var1 - 1, var4 - 1, var5);
-                hLine(param0, var3, var1 - 1, var4, var5);
-                hLine(param0, var3, var1 - 1, var4 + 1, var5);
-                vLine(param0, var1 - 1, var4, var2, var5);
-                vLine(param0, var1 + 1, var4, var2, var5);
+                param0.hLine(var1, var0, var2 - 1, var5);
+                param0.hLine(var1 + 1, var0, var2, var5);
+                param0.hLine(var1, var0, var2 + 1, var5);
+                param0.hLine(var3, var1 - 1, var4 - 1, var5);
+                param0.hLine(var3, var1 - 1, var4, var5);
+                param0.hLine(var3, var1 - 1, var4 + 1, var5);
+                param0.vLine(var1 - 1, var4, var2, var5);
+                param0.vLine(var1 + 1, var4, var2, var5);
             } else {
-                hLine(param0, var1, var0, var2, var5);
-                hLine(param0, var3, var1, var4, var5);
-                vLine(param0, var1, var4, var2, var5);
+                param0.hLine(var1, var0, var2, var5);
+                param0.hLine(var3, var1, var4, var5);
+                param0.vLine(var1, var4, var2, var5);
             }
         }
 
@@ -141,7 +140,7 @@ public class AdvancementWidget extends GuiComponent {
 
     }
 
-    public void draw(PoseStack param0, int param1, int param2) {
+    public void draw(GuiGraphics param0, int param1, int param2) {
         if (!this.display.isHidden() || this.progress != null && this.progress.isDone()) {
             float var0 = this.progress == null ? 0.0F : this.progress.getPercent();
             AdvancementWidgetType var1;
@@ -151,9 +150,8 @@ public class AdvancementWidget extends GuiComponent {
                 var1 = AdvancementWidgetType.UNOBTAINED;
             }
 
-            RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
-            blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
-            this.minecraft.getItemRenderer().renderAndDecorateFakeItem(param0, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+            param0.blit(WIDGETS_LOCATION, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
+            param0.renderFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
         }
 
         for(AdvancementWidget var3 : this.children) {
@@ -174,7 +172,7 @@ public class AdvancementWidget extends GuiComponent {
         this.children.add(param0);
     }
 
-    public void drawHover(PoseStack param0, int param1, int param2, float param3, int param4, int param5) {
+    public void drawHover(GuiGraphics param0, int param1, int param2, float param3, int param4, int param5) {
         boolean var0 = param4 + param1 + this.x + this.width + 26 >= this.tab.getScreen().width;
         String var1 = this.progress == null ? null : this.progress.getProgressText();
         int var2 = var1 == null ? 0 : this.minecraft.font.width(var1);
@@ -206,7 +204,6 @@ public class AdvancementWidget extends GuiComponent {
         }
 
         int var18 = this.width - var5;
-        RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.enableBlend();
         int var19 = param2 + this.y;
         int var20;
@@ -219,38 +216,38 @@ public class AdvancementWidget extends GuiComponent {
         int var22 = 32 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (var3) {
-                blitNineSliced(param0, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
+                param0.blitNineSliced(WIDGETS_LOCATION, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
             } else {
-                blitNineSliced(param0, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
+                param0.blitNineSliced(WIDGETS_LOCATION, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
             }
         }
 
-        blit(param0, var20, var19, 0, var6.getIndex() * 26, var5, 26);
-        blit(param0, var20 + var5, var19, 200 - var18, var7.getIndex() * 26, var18, 26);
-        blit(param0, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var8.getIndex() * 26, 26, 26);
+        param0.blit(WIDGETS_LOCATION, var20, var19, 0, var6.getIndex() * 26, var5, 26);
+        param0.blit(WIDGETS_LOCATION, var20 + var5, var19, 200 - var18, var7.getIndex() * 26, var18, 26);
+        param0.blit(WIDGETS_LOCATION, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var8.getIndex() * 26, 26, 26);
         if (var0) {
-            this.minecraft.font.drawShadow(param0, this.title, (float)(var20 + 5), (float)(param2 + this.y + 9), -1);
+            param0.drawString(this.minecraft.font, this.title, var20 + 5, param2 + this.y + 9, -1);
             if (var1 != null) {
-                this.minecraft.font.drawShadow(param0, var1, (float)(param1 + this.x - var2), (float)(param2 + this.y + 9), -1);
+                param0.drawString(this.minecraft.font, var1, param1 + this.x - var2, param2 + this.y + 9, -1);
             }
         } else {
-            this.minecraft.font.drawShadow(param0, this.title, (float)(param1 + this.x + 32), (float)(param2 + this.y + 9), -1);
+            param0.drawString(this.minecraft.font, this.title, param1 + this.x + 32, param2 + this.y + 9, -1);
             if (var1 != null) {
-                this.minecraft.font.drawShadow(param0, var1, (float)(param1 + this.x + this.width - var2 - 5), (float)(param2 + this.y + 9), -1);
+                param0.drawString(this.minecraft.font, var1, param1 + this.x + this.width - var2 - 5, param2 + this.y + 9, -1);
             }
         }
 
         if (var3) {
             for(int var23 = 0; var23 < this.description.size(); ++var23) {
-                this.minecraft.font.draw(param0, this.description.get(var23), (float)(var20 + 5), (float)(var19 + 26 - var22 + 7 + var23 * 9), -5592406);
+                param0.drawString(this.minecraft.font, this.description.get(var23), var20 + 5, var19 + 26 - var22 + 7 + var23 * 9, -5592406, false);
             }
         } else {
             for(int var24 = 0; var24 < this.description.size(); ++var24) {
-                this.minecraft.font.draw(param0, this.description.get(var24), (float)(var20 + 5), (float)(param2 + this.y + 9 + 17 + var24 * 9), -5592406);
+                param0.drawString(this.minecraft.font, this.description.get(var24), var20 + 5, param2 + this.y + 9 + 17 + var24 * 9, -5592406, false);
             }
         }
 
-        this.minecraft.getItemRenderer().renderAndDecorateFakeItem(param0, this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
+        param0.renderFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
     }
 
     public boolean isMouseOver(int param0, int param1, int param2, int param3) {
