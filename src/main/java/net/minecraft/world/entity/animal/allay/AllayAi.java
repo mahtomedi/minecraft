@@ -100,7 +100,7 @@ public class AllayAi {
 
     public static void hearNoteblock(LivingEntity param0, BlockPos param1) {
         Brain<?> var0 = param0.getBrain();
-        GlobalPos var1 = GlobalPos.of(param0.getLevel().dimension(), param1);
+        GlobalPos var1 = GlobalPos.of(param0.level().dimension(), param1);
         Optional<GlobalPos> var2 = var0.getMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION);
         if (var2.isEmpty()) {
             var0.setMemory(MemoryModuleType.LIKED_NOTEBLOCK_POSITION, var1);
@@ -133,7 +133,7 @@ public class AllayAi {
 
     private static boolean shouldDepositItemsAtLikedNoteblock(LivingEntity param0, Brain<?> param1, GlobalPos param2) {
         Optional<Integer> var0 = param1.getMemory(MemoryModuleType.LIKED_NOTEBLOCK_COOLDOWN_TICKS);
-        Level var1 = param0.getLevel();
+        Level var1 = param0.level();
         return var1.dimension() == param2.dimension() && var1.getBlockState(param2.pos()).is(Blocks.NOTE_BLOCK) && var0.isPresent();
     }
 
@@ -142,7 +142,7 @@ public class AllayAi {
     }
 
     public static Optional<ServerPlayer> getLikedPlayer(LivingEntity param0) {
-        Level var0 = param0.getLevel();
+        Level var0 = param0.level();
         if (!var0.isClientSide() && var0 instanceof ServerLevel var1) {
             Optional<UUID> var2 = param0.getBrain().getMemory(MemoryModuleType.LIKED_PLAYER);
             if (var2.isPresent()) {

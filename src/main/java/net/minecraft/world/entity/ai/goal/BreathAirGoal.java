@@ -51,7 +51,7 @@ public class BreathAirGoal extends Goal {
         BlockPos var1 = null;
 
         for(BlockPos var2 : var0) {
-            if (this.givesAir(this.mob.level, var2)) {
+            if (this.givesAir(this.mob.level(), var2)) {
                 var1 = var2;
                 break;
             }

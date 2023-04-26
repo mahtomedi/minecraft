@@ -160,7 +160,7 @@ public abstract class PlayerList {
             var7 = var6;
         }
 
-        param1.setLevel(var7);
+        param1.setServerLevel(var7);
         String var9 = "local";
         if (param0.getRemoteAddress() != null) {
             var9 = param0.getRemoteAddress().toString();
@@ -368,7 +368,7 @@ public abstract class PlayerList {
     }
 
     public void remove(ServerPlayer param0) {
-        ServerLevel var0 = param0.getLevel();
+        ServerLevel var0 = param0.serverLevel();
         param0.awardStat(Stats.LEAVE_GAME);
         this.save(param0);
         if (param0.isPassenger()) {
@@ -448,7 +448,7 @@ public abstract class PlayerList {
 
     public ServerPlayer respawn(ServerPlayer param0, boolean param1) {
         this.players.remove(param0);
-        param0.getLevel().removePlayerImmediately(param0, Entity.RemovalReason.DISCARDED);
+        param0.serverLevel().removePlayerImmediately(param0, Entity.RemovalReason.DISCARDED);
         BlockPos var0 = param0.getRespawnPosition();
         float var1 = param0.getRespawnAngle();
         boolean var2 = param0.isRespawnForced();
@@ -496,17 +496,17 @@ public abstract class PlayerList {
         }
 
         byte var16 = (byte)(param1 ? 1 : 0);
-        LevelData var17 = var7.level.getLevelData();
+        LevelData var17 = var7.level().getLevelData();
         var7.connection
             .send(
                 new ClientboundRespawnPacket(
-                    var7.level.dimensionTypeId(),
-                    var7.level.dimension(),
-                    BiomeManager.obfuscateSeed(var7.getLevel().getSeed()),
+                    var7.level().dimensionTypeId(),
+                    var7.level().dimension(),
+                    BiomeManager.obfuscateSeed(var7.serverLevel().getSeed()),
                     var7.gameMode.getGameModeForPlayer(),
                     var7.gameMode.getPreviousGameModeForPlayer(),
-                    var7.getLevel().isDebug(),
-                    var7.getLevel().isFlat(),
+                    var7.level().isDebug(),
+                    var7.serverLevel().isFlat(),
                     var16,
                     var7.getLastDeathLocation()
                 )
@@ -564,7 +564,7 @@ public abstract class PlayerList {
 
     public void broadcastAll(Packet<?> param0, ResourceKey<Level> param1) {
         for(ServerPlayer var0 : this.players) {
-            if (var0.level.dimension() == param1) {
+            if (var0.level().dimension() == param1) {
                 var0.connection.send(param0);
             }
         }
@@ -676,7 +676,7 @@ public abstract class PlayerList {
     public void broadcast(@Nullable Player param0, double param1, double param2, double param3, double param4, ResourceKey<Level> param5, Packet<?> param6) {
         for(int var0 = 0; var0 < this.players.size(); ++var0) {
             ServerPlayer var1 = this.players.get(var0);
-            if (var1 != param0 && var1.level.dimension() == param5) {
+            if (var1 != param0 && var1.level().dimension() == param5) {
                 double var2 = param1 - var1.getX();
                 double var3 = param2 - var1.getY();
                 double var4 = param3 - var1.getZ();

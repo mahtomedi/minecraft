@@ -15,7 +15,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T> {
     private static final float WALK_ANIMATION_SPEED_MAX = 9.0F;
-    private static final float WALK_ANIMATION_SCALE_FACTOR = 75.0F;
+    private static final float WALK_ANIMATION_SCALE_FACTOR = 100.0F;
     private final ModelPart root;
     private final ModelPart head;
 
@@ -107,9 +107,9 @@ public class SnifferModel<T extends Sniffer> extends AgeableHierarchicalModel<T>
         this.head.xRot = param5 * (float) (Math.PI / 180.0);
         this.head.yRot = param4 * (float) (Math.PI / 180.0);
         if (param0.isSearching()) {
-            this.animateWalk(SnifferAnimation.SNIFFER_SNIFF_SEARCH, param1, param2, 9.0F, 75.0F);
+            this.animateWalk(SnifferAnimation.SNIFFER_SNIFF_SEARCH, param1, param2, 9.0F, 100.0F);
         } else {
-            this.animateWalk(SnifferAnimation.SNIFFER_WALK, param1, param2, 9.0F, 75.0F);
+            this.animateWalk(SnifferAnimation.SNIFFER_WALK, param1, param2, 9.0F, 100.0F);
         }
 
         this.animate(param0.diggingAnimationState, SnifferAnimation.SNIFFER_DIG, param3);

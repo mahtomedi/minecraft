@@ -123,8 +123,8 @@ public class GiveGiftToHero extends Behavior<Villager> {
         } else {
             VillagerProfession var0 = param0.getVillagerData().getProfession();
             if (GIFTS.containsKey(var0)) {
-                LootTable var1 = param0.level.getServer().getLootData().getLootTable(GIFTS.get(var0));
-                LootContext.Builder var2 = new LootContext.Builder((ServerLevel)param0.level)
+                LootTable var1 = param0.level().getServer().getLootData().getLootTable(GIFTS.get(var0));
+                LootContext.Builder var2 = new LootContext.Builder((ServerLevel)param0.level())
                     .withParameter(LootContextParams.ORIGIN, param0.position())
                     .withParameter(LootContextParams.THIS_ENTITY, param0)
                     .withRandom(param0.getRandom());

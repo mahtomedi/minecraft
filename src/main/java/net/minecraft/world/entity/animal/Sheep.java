@@ -127,7 +127,7 @@ public class Sheep extends Animal implements Shearable {
 
     @Override
     public void aiStep() {
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             this.eatAnimationTick = Math.max(0, this.eatAnimationTick - 1);
         }
 
@@ -203,7 +203,7 @@ public class Sheep extends Animal implements Shearable {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         if (var0.is(Items.SHEARS)) {
-            if (!this.level.isClientSide && this.readyForShearing()) {
+            if (!this.level().isClientSide && this.readyForShearing()) {
                 this.shear(SoundSource.PLAYERS);
                 this.gameEvent(GameEvent.SHEAR, param0);
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
@@ -218,7 +218,7 @@ public class Sheep extends Animal implements Shearable {
 
     @Override
     public void shear(SoundSource param0) {
-        this.level.playSound(null, this, SoundEvents.SHEEP_SHEAR, param0, 1.0F, 1.0F);
+        this.level().playSound(null, this, SoundEvents.SHEEP_SHEAR, param0, 1.0F, 1.0F);
         this.setSheared(true);
         int var0 = 1 + this.random.nextInt(3);
 
@@ -348,15 +348,15 @@ public class Sheep extends Animal implements Shearable {
         DyeColor var0 = ((Sheep)param0).getColor();
         DyeColor var1 = ((Sheep)param1).getColor();
         CraftingContainer var2 = makeContainer(var0, var1);
-        return this.level
+        return this.level()
             .getRecipeManager()
-            .getRecipeFor(RecipeType.CRAFTING, var2, this.level)
-            .map(param1x -> param1x.assemble(var2, this.level.registryAccess()))
+            .getRecipeFor(RecipeType.CRAFTING, var2, this.level())
+            .map(param1x -> param1x.assemble(var2, this.level().registryAccess()))
             .map(ItemStack::getItem)
             .filter(DyeItem.class::isInstance)
             .map(DyeItem.class::cast)
             .map(DyeItem::getDyeColor)
-            .orElseGet(() -> this.level.random.nextBoolean() ? var0 : var1);
+            .orElseGet(() -> this.level().random.nextBoolean() ? var0 : var1);
     }
 
     private static CraftingContainer makeContainer(DyeColor param0, DyeColor param1) {

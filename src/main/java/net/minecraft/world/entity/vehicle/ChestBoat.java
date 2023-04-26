@@ -67,13 +67,13 @@ public class ChestBoat extends Boat implements HasCustomInventoryScreen, Contain
     @Override
     public void destroy(DamageSource param0) {
         super.destroy(param0);
-        this.chestVehicleDestroyed(param0, this.level, this);
+        this.chestVehicleDestroyed(param0, this.level(), this);
     }
 
     @Override
     public void remove(Entity.RemovalReason param0) {
-        if (!this.level.isClientSide && param0.shouldDestroy()) {
-            Containers.dropContents(this.level, this, this);
+        if (!this.level().isClientSide && param0.shouldDestroy()) {
+            Containers.dropContents(this.level(), this, this);
         }
 
         super.remove(param0);
@@ -97,7 +97,7 @@ public class ChestBoat extends Boat implements HasCustomInventoryScreen, Contain
     @Override
     public void openCustomInventoryScreen(Player param0) {
         param0.openMenu(this);
-        if (!param0.level.isClientSide) {
+        if (!param0.level().isClientSide) {
             this.gameEvent(GameEvent.CONTAINER_OPEN, param0);
             PiglinAi.angerNearbyPiglins(param0, true);
         }
@@ -211,6 +211,6 @@ public class ChestBoat extends Boat implements HasCustomInventoryScreen, Contain
 
     @Override
     public void stopOpen(Player param0) {
-        this.level.gameEvent(GameEvent.CONTAINER_CLOSE, this.position(), GameEvent.Context.of(param0));
+        this.level().gameEvent(GameEvent.CONTAINER_CLOSE, this.position(), GameEvent.Context.of(param0));
     }
 }

@@ -66,7 +66,7 @@ public class TargetingConditions {
             return false;
         } else {
             if (param0 == null) {
-                if (this.isCombat && (!param1.canBeSeenAsEnemy() || param1.level.getDifficulty() == Difficulty.PEACEFUL)) {
+                if (this.isCombat && (!param1.canBeSeenAsEnemy() || param1.level().getDifficulty() == Difficulty.PEACEFUL)) {
                     return false;
                 }
             } else {

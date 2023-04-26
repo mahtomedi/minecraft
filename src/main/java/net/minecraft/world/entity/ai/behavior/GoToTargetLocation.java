@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 
 public class GoToTargetLocation {
     private static BlockPos getNearbyPos(Mob param0, BlockPos param1) {
-        RandomSource var0 = param0.level.random;
+        RandomSource var0 = param0.level().random;
         return param1.offset(getRandomOffset(var0), 0, getRandomOffset(var0));
     }
 

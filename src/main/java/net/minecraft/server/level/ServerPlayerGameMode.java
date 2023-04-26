@@ -44,7 +44,7 @@ public class ServerPlayerGameMode {
 
     public ServerPlayerGameMode(ServerPlayer param0) {
         this.player = param0;
-        this.level = param0.getLevel();
+        this.level = param0.serverLevel();
     }
 
     public boolean changeGameModeForPlayer(GameType param0) {
@@ -113,7 +113,7 @@ public class ServerPlayerGameMode {
 
     private float incrementDestroyProgress(BlockState param0, BlockPos param1, int param2) {
         int var0 = this.gameTicks - param2;
-        float var1 = param0.getDestroyProgress(this.player, this.player.level, param1) * (float)(var0 + 1);
+        float var1 = param0.getDestroyProgress(this.player, this.player.level(), param1) * (float)(var0 + 1);
         int var2 = (int)(var1 * 10.0F);
         if (var2 != this.lastSentState) {
             this.level.destroyBlockProgress(this.player.getId(), param1, var2);
@@ -156,7 +156,7 @@ public class ServerPlayerGameMode {
                 BlockState var1 = this.level.getBlockState(param0);
                 if (!var1.isAir()) {
                     var1.attack(this.level, param0, this.player);
-                    var0 = var1.getDestroyProgress(this.player, this.player.level, param0);
+                    var0 = var1.getDestroyProgress(this.player, this.player.level(), param0);
                 }
 
                 if (!var1.isAir() && var0 >= 1.0F) {
@@ -179,7 +179,7 @@ public class ServerPlayerGameMode {
                     int var3 = this.gameTicks - this.destroyProgressStart;
                     BlockState var4 = this.level.getBlockState(param0);
                     if (!var4.isAir()) {
-                        float var5 = var4.getDestroyProgress(this.player, this.player.level, param0) * (float)(var3 + 1);
+                        float var5 = var4.getDestroyProgress(this.player, this.player.level(), param0) * (float)(var3 + 1);
                         if (var5 >= 0.7F) {
                             this.isDestroyingBlock = false;
                             this.level.destroyBlockProgress(this.player.getId(), param0, -1);

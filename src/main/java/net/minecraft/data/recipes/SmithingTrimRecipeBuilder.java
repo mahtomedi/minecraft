@@ -37,10 +37,6 @@ public class SmithingTrimRecipeBuilder {
         return this;
     }
 
-    public void save(Consumer<FinishedRecipe> param0, String param1) {
-        this.save(param0, new ResourceLocation(param1));
-    }
-
     public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
         this.ensureValid(param1);
         this.advancement

@@ -135,11 +135,11 @@ public class ChunkSerializer {
                 }
 
                 if (var22) {
-                    var8.queueSectionData(LightLayer.BLOCK, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("BlockLight")), true);
+                    var8.queueSectionData(LightLayer.BLOCK, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("BlockLight")));
                 }
 
                 if (var23) {
-                    var8.queueSectionData(LightLayer.SKY, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("SkyLight")), true);
+                    var8.queueSectionData(LightLayer.SKY, SectionPos.of(param2, var14), new DataLayer(var13.getByteArray("SkyLight")));
                 }
             }
         }
@@ -184,94 +184,64 @@ public class ChunkSerializer {
             if (var35.isOrAfter(ChunkStatus.INITIALIZE_LIGHT)) {
                 var33.setLightEngine(var8);
             }
-
-            BelowZeroRetrogen var36 = var33.getBelowZeroRetrogen();
-            boolean var37 = var35.isOrAfter(ChunkStatus.LIGHT) || var36 != null && var36.targetStatus().isOrAfter(ChunkStatus.LIGHT);
-            if (!var2 && var37) {
-                for(BlockPos var38 : BlockPos.betweenClosed(
-                    param2.getMinBlockX(),
-                    param0.getMinBuildHeight(),
-                    param2.getMinBlockZ(),
-                    param2.getMaxBlockX(),
-                    param0.getMaxBuildHeight() - 1,
-                    param2.getMaxBlockZ()
-                )) {
-                    if (var30.getBlockState(var38).getLightEmission() != 0) {
-                        var33.addLight(var38);
-                    }
-                }
-            }
         }
 
         var30.setLightCorrect(var2);
-        CompoundTag var39 = param3.getCompound("Heightmaps");
-        EnumSet<Heightmap.Types> var40 = EnumSet.noneOf(Heightmap.Types.class);
+        CompoundTag var36 = param3.getCompound("Heightmaps");
+        EnumSet<Heightmap.Types> var37 = EnumSet.noneOf(Heightmap.Types.class);
 
-        for(Heightmap.Types var41 : var30.getStatus().heightmapsAfter()) {
-            String var42 = var41.getSerializationKey();
-            if (var39.contains(var42, 12)) {
-                var30.setHeightmap(var41, var39.getLongArray(var42));
+        for(Heightmap.Types var38 : var30.getStatus().heightmapsAfter()) {
+            String var39 = var38.getSerializationKey();
+            if (var36.contains(var39, 12)) {
+                var30.setHeightmap(var38, var36.getLongArray(var39));
             } else {
-                var40.add(var41);
+                var37.add(var38);
             }
         }
 
-        Heightmap.primeHeightmaps(var30, var40);
-        CompoundTag var43 = param3.getCompound("structures");
-        var30.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var43, param0.getSeed()));
-        var30.setAllReferences(unpackStructureReferences(param0.registryAccess(), param2, var43));
+        Heightmap.primeHeightmaps(var30, var37);
+        CompoundTag var40 = param3.getCompound("structures");
+        var30.setAllStarts(unpackStructureStart(StructurePieceSerializationContext.fromLevel(param0), var40, param0.getSeed()));
+        var30.setAllReferences(unpackStructureReferences(param0.registryAccess(), param2, var40));
         if (param3.getBoolean("shouldSave")) {
             var30.setUnsaved(true);
         }
 
-        ListTag var44 = param3.getList("PostProcessing", 9);
+        ListTag var41 = param3.getList("PostProcessing", 9);
 
-        for(int var45 = 0; var45 < var44.size(); ++var45) {
-            ListTag var46 = var44.getList(var45);
+        for(int var42 = 0; var42 < var41.size(); ++var42) {
+            ListTag var43 = var41.getList(var42);
 
-            for(int var47 = 0; var47 < var46.size(); ++var47) {
-                var30.addPackedPostProcess(var46.getShort(var47), var45);
+            for(int var44 = 0; var44 < var43.size(); ++var44) {
+                var30.addPackedPostProcess(var43.getShort(var44), var42);
             }
         }
 
         if (var25 == ChunkStatus.ChunkType.LEVELCHUNK) {
             return new ImposterProtoChunk((LevelChunk)var30, false);
         } else {
-            ProtoChunk var48 = (ProtoChunk)var30;
-            ListTag var49 = param3.getList("entities", 10);
+            ProtoChunk var45 = (ProtoChunk)var30;
+            ListTag var46 = param3.getList("entities", 10);
 
-            for(int var50 = 0; var50 < var49.size(); ++var50) {
-                var48.addEntity(var49.getCompound(var50));
+            for(int var47 = 0; var47 < var46.size(); ++var47) {
+                var45.addEntity(var46.getCompound(var47));
             }
 
-            ListTag var51 = param3.getList("block_entities", 10);
+            ListTag var48 = param3.getList("block_entities", 10);
 
-            for(int var52 = 0; var52 < var51.size(); ++var52) {
-                CompoundTag var53 = var51.getCompound(var52);
-                var30.setBlockEntityNbt(var53);
+            for(int var49 = 0; var49 < var48.size(); ++var49) {
+                CompoundTag var50 = var48.getCompound(var49);
+                var30.setBlockEntityNbt(var50);
             }
 
-            ListTag var54 = param3.getList("Lights", 9);
+            CompoundTag var51 = param3.getCompound("CarvingMasks");
 
-            for(int var55 = 0; var55 < var54.size(); ++var55) {
-                LevelChunkSection var56 = var5[var55];
-                if (var56 != null && !var56.hasOnlyAir()) {
-                    ListTag var57 = var54.getList(var55);
-
-                    for(int var58 = 0; var58 < var57.size(); ++var58) {
-                        var48.addLight(var57.getShort(var58), var55);
-                    }
-                }
+            for(String var52 : var51.getAllKeys()) {
+                GenerationStep.Carving var53 = GenerationStep.Carving.valueOf(var52);
+                var45.setCarvingMask(var53, new CarvingMask(var51.getLongArray(var52), var30.getMinBuildHeight()));
             }
 
-            CompoundTag var59 = param3.getCompound("CarvingMasks");
-
-            for(String var60 : var59.getAllKeys()) {
-                GenerationStep.Carving var61 = GenerationStep.Carving.valueOf(var60);
-                var48.setCarvingMask(var61, new CarvingMask(var59.getLongArray(var60), var30.getMinBuildHeight()));
-            }
-
-            return var48;
+            return var45;
         }
     }
 
@@ -367,7 +337,6 @@ public class ChunkSerializer {
             ListTag var22 = new ListTag();
             var22.addAll(var21.getEntities());
             var1.put("entities", var22);
-            var1.put("Lights", packOffsets(var21.getPackedLights()));
             CompoundTag var23 = new CompoundTag();
 
             for(GenerationStep.Carving var24 : GenerationStep.Carving.values()) {

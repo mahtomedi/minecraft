@@ -130,8 +130,8 @@ public class ItemProperties {
                 if (var0 == null) {
                     return 0.0F;
                 } else {
-                    if (param1 == null && var0.level instanceof ClientLevel) {
-                        param1 = (ClientLevel)var0.level;
+                    if (param1 == null && var0.level() instanceof ClientLevel) {
+                        param1 = (ClientLevel)var0.level();
                     }
 
                     if (param1 == null) {

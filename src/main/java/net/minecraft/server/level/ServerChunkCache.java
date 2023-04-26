@@ -26,7 +26,6 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -39,6 +38,7 @@ import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.chunk.ChunkSource;
 import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LightChunk;
 import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -248,8 +248,9 @@ public class ServerChunkCache extends ChunkSource {
         return !this.chunkAbsent(var0, var1);
     }
 
+    @Nullable
     @Override
-    public BlockGetter getChunkForLighting(int param0, int param1) {
+    public LightChunk getChunkForLighting(int param0, int param1) {
         long var0 = ChunkPos.asLong(param0, param1);
         ChunkHolder var1 = this.getVisibleChunkIfPresent(var0);
         if (var1 == null) {

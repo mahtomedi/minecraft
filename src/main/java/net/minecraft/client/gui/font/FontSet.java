@@ -31,8 +31,10 @@ public class FontSet implements AutoCloseable {
     private BakedGlyph missingGlyph;
     private BakedGlyph whiteGlyph;
     private final List<GlyphProvider> providers = Lists.newArrayList();
-    private final Int2ObjectMap<BakedGlyph> glyphs = new Int2ObjectOpenHashMap<>();
-    private final Int2ObjectMap<FontSet.GlyphInfoFilter> glyphInfos = new Int2ObjectOpenHashMap<>();
+    private final CodepointMap<BakedGlyph> glyphs = new CodepointMap<>(param0x -> new BakedGlyph[param0x], param0x -> new BakedGlyph[param0x][]);
+    private final CodepointMap<FontSet.GlyphInfoFilter> glyphInfos = new CodepointMap<>(
+        param0x -> new FontSet.GlyphInfoFilter[param0x], param0x -> new FontSet.GlyphInfoFilter[param0x][]
+    );
     private final Int2ObjectMap<IntList> glyphsByWidth = new Int2ObjectOpenHashMap<>();
     private final List<FontTexture> textures = Lists.newArrayList();
 
@@ -150,11 +152,14 @@ public class FontSet implements AutoCloseable {
             }
         }
 
-        FontTexture var2x = new FontTexture(this.name.withPath(param0xx -> param0xx + "/" + this.textures.size()), param0x.isColored());
-        this.textures.add(var2x);
-        this.textureManager.register(var2x.getName(), var2x);
-        BakedGlyph var3 = var2x.add(param0x);
-        return var3 == null ? this.missingGlyph : var3;
+        ResourceLocation var2x = this.name.withSuffix("/" + this.textures.size());
+        boolean var3 = param0x.isColored();
+        GlyphRenderTypes var4 = var3 ? GlyphRenderTypes.createForColorTexture(var2x) : GlyphRenderTypes.createForIntensityTexture(var2x);
+        FontTexture var5 = new FontTexture(var4, var3);
+        this.textures.add(var5);
+        this.textureManager.register(var2x, var5);
+        BakedGlyph var6 = var5.add(param0x);
+        return var6 == null ? this.missingGlyph : var6;
     }
 
     public BakedGlyph getRandomGlyph(GlyphInfo param0) {

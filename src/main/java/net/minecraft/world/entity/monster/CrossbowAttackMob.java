@@ -27,7 +27,7 @@ public interface CrossbowAttackMob extends RangedAttackMob {
         InteractionHand var0 = ProjectileUtil.getWeaponHoldingHand(param0, Items.CROSSBOW);
         ItemStack var1 = param0.getItemInHand(var0);
         if (param0.isHolding(Items.CROSSBOW)) {
-            CrossbowItem.performShooting(param0.level, param0, var0, var1, param1, (float)(14 - param0.level.getDifficulty().getId() * 4));
+            CrossbowItem.performShooting(param0.level(), param0, var0, var1, param1, (float)(14 - param0.level().getDifficulty().getId() * 4));
         }
 
         this.onCrossbowAttackPerformed();
@@ -39,7 +39,7 @@ public interface CrossbowAttackMob extends RangedAttackMob {
         double var2 = Math.sqrt(var0 * var0 + var1 * var1);
         double var3 = param1.getY(0.3333333333333333) - param2.getY() + var2 * 0.2F;
         Vector3f var4 = this.getProjectileShotVector(param0, new Vec3(var0, var3, var1), param3);
-        param2.shoot((double)var4.x(), (double)var4.y(), (double)var4.z(), param4, (float)(14 - param0.level.getDifficulty().getId() * 4));
+        param2.shoot((double)var4.x(), (double)var4.y(), (double)var4.z(), param4, (float)(14 - param0.level().getDifficulty().getId() * 4));
         param0.playSound(SoundEvents.CROSSBOW_SHOOT, 1.0F, 1.0F / (param0.getRandom().nextFloat() * 0.4F + 0.8F));
     }
 

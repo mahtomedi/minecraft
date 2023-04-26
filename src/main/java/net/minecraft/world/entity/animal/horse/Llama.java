@@ -214,8 +214,8 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
         }
 
         if (this.isBaby() && var0 > 0) {
-            this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
-            if (!this.level.isClientSide) {
+            this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
+            if (!this.level().isClientSide) {
                 this.ageUp(var0);
             }
 
@@ -224,7 +224,7 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
 
         if (var1 > 0 && (var3 || !this.isTamed()) && this.getTemper() < this.getMaxTemper()) {
             var3 = true;
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.modifyTemper(var1);
             }
         }
@@ -232,7 +232,7 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
         if (var3 && !this.isSilent()) {
             SoundEvent var4 = this.getEatingSound();
             if (var4 != null) {
-                this.level
+                this.level()
                     .playSound(
                         null,
                         this.getX(),
@@ -352,7 +352,7 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
 
     @Override
     protected void updateContainerEquipment() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             super.updateContainerEquipment();
             this.setSwag(getDyeColor(this.inventory.getItem(1)));
         }
@@ -404,18 +404,18 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
 
     @Nullable
     protected Llama makeNewLlama() {
-        return EntityType.LLAMA.create(this.level);
+        return EntityType.LLAMA.create(this.level());
     }
 
     private void spit(LivingEntity param0) {
-        LlamaSpit var0 = new LlamaSpit(this.level, this);
+        LlamaSpit var0 = new LlamaSpit(this.level(), this);
         double var1 = param0.getX() - this.getX();
         double var2 = param0.getY(0.3333333333333333) - var0.getY();
         double var3 = param0.getZ() - this.getZ();
         double var4 = Math.sqrt(var1 * var1 + var3 * var3) * 0.2F;
         var0.shoot(var1, var2 + var4, var3, 1.5F, 10.0F);
         if (!this.isSilent()) {
-            this.level
+            this.level()
                 .playSound(
                     null,
                     this.getX(),
@@ -428,7 +428,7 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
                 );
         }
 
-        this.level.addFreshEntity(var0);
+        this.level().addFreshEntity(var0);
         this.didSpit = true;
     }
 

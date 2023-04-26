@@ -50,7 +50,7 @@ public abstract class MoveToBlockGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && this.isValidTarget(this.mob.level, this.blockPos);
+        return this.tryTicks >= -this.maxStayTicks && this.tryTicks <= 1200 && this.isValidTarget(this.mob.level(), this.blockPos);
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class MoveToBlockGoal extends Goal {
                 for(int var6 = 0; var6 <= var5; var6 = var6 > 0 ? -var6 : 1 - var6) {
                     for(int var7 = var6 < var5 && var6 > -var5 ? var5 : 0; var7 <= var5; var7 = var7 > 0 ? -var7 : 1 - var7) {
                         var3.setWithOffset(var2, var6, var4 - 1, var7);
-                        if (this.mob.isWithinRestriction(var3) && this.isValidTarget(this.mob.level, var3)) {
+                        if (this.mob.isWithinRestriction(var3) && this.isValidTarget(this.mob.level(), var3)) {
                             this.blockPos = var3;
                             return true;
                         }

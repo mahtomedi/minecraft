@@ -20,7 +20,7 @@ public class EatBlockGoal extends Goal {
 
     public EatBlockGoal(Mob param0) {
         this.mob = param0;
-        this.level = param0.level;
+        this.level = param0.level();
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK, Goal.Flag.JUMP));
     }
 

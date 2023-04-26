@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -108,11 +107,11 @@ public class DecoratedPotRenderer implements BlockEntityRenderer<DecoratedPotBlo
         this.neck.render(param2, var1, param4, param5);
         this.top.render(param2, var1, param4, param5);
         this.bottom.render(param2, var1, param4, param5);
-        List<Item> var2 = param0.getSherds();
-        this.renderSide(this.frontSide, param2, param3, param4, param5, getMaterial(var2.get(3)));
-        this.renderSide(this.backSide, param2, param3, param4, param5, getMaterial(var2.get(0)));
-        this.renderSide(this.leftSide, param2, param3, param4, param5, getMaterial(var2.get(1)));
-        this.renderSide(this.rightSide, param2, param3, param4, param5, getMaterial(var2.get(2)));
+        DecoratedPotBlockEntity.Decorations var2 = param0.getDecorations();
+        this.renderSide(this.frontSide, param2, param3, param4, param5, getMaterial(var2.front()));
+        this.renderSide(this.backSide, param2, param3, param4, param5, getMaterial(var2.back()));
+        this.renderSide(this.leftSide, param2, param3, param4, param5, getMaterial(var2.left()));
+        this.renderSide(this.rightSide, param2, param3, param4, param5, getMaterial(var2.right()));
         param2.popPose();
     }
 

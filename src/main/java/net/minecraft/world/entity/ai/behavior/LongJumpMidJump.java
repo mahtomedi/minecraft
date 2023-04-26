@@ -22,7 +22,7 @@ public class LongJumpMidJump extends Behavior<Mob> {
     }
 
     protected boolean canStillUse(ServerLevel param0, Mob param1, long param2) {
-        return !param1.isOnGround();
+        return !param1.onGround();
     }
 
     protected void start(ServerLevel param0, Mob param1, long param2) {
@@ -31,7 +31,7 @@ public class LongJumpMidJump extends Behavior<Mob> {
     }
 
     protected void stop(ServerLevel param0, Mob param1, long param2) {
-        if (param1.isOnGround()) {
+        if (param1.onGround()) {
             param1.setDeltaMovement(param1.getDeltaMovement().multiply(0.1F, 1.0, 0.1F));
             param0.playSound(null, param1, this.landingSound, SoundSource.NEUTRAL, 2.0F, 1.0F);
         }

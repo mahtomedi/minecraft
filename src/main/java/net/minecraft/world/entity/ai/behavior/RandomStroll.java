@@ -66,7 +66,7 @@ public class RandomStroll {
                 var1 = param0x.position().add(param0x.position().vectorTo(var0).normalize().multiply((double)var2[0], (double)var2[1], (double)var2[0]));
             }
 
-            if (var1 == null || param0x.level.getFluidState(BlockPos.containing(var1)).isEmpty()) {
+            if (var1 == null || param0x.level().getFluidState(BlockPos.containing(var1)).isEmpty()) {
                 return var0;
             }
 

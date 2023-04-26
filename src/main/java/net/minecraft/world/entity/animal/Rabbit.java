@@ -93,7 +93,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level));
+        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level()));
         this.goalSelector.addGoal(1, new Rabbit.RabbitPanicGoal(this, 2.2));
         this.goalSelector.addGoal(2, new BreedGoal(this, 0.8));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.0, Ingredient.of(Items.CARROT, Items.GOLDEN_CARROT, Blocks.DANDELION), false));
@@ -133,8 +133,8 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
             }
         }
 
-        if (!this.level.isClientSide) {
-            this.level.broadcastEntityEvent(this, (byte)1);
+        if (!this.level().isClientSide) {
+            this.level().broadcastEntityEvent(this, (byte)1);
         }
 
     }
@@ -182,7 +182,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
             }
         }
 
-        if (this.onGround) {
+        if (this.onGround()) {
             if (!this.wasOnGround) {
                 this.setJumping(false);
                 this.checkLandingDelay();
@@ -215,7 +215,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
             }
         }
 
-        this.wasOnGround = this.onGround;
+        this.wasOnGround = this.onGround();
     }
 
     @Override
@@ -493,7 +493,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
 
         @Override
         public void tick() {
-            if (this.rabbit.onGround && !this.rabbit.jumping && !((Rabbit.RabbitJumpControl)this.rabbit.jumpControl).wantJump()) {
+            if (this.rabbit.onGround() && !this.rabbit.jumping && !((Rabbit.RabbitJumpControl)this.rabbit.jumpControl).wantJump()) {
                 this.rabbit.setSpeedModifier(0.0);
             } else if (this.hasWanted()) {
                 this.rabbit.setSpeedModifier(this.nextJumpSpeed);
@@ -544,7 +544,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
         @Override
         public boolean canUse() {
             if (this.nextStartTick <= 0) {
-                if (!this.rabbit.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+                if (!this.rabbit.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                     return false;
                 }
 
@@ -573,7 +573,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
                     (float)this.rabbit.getMaxHeadXRot()
                 );
             if (this.isReachedTarget()) {
-                Level var0 = this.rabbit.level;
+                Level var0 = this.rabbit.level();
                 BlockPos var1 = this.blockPos.above();
                 BlockState var2 = var0.getBlockState(var1);
                 Block var3 = var2.getBlock();

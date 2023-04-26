@@ -33,7 +33,7 @@ public class GoToWantedItem {
                                 if (param4.tryGet(param7).isEmpty()
                                     && param0.test(param9)
                                     && var0xx.closerThan(param9, (double)param3)
-                                    && param9.level.getWorldBorder().isWithinBounds(var0xx.blockPosition())) {
+                                    && param9.level().getWorldBorder().isWithinBounds(var0xx.blockPosition())) {
                                     WalkTarget var1x = new WalkTarget(new EntityTracker(var0xx, false), param1, 0);
                                     param4x.set(new EntityTracker(var0xx, true));
                                     param5.set(var1x);

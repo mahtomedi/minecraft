@@ -23,7 +23,7 @@ public class LlamaFollowCaravanGoal extends Goal {
     @Override
     public boolean canUse() {
         if (!this.llama.isLeashed() && !this.llama.inCaravan()) {
-            List<Entity> var0 = this.llama.level.getEntities(this.llama, this.llama.getBoundingBox().inflate(9.0, 4.0, 9.0), param0 -> {
+            List<Entity> var0 = this.llama.level().getEntities(this.llama, this.llama.getBoundingBox().inflate(9.0, 4.0, 9.0), param0 -> {
                 EntityType<?> var0x = param0.getType();
                 return var0x == EntityType.LLAMA || var0x == EntityType.TRADER_LLAMA;
             });

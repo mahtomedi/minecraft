@@ -331,7 +331,7 @@ public class Panda extends Animal {
     public void tick() {
         super.tick();
         if (this.isWorried()) {
-            if (this.level.isThundering() && !this.isInWater()) {
+            if (this.level().isThundering() && !this.isInWater()) {
                 this.sit(true);
                 this.eat(false);
             } else if (!this.isEating()) {
@@ -384,7 +384,7 @@ public class Panda extends Animal {
     }
 
     public boolean isScared() {
-        return this.isWorried() && this.level.isThundering();
+        return this.isWorried() && this.level().isThundering();
     }
 
     private void handleEating() {
@@ -396,9 +396,9 @@ public class Panda extends Animal {
 
         if (this.isEating()) {
             this.addEatingParticles();
-            if (!this.level.isClientSide && this.getEatCounter() > 80 && this.random.nextInt(20) == 1) {
+            if (!this.level().isClientSide && this.getEatCounter() > 80 && this.random.nextInt(20) == 1) {
                 if (this.getEatCounter() > 100 && this.isFoodOrCake(this.getItemBySlot(EquipmentSlot.MAINHAND))) {
-                    if (!this.level.isClientSide) {
+                    if (!this.level().isClientSide) {
                         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
                         this.gameEvent(GameEvent.EAT);
                     }
@@ -429,7 +429,7 @@ public class Panda extends Animal {
                 Vec3 var3 = new Vec3(((double)this.random.nextFloat() - 0.5) * 0.8, var2, 1.0 + ((double)this.random.nextFloat() - 0.5) * 0.4);
                 var3 = var3.yRot(-this.yBodyRot * (float) (Math.PI / 180.0));
                 var3 = var3.add(this.getX(), this.getEyeY() + 1.0, this.getZ());
-                this.level
+                this.level()
                     .addParticle(
                         new ItemParticleOption(ParticleTypes.ITEM, this.getItemBySlot(EquipmentSlot.MAINHAND)),
                         var3.x,
@@ -491,7 +491,7 @@ public class Panda extends Animal {
         if (this.rollCounter > 32) {
             this.roll(false);
         } else {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 Vec3 var0 = this.getDeltaMovement();
                 if (this.rollCounter == 1) {
                     float var1 = this.getYRot() * (float) (Math.PI / 180.0);
@@ -501,7 +501,7 @@ public class Panda extends Animal {
                 } else if ((float)this.rollCounter != 7.0F && (float)this.rollCounter != 15.0F && (float)this.rollCounter != 23.0F) {
                     this.setDeltaMovement(this.rollDelta.x, var0.y, this.rollDelta.z);
                 } else {
-                    this.setDeltaMovement(0.0, this.onGround ? 0.27 : var0.y, 0.0);
+                    this.setDeltaMovement(0.0, this.onGround() ? 0.27 : var0.y, 0.0);
                 }
             }
 
@@ -510,7 +510,7 @@ public class Panda extends Animal {
 
     private void afterSneeze() {
         Vec3 var0 = this.getDeltaMovement();
-        this.level
+        this.level()
             .addParticle(
                 ParticleTypes.SNEEZE,
                 this.getX() - (double)(this.getBbWidth() + 1.0F) * 0.5 * (double)Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0)),
@@ -522,13 +522,13 @@ public class Panda extends Animal {
             );
         this.playSound(SoundEvents.PANDA_SNEEZE, 1.0F, 1.0F);
 
-        for(Panda var2 : this.level.getEntitiesOfClass(Panda.class, this.getBoundingBox().inflate(10.0))) {
-            if (!var2.isBaby() && var2.onGround && !var2.isInWater() && var2.canPerformAction()) {
+        for(Panda var2 : this.level().getEntitiesOfClass(Panda.class, this.getBoundingBox().inflate(10.0))) {
+            if (!var2.isBaby() && var2.onGround() && !var2.isInWater() && var2.canPerformAction()) {
                 var2.jumpFromGround();
             }
         }
 
-        if (!this.level.isClientSide() && this.random.nextInt(700) == 0 && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (!this.level().isClientSide() && this.random.nextInt(700) == 0 && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
             this.spawnAtLocation(Items.SLIME_BALL);
         }
 
@@ -549,7 +549,7 @@ public class Panda extends Animal {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.sit(false);
         }
 
@@ -630,7 +630,7 @@ public class Panda extends Animal {
             return InteractionResult.PASS;
         } else if (this.isOnBack()) {
             this.setOnBack(false);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (this.isFood(var0)) {
             if (this.getTarget() != null) {
                 this.gotBamboo = true;
@@ -639,11 +639,11 @@ public class Panda extends Animal {
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp((int)((float)(-this.getAge() / 20) * 0.1F), true);
-            } else if (!this.level.isClientSide && this.getAge() == 0 && this.canFallInLove()) {
+            } else if (!this.level().isClientSide && this.getAge() == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
             } else {
-                if (this.level.isClientSide || this.isSitting() || this.isInWater()) {
+                if (this.level().isClientSide || this.isSitting() || this.isInWater()) {
                     return InteractionResult.PASS;
                 }
 
@@ -940,13 +940,13 @@ public class Panda extends Animal {
             } else {
                 if (this.lookAt == null) {
                     if (this.lookAtType == Player.class) {
-                        this.lookAt = this.mob.level.getNearestPlayer(this.lookAtContext, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
+                        this.lookAt = this.mob.level().getNearestPlayer(this.lookAtContext, this.mob, this.mob.getX(), this.mob.getEyeY(), this.mob.getZ());
                     } else {
                         this.lookAt = this.mob
-                            .level
+                            .level()
                             .getNearestEntity(
                                 this.mob
-                                    .level
+                                    .level()
                                     .getEntitiesOfClass(
                                         this.lookAtType,
                                         this.mob.getBoundingBox().inflate((double)this.lookDistance, 3.0, (double)this.lookDistance),
@@ -1024,7 +1024,7 @@ public class Panda extends Animal {
 
         @Override
         public boolean canUse() {
-            if ((this.panda.isBaby() || this.panda.isPlayful()) && this.panda.onGround) {
+            if ((this.panda.isBaby() || this.panda.isPlayful()) && this.panda.onGround()) {
                 if (!this.panda.canPerformAction()) {
                     return false;
                 } else {
@@ -1033,7 +1033,7 @@ public class Panda extends Animal {
                     float var2 = Mth.cos(var0);
                     int var3 = (double)Math.abs(var1) > 0.5 ? Mth.sign((double)var1) : 0;
                     int var4 = (double)Math.abs(var2) > 0.5 ? Mth.sign((double)var2) : 0;
-                    if (this.panda.level.getBlockState(this.panda.blockPosition().offset(var3, -1, var4)).isAir()) {
+                    if (this.panda.level().getBlockState(this.panda.blockPosition().offset(var3, -1, var4)).isAir()) {
                         return true;
                     } else if (this.panda.isPlayful() && this.panda.random.nextInt(reducedTickDelay(60)) == 1) {
                         return true;
@@ -1076,7 +1076,7 @@ public class Panda extends Animal {
                 && !Panda.this.isInWater()
                 && Panda.this.canPerformAction()
                 && Panda.this.getUnhappyCounter() <= 0) {
-                List<ItemEntity> var0 = Panda.this.level
+                List<ItemEntity> var0 = Panda.this.level()
                     .getEntitiesOfClass(ItemEntity.class, Panda.this.getBoundingBox().inflate(6.0, 6.0, 6.0), Panda.PANDA_ITEMS);
                 return !var0.isEmpty() || !Panda.this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty();
             } else {
@@ -1103,7 +1103,7 @@ public class Panda extends Animal {
 
         @Override
         public void start() {
-            List<ItemEntity> var0 = Panda.this.level
+            List<ItemEntity> var0 = Panda.this.level()
                 .getEntitiesOfClass(ItemEntity.class, Panda.this.getBoundingBox().inflate(8.0, 8.0, 8.0), Panda.PANDA_ITEMS);
             if (!var0.isEmpty() && Panda.this.getItemBySlot(EquipmentSlot.MAINHAND).isEmpty()) {
                 Panda.this.getNavigation().moveTo(var0.get(0), 1.2F);

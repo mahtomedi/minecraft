@@ -10,6 +10,7 @@ import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.minecraft.UserApiService.UserFlag;
 import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.authlib.yggdrasil.ServicesKeyType;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -307,7 +308,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final PeriodicNotificationManager regionalCompliancies = new PeriodicNotificationManager(REGIONAL_COMPLIANCIES, Minecraft::countryEqualsISO3);
     private final YggdrasilAuthenticationService authenticationService;
     private final MinecraftSessionService minecraftSessionService;
-    private final SignatureValidator serviceSignatureValidator;
     private final UserApiService userApiService;
     private final SkinManager skinManager;
     private final ModelManager modelManager;
@@ -405,7 +405,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.authenticationService = new YggdrasilAuthenticationService(this.proxy);
         this.minecraftSessionService = this.authenticationService.createMinecraftSessionService();
         this.userApiService = this.createUserApiService(this.authenticationService, param0);
-        this.serviceSignatureValidator = SignatureValidator.from(this.authenticationService.getServicesKey());
         this.user = param0.user.user;
         LOGGER.info("Setting user: {}", this.user.getName());
         LOGGER.debug("(Session ID is {})", this.user.getSessionId());
@@ -474,7 +473,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.fontManager = new FontManager(this.textureManager);
         this.font = this.fontManager.createFont();
         this.fontFilterFishy = this.fontManager.createFontFilterFishy();
-        this.resourceManager.registerReloadListener(this.fontManager.getReloadListener());
+        this.resourceManager.registerReloadListener(this.fontManager);
         this.selectMainFont(this.isEnforceUnicode());
         this.resourceManager.registerReloadListener(new GrassColorReloadListener());
         this.resourceManager.registerReloadListener(new FoliageColorReloadListener());
@@ -2432,12 +2431,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         if (var0 != null) {
             return var0;
         } else if (this.player != null) {
-            if (this.player.level.dimension() == Level.END) {
+            if (this.player.level().dimension() == Level.END) {
                 return this.gui.getBossOverlay().shouldPlayMusic() ? Musics.END_BOSS : Musics.END;
             } else {
-                Holder<Biome> var1 = this.player.level.getBiome(this.player.blockPosition());
+                Holder<Biome> var1 = this.player.level().getBiome(this.player.blockPosition());
                 if (!this.musicManager.isPlayingMusic(Musics.UNDER_WATER) && (!this.player.isUnderWater() || !var1.is(BiomeTags.PLAYS_UNDERWATER_MUSIC))) {
-                    return this.player.level.dimension() != Level.NETHER && this.player.getAbilities().instabuild && this.player.getAbilities().mayfly
+                    return this.player.level().dimension() != Level.NETHER && this.player.getAbilities().instabuild && this.player.getAbilities().mayfly
                         ? Musics.CREATIVE
                         : var1.value().getBackgroundMusic().orElse(Musics.GAME);
                 } else {
@@ -2752,8 +2751,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.realms32BitWarningStatus;
     }
 
-    public SignatureValidator getServiceSignatureValidator() {
-        return this.serviceSignatureValidator;
+    @Nullable
+    public SignatureValidator getProfileKeySignatureValidator() {
+        return SignatureValidator.from(this.authenticationService.getServicesKeySet(), ServicesKeyType.PROFILE_KEY);
     }
 
     public InputType getLastInputType() {

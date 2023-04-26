@@ -44,7 +44,7 @@ public interface ContainerEntity extends Container, MenuProvider {
 
     void clearItemStacks();
 
-    Level getLevel();
+    Level level();
 
     boolean isRemoved();
 
@@ -91,11 +91,11 @@ public interface ContainerEntity extends Container, MenuProvider {
 
     default InteractionResult interactWithContainerVehicle(Player param0) {
         param0.openMenu(this);
-        return !param0.level.isClientSide ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
+        return !param0.level().isClientSide ? InteractionResult.CONSUME : InteractionResult.SUCCESS;
     }
 
     default void unpackChestVehicleLootTable(@Nullable Player param0) {
-        MinecraftServer var0 = this.getLevel().getServer();
+        MinecraftServer var0 = this.level().getServer();
         if (this.getLootTable() != null && var0 != null) {
             LootTable var1 = var0.getLootData().getLootTable(this.getLootTable());
             if (param0 != null) {
@@ -103,7 +103,7 @@ public interface ContainerEntity extends Container, MenuProvider {
             }
 
             this.setLootTable(null);
-            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.getLevel())
+            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level())
                 .withParameter(LootContextParams.ORIGIN, this.position())
                 .withOptionalRandomSeed(this.getLootTableSeed());
             if (param0 != null) {

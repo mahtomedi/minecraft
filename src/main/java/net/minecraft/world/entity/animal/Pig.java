@@ -89,7 +89,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
-        if (DATA_BOOST_TIME.equals(param0) && this.level.isClientSide) {
+        if (DATA_BOOST_TIME.equals(param0) && this.level().isClientSide) {
             this.steering.onSynced();
         }
 
@@ -139,11 +139,11 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         boolean var0 = this.isFood(param0.getItemInHand(param1));
         if (!var0 && this.isSaddled() && !this.isVehicle() && !param0.isSecondaryUseActive()) {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 param0.startRiding(this);
             }
 
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else {
             InteractionResult var1 = super.mobInteract(param0, param1);
             if (!var1.consumesAction()) {
@@ -178,7 +178,7 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     public void equipSaddle(@Nullable SoundSource param0) {
         this.steering.setSaddle(true);
         if (param0 != null) {
-            this.level.playSound(null, this, SoundEvents.PIG_SADDLE, param0, 0.5F, 1.0F);
+            this.level().playSound(null, this, SoundEvents.PIG_SADDLE, param0, 0.5F, 1.0F);
         }
 
     }
@@ -198,10 +198,10 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
 
                 for(int[] var6 : var1) {
                     var3.set(var2.getX() + var6[0], var2.getY(), var2.getZ() + var6[1]);
-                    double var7 = this.level.getBlockFloorHeight(var3);
+                    double var7 = this.level().getBlockFloorHeight(var3);
                     if (DismountHelper.isBlockFloorValid(var7)) {
                         Vec3 var8 = Vec3.upFromBottomCenterOf(var3, var7);
-                        if (DismountHelper.canDismountTo(this.level, param0, var5.move(var8))) {
+                        if (DismountHelper.canDismountTo(this.level(), param0, var5.move(var8))) {
                             param0.setPose(var4);
                             return var8;
                         }

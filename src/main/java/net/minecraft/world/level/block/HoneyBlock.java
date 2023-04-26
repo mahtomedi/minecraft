@@ -64,7 +64,7 @@ public class HoneyBlock extends HalfTransparentBlock {
     }
 
     private boolean isSlidingDown(BlockPos param0, Entity param1) {
-        if (param1.isOnGround()) {
+        if (param1.onGround()) {
             return false;
         } else if (param1.getY() > (double)param0.getY() + 0.9375 - 1.0E-7) {
             return false;
@@ -79,8 +79,8 @@ public class HoneyBlock extends HalfTransparentBlock {
     }
 
     private void maybeDoSlideAchievement(Entity param0, BlockPos param1) {
-        if (param0 instanceof ServerPlayer && param0.level.getGameTime() % 20L == 0L) {
-            CriteriaTriggers.HONEY_BLOCK_SLIDE.trigger((ServerPlayer)param0, param0.level.getBlockState(param1));
+        if (param0 instanceof ServerPlayer && param0.level().getGameTime() % 20L == 0L) {
+            CriteriaTriggers.HONEY_BLOCK_SLIDE.trigger((ServerPlayer)param0, param0.level().getBlockState(param1));
         }
 
     }
@@ -119,11 +119,11 @@ public class HoneyBlock extends HalfTransparentBlock {
     }
 
     private static void showParticles(Entity param0, int param1) {
-        if (param0.level.isClientSide) {
+        if (param0.level().isClientSide) {
             BlockState var0 = Blocks.HONEY_BLOCK.defaultBlockState();
 
             for(int var1 = 0; var1 < param1; ++var1) {
-                param0.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var0), param0.getX(), param0.getY(), param0.getZ(), 0.0, 0.0, 0.0);
+                param0.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var0), param0.getX(), param0.getY(), param0.getZ(), 0.0, 0.0, 0.0);
             }
 
         }

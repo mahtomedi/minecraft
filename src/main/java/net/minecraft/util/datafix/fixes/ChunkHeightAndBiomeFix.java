@@ -259,7 +259,6 @@ public class ChunkHeightAndBiomeFix extends DataFix {
             return updateCarvingMasks(param0, 24, 0);
         } else {
             param0 = updateHeightmaps(param0);
-            param0 = addPaddingEntries(param0, "Lights");
             param0 = addPaddingEntries(param0, "LiquidsToBeTicked");
             param0 = addPaddingEntries(param0, "PostProcessing");
             param0 = addPaddingEntries(param0, "ToBeTicked");

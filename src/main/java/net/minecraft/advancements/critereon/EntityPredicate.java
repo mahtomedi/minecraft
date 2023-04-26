@@ -108,7 +108,7 @@ public class EntityPredicate {
     }
 
     public boolean matches(ServerPlayer param0, @Nullable Entity param1) {
-        return this.matches(param0.getLevel(), param0.position(), param1);
+        return this.matches(param0.serverLevel(), param0.position(), param1);
     }
 
     public boolean matches(ServerLevel param0, @Nullable Vec3 param1, @Nullable Entity param2) {
@@ -226,7 +226,7 @@ public class EntityPredicate {
     }
 
     public static LootContext createContext(ServerPlayer param0, Entity param1) {
-        return new LootContext.Builder(param0.getLevel())
+        return new LootContext.Builder(param0.serverLevel())
             .withParameter(LootContextParams.THIS_ENTITY, param1)
             .withParameter(LootContextParams.ORIGIN, param0.position())
             .withRandom(param0.getRandom())

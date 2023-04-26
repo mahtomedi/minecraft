@@ -9,9 +9,9 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.material.Material;
 
 public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
     private static final float HUGE_PROBABILITY = 0.06F;
@@ -57,14 +57,15 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
         }
     }
 
-    private static boolean isReplaceable(LevelAccessor param0, BlockPos param1, boolean param2) {
-        return param0.isStateAtPosition(param1, param1x -> {
-            Material var0x = param1x.getMaterial();
-            return param1x.canBeReplaced() || param2 && var0x == Material.PLANT;
-        });
+    private static boolean isReplaceable(WorldGenLevel param0, BlockPos param1, HugeFungusConfiguration param2, boolean param3) {
+        if (param0.isStateAtPosition(param1, BlockBehaviour.BlockStateBase::canBeReplaced)) {
+            return true;
+        } else {
+            return param3 ? param2.replaceableBlocks.test(param0, param1) : false;
+        }
     }
 
-    private void placeStem(LevelAccessor param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
+    private void placeStem(WorldGenLevel param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         BlockState var1 = param2.stemState;
         int var2 = param5 ? 1 : 0;
@@ -75,7 +76,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
                 for(int var6 = 0; var6 < param4; ++var6) {
                     var0.setWithOffset(param3, var3, var6, var4);
-                    if (isReplaceable(param0, var0, true)) {
+                    if (isReplaceable(param0, var0, param2, true)) {
                         if (param2.planted) {
                             if (!param0.getBlockState(var0.below()).isAir()) {
                                 param0.destroyBlock(var0, true);
@@ -96,7 +97,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
 
     }
 
-    private void placeHat(LevelAccessor param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
+    private void placeHat(WorldGenLevel param0, RandomSource param1, HugeFungusConfiguration param2, BlockPos param3, int param4, boolean param5) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos();
         boolean var1 = param2.hatState.is(Blocks.NETHER_WART_BLOCK);
         int var2 = Math.min(param1.nextInt(1 + param4 / 3) + 5, param4);
@@ -120,7 +121,7 @@ public class HugeFungusFeature extends Feature<HugeFungusConfiguration> {
                     boolean var11 = var8 && var9;
                     boolean var12 = var4 < var3 + 3;
                     var0.setWithOffset(param3, var6, var4, var7);
-                    if (isReplaceable(param0, var0, false)) {
+                    if (isReplaceable(param0, var0, param2, false)) {
                         if (param2.planted && !param0.getBlockState(var0.below()).isAir()) {
                             param0.destroyBlock(var0, true);
                         }

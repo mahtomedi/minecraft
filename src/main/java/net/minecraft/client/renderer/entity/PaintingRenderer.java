@@ -96,7 +96,7 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
                     var30 = Mth.floor(param2.getZ() + (double)((var24 + var25) / 2.0F / 16.0F));
                 }
 
-                int var32 = LevelRenderer.getLightColor(param2.level, new BlockPos(var28, var29, var30));
+                int var32 = LevelRenderer.getLightColor(param2.level(), new BlockPos(var28, var29, var30));
                 float var33 = param5.getU(var20 * (double)(var18 - var22));
                 float var34 = param5.getU(var20 * (double)(var18 - (var22 + 1)));
                 float var35 = param5.getV(var21 * (double)(var19 - var23));

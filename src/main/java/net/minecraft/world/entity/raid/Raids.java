@@ -72,7 +72,7 @@ public class Raids extends SavedData {
             return param0.isAlive()
                 && param0.canJoinRaid()
                 && param0.getNoActionTime() <= 2400
-                && param0.level.dimensionType() == param1.getLevel().dimensionType();
+                && param0.level().dimensionType() == param1.getLevel().dimensionType();
         } else {
             return false;
         }
@@ -85,7 +85,7 @@ public class Raids extends SavedData {
         } else if (this.level.getGameRules().getBoolean(GameRules.RULE_DISABLE_RAIDS)) {
             return null;
         } else {
-            DimensionType var0 = param0.level.dimensionType();
+            DimensionType var0 = param0.level().dimensionType();
             if (!var0.hasRaids()) {
                 return null;
             } else {
@@ -111,7 +111,7 @@ public class Raids extends SavedData {
                     var7 = var1;
                 }
 
-                Raid var9 = this.getOrCreateRaid(param0.getLevel(), var7);
+                Raid var9 = this.getOrCreateRaid(param0.serverLevel(), var7);
                 boolean var10 = false;
                 if (!var9.isStarted()) {
                     if (!this.raidMap.containsKey(var9.getId())) {

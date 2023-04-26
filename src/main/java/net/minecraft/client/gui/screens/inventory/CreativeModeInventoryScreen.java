@@ -80,7 +80,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         this.imageHeight = 136;
         this.imageWidth = 195;
         this.displayOperatorCreativeTab = param2;
-        CreativeModeTabs.tryRebuildTabContents(param1, this.hasPermissions(param0), param0.level.registryAccess());
+        CreativeModeTabs.tryRebuildTabContents(param1, this.hasPermissions(param0), param0.level().registryAccess());
     }
 
     private boolean hasPermissions(Player param0) {
@@ -124,7 +124,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                 this.tryRefreshInvalidatedTabs(
                     this.minecraft.player.connection.enabledFeatures(),
                     this.hasPermissions(this.minecraft.player),
-                    this.minecraft.player.level.registryAccess()
+                    this.minecraft.player.level().registryAccess()
                 );
             }
 
@@ -782,7 +782,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         if (param2) {
             for(int var3 = 0; var3 < Inventory.getSelectionSize(); ++var3) {
                 ItemStack var4 = var2.get(var3);
-                ItemStack var5 = var4.isItemEnabled(var0.level.enabledFeatures()) ? var4.copy() : ItemStack.EMPTY;
+                ItemStack var5 = var4.isItemEnabled(var0.level().enabledFeatures()) ? var4.copy() : ItemStack.EMPTY;
                 var0.getInventory().setItem(var3, var5);
                 param0.gameMode.handleCreativeModeItemAdd(var5, 36 + var3);
             }
@@ -813,7 +813,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         public boolean mayPickup(Player param0) {
             ItemStack var0 = this.getItem();
             if (super.mayPickup(param0) && !var0.isEmpty()) {
-                return var0.isItemEnabled(param0.level.enabledFeatures()) && var0.getTagElement("CustomCreativeLock") == null;
+                return var0.isItemEnabled(param0.level().enabledFeatures()) && var0.getTagElement("CustomCreativeLock") == null;
             } else {
                 return var0.isEmpty();
             }

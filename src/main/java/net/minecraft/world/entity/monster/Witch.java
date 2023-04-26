@@ -107,7 +107,7 @@ public class Witch extends Raider implements RangedAttackMob {
 
     @Override
     public void aiStep() {
-        if (!this.level.isClientSide && this.isAlive()) {
+        if (!this.level().isClientSide && this.isAlive()) {
             this.healRaidersGoal.decrementCooldown();
             if (this.healRaidersGoal.getCooldown() <= 0) {
                 this.attackPlayersGoal.setCanAttack(true);
@@ -153,7 +153,7 @@ public class Witch extends Raider implements RangedAttackMob {
                     this.usingTime = this.getMainHandItem().getUseDuration();
                     this.setUsingItem(true);
                     if (!this.isSilent()) {
-                        this.level
+                        this.level()
                             .playSound(
                                 null,
                                 this.getX(),
@@ -173,7 +173,7 @@ public class Witch extends Raider implements RangedAttackMob {
             }
 
             if (this.random.nextFloat() < 7.5E-4F) {
-                this.level.broadcastEntityEvent(this, (byte)15);
+                this.level().broadcastEntityEvent(this, (byte)15);
             }
         }
 
@@ -189,7 +189,7 @@ public class Witch extends Raider implements RangedAttackMob {
     public void handleEntityEvent(byte param0) {
         if (param0 == 15) {
             for(int var0 = 0; var0 < this.random.nextInt(35) + 10; ++var0) {
-                this.level
+                this.level()
                     .addParticle(
                         ParticleTypes.WITCH,
                         this.getX() + this.random.nextGaussian() * 0.13F,
@@ -245,12 +245,12 @@ public class Witch extends Raider implements RangedAttackMob {
                 var5 = Potions.WEAKNESS;
             }
 
-            ThrownPotion var6 = new ThrownPotion(this.level, this);
+            ThrownPotion var6 = new ThrownPotion(this.level(), this);
             var6.setItem(PotionUtils.setPotion(new ItemStack(Items.SPLASH_POTION), var5));
             var6.setXRot(var6.getXRot() - -20.0F);
             var6.shoot(var1, var2 + var4 * 0.2, var3, 0.75F, 8.0F);
             if (!this.isSilent()) {
-                this.level
+                this.level()
                     .playSound(
                         null,
                         this.getX(),
@@ -263,7 +263,7 @@ public class Witch extends Raider implements RangedAttackMob {
                     );
             }
 
-            this.level.addFreshEntity(var6);
+            this.level().addFreshEntity(var6);
         }
     }
 

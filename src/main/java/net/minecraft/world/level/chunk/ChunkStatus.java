@@ -171,8 +171,8 @@ public class ChunkStatus {
         true,
         POST_FEATURES,
         ChunkStatus.ChunkType.PROTOCHUNK,
-        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> lightChunk(param0, param5, param8),
-        (param0, param1, param2, param3, param4, param5) -> lightChunk(param0, param3, param5)
+        (param0, param1, param2, param3, param4, param5, param6, param7, param8) -> lightChunk(param5, param8),
+        (param0, param1, param2, param3, param4, param5) -> lightChunk(param3, param5)
     );
     public static final ChunkStatus SPAWN = registerSimple(
         "spawn", LIGHT, 0, POST_FEATURES, ChunkStatus.ChunkType.PROTOCHUNK, (param0, param1, param2, param3, param4) -> {
@@ -229,15 +229,15 @@ public class ChunkStatus {
     private final EnumSet<Heightmap.Types> heightmapsAfter;
 
     private static CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> initializeLight(ThreadedLevelLightEngine param0, ChunkAccess param1) {
+        param1.initializeLightSources();
         ((ProtoChunk)param1).setLightEngine(param0);
-        return param0.initializeLight(param1).thenApply(Either::left);
+        boolean var0 = isLighted(param1);
+        return param0.initializeLight(param1, var0).thenApply(Either::left);
     }
 
-    private static CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> lightChunk(
-        ChunkStatus param0, ThreadedLevelLightEngine param1, ChunkAccess param2
-    ) {
-        boolean var0 = isLighted(param0, param2);
-        return param1.lightChunk(param2, var0).thenApply(Either::left);
+    private static CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> lightChunk(ThreadedLevelLightEngine param0, ChunkAccess param1) {
+        boolean var0 = isLighted(param1);
+        return param0.lightChunk(param1, var0).thenApply(Either::left);
     }
 
     private static ChunkStatus registerSimple(
@@ -288,8 +288,8 @@ public class ChunkStatus {
         return var0;
     }
 
-    private static boolean isLighted(ChunkStatus param0, ChunkAccess param1) {
-        return param1.getStatus().isOrAfter(param0) && param1.isLightCorrect();
+    private static boolean isLighted(ChunkAccess param0) {
+        return param0.getStatus().isOrAfter(LIGHT) && param0.isLightCorrect();
     }
 
     public static ChunkStatus getStatusAroundFullChunk(int param0) {

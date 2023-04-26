@@ -114,7 +114,7 @@ public class PolarBear extends Animal implements NeutralMob {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData(this.level(), param0);
     }
 
     @Override
@@ -186,7 +186,7 @@ public class PolarBear extends Animal implements NeutralMob {
     @Override
     public void tick() {
         super.tick();
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (this.clientSideStandAnimation != this.clientSideStandAnimationO) {
                 this.refreshDimensions();
             }
@@ -203,8 +203,8 @@ public class PolarBear extends Animal implements NeutralMob {
             --this.warningSoundTicks;
         }
 
-        if (!this.level.isClientSide) {
-            this.updatePersistentAnger((ServerLevel)this.level, true);
+        if (!this.level().isClientSide) {
+            this.updatePersistentAnger((ServerLevel)this.level(), true);
         }
 
     }
@@ -269,7 +269,7 @@ public class PolarBear extends Animal implements NeutralMob {
                 return false;
             } else {
                 if (super.canUse()) {
-                    for(PolarBear var1 : PolarBear.this.level.getEntitiesOfClass(PolarBear.class, PolarBear.this.getBoundingBox().inflate(8.0, 4.0, 8.0))) {
+                    for(PolarBear var1 : PolarBear.this.level().getEntitiesOfClass(PolarBear.class, PolarBear.this.getBoundingBox().inflate(8.0, 4.0, 8.0))) {
                         if (var1.isBaby()) {
                             return true;
                         }

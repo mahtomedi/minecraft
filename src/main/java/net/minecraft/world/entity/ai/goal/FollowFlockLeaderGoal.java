@@ -33,7 +33,7 @@ public class FollowFlockLeaderGoal extends Goal {
             this.nextStartTick = this.nextStartTick(this.mob);
             Predicate<AbstractSchoolingFish> var0 = param0 -> param0.canBeFollowed() || !param0.isFollower();
             List<? extends AbstractSchoolingFish> var1 = this.mob
-                .level
+                .level()
                 .getEntitiesOfClass(this.mob.getClass(), this.mob.getBoundingBox().inflate(8.0, 8.0, 8.0), var0);
             AbstractSchoolingFish var2 = DataFixUtils.orElse(var1.stream().filter(AbstractSchoolingFish::canBeFollowed).findAny(), this.mob);
             var2.addFollowers(var1.stream().filter(param0 -> !param0.isFollower()));

@@ -43,7 +43,7 @@ public class FurnaceResultSlot extends Slot {
 
     @Override
     protected void checkTakeAchievements(ItemStack param0) {
-        param0.onCraftedBy(this.player.level, this.player, this.removeCount);
+        param0.onCraftedBy(this.player.level(), this.player, this.removeCount);
         Player var4 = this.player;
         if (var4 instanceof ServerPlayer var0) {
             Container var5 = this.container;

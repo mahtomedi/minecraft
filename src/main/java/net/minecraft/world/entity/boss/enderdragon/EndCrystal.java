@@ -51,10 +51,10 @@ public class EndCrystal extends Entity {
     @Override
     public void tick() {
         ++this.time;
-        if (this.level instanceof ServerLevel) {
+        if (this.level() instanceof ServerLevel) {
             BlockPos var0 = this.blockPosition();
-            if (((ServerLevel)this.level).dragonFight() != null && this.level.getBlockState(var0).isAir()) {
-                this.level.setBlockAndUpdate(var0, BaseFireBlock.getState(this.level, var0));
+            if (((ServerLevel)this.level()).dragonFight() != null && this.level().getBlockState(var0).isAir()) {
+                this.level().setBlockAndUpdate(var0, BaseFireBlock.getState(this.level(), var0));
             }
         }
 
@@ -93,11 +93,11 @@ public class EndCrystal extends Entity {
         } else if (param0.getEntity() instanceof EnderDragon) {
             return false;
         } else {
-            if (!this.isRemoved() && !this.level.isClientSide) {
+            if (!this.isRemoved() && !this.level().isClientSide) {
                 this.remove(Entity.RemovalReason.KILLED);
                 if (!param0.is(DamageTypeTags.IS_EXPLOSION)) {
                     DamageSource var0 = param0.getEntity() != null ? this.damageSources().explosion(this, param0.getEntity()) : null;
-                    this.level.explode(this, var0, null, this.getX(), this.getY(), this.getZ(), 6.0F, false, Level.ExplosionInteraction.BLOCK);
+                    this.level().explode(this, var0, null, this.getX(), this.getY(), this.getZ(), 6.0F, false, Level.ExplosionInteraction.BLOCK);
                 }
 
                 this.onDestroyedBy(param0);
@@ -114,8 +114,8 @@ public class EndCrystal extends Entity {
     }
 
     private void onDestroyedBy(DamageSource param0) {
-        if (this.level instanceof ServerLevel) {
-            EndDragonFight var0 = ((ServerLevel)this.level).dragonFight();
+        if (this.level() instanceof ServerLevel) {
+            EndDragonFight var0 = ((ServerLevel)this.level()).dragonFight();
             if (var0 != null) {
                 var0.onCrystalDestroyed(this, param0);
             }

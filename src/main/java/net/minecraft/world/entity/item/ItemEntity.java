@@ -61,7 +61,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
     }
 
     private ItemEntity(ItemEntity param0) {
-        super(param0.getType(), param0.level);
+        super(param0.getType(), param0.level());
         this.setItem(param0.getItem().copy());
         this.copyPosition(param0);
         this.age = param0.age;
@@ -77,7 +77,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
     @Override
     public Entity getOwner() {
         if (this.thrower != null) {
-            Level var2 = this.level;
+            Level var2 = this.level();
             if (var2 instanceof ServerLevel var0) {
                 return var0.getEntity(this.thrower);
             }
@@ -119,24 +119,24 @@ public class ItemEntity extends Entity implements TraceableEntity {
                 this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
             }
 
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 this.noPhysics = false;
             } else {
-                this.noPhysics = !this.level.noCollision(this, this.getBoundingBox().deflate(1.0E-7));
+                this.noPhysics = !this.level().noCollision(this, this.getBoundingBox().deflate(1.0E-7));
                 if (this.noPhysics) {
                     this.moveTowardsClosestSpace(this.getX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0, this.getZ());
                 }
             }
 
-            if (!this.onGround || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
+            if (!this.onGround() || this.getDeltaMovement().horizontalDistanceSqr() > 1.0E-5F || (this.tickCount + this.getId()) % 4 == 0) {
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 float var2 = 0.98F;
-                if (this.onGround) {
-                    var2 = this.level.getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
+                if (this.onGround()) {
+                    var2 = this.level().getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
                 }
 
                 this.setDeltaMovement(this.getDeltaMovement().multiply((double)var2, 0.98, (double)var2));
-                if (this.onGround) {
+                if (this.onGround()) {
                     Vec3 var3 = this.getDeltaMovement();
                     if (var3.y < 0.0) {
                         this.setDeltaMovement(var3.multiply(1.0, -0.5, 1.0));
@@ -148,7 +148,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
                 || Mth.floor(this.yo) != Mth.floor(this.getY())
                 || Mth.floor(this.zo) != Mth.floor(this.getZ());
             int var5 = var4 ? 2 : 40;
-            if (this.tickCount % var5 == 0 && !this.level.isClientSide && this.isMergable()) {
+            if (this.tickCount % var5 == 0 && !this.level().isClientSide && this.isMergable()) {
                 this.mergeWithNeighbours();
             }
 
@@ -157,14 +157,14 @@ public class ItemEntity extends Entity implements TraceableEntity {
             }
 
             this.hasImpulse |= this.updateInWaterStateAndDoFluidPushing();
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 double var6 = this.getDeltaMovement().subtract(var0).lengthSqr();
                 if (var6 > 0.01) {
                     this.hasImpulse = true;
                 }
             }
 
-            if (!this.level.isClientSide && this.age >= 6000) {
+            if (!this.level().isClientSide && this.age >= 6000) {
                 this.discard();
             }
 
@@ -183,7 +183,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
 
     private void mergeWithNeighbours() {
         if (this.isMergable()) {
-            for(ItemEntity var1 : this.level
+            for(ItemEntity var1 : this.level()
                 .getEntitiesOfClass(ItemEntity.class, this.getBoundingBox().inflate(0.5, 0.0, 0.5), param0 -> param0 != this && param0.isMergable())) {
                 if (var1.isMergable()) {
                     this.tryToMerge(var1);
@@ -261,7 +261,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
             return false;
         } else if (!this.getItem().getItem().canBeHurtBy(param0)) {
             return false;
-        } else if (this.level.isClientSide) {
+        } else if (this.level().isClientSide) {
             return true;
         } else {
             this.markHurt();
@@ -321,7 +321,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
 
     @Override
     public void playerTouch(Player param0) {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             ItemStack var0 = this.getItem();
             Item var1 = var0.getItem();
             int var2 = var0.getCount();
@@ -354,7 +354,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
     @Override
     public Entity changeDimension(ServerLevel param0) {
         Entity var0 = super.changeDimension(param0);
-        if (!this.level.isClientSide && var0 instanceof ItemEntity) {
+        if (!this.level().isClientSide && var0 instanceof ItemEntity) {
             ((ItemEntity)var0).mergeWithNeighbours();
         }
 

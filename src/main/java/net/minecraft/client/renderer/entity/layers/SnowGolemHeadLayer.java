@@ -72,7 +72,7 @@ public class SnowGolemHeadLayer extends RenderLayer<SnowGolem, SnowGolemModel<Sn
                             false,
                             param0,
                             param1,
-                            param3.level,
+                            param3.level(),
                             param2,
                             LivingEntityRenderer.getOverlayCoords(param3, 0.0F),
                             param3.getId()

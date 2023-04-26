@@ -274,7 +274,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         if (!this.isSilent()) {
             SoundEvent var0 = this.getEatingSound();
             if (var0 != null) {
-                this.level
+                this.level()
                     .playSound(
                         null,
                         this.getX(),
@@ -341,7 +341,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     protected void updateContainerEquipment() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setFlag(4, !this.inventory.getItem(0).isEmpty());
         }
     }
@@ -387,7 +387,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Override
     protected void playStepSound(BlockPos param0, BlockState param1) {
         if (!param1.liquid()) {
-            BlockState var0 = this.level.getBlockState(param0.above());
+            BlockState var0 = this.level().getBlockState(param0.above());
             SoundType var1 = param1.getSoundType();
             if (var0.is(Blocks.SNOW)) {
                 var1 = var0.getSoundType();
@@ -446,7 +446,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     @Override
     public void openCustomInventoryScreen(Player param0) {
-        if (!this.level.isClientSide && (!this.isVehicle() || this.hasPassenger(param0)) && this.isTamed()) {
+        if (!this.level().isClientSide && (!this.isVehicle() || this.hasPassenger(param0)) && this.isTamed()) {
             param0.openHorseInventory(this, this.inventory);
         }
 
@@ -458,7 +458,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             param1.shrink(1);
         }
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             return InteractionResult.CONSUME;
         } else {
             return var0 ? InteractionResult.SUCCESS : InteractionResult.PASS;
@@ -489,7 +489,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             var1 = 4.0F;
             var2 = 60;
             var3 = 5;
-            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+            if (!this.level().isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
                 var0 = true;
                 this.setInLove(param0);
             }
@@ -497,7 +497,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             var1 = 10.0F;
             var2 = 240;
             var3 = 10;
-            if (!this.level.isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
+            if (!this.level().isClientSide && this.isTamed() && this.getAge() == 0 && !this.isInLove()) {
                 var0 = true;
                 this.setInLove(param0);
             }
@@ -509,8 +509,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
 
         if (this.isBaby() && var2 > 0) {
-            this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
-            if (!this.level.isClientSide) {
+            this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
+            if (!this.level().isClientSide) {
                 this.ageUp(var2);
             }
 
@@ -519,7 +519,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
         if (var3 > 0 && (var0 || !this.isTamed()) && this.getTemper() < this.getMaxTemper()) {
             var0 = true;
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.modifyTemper(var3);
             }
         }
@@ -535,7 +535,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     protected void doPlayerRide(Player param0) {
         this.setEating(false);
         this.setStanding(false);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             param0.setYRot(this.getYRot());
             param0.setXRot(this.getXRot());
             param0.startRiding(this);
@@ -578,7 +578,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
         }
 
         super.aiStep();
-        if (!this.level.isClientSide && this.isAlive()) {
+        if (!this.level().isClientSide && this.isAlive()) {
             if (this.random.nextInt(900) == 0 && this.deathTime == 0) {
                 this.heal(1.0F);
             }
@@ -587,7 +587,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 if (!this.isEating()
                     && !this.isVehicle()
                     && this.random.nextInt(300) == 0
-                    && this.level.getBlockState(this.blockPosition().below()).is(Blocks.GRASS_BLOCK)) {
+                    && this.level().getBlockState(this.blockPosition().below()).is(Blocks.GRASS_BLOCK)) {
                     this.setEating(true);
                 }
 
@@ -603,7 +603,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     protected void followMommy() {
         if (this.isBred() && this.isBaby() && !this.isEating()) {
-            LivingEntity var0 = this.level
+            LivingEntity var0 = this.level()
                 .getNearestEntity(AbstractHorse.class, MOMMY_TARGETING, this, this.getX(), this.getY(), this.getZ(), this.getBoundingBox().inflate(16.0));
             if (var0 != null && this.distanceToSqr(var0) > 4.0) {
                 this.navigation.createPath(var0, 0);
@@ -690,7 +690,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             return super.mobInteract(param0, param1);
         } else if (this.isTamed() && param0.isSecondaryUseActive()) {
             this.openCustomInventoryScreen(param0);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else {
             ItemStack var0 = param0.getItemInHand(param1);
             if (!var0.isEmpty()) {
@@ -701,17 +701,17 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
                 if (this.canWearArmor() && this.isArmor(var0) && !this.isWearingArmor()) {
                     this.equipArmor(param0, var0);
-                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
                 }
             }
 
             this.doPlayerRide(param0);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
     }
 
     private void openMouth() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.mouthCounter = 1;
             this.setFlag(64, true);
         }
@@ -761,7 +761,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             CriteriaTriggers.TAME_ANIMAL.trigger((ServerPlayer)param0, this);
         }
 
-        this.level.broadcastEntityEvent(this, (byte)7);
+        this.level().broadcastEntityEvent(this, (byte)7);
         return true;
     }
 
@@ -776,7 +776,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 this.gallopSoundCounter = 0;
             }
 
-            if (this.onGround) {
+            if (this.onGround()) {
                 this.setIsJumping(false);
                 if (this.playerJumpPendingScale > 0.0F && !this.isJumping()) {
                     this.executeRidersJump(this.playerJumpPendingScale, param1);
@@ -794,7 +794,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     @Override
     protected Vec3 getRiddenInput(Player param0, Vec3 param1) {
-        if (this.onGround && this.playerJumpPendingScale == 0.0F && this.isStanding() && !this.allowStandSliding) {
+        if (this.onGround() && this.playerJumpPendingScale == 0.0F && this.isStanding() && !this.allowStandSliding) {
             return Vec3.ZERO;
         } else {
             float var0 = param0.xxa * 0.5F;
@@ -980,7 +980,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             double var2 = this.random.nextGaussian() * 0.02;
             double var3 = this.random.nextGaussian() * 0.02;
             double var4 = this.random.nextGaussian() * 0.02;
-            this.level.addParticle(var0, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var2, var3, var4);
+            this.level().addParticle(var0, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var2, var3, var4);
         }
 
     }
@@ -1122,7 +1122,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
             double var5 = this.getBoundingBox().maxY + 0.75;
 
             do {
-                double var6 = this.level.getBlockFloorHeight(var3);
+                double var6 = this.level().getBlockFloorHeight(var3);
                 if ((double)var3.getY() + var6 > var5) {
                     break;
                 }
@@ -1130,7 +1130,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
                 if (DismountHelper.isBlockFloorValid(var6)) {
                     AABB var7 = param1.getLocalBoundsForPose(var4);
                     Vec3 var8 = new Vec3(var0, (double)var3.getY() + var6, var2);
-                    if (DismountHelper.canDismountTo(this.level, param1, var7.move(var8))) {
+                    if (DismountHelper.canDismountTo(this.level(), param1, var7.move(var8))) {
                         param1.setPose(var4);
                         return var8;
                     }

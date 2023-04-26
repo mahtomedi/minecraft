@@ -161,7 +161,7 @@ public abstract class PatrollingMonster extends Monster {
 
         @Override
         public boolean canUse() {
-            boolean var0 = this.mob.level.getGameTime() < this.cooldownUntil;
+            boolean var0 = this.mob.level().getGameTime() < this.cooldownUntil;
             return this.mob.isPatrolling() && this.mob.getTarget() == null && !this.mob.isVehicle() && this.mob.hasPatrolTarget() && !var0;
         }
 
@@ -190,10 +190,10 @@ public abstract class PatrollingMonster extends Monster {
                     var3 = var5.yRot(90.0F).scale(0.4).add(var3);
                     Vec3 var6 = var3.subtract(var4).normalize().scale(10.0).add(var4);
                     BlockPos var7 = BlockPos.containing(var6);
-                    var7 = this.mob.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var7);
+                    var7 = this.mob.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, var7);
                     if (!var1.moveTo((double)var7.getX(), (double)var7.getY(), (double)var7.getZ(), var0 ? this.leaderSpeedModifier : this.speedModifier)) {
                         this.moveRandomly();
-                        this.cooldownUntil = this.mob.level.getGameTime() + 200L;
+                        this.cooldownUntil = this.mob.level().getGameTime() + 200L;
                     } else if (var0) {
                         for(PatrollingMonster var8 : var2) {
                             var8.setPatrolTarget(var7);
@@ -206,14 +206,14 @@ public abstract class PatrollingMonster extends Monster {
 
         private List<PatrollingMonster> findPatrolCompanions() {
             return this.mob
-                .level
+                .level()
                 .getEntitiesOfClass(PatrollingMonster.class, this.mob.getBoundingBox().inflate(16.0), param0 -> param0.canJoinPatrol() && !param0.is(this.mob));
         }
 
         private boolean moveRandomly() {
             RandomSource var0 = this.mob.getRandom();
             BlockPos var1 = this.mob
-                .level
+                .level()
                 .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, this.mob.blockPosition().offset(-8 + var0.nextInt(16), 0, -8 + var0.nextInt(16)));
             return this.mob.getNavigation().moveTo((double)var1.getX(), (double)var1.getY(), (double)var1.getZ(), this.speedModifier);
         }

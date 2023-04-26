@@ -36,11 +36,11 @@ public abstract class EntityRenderer<T extends Entity> {
     }
 
     protected int getSkyLightLevel(T param0, BlockPos param1) {
-        return param0.level.getBrightness(LightLayer.SKY, param1);
+        return param0.level().getBrightness(LightLayer.SKY, param1);
     }
 
     protected int getBlockLightLevel(T param0, BlockPos param1) {
-        return param0.isOnFire() ? 15 : param0.level.getBrightness(LightLayer.BLOCK, param1);
+        return param0.isOnFire() ? 15 : param0.level().getBrightness(LightLayer.BLOCK, param1);
     }
 
     public boolean shouldRender(T param0, Frustum param1, double param2, double param3, double param4) {

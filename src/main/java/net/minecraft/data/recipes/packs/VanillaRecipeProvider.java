@@ -1,8 +1,12 @@
 package net.minecraft.data.recipes.packs;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
@@ -21,9 +25,11 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SingleItemRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -2527,22 +2533,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.DEEPSLATE_TILE_SLAB, Blocks.DEEPSLATE_TILES, 2);
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.DEEPSLATE_TILE_STAIRS, Blocks.DEEPSLATE_TILES);
         stonecutterResultFromBase(param0, RecipeCategory.DECORATIONS, Blocks.DEEPSLATE_TILE_WALL, Blocks.DEEPSLATE_TILES);
-        trimSmithing(param0, Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE);
-        trimSmithing(param0, Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE);
+        smithingTrims().forEach((param1, param2) -> trimSmithing(param0, param1, param2));
         netheriteSmithing(param0, Items.DIAMOND_CHESTPLATE, RecipeCategory.COMBAT, Items.NETHERITE_CHESTPLATE);
         netheriteSmithing(param0, Items.DIAMOND_LEGGINGS, RecipeCategory.COMBAT, Items.NETHERITE_LEGGINGS);
         netheriteSmithing(param0, Items.DIAMOND_HELMET, RecipeCategory.COMBAT, Items.NETHERITE_HELMET);
@@ -2615,8 +2606,30 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .pattern(" # ")
             .pattern("# #")
             .pattern(" # ")
-            .unlockedBy("has_brick", has(ItemTags.DECORATED_POT_SHERDS))
+            .unlockedBy("has_brick", has(ItemTags.DECORATED_POT_INGREDIENTS))
             .save(param0, "decorated_pot_simple");
         SpecialRecipeBuilder.special(RecipeSerializer.DECORATED_POT_RECIPE).save(param0, "decorated_pot");
+    }
+
+    public static Map<Item, ResourceLocation> smithingTrims() {
+        return Stream.of(
+                Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.COAST_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.EYE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.WILD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SENTRY_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE
+            )
+            .collect(Collectors.toMap(Function.identity(), param0 -> new ResourceLocation(getItemName(param0) + "_smithing_trim")));
     }
 }

@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
@@ -80,8 +81,17 @@ public class AnimalPanic extends Behavior<PathfinderMob> {
 
     private Optional<BlockPos> lookForWater(BlockGetter param0, Entity param1) {
         BlockPos var0 = param1.blockPosition();
-        return !param0.getBlockState(var0).getCollisionShape(param0, var0).isEmpty()
-            ? Optional.empty()
-            : BlockPos.findClosestMatch(var0, 5, 1, param1x -> param0.getFluidState(param1x).is(FluidTags.WATER));
+        if (!param0.getBlockState(var0).getCollisionShape(param0, var0).isEmpty()) {
+            return Optional.empty();
+        } else {
+            Predicate<BlockPos> var1;
+            if (Mth.ceil(param1.getBbWidth()) == 2) {
+                var1 = param1x -> BlockPos.squareOutSouthEast(param1x).allMatch(param1xx -> param0.getFluidState(param1xx).is(FluidTags.WATER));
+            } else {
+                var1 = param1x -> param0.getFluidState(param1x).is(FluidTags.WATER);
+            }
+
+            return BlockPos.findClosestMatch(var0, 5, 1, var1);
+        }
     }
 }

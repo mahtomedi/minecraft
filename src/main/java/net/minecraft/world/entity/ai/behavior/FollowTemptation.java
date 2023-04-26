@@ -18,8 +18,13 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
     public static final int TEMPTATION_COOLDOWN = 100;
     public static final double CLOSE_ENOUGH_DIST = 2.5;
     private final Function<LivingEntity, Float> speedModifier;
+    private final double closeEnoughDistance;
 
     public FollowTemptation(Function<LivingEntity, Float> param0) {
+        this(param0, 2.5);
+    }
+
+    public FollowTemptation(Function<LivingEntity, Float> param0, double param1) {
         super(Util.make(() -> {
             Builder<MemoryModuleType<?>, MemoryStatus> var0 = ImmutableMap.builder();
             var0.put(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED);
@@ -32,6 +37,7 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
             return var0.build();
         }));
         this.speedModifier = param0;
+        this.closeEnoughDistance = param1;
     }
 
     protected float getSpeedModifier(PathfinderMob param0) {
@@ -69,7 +75,7 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
         Player var0 = this.getTemptingPlayer(param1).get();
         Brain<?> var1 = param1.getBrain();
         var1.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(var0, true));
-        if (param1.distanceToSqr(var0) < 6.25) {
+        if (param1.distanceToSqr(var0) < this.closeEnoughDistance * this.closeEnoughDistance) {
             var1.eraseMemory(MemoryModuleType.WALK_TARGET);
         } else {
             var1.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(var0, false), this.getSpeedModifier(param1), 2));

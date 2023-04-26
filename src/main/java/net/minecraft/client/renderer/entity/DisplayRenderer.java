@@ -117,7 +117,7 @@ public abstract class DisplayRenderer<T extends Display, S> extends EntityRender
             Matrix4f var0 = param2.last().pose();
             var0.rotate((float) Math.PI, 0.0F, 1.0F, 0.0F);
             this.itemRenderer
-                .renderStatic(param1.itemStack(), param1.itemTransform(), param4, OverlayTexture.NO_OVERLAY, param2, param3, param0.getLevel(), param0.getId());
+                .renderStatic(param1.itemStack(), param1.itemTransform(), param4, OverlayTexture.NO_OVERLAY, param2, param3, param0.level(), param0.getId());
         }
     }
 

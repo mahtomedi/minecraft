@@ -1,14 +1,14 @@
 {
-    "id": "23w16a",
-    "name": "23w16a",
-    "world_version": 3449,
+    "id": "23w17a",
+    "name": "23w17a",
+    "world_version": 3452,
     "series_id": "main",
-    "protocol_version": 1073741955,
+    "protocol_version": 1073741956,
     "pack_version": {
-        "resource": 14,
+        "resource": 15,
         "data": 14
     },
-    "build_time": "2023-04-20T11:52:56+00:00",
+    "build_time": "2023-04-26T12:07:25+00:00",
     "java_component": "java-runtime-gamma",
     "java_version": 17,
     "stable": false

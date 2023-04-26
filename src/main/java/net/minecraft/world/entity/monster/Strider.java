@@ -109,7 +109,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
-        if (DATA_BOOST_TIME.equals(param0) && this.level.isClientSide) {
+        if (DATA_BOOST_TIME.equals(param0) && this.level().isClientSide) {
             this.steering.onSynced();
         }
 
@@ -150,7 +150,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     public void equipSaddle(@Nullable SoundSource param0) {
         this.steering.setSaddle(true);
         if (param0 != null) {
-            this.level.playSound(null, this, SoundEvents.STRIDER_SADDLE, param0, 0.5F, 1.0F);
+            this.level().playSound(null, this, SoundEvents.STRIDER_SADDLE, param0, 0.5F, 1.0F);
         }
 
     }
@@ -239,14 +239,14 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         }
 
         for(BlockPos var7 : var1) {
-            if (!this.level.getFluidState(var7).is(FluidTags.LAVA)) {
-                double var8 = this.level.getBlockFloorHeight(var7);
+            if (!this.level().getFluidState(var7).is(FluidTags.LAVA)) {
+                double var8 = this.level().getBlockFloorHeight(var7);
                 if (DismountHelper.isBlockFloorValid(var8)) {
                     Vec3 var9 = Vec3.upFromBottomCenterOf(var7, var8);
 
                     for(Pose var10 : param0.getDismountPoses()) {
                         AABB var11 = param0.getLocalBoundsForPose(var10);
-                        if (DismountHelper.canDismountTo(this.level, param0, var11.move(var9))) {
+                        if (DismountHelper.canDismountTo(this.level(), param0, var11.move(var9))) {
                             param0.setPose(var10);
                             return var9;
                         }
@@ -313,7 +313,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
             boolean var2;
             boolean var10000;
             label36: {
-                BlockState var0 = this.level.getBlockState(this.blockPosition());
+                BlockState var0 = this.level().getBlockState(this.blockPosition());
                 BlockState var1 = this.getBlockStateOnLegacy();
                 var2 = var0.is(BlockTags.STRIDER_WARM_BLOCKS) || var1.is(BlockTags.STRIDER_WARM_BLOCKS) || this.getFluidHeight(FluidTags.LAVA) > 0.0;
                 Entity var6 = this.getVehicle();
@@ -351,8 +351,8 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
         if (this.isInLava()) {
             CollisionContext var0 = CollisionContext.of(this);
             if (var0.isAbove(LiquidBlock.STABLE_SHAPE, this.blockPosition(), true)
-                && !this.level.getFluidState(this.blockPosition().above()).is(FluidTags.LAVA)) {
-                this.onGround = true;
+                && !this.level().getFluidState(this.blockPosition().above()).is(FluidTags.LAVA)) {
+                this.setOnGround(true);
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().scale(0.5).add(0.0, 0.05, 0.0));
             }
@@ -431,11 +431,11 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         boolean var0 = this.isFood(param0.getItemInHand(param1));
         if (!var0 && this.isSaddled() && !this.isVehicle() && !param0.isSecondaryUseActive()) {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 param0.startRiding(this);
             }
 
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else {
             InteractionResult var1 = super.mobInteract(param0, param1);
             if (!var1.consumesAction()) {
@@ -443,7 +443,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
                 return var2.is(Items.SADDLE) ? var2.interactLivingEntity(param0, this, param1) : InteractionResult.PASS;
             } else {
                 if (var0 && !this.isSilent()) {
-                    this.level
+                    this.level()
                         .playSound(
                             null,
                             this.getX(),
@@ -518,7 +518,7 @@ public class Strider extends Animal implements ItemSteerable, Saddleable {
 
         @Override
         public boolean canContinueToUse() {
-            return !this.strider.isInLava() && this.isValidTarget(this.strider.level, this.blockPos);
+            return !this.strider.isInLava() && this.isValidTarget(this.strider.level(), this.blockPos);
         }
 
         @Override

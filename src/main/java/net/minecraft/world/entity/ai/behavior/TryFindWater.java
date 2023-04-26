@@ -33,8 +33,8 @@ public class TryFindWater {
         
                                 for(BlockPos var4x : BlockPos.withinManhattan(var2x, param0, param0, param0)) {
                                     if (var4x.getX() != var2x.getX() || var4x.getZ() != var2x.getZ()) {
-                                        BlockState var5x = param6.level.getBlockState(var4x.above());
-                                        BlockState var6 = param6.level.getBlockState(var4x);
+                                        BlockState var5x = param6.level().getBlockState(var4x.above());
+                                        BlockState var6 = param6.level().getBlockState(var4x);
                                         if (var6.is(Blocks.WATER)) {
                                             if (var5x.isAir()) {
                                                 var0x = var4x.immutable();

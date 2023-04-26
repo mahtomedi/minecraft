@@ -70,8 +70,8 @@ public abstract class MobRenderer<T extends Mob, M extends EntityModel<T>> exten
         BlockPos var18 = BlockPos.containing(param4.getEyePosition(param1));
         int var19 = this.getBlockLightLevel(param0, var17);
         int var20 = this.entityRenderDispatcher.getRenderer(param4).getBlockLightLevel(param4, var18);
-        int var21 = param0.level.getBrightness(LightLayer.SKY, var17);
-        int var22 = param0.level.getBrightness(LightLayer.SKY, var18);
+        int var21 = param0.level().getBrightness(LightLayer.SKY, var17);
+        int var22 = param0.level().getBrightness(LightLayer.SKY, var18);
 
         for(int var23 = 0; var23 <= 24; ++var23) {
             addVertexPair(var12, var13, var8, var9, var10, var19, var20, var21, var22, 0.025F, 0.025F, var15, var16, var23, false);

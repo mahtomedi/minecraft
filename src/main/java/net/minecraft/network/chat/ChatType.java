@@ -60,7 +60,7 @@ public record ChatType(ChatTypeDecoration chat, ChatTypeDecoration narration) {
     }
 
     public static ChatType.Bound bind(ResourceKey<ChatType> param0, Entity param1) {
-        return bind(param0, param1.level.registryAccess(), param1.getDisplayName());
+        return bind(param0, param1.level().registryAccess(), param1.getDisplayName());
     }
 
     public static ChatType.Bound bind(ResourceKey<ChatType> param0, CommandSourceStack param1) {

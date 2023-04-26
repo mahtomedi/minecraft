@@ -54,7 +54,7 @@ public class MinecartSpawner extends AbstractMinecart {
     @Override
     protected void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.spawner.load(this.level, this.blockPosition(), param0);
+        this.spawner.load(this.level(), this.blockPosition(), param0);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class MinecartSpawner extends AbstractMinecart {
 
     @Override
     public void handleEntityEvent(byte param0) {
-        this.spawner.onEventTriggered(this.level, param0);
+        this.spawner.onEventTriggered(this.level(), param0);
     }
 
     @Override

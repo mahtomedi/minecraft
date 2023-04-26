@@ -2,12 +2,10 @@ package net.minecraft.world.level.chunk;
 
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import it.unimi.dsi.fastutil.shorts.ShortList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -30,6 +28,7 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.lighting.LightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -42,7 +41,6 @@ public class ProtoChunk extends ChunkAccess {
     private volatile LevelLightEngine lightEngine;
     private volatile ChunkStatus status = ChunkStatus.EMPTY;
     private final List<CompoundTag> entities = Lists.newArrayList();
-    private final List<BlockPos> lights = Lists.newArrayList();
     private final Map<GenerationStep.Carving, CarvingMask> carvingMasks = new Object2ObjectArrayMap<>();
     @Nullable
     private BelowZeroRetrogen belowZeroRetrogen;
@@ -105,29 +103,6 @@ public class ProtoChunk extends ChunkAccess {
         }
     }
 
-    @Override
-    public Stream<BlockPos> getLights() {
-        return this.lights.stream();
-    }
-
-    public ShortList[] getPackedLights() {
-        ShortList[] var0 = new ShortList[this.getSectionsCount()];
-
-        for(BlockPos var1 : this.lights) {
-            ChunkAccess.getOrCreateOffsetList(var0, this.getSectionIndex(var1.getY())).add(packOffsetCoordinates(var1));
-        }
-
-        return var0;
-    }
-
-    public void addLight(short param0, int param1) {
-        this.addLight(unpackOffsetCoordinates(param0, this.getSectionYFromSectionIndex(param1), this.chunkPos));
-    }
-
-    public void addLight(BlockPos param0) {
-        this.lights.add(param0.immutable());
-    }
-
     @Nullable
     @Override
     public BlockState setBlockState(BlockPos param0, BlockState param1, boolean param2) {
@@ -136,49 +111,50 @@ public class ProtoChunk extends ChunkAccess {
         int var2 = param0.getZ();
         if (var1 >= this.getMinBuildHeight() && var1 < this.getMaxBuildHeight()) {
             int var3 = this.getSectionIndex(var1);
-            if (this.sections[var3].hasOnlyAir() && param1.is(Blocks.AIR)) {
+            LevelChunkSection var4 = this.getSection(var3);
+            boolean var5 = var4.hasOnlyAir();
+            if (var5 && param1.is(Blocks.AIR)) {
                 return param1;
             } else {
-                if (param1.getLightEmission() > 0) {
-                    this.lights.add(new BlockPos((var0 & 15) + this.getPos().getMinBlockX(), var1, (var2 & 15) + this.getPos().getMinBlockZ()));
-                }
+                int var6 = SectionPos.sectionRelative(var0);
+                int var7 = SectionPos.sectionRelative(var1);
+                int var8 = SectionPos.sectionRelative(var2);
+                BlockState var9 = var4.setBlockState(var6, var7, var8, param1);
+                if (this.status.isOrAfter(ChunkStatus.INITIALIZE_LIGHT)) {
+                    boolean var10 = var4.hasOnlyAir();
+                    if (var10 != var5) {
+                        this.lightEngine.updateSectionStatus(param0, var10);
+                    }
 
-                LevelChunkSection var4 = this.getSection(var3);
-                BlockState var5 = var4.setBlockState(var0 & 15, var1 & 15, var2 & 15, param1);
-                if (this.status.isOrAfter(ChunkStatus.INITIALIZE_LIGHT)
-                    && param1 != var5
-                    && (
-                        param1.getLightBlock(this, param0) != var5.getLightBlock(this, param0)
-                            || param1.getLightEmission() != var5.getLightEmission()
-                            || param1.useShapeForLightOcclusion()
-                            || var5.useShapeForLightOcclusion()
-                    )) {
-                    this.lightEngine.checkBlock(param0);
-                }
-
-                EnumSet<Heightmap.Types> var6 = this.getStatus().heightmapsAfter();
-                EnumSet<Heightmap.Types> var7 = null;
-
-                for(Heightmap.Types var8 : var6) {
-                    Heightmap var9 = this.heightmaps.get(var8);
-                    if (var9 == null) {
-                        if (var7 == null) {
-                            var7 = EnumSet.noneOf(Heightmap.Types.class);
-                        }
-
-                        var7.add(var8);
+                    if (LightEngine.hasDifferentLightProperties(this, param0, var9, param1)) {
+                        this.skyLightSources.update(this, var6, var1, var8);
+                        this.lightEngine.checkBlock(param0);
                     }
                 }
 
-                if (var7 != null) {
-                    Heightmap.primeHeightmaps(this, var7);
+                EnumSet<Heightmap.Types> var11 = this.getStatus().heightmapsAfter();
+                EnumSet<Heightmap.Types> var12 = null;
+
+                for(Heightmap.Types var13 : var11) {
+                    Heightmap var14 = this.heightmaps.get(var13);
+                    if (var14 == null) {
+                        if (var12 == null) {
+                            var12 = EnumSet.noneOf(Heightmap.Types.class);
+                        }
+
+                        var12.add(var13);
+                    }
                 }
 
-                for(Heightmap.Types var10 : var6) {
-                    this.heightmaps.get(var10).update(var0 & 15, var1, var2 & 15, param1);
+                if (var12 != null) {
+                    Heightmap.primeHeightmaps(this, var12);
                 }
 
-                return var5;
+                for(Heightmap.Types var15 : var11) {
+                    this.heightmaps.get(var15).update(var6, var1, var8, param1);
+                }
+
+                return var9;
             }
         } else {
             return Blocks.VOID_AIR.defaultBlockState();
@@ -247,11 +223,10 @@ public class ProtoChunk extends ChunkAccess {
 
     @Override
     public Holder<Biome> getNoiseBiome(int param0, int param1, int param2) {
-        if (!this.getStatus().isOrAfter(ChunkStatus.BIOMES)
-            && (this.belowZeroRetrogen == null || !this.belowZeroRetrogen.targetStatus().isOrAfter(ChunkStatus.BIOMES))) {
-            throw new IllegalStateException("Asking for biomes before we have biomes");
-        } else {
+        if (this.getHighestGeneratedStatus().isOrAfter(ChunkStatus.BIOMES)) {
             return super.getNoiseBiome(param0, param1, param2);
+        } else {
+            throw new IllegalStateException("Asking for biomes before we have biomes");
         }
     }
 

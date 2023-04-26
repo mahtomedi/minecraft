@@ -94,7 +94,7 @@ public interface Bucketable {
             param2.saveToBucketTag(var1);
             ItemStack var2 = ItemUtils.createFilledResult(var0, param0, var1, false);
             param0.setItemInHand(param1, var2);
-            Level var3 = param2.level;
+            Level var3 = param2.level();
             if (!var3.isClientSide) {
                 CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param0, var1);
             }

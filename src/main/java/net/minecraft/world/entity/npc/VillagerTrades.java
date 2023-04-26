@@ -1036,10 +1036,10 @@ public class VillagerTrades {
         @Nullable
         @Override
         public MerchantOffer getOffer(Entity param0, RandomSource param1) {
-            if (!(param0.level instanceof ServerLevel)) {
+            if (!(param0.level() instanceof ServerLevel)) {
                 return null;
             } else {
-                ServerLevel var0 = (ServerLevel)param0.level;
+                ServerLevel var0 = (ServerLevel)param0.level();
                 BlockPos var1 = var0.findNearestMapStructure(this.destination, param0.blockPosition(), 100, true);
                 if (var1 != null) {
                     ItemStack var2 = MapItem.create(var0, var1.getX(), var1.getZ(), (byte)2, true, true);

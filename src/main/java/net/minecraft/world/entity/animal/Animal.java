@@ -64,7 +64,7 @@ public abstract class Animal extends AgeableMob {
                 double var0 = this.random.nextGaussian() * 0.02;
                 double var1 = this.random.nextGaussian() * 0.02;
                 double var2 = this.random.nextGaussian() * 0.02;
-                this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
+                this.level().addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var0, var1, var2);
             }
         }
 
@@ -129,7 +129,7 @@ public abstract class Animal extends AgeableMob {
 
     @Override
     public int getExperienceReward() {
-        return 1 + this.level.random.nextInt(3);
+        return 1 + this.level().random.nextInt(3);
     }
 
     public boolean isFood(ItemStack param0) {
@@ -141,7 +141,7 @@ public abstract class Animal extends AgeableMob {
         ItemStack var0 = param0.getItemInHand(param1);
         if (this.isFood(var0)) {
             int var1 = this.getAge();
-            if (!this.level.isClientSide && var1 == 0 && this.canFallInLove()) {
+            if (!this.level().isClientSide && var1 == 0 && this.canFallInLove()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.setInLove(param0);
                 return InteractionResult.SUCCESS;
@@ -150,10 +150,10 @@ public abstract class Animal extends AgeableMob {
             if (this.isBaby()) {
                 this.usePlayerItem(param0, param1, var0);
                 this.ageUp(getSpeedUpSecondsWhenFeeding(-var1), true);
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
 
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 return InteractionResult.CONSUME;
             }
         }
@@ -178,7 +178,7 @@ public abstract class Animal extends AgeableMob {
             this.loveCause = param0.getUUID();
         }
 
-        this.level.broadcastEntityEvent(this, (byte)18);
+        this.level().broadcastEntityEvent(this, (byte)18);
     }
 
     public void setInLoveTime(int param0) {
@@ -194,7 +194,7 @@ public abstract class Animal extends AgeableMob {
         if (this.loveCause == null) {
             return null;
         } else {
-            Player var0 = this.level.getPlayerByUUID(this.loveCause);
+            Player var0 = this.level().getPlayerByUUID(this.loveCause);
             return var0 instanceof ServerPlayer ? (ServerPlayer)var0 : null;
         }
     }
@@ -250,7 +250,7 @@ public abstract class Animal extends AgeableMob {
                 double var1 = this.random.nextGaussian() * 0.02;
                 double var2 = this.random.nextGaussian() * 0.02;
                 double var3 = this.random.nextGaussian() * 0.02;
-                this.level.addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var1, var2, var3);
+                this.level().addParticle(ParticleTypes.HEART, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), var1, var2, var3);
             }
         } else {
             super.handleEntityEvent(param0);

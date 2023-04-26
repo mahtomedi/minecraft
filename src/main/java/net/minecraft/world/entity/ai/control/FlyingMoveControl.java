@@ -32,7 +32,7 @@ public class FlyingMoveControl extends MoveControl {
             float var4 = (float)(Mth.atan2(var2, var0) * 180.0F / (float)Math.PI) - 90.0F;
             this.mob.setYRot(this.rotlerp(this.mob.getYRot(), var4, 90.0F));
             float var5;
-            if (this.mob.isOnGround()) {
+            if (this.mob.onGround()) {
                 var5 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED));
             } else {
                 var5 = (float)(this.speedModifier * this.mob.getAttributeValue(Attributes.FLYING_SPEED));

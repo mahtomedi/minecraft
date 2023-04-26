@@ -106,7 +106,7 @@ public class Squid extends WaterAnimal {
         this.oldTentacleAngle = this.tentacleAngle;
         this.tentacleMovement += this.tentacleSpeed;
         if ((double)this.tentacleMovement > Math.PI * 2) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 this.tentacleMovement = (float) (Math.PI * 2);
             } else {
                 this.tentacleMovement -= (float) (Math.PI * 2);
@@ -114,7 +114,7 @@ public class Squid extends WaterAnimal {
                     this.tentacleSpeed = 1.0F / (this.random.nextFloat() + 1.0F) * 0.2F;
                 }
 
-                this.level.broadcastEntityEvent(this, (byte)19);
+                this.level().broadcastEntityEvent(this, (byte)19);
             }
         }
 
@@ -134,7 +134,7 @@ public class Squid extends WaterAnimal {
                 this.rotateSpeed *= 0.99F;
             }
 
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.setDeltaMovement((double)(this.tx * this.speed), (double)(this.ty * this.speed), (double)(this.tz * this.speed));
             }
 
@@ -146,7 +146,7 @@ public class Squid extends WaterAnimal {
             this.xBodyRot += (-((float)Mth.atan2(var2, var1.y)) * (180.0F / (float)Math.PI) - this.xBodyRot) * 0.1F;
         } else {
             this.tentacleAngle = Mth.abs(Mth.sin(this.tentacleMovement)) * (float) Math.PI * 0.25F;
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 double var3 = this.getDeltaMovement().y;
                 if (this.hasEffect(MobEffects.LEVITATION)) {
                     var3 = 0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1);
@@ -165,7 +165,7 @@ public class Squid extends WaterAnimal {
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         if (super.hurt(param0, param1) && this.getLastHurtByMob() != null) {
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 this.spawnInk();
             }
 
@@ -187,7 +187,7 @@ public class Squid extends WaterAnimal {
         for(int var1 = 0; var1 < 30; ++var1) {
             Vec3 var2 = this.rotateVector(new Vec3((double)this.random.nextFloat() * 0.6 - 0.3, -1.0, (double)this.random.nextFloat() * 0.6 - 0.3));
             Vec3 var3 = var2.scale(0.3 + (double)(this.random.nextFloat() * 2.0F));
-            ((ServerLevel)this.level).sendParticles(this.getInkParticle(), var0.x, var0.y + 0.5, var0.z, 0, var3.x, var3.y, var3.z, 0.1F);
+            ((ServerLevel)this.level()).sendParticles(this.getInkParticle(), var0.x, var0.y + 0.5, var0.z, 0, var3.x, var3.y, var3.z, 0.1F);
         }
 
     }
@@ -253,9 +253,9 @@ public class Squid extends WaterAnimal {
             LivingEntity var0 = Squid.this.getLastHurtByMob();
             if (var0 != null) {
                 Vec3 var1 = new Vec3(Squid.this.getX() - var0.getX(), Squid.this.getY() - var0.getY(), Squid.this.getZ() - var0.getZ());
-                BlockState var2 = Squid.this.level
+                BlockState var2 = Squid.this.level()
                     .getBlockState(BlockPos.containing(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
-                FluidState var3 = Squid.this.level
+                FluidState var3 = Squid.this.level()
                     .getFluidState(BlockPos.containing(Squid.this.getX() + var1.x, Squid.this.getY() + var1.y, Squid.this.getZ() + var1.z));
                 if (var3.is(FluidTags.WATER) || var2.isAir()) {
                     double var4 = var1.length();
@@ -279,7 +279,7 @@ public class Squid extends WaterAnimal {
                 }
 
                 if (this.fleeTicks % 10 == 5) {
-                    Squid.this.level.addParticle(ParticleTypes.BUBBLE, Squid.this.getX(), Squid.this.getY(), Squid.this.getZ(), 0.0, 0.0, 0.0);
+                    Squid.this.level().addParticle(ParticleTypes.BUBBLE, Squid.this.getX(), Squid.this.getY(), Squid.this.getZ(), 0.0, 0.0, 0.0);
                 }
 
             }

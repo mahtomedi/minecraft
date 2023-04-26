@@ -74,7 +74,7 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
     }
 
     public void setRadius(float param0) {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.getEntityData().set(DATA_RADIUS, Mth.clamp(param0, 0.0F, 32.0F));
         }
 
@@ -156,7 +156,7 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
         super.tick();
         boolean var0 = this.isWaiting();
         float var1 = this.getRadius();
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (var0 && this.random.nextBoolean()) {
                 return;
             }
@@ -198,7 +198,7 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
                     var19 = (double)((float)(var13 & 0xFF) / 255.0F);
                 }
 
-                this.level.addAlwaysVisibleParticle(var2, var10, var11, var12, var17, var18, var19);
+                this.level().addAlwaysVisibleParticle(var2, var10, var11, var12, var17, var18, var19);
             }
         } else {
             if (this.tickCount >= this.waitTime + this.duration) {
@@ -241,7 +241,7 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
                 if (var24.isEmpty()) {
                     this.victims.clear();
                 } else {
-                    List<LivingEntity> var26 = this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
+                    List<LivingEntity> var26 = this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox());
                     if (!var26.isEmpty()) {
                         for(LivingEntity var27 : var26) {
                             if (!this.victims.containsKey(var27) && var27.isAffectedByPotions()) {
@@ -325,8 +325,8 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
 
     @Nullable
     public LivingEntity getOwner() {
-        if (this.owner == null && this.ownerUUID != null && this.level instanceof ServerLevel) {
-            Entity var0 = ((ServerLevel)this.level).getEntity(this.ownerUUID);
+        if (this.owner == null && this.ownerUUID != null && this.level() instanceof ServerLevel) {
+            Entity var0 = ((ServerLevel)this.level()).getEntity(this.ownerUUID);
             if (var0 instanceof LivingEntity) {
                 this.owner = (LivingEntity)var0;
             }

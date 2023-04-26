@@ -111,7 +111,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
             var0.removeModifier(SPEED_MODIFIER_ATTACKING);
         }
 
-        this.updatePersistentAnger((ServerLevel)this.level, true);
+        this.updatePersistentAnger((ServerLevel)this.level(), true);
         if (this.getTarget() != null) {
             this.maybeAlertOthers();
         }
@@ -148,7 +148,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     private void alertOthers() {
         double var0 = this.getAttributeValue(Attributes.FOLLOW_RANGE);
         AABB var1 = AABB.unitCubeFromLowerCorner(this.position()).inflate(var0, 10.0, var0);
-        this.level
+        this.level()
             .getEntitiesOfClass(ZombifiedPiglin.class, var1, EntitySelector.NO_SPECTATORS)
             .stream()
             .filter(param0 -> param0 != this)
@@ -200,7 +200,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData(this.level(), param0);
     }
 
     @Override

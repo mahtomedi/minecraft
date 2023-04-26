@@ -297,12 +297,12 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
 
     @Override
     protected void customServerAiStep() {
-        this.level.getProfiler().push("axolotlBrain");
-        this.getBrain().tick((ServerLevel)this.level, this);
-        this.level.getProfiler().pop();
-        this.level.getProfiler().push("axolotlActivityUpdate");
+        this.level().getProfiler().push("axolotlBrain");
+        this.getBrain().tick((ServerLevel)this.level(), this);
+        this.level().getProfiler().pop();
+        this.level().getProfiler().push("axolotlActivityUpdate");
         AxolotlAi.updateActivity(this);
-        this.level.getProfiler().pop();
+        this.level().getProfiler().pop();
         if (!this.isNoAi()) {
             Optional<Integer> var0 = this.getBrain().getMemory(MemoryModuleType.PLAY_DEAD_TICKS);
             this.setPlayingDead(var0.isPresent() && var0.get() > 0);
@@ -333,10 +333,10 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         float var0 = this.getHealth();
-        if (!this.level.isClientSide
+        if (!this.level().isClientSide
             && !this.isNoAi()
-            && this.level.random.nextInt(3) == 0
-            && ((float)this.level.random.nextInt(3) < param1 || var0 / this.getMaxHealth() < 0.5F)
+            && this.level().random.nextInt(3) == 0
+            && ((float)this.level().random.nextInt(3) < param1 || var0 / this.getMaxHealth() < 0.5F)
             && param1 < var0
             && this.isInWater()
             && (param0.getEntity() != null || param0.getDirectEntity() != null)
@@ -410,7 +410,7 @@ public class Axolotl extends Animal implements LerpingModel, VariantHolder<Axolo
     }
 
     public static void onStopAttacking(Axolotl param0, LivingEntity param1) {
-        Level var0 = param0.level;
+        Level var0 = param0.level();
         if (param1.isDeadOrDying()) {
             DamageSource var1 = param1.getLastDamageSource();
             if (var1 != null) {

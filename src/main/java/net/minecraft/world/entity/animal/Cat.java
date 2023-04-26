@@ -369,7 +369,7 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     public InteractionResult mobInteract(Player param0, InteractionHand param1) {
         ItemStack var0 = param0.getItemInHand(param1);
         Item var1 = var0.getItem();
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (this.isTame() && this.isOwnedBy(param0)) {
                 return InteractionResult.SUCCESS;
             } else {
@@ -409,9 +409,9 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
                 if (this.random.nextInt(3) == 0) {
                     this.tame(param0);
                     this.setOrderedToSit(true);
-                    this.level.broadcastEntityEvent(this, (byte)7);
+                    this.level().broadcastEntityEvent(this, (byte)7);
                 } else {
-                    this.level.broadcastEntityEvent(this, (byte)6);
+                    this.level().broadcastEntityEvent(this, (byte)6);
                 }
 
                 this.setPersistenceRequired();
@@ -510,7 +510,7 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
                     }
 
                     BlockPos var1 = this.ownerPlayer.blockPosition();
-                    BlockState var2 = this.cat.level.getBlockState(var1);
+                    BlockState var2 = this.cat.level().getBlockState(var1);
                     if (var2.is(BlockTags.BEDS)) {
                         this.goalPos = var2.getOptionalValue(BedBlock.FACING)
                             .map(param1 -> var1.relative(param1.getOpposite()))
@@ -524,7 +524,7 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
         }
 
         private boolean spaceIsOccupied() {
-            for(Cat var1 : this.cat.level.getEntitiesOfClass(Cat.class, new AABB(this.goalPos).inflate(2.0))) {
+            for(Cat var1 : this.cat.level().getEntitiesOfClass(Cat.class, new AABB(this.goalPos).inflate(2.0))) {
                 if (var1 != this.cat && (var1.isLying() || var1.isRelaxStateOne())) {
                     return true;
                 }
@@ -555,8 +555,8 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
         @Override
         public void stop() {
             this.cat.setLying(false);
-            float var0 = this.cat.level.getTimeOfDay(1.0F);
-            if (this.ownerPlayer.getSleepTimer() >= 100 && (double)var0 > 0.77 && (double)var0 < 0.8 && (double)this.cat.level.getRandom().nextFloat() < 0.7) {
+            float var0 = this.cat.level().getTimeOfDay(1.0F);
+            if (this.ownerPlayer.getSleepTimer() >= 100 && (double)var0 > 0.77 && (double)var0 < 0.8 && (double)this.cat.level().getRandom().nextFloat() < 0.7) {
                 this.giveMorningGift();
             }
 
@@ -577,18 +577,18 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
                     false
                 );
             var1.set(this.cat.blockPosition());
-            LootTable var2 = this.cat.level.getServer().getLootData().getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
-            LootContext.Builder var3 = new LootContext.Builder((ServerLevel)this.cat.level)
+            LootTable var2 = this.cat.level().getServer().getLootData().getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
+            LootContext.Builder var3 = new LootContext.Builder((ServerLevel)this.cat.level())
                 .withParameter(LootContextParams.ORIGIN, this.cat.position())
                 .withParameter(LootContextParams.THIS_ENTITY, this.cat)
                 .withRandom(var0);
 
             for(ItemStack var5 : var2.getRandomItems(var3.create(LootContextParamSets.GIFT))) {
                 this.cat
-                    .level
+                    .level()
                     .addFreshEntity(
                         new ItemEntity(
-                            this.cat.level,
+                            this.cat.level(),
                             (double)var1.getX() - (double)Mth.sin(this.cat.yBodyRot * (float) (Math.PI / 180.0)),
                             (double)var1.getY(),
                             (double)var1.getZ() + (double)Mth.cos(this.cat.yBodyRot * (float) (Math.PI / 180.0)),

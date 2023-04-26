@@ -92,7 +92,7 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void tick() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.checkOutOfWorld();
             if (this.checkInterval++ == 100) {
                 this.checkInterval = 0;
@@ -106,7 +106,7 @@ public abstract class HangingEntity extends Entity {
     }
 
     public boolean survives() {
-        if (!this.level.noCollision(this)) {
+        if (!this.level().noCollision(this)) {
             return false;
         } else {
             int var0 = Math.max(1, this.getWidth() / 16);
@@ -120,14 +120,14 @@ public abstract class HangingEntity extends Entity {
                     int var7 = (var0 - 1) / -2;
                     int var8 = (var1 - 1) / -2;
                     var4.set(var2).move(var3, var5 + var7).move(Direction.UP, var6 + var8);
-                    BlockState var9 = this.level.getBlockState(var4);
+                    BlockState var9 = this.level().getBlockState(var4);
                     if (!var9.isSolid() && !DiodeBlock.isDiode(var9)) {
                         return false;
                     }
                 }
             }
 
-            return this.level.getEntities(this, this.getBoundingBox(), HANGING_ENTITY).isEmpty();
+            return this.level().getEntities(this, this.getBoundingBox(), HANGING_ENTITY).isEmpty();
         }
     }
 
@@ -139,7 +139,7 @@ public abstract class HangingEntity extends Entity {
     @Override
     public boolean skipAttackInteraction(Entity param0) {
         if (param0 instanceof Player var0) {
-            return !this.level.mayInteract(var0, this.pos) ? true : this.hurt(this.damageSources().playerAttack(var0), 0.0F);
+            return !this.level().mayInteract(var0, this.pos) ? true : this.hurt(this.damageSources().playerAttack(var0), 0.0F);
         } else {
             return false;
         }
@@ -155,7 +155,7 @@ public abstract class HangingEntity extends Entity {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            if (!this.isRemoved() && !this.level.isClientSide) {
+            if (!this.isRemoved() && !this.level().isClientSide) {
                 this.kill();
                 this.markHurt();
                 this.dropItem(param0.getEntity());
@@ -167,7 +167,7 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void move(MoverType param0, Vec3 param1) {
-        if (!this.level.isClientSide && !this.isRemoved() && param1.lengthSqr() > 0.0) {
+        if (!this.level().isClientSide && !this.isRemoved() && param1.lengthSqr() > 0.0) {
             this.kill();
             this.dropItem(null);
         }
@@ -176,7 +176,7 @@ public abstract class HangingEntity extends Entity {
 
     @Override
     public void push(double param0, double param1, double param2) {
-        if (!this.level.isClientSide && !this.isRemoved() && param0 * param0 + param1 * param1 + param2 * param2 > 0.0) {
+        if (!this.level().isClientSide && !this.isRemoved() && param0 * param0 + param1 * param1 + param2 * param2 > 0.0) {
             this.kill();
             this.dropItem(null);
         }
@@ -212,14 +212,14 @@ public abstract class HangingEntity extends Entity {
     @Override
     public ItemEntity spawnAtLocation(ItemStack param0, float param1) {
         ItemEntity var0 = new ItemEntity(
-            this.level,
+            this.level(),
             this.getX() + (double)((float)this.direction.getStepX() * 0.15F),
             this.getY() + (double)param1,
             this.getZ() + (double)((float)this.direction.getStepZ() * 0.15F),
             param0
         );
         var0.setDefaultPickUpDelay();
-        this.level.addFreshEntity(var0);
+        this.level().addFreshEntity(var0);
         return var0;
     }
 

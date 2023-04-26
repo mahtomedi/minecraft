@@ -70,7 +70,7 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
                     this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, null);
                 }
 
-                ArmorTrim.getTrim(param2.level.registryAccess(), var0)
+                ArmorTrim.getTrim(param2.level().registryAccess(), var0)
                     .ifPresent(param7 -> this.renderTrim(var1.getMaterial(), param0, param1, param4, param7, var4, param5, var3, 1.0F, 1.0F, 1.0F));
             }
         }

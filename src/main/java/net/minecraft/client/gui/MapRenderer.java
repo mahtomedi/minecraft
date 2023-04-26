@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraftforge.api.distmarker.Dist;
@@ -93,7 +93,7 @@ public class MapRenderer implements AutoCloseable {
             for(int var0 = 0; var0 < 128; ++var0) {
                 for(int var1 = 0; var1 < 128; ++var1) {
                     int var2 = var1 + var0 * 128;
-                    this.texture.getPixels().setPixelRGBA(var1, var0, MaterialColor.getColorFromPackedId(this.data.colors[var2]));
+                    this.texture.getPixels().setPixelRGBA(var1, var0, MapColor.getColorFromPackedId(this.data.colors[var2]));
                 }
             }
 

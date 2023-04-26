@@ -48,7 +48,7 @@ public abstract class AbstractFurnaceMenu extends RecipeBookMenu<Container> {
         checkContainerDataCount(param6, 4);
         this.container = param5;
         this.data = param6;
-        this.level = param4.player.level;
+        this.level = param4.player.level();
         this.addSlot(new Slot(param5, 0, 56, 17));
         this.addSlot(new FurnaceFuelSlot(this, param5, 1, 56, 53));
         this.addSlot(new FurnaceResultSlot(param4.player, param5, 2, 116, 35));

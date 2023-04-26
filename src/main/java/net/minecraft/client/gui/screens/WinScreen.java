@@ -26,6 +26,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -47,6 +48,7 @@ public class WinScreen extends Screen {
     private final IntSet speedupModifiers = new IntOpenHashSet();
     private float scrollSpeed;
     private final float unmodifiedScrollSpeed;
+    private int direction;
     private final LogoRenderer logoRenderer = new LogoRenderer(false);
 
     public WinScreen(boolean param0, Runnable param1) {
@@ -59,11 +61,14 @@ public class WinScreen extends Screen {
             this.unmodifiedScrollSpeed = 0.5F;
         }
 
+        this.direction = 1;
         this.scrollSpeed = this.unmodifiedScrollSpeed;
     }
 
     private float calculateScrollSpeed() {
-        return this.speedupActive ? this.unmodifiedScrollSpeed * (5.0F + (float)this.speedupModifiers.size() * 15.0F) : this.unmodifiedScrollSpeed;
+        return this.speedupActive
+            ? this.unmodifiedScrollSpeed * (5.0F + (float)this.speedupModifiers.size() * 15.0F) * (float)this.direction
+            : this.unmodifiedScrollSpeed * (float)this.direction;
     }
 
     @Override
@@ -79,7 +84,9 @@ public class WinScreen extends Screen {
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 == 341 || param0 == 345) {
+        if (param0 == 265) {
+            this.direction = -1;
+        } else if (param0 == 341 || param0 == 345) {
             this.speedupModifiers.add(param0);
         } else if (param0 == 32) {
             this.speedupActive = true;
@@ -91,6 +98,10 @@ public class WinScreen extends Screen {
 
     @Override
     public boolean keyReleased(int param0, int param1, int param2) {
+        if (param0 == 265) {
+            this.direction = 1;
+        }
+
         if (param0 == 32) {
             this.speedupActive = false;
         } else if (param0 == 341 || param0 == 345) {
@@ -174,19 +185,29 @@ public class WinScreen extends Screen {
             this.addEmptyLine();
             this.addEmptyLine();
 
-            for(JsonElement var5 : var2.getAsJsonArray("titles")) {
+            for(JsonElement var5 : var2.getAsJsonArray("disciplines")) {
                 JsonObject var6 = var5.getAsJsonObject();
-                String var7 = var6.get("title").getAsString();
-                JsonArray var8 = var6.getAsJsonArray("names");
-                this.addCreditsLine(Component.literal(var7).withStyle(ChatFormatting.GRAY), false);
-
-                for(JsonElement var9 : var8) {
-                    String var10 = var9.getAsString();
-                    this.addCreditsLine(Component.literal("           ").append(var10).withStyle(ChatFormatting.WHITE), false);
+                String var7 = var6.get("discipline").getAsString();
+                if (StringUtils.isNotEmpty(var7)) {
+                    this.addCreditsLine(Component.literal(var7).withStyle(ChatFormatting.YELLOW), true);
+                    this.addEmptyLine();
+                    this.addEmptyLine();
                 }
 
-                this.addEmptyLine();
-                this.addEmptyLine();
+                for(JsonElement var9 : var6.getAsJsonArray("titles")) {
+                    JsonObject var10 = var9.getAsJsonObject();
+                    String var11 = var10.get("title").getAsString();
+                    JsonArray var12 = var10.getAsJsonArray("names");
+                    this.addCreditsLine(Component.literal(var11).withStyle(ChatFormatting.GRAY), false);
+
+                    for(JsonElement var13 : var12) {
+                        String var14 = var13.getAsString();
+                        this.addCreditsLine(Component.literal("           ").append(var14).withStyle(ChatFormatting.WHITE), false);
+                    }
+
+                    this.addEmptyLine();
+                    this.addEmptyLine();
+                }
             }
         }
 
@@ -233,7 +254,7 @@ public class WinScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.scroll += param3 * this.scrollSpeed;
+        this.scroll = Math.max(0.0F, this.scroll + param3 * this.scrollSpeed);
         this.renderBg(param0);
         int var0 = this.width / 2 - 128;
         int var1 = this.height + 50;

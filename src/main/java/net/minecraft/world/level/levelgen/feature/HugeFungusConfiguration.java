@@ -3,6 +3,7 @@ package net.minecraft.world.level.levelgen.feature;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
 
 public class HugeFungusConfiguration implements FeatureConfiguration {
@@ -12,6 +13,7 @@ public class HugeFungusConfiguration implements FeatureConfiguration {
                     BlockState.CODEC.fieldOf("stem_state").forGetter(param0x -> param0x.stemState),
                     BlockState.CODEC.fieldOf("hat_state").forGetter(param0x -> param0x.hatState),
                     BlockState.CODEC.fieldOf("decor_state").forGetter(param0x -> param0x.decorState),
+                    BlockPredicate.CODEC.fieldOf("replaceable_blocks").forGetter(param0x -> param0x.replaceableBlocks),
                     Codec.BOOL.fieldOf("planted").orElse(false).forGetter(param0x -> param0x.planted)
                 )
                 .apply(param0, HugeFungusConfiguration::new)
@@ -20,13 +22,15 @@ public class HugeFungusConfiguration implements FeatureConfiguration {
     public final BlockState stemState;
     public final BlockState hatState;
     public final BlockState decorState;
+    public final BlockPredicate replaceableBlocks;
     public final boolean planted;
 
-    public HugeFungusConfiguration(BlockState param0, BlockState param1, BlockState param2, BlockState param3, boolean param4) {
+    public HugeFungusConfiguration(BlockState param0, BlockState param1, BlockState param2, BlockState param3, BlockPredicate param4, boolean param5) {
         this.validBaseState = param0;
         this.stemState = param1;
         this.hatState = param2;
         this.decorState = param3;
-        this.planted = param4;
+        this.replaceableBlocks = param4;
+        this.planted = param5;
     }
 }

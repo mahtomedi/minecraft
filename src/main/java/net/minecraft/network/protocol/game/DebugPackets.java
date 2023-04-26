@@ -127,7 +127,7 @@ public class DebugPackets {
 
     private static void writeBrain(LivingEntity param0, FriendlyByteBuf param1) {
         Brain<?> var0 = param0.getBrain();
-        long var1 = param0.level.getGameTime();
+        long var1 = param0.level().getGameTime();
         if (param0 instanceof InventoryCarrier) {
             Container var2 = ((InventoryCarrier)param0).getInventory();
             param1.writeUtf(var2.isEmpty() ? "" : var2.toString());
@@ -211,9 +211,9 @@ public class DebugPackets {
                     long var7 = param1 - (Long)var6;
                     var8 = var7 + " ticks ago";
                 } else if (var5.canExpire()) {
-                    var8 = getShortDescription((ServerLevel)param0.level, var6) + " (ttl: " + var5.getTimeToLive() + ")";
+                    var8 = getShortDescription((ServerLevel)param0.level(), var6) + " (ttl: " + var5.getTimeToLive() + ")";
                 } else {
-                    var8 = getShortDescription((ServerLevel)param0.level, var6);
+                    var8 = getShortDescription((ServerLevel)param0.level(), var6);
                 }
             } else {
                 var8 = "-";

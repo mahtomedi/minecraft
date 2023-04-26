@@ -53,7 +53,7 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
     }
 
     public static <E extends Mob> boolean defaultAcceptableLandingSpot(E param0x, BlockPos param1x) {
-        Level var0 = param0x.level;
+        Level var0 = param0x.level();
         BlockPos var1 = param1x.below();
         return var0.getBlockState(var1).isSolidRender(var0, var1)
             && param0x.getPathfindingMalus(WalkNodeEvaluator.getBlockPathTypeStatic(var0, param1x.mutable())) == 0.0F;
@@ -80,7 +80,7 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
     }
 
     protected boolean checkExtraStartConditions(ServerLevel param0, Mob param1) {
-        boolean var0 = param1.isOnGround() && !param1.isInWater() && !param1.isInLava() && !param0.getBlockState(param1.blockPosition()).is(Blocks.HONEY_BLOCK);
+        boolean var0 = param1.onGround() && !param1.isInWater() && !param1.isInLava() && !param0.getBlockState(param1.blockPosition()).is(Blocks.HONEY_BLOCK);
         if (!var0) {
             param1.getBrain().setMemory(MemoryModuleType.LONG_JUMP_COOLDOWN_TICKS, this.timeBetweenLongJumps.sample(param0.random) / 2);
         }
@@ -254,7 +254,7 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
 
         for(int var5 = 0; var5 < var2; ++var5) {
             var4 = var5 == var2 - 1 ? param3 : var4.add(var3.scale(var1 * 0.9F));
-            if (!param0.level.noCollision(param0, param1.makeBoundingBox(var4))) {
+            if (!param0.level().noCollision(param0, param1.makeBoundingBox(var4))) {
                 return false;
             }
         }

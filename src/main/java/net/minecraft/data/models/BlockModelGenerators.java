@@ -3392,7 +3392,10 @@ public class BlockModelGenerators {
                 MultiVariantGenerator.multiVariant(Blocks.SCULK_SENSOR)
                     .with(
                         PropertyDispatch.property(BlockStateProperties.SCULK_SENSOR_PHASE)
-                            .generate(param2 -> Variant.variant().with(VariantProperties.MODEL, param2 == SculkSensorPhase.ACTIVE ? var1 : var0))
+                            .generate(
+                                param2 -> Variant.variant()
+                                        .with(VariantProperties.MODEL, param2 != SculkSensorPhase.ACTIVE && param2 != SculkSensorPhase.COOLDOWN ? var0 : var1)
+                            )
                     )
             );
     }
@@ -3406,7 +3409,10 @@ public class BlockModelGenerators {
                 MultiVariantGenerator.multiVariant(Blocks.CALIBRATED_SCULK_SENSOR)
                     .with(
                         PropertyDispatch.property(BlockStateProperties.SCULK_SENSOR_PHASE)
-                            .generate(param2 -> Variant.variant().with(VariantProperties.MODEL, param2 == SculkSensorPhase.ACTIVE ? var1 : var0))
+                            .generate(
+                                param2 -> Variant.variant()
+                                        .with(VariantProperties.MODEL, param2 != SculkSensorPhase.ACTIVE && param2 != SculkSensorPhase.COOLDOWN ? var0 : var1)
+                            )
                     )
                     .with(createHorizontalFacingDispatch())
             );

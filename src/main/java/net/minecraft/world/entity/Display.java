@@ -137,7 +137,7 @@ public abstract class Display extends Entity {
             this.stopRiding();
         }
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (this.updateStartTick) {
                 this.updateStartTick = false;
                 int var1 = this.getInterpolationDelay();
@@ -539,7 +539,7 @@ public abstract class Display extends Entity {
         @Override
         protected void readAdditionalSaveData(CompoundTag param0) {
             super.readAdditionalSaveData(param0);
-            this.setBlockState(NbtUtils.readBlockState(this.level.holderLookup(Registries.BLOCK), param0.getCompound("block_state")));
+            this.setBlockState(NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), param0.getCompound("block_state")));
         }
 
         @Override

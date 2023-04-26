@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 
 public class MapItem extends ComplexItem {
@@ -119,7 +119,7 @@ public class MapItem extends ComplexItem {
                             boolean var14 = var13 > (var5 - 2) * (var5 - 2);
                             int var15 = (var1 / var0 + var10 - 64) * var0;
                             int var16 = (var2 / var0 + var12 - 64) * var0;
-                            Multiset<MaterialColor> var17 = LinkedHashMultiset.create();
+                            Multiset<MapColor> var17 = LinkedHashMultiset.create();
                             LevelChunk var18 = param0.getChunk(SectionPos.blockToSectionCoord(var15), SectionPos.blockToSectionCoord(var16));
                             if (!var18.isEmpty()) {
                                 int var19 = 0;
@@ -146,7 +146,7 @@ public class MapItem extends ComplexItem {
                                                 do {
                                                     var7.setY(--var24);
                                                     var28 = var18.getBlockState(var7);
-                                                } while(var28.getMapColor(param0, var7) == MaterialColor.NONE && var24 > param0.getMinBuildHeight());
+                                                } while(var28.getMapColor(param0, var7) == MapColor.NONE && var24 > param0.getMinBuildHeight());
 
                                                 if (var24 > param0.getMinBuildHeight() && !var28.getFluidState().isEmpty()) {
                                                     int var26 = var24 - 1;
@@ -171,25 +171,25 @@ public class MapItem extends ComplexItem {
                                 }
 
                                 var19 /= var0 * var0;
-                                MaterialColor var29 = Iterables.getFirst(Multisets.copyHighestCountFirst(var17), MaterialColor.NONE);
-                                MaterialColor.Brightness var31;
-                                if (var29 == MaterialColor.WATER) {
+                                MapColor var29 = Iterables.getFirst(Multisets.copyHighestCountFirst(var17), MapColor.NONE);
+                                MapColor.Brightness var31;
+                                if (var29 == MapColor.WATER) {
                                     double var30 = (double)var19 * 0.1 + (double)(var10 + var12 & 1) * 0.2;
                                     if (var30 < 0.5) {
-                                        var31 = MaterialColor.Brightness.HIGH;
+                                        var31 = MapColor.Brightness.HIGH;
                                     } else if (var30 > 0.9) {
-                                        var31 = MaterialColor.Brightness.LOW;
+                                        var31 = MapColor.Brightness.LOW;
                                     } else {
-                                        var31 = MaterialColor.Brightness.NORMAL;
+                                        var31 = MapColor.Brightness.NORMAL;
                                     }
                                 } else {
                                     double var34 = (var20 - var11) * 4.0 / (double)(var0 + 4) + ((double)(var10 + var12 & 1) - 0.5) * 0.4;
                                     if (var34 > 0.6) {
-                                        var31 = MaterialColor.Brightness.HIGH;
+                                        var31 = MapColor.Brightness.HIGH;
                                     } else if (var34 < -0.6) {
-                                        var31 = MaterialColor.Brightness.LOW;
+                                        var31 = MapColor.Brightness.LOW;
                                     } else {
-                                        var31 = MaterialColor.Brightness.NORMAL;
+                                        var31 = MapColor.Brightness.NORMAL;
                                     }
                                 }
 
@@ -246,42 +246,42 @@ public class MapItem extends ComplexItem {
                             }
                         }
 
-                        MaterialColor.Brightness var16 = MaterialColor.Brightness.LOWEST;
-                        MaterialColor var17 = MaterialColor.NONE;
+                        MapColor.Brightness var16 = MapColor.Brightness.LOWEST;
+                        MapColor var17 = MapColor.NONE;
                         if (isBiomeWatery(var4, var11, var12)) {
-                            var17 = MaterialColor.COLOR_ORANGE;
+                            var17 = MapColor.COLOR_ORANGE;
                             if (var13 > 7 && var12 % 2 == 0) {
                                 switch((var11 + (int)(Mth.sin((float)var12 + 0.0F) * 7.0F)) / 8 % 5) {
                                     case 0:
                                     case 4:
-                                        var16 = MaterialColor.Brightness.LOW;
+                                        var16 = MapColor.Brightness.LOW;
                                         break;
                                     case 1:
                                     case 3:
-                                        var16 = MaterialColor.Brightness.NORMAL;
+                                        var16 = MapColor.Brightness.NORMAL;
                                         break;
                                     case 2:
-                                        var16 = MaterialColor.Brightness.HIGH;
+                                        var16 = MapColor.Brightness.HIGH;
                                 }
                             } else if (var13 > 7) {
-                                var17 = MaterialColor.NONE;
+                                var17 = MapColor.NONE;
                             } else if (var13 > 5) {
-                                var16 = MaterialColor.Brightness.NORMAL;
+                                var16 = MapColor.Brightness.NORMAL;
                             } else if (var13 > 3) {
-                                var16 = MaterialColor.Brightness.LOW;
+                                var16 = MapColor.Brightness.LOW;
                             } else if (var13 > 1) {
-                                var16 = MaterialColor.Brightness.LOW;
+                                var16 = MapColor.Brightness.LOW;
                             }
                         } else if (var13 > 0) {
-                            var17 = MaterialColor.COLOR_BROWN;
+                            var17 = MapColor.COLOR_BROWN;
                             if (var13 > 3) {
-                                var16 = MaterialColor.Brightness.NORMAL;
+                                var16 = MapColor.Brightness.NORMAL;
                             } else {
-                                var16 = MaterialColor.Brightness.LOWEST;
+                                var16 = MapColor.Brightness.LOWEST;
                             }
                         }
 
-                        if (var17 != MaterialColor.NONE) {
+                        if (var17 != MapColor.NONE) {
                             var0.setColor(var11, var12, var17.getPackedId(var16));
                         }
                     }

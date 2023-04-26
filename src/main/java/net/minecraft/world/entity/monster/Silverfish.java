@@ -45,7 +45,7 @@ public class Silverfish extends Monster {
     protected void registerGoals() {
         this.friendsGoal = new Silverfish.SilverfishWakeUpFriendsGoal(this);
         this.goalSelector.addGoal(1, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level));
+        this.goalSelector.addGoal(1, new ClimbOnTopOfPowderSnowGoal(this, this.level()));
         this.goalSelector.addGoal(3, this.friendsGoal);
         this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, false));
         this.goalSelector.addGoal(5, new Silverfish.SilverfishMergeWithStoneGoal(this));
@@ -156,10 +156,10 @@ public class Silverfish extends Monster {
                 return false;
             } else {
                 RandomSource var0 = this.mob.getRandom();
-                if (this.mob.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && var0.nextInt(reducedTickDelay(10)) == 0) {
+                if (this.mob.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && var0.nextInt(reducedTickDelay(10)) == 0) {
                     this.selectedDirection = Direction.getRandom(var0);
                     BlockPos var1 = BlockPos.containing(this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ()).relative(this.selectedDirection);
-                    BlockState var2 = this.mob.level.getBlockState(var1);
+                    BlockState var2 = this.mob.level().getBlockState(var1);
                     if (InfestedBlock.isCompatibleHostBlock(var2)) {
                         this.doMerge = true;
                         return true;
@@ -181,7 +181,7 @@ public class Silverfish extends Monster {
             if (!this.doMerge) {
                 super.start();
             } else {
-                LevelAccessor var0 = this.mob.level;
+                LevelAccessor var0 = this.mob.level();
                 BlockPos var1 = BlockPos.containing(this.mob.getX(), this.mob.getY() + 0.5, this.mob.getZ()).relative(this.selectedDirection);
                 BlockState var2 = var0.getBlockState(var1);
                 if (InfestedBlock.isCompatibleHostBlock(var2)) {
@@ -218,7 +218,7 @@ public class Silverfish extends Monster {
         public void tick() {
             --this.lookForFriends;
             if (this.lookForFriends <= 0) {
-                Level var0 = this.silverfish.level;
+                Level var0 = this.silverfish.level();
                 RandomSource var1 = this.silverfish.getRandom();
                 BlockPos var2 = this.silverfish.blockPosition();
 

@@ -132,7 +132,7 @@ public class ClientLevel extends Level {
         if (var0 != param1) {
             this.setBlock(param0, param1, 19);
             Player var1 = this.minecraft.player;
-            if (this == var1.level && var1.isColliding(param0, param1)) {
+            if (this == var1.level() && var1.isColliding(param0, param1)) {
                 var1.absMoveTo(param2.x, param2.y, param2.z);
             }
         }
@@ -291,7 +291,7 @@ public class ClientLevel extends Level {
 
     public void unload(LevelChunk param0) {
         param0.clearAllBlockEntities();
-        this.chunkSource.getLightEngine().enableLightSources(param0.getPos(), false);
+        this.chunkSource.getLightEngine().setLightEnabled(param0.getPos(), false);
         this.entityStorage.stopTicking(param0.getPos());
     }
 
@@ -594,14 +594,6 @@ public class ClientLevel extends Level {
 
     public void setSectionDirtyWithNeighbors(int param0, int param1, int param2) {
         this.levelRenderer.setSectionDirtyWithNeighbors(param0, param1, param2);
-    }
-
-    public void setLightReady(int param0, int param1) {
-        LevelChunk var0 = this.chunkSource.getChunk(param0, param1, false);
-        if (var0 != null) {
-            var0.setClientLightReady(true);
-        }
-
     }
 
     @Override

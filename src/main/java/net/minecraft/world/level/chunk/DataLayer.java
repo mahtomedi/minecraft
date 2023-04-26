@@ -12,7 +12,7 @@ public class DataLayer {
     private static final int NIBBLE_SIZE = 4;
     @Nullable
     protected byte[] data;
-    private final int defaultValue;
+    private int defaultValue;
 
     public DataLayer() {
         this(0);
@@ -67,6 +67,11 @@ public class DataLayer {
 
     private static int getByteIndex(int param0) {
         return param0 >> 1;
+    }
+
+    public void fill(int param0) {
+        this.defaultValue = param0;
+        this.data = null;
     }
 
     private static byte packFilled(int param0) {

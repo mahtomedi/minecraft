@@ -220,7 +220,7 @@ public class Turtle extends Animal {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return !this.isInWater() && this.onGround && !this.isBaby() ? SoundEvents.TURTLE_AMBIENT_LAND : super.getAmbientSound();
+        return !this.isInWater() && this.onGround() && !this.isBaby() ? SoundEvents.TURTLE_AMBIENT_LAND : super.getAmbientSound();
     }
 
     @Override
@@ -296,8 +296,8 @@ public class Turtle extends Animal {
         super.aiStep();
         if (this.isAlive() && this.isLayingEgg() && this.layEggCounter >= 1 && this.layEggCounter % 5 == 0) {
             BlockPos var0 = this.blockPosition();
-            if (TurtleEggBlock.onSand(this.level, var0)) {
-                this.level.levelEvent(2001, var0, Block.getId(this.level.getBlockState(var0.below())));
+            if (TurtleEggBlock.onSand(this.level(), var0)) {
+                this.level().levelEvent(2001, var0, Block.getId(this.level().getBlockState(var0.below())));
             }
         }
 
@@ -306,7 +306,7 @@ public class Turtle extends Animal {
     @Override
     protected void ageBoundaryReached() {
         super.ageBoundaryReached();
-        if (!this.isBaby() && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (!this.isBaby() && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
             this.spawnAtLocation(Items.SCUTE, 1);
         }
 
@@ -434,7 +434,7 @@ public class Turtle extends Animal {
                     var3 = DefaultRandomPos.getPosTowards(this.turtle, 8, 7, var2, (float) (Math.PI / 2));
                 }
 
-                if (var3 != null && !var1 && !this.turtle.level.getBlockState(BlockPos.containing(var3)).is(Blocks.WATER)) {
+                if (var3 != null && !var1 && !this.turtle.level().getBlockState(BlockPos.containing(var3)).is(Blocks.WATER)) {
                     var3 = DefaultRandomPos.getPosTowards(this.turtle, 16, 5, var2, (float) (Math.PI / 2));
                 }
 
@@ -461,7 +461,7 @@ public class Turtle extends Animal {
 
         @Override
         public boolean canContinueToUse() {
-            return !this.turtle.isInWater() && this.tryTicks <= 1200 && this.isValidTarget(this.turtle.level, this.blockPos);
+            return !this.turtle.isInWater() && this.tryTicks <= 1200 && this.isValidTarget(this.turtle.level(), this.blockPos);
         }
 
         @Override
@@ -510,7 +510,7 @@ public class Turtle extends Animal {
                 if (this.turtle.layEggCounter < 1) {
                     this.turtle.setLayingEgg(true);
                 } else if (this.turtle.layEggCounter > this.adjustedTickDelay(200)) {
-                    Level var1 = this.turtle.level;
+                    Level var1 = this.turtle.level();
                     var1.playSound(null, var0, SoundEvents.TURTLE_LAY_EGG, SoundSource.BLOCKS, 0.3F, 0.9F + var1.random.nextFloat() * 0.2F);
                     BlockPos var2 = this.blockPos.above();
                     BlockState var3 = Blocks.TURTLE_EGG.defaultBlockState().setValue(TurtleEggBlock.EGGS, Integer.valueOf(this.turtle.random.nextInt(4) + 1));
@@ -552,7 +552,7 @@ public class Turtle extends Animal {
                 if (this.turtle.isBaby()) {
                     this.turtle.setSpeed(Math.max(this.turtle.getSpeed() / 3.0F, 0.06F));
                 }
-            } else if (this.turtle.onGround) {
+            } else if (this.turtle.onGround()) {
                 this.turtle.setSpeed(Math.max(this.turtle.getSpeed() / 2.0F, 0.06F));
             }
 
@@ -593,7 +593,7 @@ public class Turtle extends Animal {
             if (!this.shouldPanic()) {
                 return false;
             } else {
-                BlockPos var0 = this.lookForWater(this.mob.level, this.mob, 7);
+                BlockPos var0 = this.lookForWater(this.mob.level(), this.mob, 7);
                 if (var0 != null) {
                     this.posX = (double)var0.getX();
                     this.posY = (double)var0.getY();
@@ -659,7 +659,7 @@ public class Turtle extends Animal {
             int var3 = var2.nextInt(1025) - 512;
             int var4 = var2.nextInt(9) - 4;
             int var5 = var2.nextInt(1025) - 512;
-            if ((double)var4 + this.turtle.getY() > (double)(this.turtle.level.getSeaLevel() - 1)) {
+            if ((double)var4 + this.turtle.getY() > (double)(this.turtle.level().getSeaLevel() - 1)) {
                 var4 = 0;
             }
 
@@ -682,7 +682,7 @@ public class Turtle extends Animal {
                     int var2 = Mth.floor(var1.x);
                     int var3 = Mth.floor(var1.z);
                     int var4 = 34;
-                    if (!this.turtle.level.hasChunksAt(var2 - 34, var3 - 34, var2 + 34, var3 + 34)) {
+                    if (!this.turtle.level().hasChunksAt(var2 - 34, var3 - 34, var2 + 34, var3 + 34)) {
                         var1 = null;
                     }
                 }

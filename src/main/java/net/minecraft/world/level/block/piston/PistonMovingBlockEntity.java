@@ -201,7 +201,7 @@ public class PistonMovingBlockEntity extends BlockEntity {
 
     private static boolean matchesStickyCritera(AABB param0, Entity param1) {
         return param1.getPistonPushReaction() == PushReaction.NORMAL
-            && param1.isOnGround()
+            && param1.onGround()
             && param1.getX() >= param0.minX
             && param1.getX() <= param0.maxX
             && param1.getZ() >= param0.minZ

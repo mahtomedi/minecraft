@@ -882,7 +882,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public void destroyBlockProgress(int param0, BlockPos param1, int param2) {
         for(ServerPlayer var0 : this.server.getPlayerList().getPlayers()) {
-            if (var0 != null && var0.level == this && var0.getId() != param0) {
+            if (var0 != null && var0.level() == this && var0.getId() != param0) {
                 double var1 = (double)param1.getX() - var0.getX();
                 double var2 = (double)param1.getY() - var0.getY();
                 double var3 = (double)param1.getZ() - var0.getZ();
@@ -1158,7 +1158,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     private boolean sendParticles(ServerPlayer param0, boolean param1, double param2, double param3, double param4, Packet<?> param5) {
-        if (param0.getLevel() != this) {
+        if (param0.level() != this) {
             return false;
         } else {
             BlockPos var0 = param0.blockPosition();

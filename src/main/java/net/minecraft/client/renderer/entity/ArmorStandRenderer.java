@@ -42,7 +42,7 @@ public class ArmorStandRenderer extends LivingEntityRenderer<ArmorStand, ArmorSt
 
     protected void setupRotations(ArmorStand param0, PoseStack param1, float param2, float param3, float param4) {
         param1.mulPose(Axis.YP.rotationDegrees(180.0F - param3));
-        float var0 = (float)(param0.level.getGameTime() - param0.lastHit) + param4;
+        float var0 = (float)(param0.level().getGameTime() - param0.lastHit) + param4;
         if (var0 < 5.0F) {
             param1.mulPose(Axis.YP.rotationDegrees(Mth.sin(var0 / 1.5F * (float) Math.PI) * 3.0F));
         }

@@ -1406,7 +1406,7 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
                 LootPool.lootPool()
                     .setRolls(ConstantValue.exactly(1.0F))
                     .add(
-                        DynamicLoot.dynamicEntry(DecoratedPotBlock.SHERDS)
+                        DynamicLoot.dynamicEntry(DecoratedPotBlock.SHERDS_DYNAMIC_DROP_ID)
                             .when(MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.BREAKS_DECORATED_POTS)))
                             .when(HAS_NO_SILK_TOUCH)
                             .otherwise(

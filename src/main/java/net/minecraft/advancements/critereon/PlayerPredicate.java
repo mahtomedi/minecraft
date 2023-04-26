@@ -121,7 +121,7 @@ public class PlayerPredicate implements EntitySubPredicate {
                     Vec3 var11 = var0.getViewVector(1.0F);
                     Vec3 var12 = var10.add(var11.x * 100.0, var11.y * 100.0, var11.z * 100.0);
                     EntityHitResult var13 = ProjectileUtil.getEntityHitResult(
-                        var0.level, var0, var10, var12, new AABB(var10, var12).inflate(1.0), param0x -> !param0x.isSpectator(), 0.0F
+                        var0.level(), var0, var10, var12, new AABB(var10, var12).inflate(1.0), param0x -> !param0x.isSpectator(), 0.0F
                     );
                     if (var13 == null || var13.getType() != HitResult.Type.ENTITY) {
                         return false;

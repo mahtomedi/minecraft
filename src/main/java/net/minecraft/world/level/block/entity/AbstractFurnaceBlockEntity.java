@@ -476,7 +476,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     public void awardUsedRecipesAndPopExperience(ServerPlayer param0) {
-        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.getLevel(), param0.position());
+        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.serverLevel(), param0.position());
         param0.awardRecipes(var0);
 
         for(Recipe<?> var1 : var0) {

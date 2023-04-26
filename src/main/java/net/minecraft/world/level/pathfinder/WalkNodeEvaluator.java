@@ -31,19 +31,18 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class WalkNodeEvaluator extends NodeEvaluator {
     public static final double SPACE_BETWEEN_WALL_POSTS = 0.5;
     private static final double DEFAULT_MOB_JUMP_HEIGHT = 1.125;
-    protected float oldWaterCost;
     private final Long2ObjectMap<BlockPathTypes> pathTypesByPosCache = new Long2ObjectOpenHashMap<>();
     private final Object2BooleanMap<AABB> collisionCache = new Object2BooleanOpenHashMap<>();
 
     @Override
     public void prepare(PathNavigationRegion param0, Mob param1) {
         super.prepare(param0, param1);
-        this.oldWaterCost = param1.getPathfindingMalus(BlockPathTypes.WATER);
+        param1.onPathfindingStart();
     }
 
     @Override
     public void done() {
-        this.mob.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
+        this.mob.onPathfindingDone();
         this.pathTypesByPosCache.clear();
         this.collisionCache.clear();
         super.done();
@@ -64,14 +63,14 @@ public class WalkNodeEvaluator extends NodeEvaluator {
 
                     var2 = this.level.getBlockState(var0.set(this.mob.getX(), (double)(++var1), this.mob.getZ()));
                 }
-            } else if (this.mob.isOnGround()) {
+            } else if (this.mob.onGround()) {
                 var1 = Mth.floor(this.mob.getY() + 0.5);
             } else {
                 BlockPos var3 = this.mob.blockPosition();
 
                 while(
                     (this.level.getBlockState(var3).isAir() || this.level.getBlockState(var3).isPathfindable(this.level, var3, PathComputationType.LAND))
-                        && var3.getY() > this.mob.level.getMinBuildHeight()
+                        && var3.getY() > this.mob.level().getMinBuildHeight()
                 ) {
                     var3 = var3.below();
                 }
@@ -281,7 +280,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                         return var0;
                     }
 
-                    while(param1 > this.mob.level.getMinBuildHeight()) {
+                    while(param1 > this.mob.level().getMinBuildHeight()) {
                         var3 = this.getCachedBlockType(this.mob, param0, --param1, param2);
                         if (var3 != BlockPathTypes.WATER) {
                             return var0;
@@ -296,7 +295,7 @@ public class WalkNodeEvaluator extends NodeEvaluator {
                     int var10 = param1;
 
                     while(var3 == BlockPathTypes.OPEN) {
-                        if (--param1 < this.mob.level.getMinBuildHeight()) {
+                        if (--param1 < this.mob.level().getMinBuildHeight()) {
                             return this.getBlockedNode(param0, var10, param2);
                         }
 

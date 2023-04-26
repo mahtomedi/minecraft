@@ -105,7 +105,7 @@ public class FrogAi {
                             Pair.of(RandomStroll.stroll(1.0F), 1),
                             Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 1),
                             Pair.of(new Croak(), 3),
-                            Pair.of(BehaviorBuilder.triggerIf(Entity::isOnGround), 2)
+                            Pair.of(BehaviorBuilder.triggerIf(Entity::onGround), 2)
                         )
                     )
                 )
@@ -161,7 +161,7 @@ public class FrogAi {
                             Pair.of(RandomStroll.stroll(1.0F), 2),
                             Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 1),
                             Pair.of(new Croak(), 2),
-                            Pair.of(BehaviorBuilder.triggerIf(Entity::isOnGround), 1)
+                            Pair.of(BehaviorBuilder.triggerIf(Entity::onGround), 1)
                         )
                     )
                 )
@@ -210,7 +210,7 @@ public class FrogAi {
     }
 
     private static <E extends Mob> boolean isAcceptableLandingSpot(E param0x, BlockPos param1) {
-        Level var0 = param0x.level;
+        Level var0 = param0x.level();
         BlockPos var1 = param1.below();
         if (var0.getFluidState(param1).isEmpty() && var0.getFluidState(var1).isEmpty() && var0.getFluidState(param1.above()).isEmpty()) {
             BlockState var2 = var0.getBlockState(param1);

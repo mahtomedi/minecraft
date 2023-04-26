@@ -48,8 +48,8 @@ public class EvokerFangs extends Entity implements TraceableEntity {
 
     @Nullable
     public LivingEntity getOwner() {
-        if (this.owner == null && this.ownerUUID != null && this.level instanceof ServerLevel) {
-            Entity var0 = ((ServerLevel)this.level).getEntity(this.ownerUUID);
+        if (this.owner == null && this.ownerUUID != null && this.level() instanceof ServerLevel) {
+            Entity var0 = ((ServerLevel)this.level()).getEntity(this.ownerUUID);
             if (var0 instanceof LivingEntity) {
                 this.owner = (LivingEntity)var0;
             }
@@ -79,7 +79,7 @@ public class EvokerFangs extends Entity implements TraceableEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (this.clientSideAttackStarted) {
                 --this.lifeTicks;
                 if (this.lifeTicks == 14) {
@@ -90,19 +90,19 @@ public class EvokerFangs extends Entity implements TraceableEntity {
                         double var4 = (this.random.nextDouble() * 2.0 - 1.0) * 0.3;
                         double var5 = 0.3 + this.random.nextDouble() * 0.3;
                         double var6 = (this.random.nextDouble() * 2.0 - 1.0) * 0.3;
-                        this.level.addParticle(ParticleTypes.CRIT, var1, var2 + 1.0, var3, var4, var5, var6);
+                        this.level().addParticle(ParticleTypes.CRIT, var1, var2 + 1.0, var3, var4, var5, var6);
                     }
                 }
             }
         } else if (--this.warmupDelayTicks < 0) {
             if (this.warmupDelayTicks == -8) {
-                for(LivingEntity var8 : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.2, 0.0, 0.2))) {
+                for(LivingEntity var8 : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(0.2, 0.0, 0.2))) {
                     this.dealDamageTo(var8);
                 }
             }
 
             if (!this.sentSpikeEvent) {
-                this.level.broadcastEntityEvent(this, (byte)4);
+                this.level().broadcastEntityEvent(this, (byte)4);
                 this.sentSpikeEvent = true;
             }
 
@@ -135,7 +135,7 @@ public class EvokerFangs extends Entity implements TraceableEntity {
         if (param0 == 4) {
             this.clientSideAttackStarted = true;
             if (!this.isSilent()) {
-                this.level
+                this.level()
                     .playLocalSound(
                         this.getX(),
                         this.getY(),

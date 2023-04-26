@@ -46,7 +46,7 @@ public class EntityHasScoreCondition implements LootItemCondition {
         if (var0 == null) {
             return false;
         } else {
-            Scoreboard var1 = var0.level.getScoreboard();
+            Scoreboard var1 = var0.level().getScoreboard();
 
             for(Entry<String, IntRange> var2 : this.scores.entrySet()) {
                 if (!this.hasScore(param0, var0, var1, var2.getKey(), var2.getValue())) {

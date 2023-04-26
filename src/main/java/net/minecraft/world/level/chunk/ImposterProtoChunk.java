@@ -2,7 +2,8 @@ package net.minecraft.world.level.chunk;
 
 import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.blending.BlendingData;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
+import net.minecraft.world.level.lighting.ChunkSkyLightSources;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.ticks.BlackholeTickAccess;
@@ -213,8 +215,8 @@ public class ImposterProtoChunk extends ProtoChunk {
     }
 
     @Override
-    public Stream<BlockPos> getLights() {
-        return this.wrapped.getLights();
+    public void findBlocks(Predicate<BlockState> param0, BiConsumer<BlockPos, BlockState> param1) {
+        this.wrapped.findBlocks(param0, param1);
     }
 
     @Override
@@ -281,5 +283,15 @@ public class ImposterProtoChunk extends ProtoChunk {
             this.wrapped.fillBiomesFromNoise(param0, param1);
         }
 
+    }
+
+    @Override
+    public void initializeLightSources() {
+        this.wrapped.initializeLightSources();
+    }
+
+    @Override
+    public ChunkSkyLightSources getSkyLightSources() {
+        return this.wrapped.getSkyLightSources();
     }
 }

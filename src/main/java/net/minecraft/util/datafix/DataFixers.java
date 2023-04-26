@@ -53,6 +53,7 @@ import net.minecraft.util.datafix.fixes.CavesAndCliffsRenames;
 import net.minecraft.util.datafix.fixes.ChunkBedBlockEntityInjecterFix;
 import net.minecraft.util.datafix.fixes.ChunkBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkDeleteIgnoredLightDataFix;
+import net.minecraft.util.datafix.fixes.ChunkDeleteLightFix;
 import net.minecraft.util.datafix.fixes.ChunkHeightAndBiomeFix;
 import net.minecraft.util.datafix.fixes.ChunkLightRemoveFix;
 import net.minecraft.util.datafix.fixes.ChunkPalettedStorageFix;
@@ -1117,16 +1118,10 @@ public class DataFixers {
         param0.addFixer(new FeatureFlagRemoveFix(var187, "Remove 1.20 feature toggle", Set.of("minecraft:update_1_20")));
         Schema var188 = param0.addSchema(3441, SAME_NAMESPACED);
         param0.addFixer(new BlendingDataFix(var188));
-        Schema var189 = param0.addSchema(3446, SAME_NAMESPACED);
-        param0.addFixer(
-            new RemapChunkStatusFix(
-                var189, "Remove liquid_carvers and heightmap chunk statuses", createRenamer(Map.of("liquid_carvers", "carvers", "heightmaps", "spawn"))
-            )
-        );
-        Schema var190 = param0.addSchema(3447, SAME_NAMESPACED);
+        Schema var189 = param0.addSchema(3447, SAME_NAMESPACED);
         param0.addFixer(
             ItemRenameFix.create(
-                var190,
+                var189,
                 "Pottery shard item renaming to Pottery sherd",
                 createRenamer(
                     Stream.of(
@@ -1155,8 +1150,16 @@ public class DataFixers {
                 )
             )
         );
-        Schema var191 = param0.addSchema(3448, V3448::new);
-        param0.addFixer(new DecoratedPotFieldRenameFix(var191));
+        Schema var190 = param0.addSchema(3448, V3448::new);
+        param0.addFixer(new DecoratedPotFieldRenameFix(var190));
+        Schema var191 = param0.addSchema(3450, SAME_NAMESPACED);
+        param0.addFixer(
+            new RemapChunkStatusFix(
+                var191, "Remove liquid_carvers and heightmap chunk statuses", createRenamer(Map.of("liquid_carvers", "carvers", "heightmaps", "spawn"))
+            )
+        );
+        Schema var192 = param0.addSchema(3451, SAME_NAMESPACED);
+        param0.addFixer(new ChunkDeleteLightFix(var192));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

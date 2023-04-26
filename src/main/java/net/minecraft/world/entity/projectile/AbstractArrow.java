@@ -137,9 +137,9 @@ public abstract class AbstractArrow extends Projectile {
         }
 
         BlockPos var3 = this.blockPosition();
-        BlockState var4 = this.level.getBlockState(var3);
+        BlockState var4 = this.level().getBlockState(var3);
         if (!var4.isAir() && !var0) {
-            VoxelShape var5 = var4.getCollisionShape(this.level, var3);
+            VoxelShape var5 = var4.getCollisionShape(this.level(), var3);
             if (!var5.isEmpty()) {
                 Vec3 var6 = this.position();
 
@@ -163,7 +163,7 @@ public abstract class AbstractArrow extends Projectile {
         if (this.inGround && !var0) {
             if (this.lastState != var4 && this.shouldFall()) {
                 this.startFalling();
-            } else if (!this.level.isClientSide) {
+            } else if (!this.level().isClientSide) {
                 this.tickDespawn();
             }
 
@@ -172,7 +172,7 @@ public abstract class AbstractArrow extends Projectile {
             this.inGroundTime = 0;
             Vec3 var8 = this.position();
             Vec3 var9 = var8.add(var1);
-            HitResult var10 = this.level.clip(new ClipContext(var8, var9, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            HitResult var10 = this.level().clip(new ClipContext(var8, var9, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
             if (var10.getType() != HitResult.Type.MISS) {
                 var9 = var10.getLocation();
             }
@@ -210,7 +210,7 @@ public abstract class AbstractArrow extends Projectile {
             double var16 = var1.z;
             if (this.isCritArrow()) {
                 for(int var17 = 0; var17 < 4; ++var17) {
-                    this.level
+                    this.level()
                         .addParticle(
                             ParticleTypes.CRIT,
                             this.getX() + var14 * (double)var17 / 4.0,
@@ -241,7 +241,7 @@ public abstract class AbstractArrow extends Projectile {
             if (this.isInWater()) {
                 for(int var24 = 0; var24 < 4; ++var24) {
                     float var25 = 0.25F;
-                    this.level.addParticle(ParticleTypes.BUBBLE, var18 - var14 * 0.25, var19 - var15 * 0.25, var20 - var16 * 0.25, var14, var15, var16);
+                    this.level().addParticle(ParticleTypes.BUBBLE, var18 - var14 * 0.25, var19 - var15 * 0.25, var20 - var16 * 0.25, var14, var15, var16);
                 }
 
                 var22 = this.getWaterInertia();
@@ -259,7 +259,7 @@ public abstract class AbstractArrow extends Projectile {
     }
 
     private boolean shouldFall() {
-        return this.inGround && this.level.noCollision(new AABB(this.position(), this.position()).inflate(0.06));
+        return this.inGround && this.level().noCollision(new AABB(this.position(), this.position()).inflate(0.06));
     }
 
     private void startFalling() {
@@ -350,7 +350,7 @@ public abstract class AbstractArrow extends Projectile {
             }
 
             if (var0 instanceof LivingEntity var9) {
-                if (!this.level.isClientSide && this.getPierceLevel() <= 0) {
+                if (!this.level().isClientSide && this.getPierceLevel() <= 0) {
                     var9.setArrowCount(var9.getArrowCount() + 1);
                 }
 
@@ -362,7 +362,7 @@ public abstract class AbstractArrow extends Projectile {
                     }
                 }
 
-                if (!this.level.isClientSide && var4 instanceof LivingEntity) {
+                if (!this.level().isClientSide && var4 instanceof LivingEntity) {
                     EnchantmentHelper.doPostHurtEffects(var9, var4);
                     EnchantmentHelper.doPostDamageEffects((LivingEntity)var4, var9);
                 }
@@ -376,7 +376,7 @@ public abstract class AbstractArrow extends Projectile {
                     this.piercedAndKilledEntities.add(var9);
                 }
 
-                if (!this.level.isClientSide && var4 instanceof ServerPlayer var12) {
+                if (!this.level().isClientSide && var4 instanceof ServerPlayer var12) {
                     if (this.piercedAndKilledEntities != null && this.shotFromCrossbow()) {
                         CriteriaTriggers.KILLED_BY_CROSSBOW.trigger(var12, this.piercedAndKilledEntities);
                     } else if (!var0.isAlive() && this.shotFromCrossbow()) {
@@ -394,7 +394,7 @@ public abstract class AbstractArrow extends Projectile {
             this.setDeltaMovement(this.getDeltaMovement().scale(-0.1));
             this.setYRot(this.getYRot() + 180.0F);
             this.yRotO += 180.0F;
-            if (!this.level.isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
+            if (!this.level().isClientSide && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
                 if (this.pickup == AbstractArrow.Pickup.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
@@ -407,7 +407,7 @@ public abstract class AbstractArrow extends Projectile {
 
     @Override
     protected void onHitBlock(BlockHitResult param0) {
-        this.lastState = this.level.getBlockState(param0.getBlockPos());
+        this.lastState = this.level().getBlockState(param0.getBlockPos());
         super.onHitBlock(param0);
         Vec3 var0 = param0.getLocation().subtract(this.getX(), this.getY(), this.getZ());
         this.setDeltaMovement(var0);
@@ -437,7 +437,7 @@ public abstract class AbstractArrow extends Projectile {
     @Nullable
     protected EntityHitResult findHitEntity(Vec3 param0, Vec3 param1) {
         return ProjectileUtil.getEntityHitResult(
-            this.level, this, param0, param1, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0), this::canHitEntity
+            this.level(), this, param0, param1, this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0), this::canHitEntity
         );
     }
 
@@ -469,7 +469,7 @@ public abstract class AbstractArrow extends Projectile {
         super.readAdditionalSaveData(param0);
         this.life = param0.getShort("life");
         if (param0.contains("inBlockState", 10)) {
-            this.lastState = NbtUtils.readBlockState(this.level.holderLookup(Registries.BLOCK), param0.getCompound("inBlockState"));
+            this.lastState = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), param0.getCompound("inBlockState"));
         }
 
         this.shakeTime = param0.getByte("shake") & 255;
@@ -501,7 +501,7 @@ public abstract class AbstractArrow extends Projectile {
 
     @Override
     public void playerTouch(Player param0) {
-        if (!this.level.isClientSide && (this.inGround || this.isNoPhysics()) && this.shakeTime <= 0) {
+        if (!this.level().isClientSide && (this.inGround || this.isNoPhysics()) && this.shakeTime <= 0) {
             if (this.tryPickup(param0)) {
                 param0.take(this, 1);
                 this.discard();
@@ -589,7 +589,7 @@ public abstract class AbstractArrow extends Projectile {
     public void setEnchantmentEffectsFromEntity(LivingEntity param0, float param1) {
         int var0 = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER_ARROWS, param0);
         int var1 = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH_ARROWS, param0);
-        this.setBaseDamage((double)(param1 * 2.0F) + this.random.triangle((double)this.level.getDifficulty().getId() * 0.11, 0.57425));
+        this.setBaseDamage((double)(param1 * 2.0F) + this.random.triangle((double)this.level().getDifficulty().getId() * 0.11, 0.57425));
         if (var0 > 0) {
             this.setBaseDamage(this.getBaseDamage() + (double)var0 * 0.5 + 0.5);
         }
@@ -614,7 +614,7 @@ public abstract class AbstractArrow extends Projectile {
     }
 
     public boolean isNoPhysics() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             return this.noPhysics;
         } else {
             return (this.entityData.get(ID_FLAGS) & 2) != 0;

@@ -22,12 +22,12 @@ public class SkeletonTrapGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return this.horse.level.hasNearbyAlivePlayer(this.horse.getX(), this.horse.getY(), this.horse.getZ(), 10.0);
+        return this.horse.level().hasNearbyAlivePlayer(this.horse.getX(), this.horse.getY(), this.horse.getZ(), 10.0);
     }
 
     @Override
     public void tick() {
-        ServerLevel var0 = (ServerLevel)this.horse.level;
+        ServerLevel var0 = (ServerLevel)this.horse.level();
         DifficultyInstance var1 = var0.getCurrentDifficultyAt(this.horse.blockPosition());
         this.horse.setTrap(false);
         this.horse.setTamed(true);
@@ -60,9 +60,9 @@ public class SkeletonTrapGoal extends Goal {
 
     @Nullable
     private AbstractHorse createHorse(DifficultyInstance param0) {
-        SkeletonHorse var0 = EntityType.SKELETON_HORSE.create(this.horse.level);
+        SkeletonHorse var0 = EntityType.SKELETON_HORSE.create(this.horse.level());
         if (var0 != null) {
-            var0.finalizeSpawn((ServerLevel)this.horse.level, param0, MobSpawnType.TRIGGERED, null, null);
+            var0.finalizeSpawn((ServerLevel)this.horse.level(), param0, MobSpawnType.TRIGGERED, null, null);
             var0.setPos(this.horse.getX(), this.horse.getY(), this.horse.getZ());
             var0.invulnerableTime = 60;
             var0.setPersistenceRequired();
@@ -75,9 +75,9 @@ public class SkeletonTrapGoal extends Goal {
 
     @Nullable
     private Skeleton createSkeleton(DifficultyInstance param0, AbstractHorse param1) {
-        Skeleton var0 = EntityType.SKELETON.create(param1.level);
+        Skeleton var0 = EntityType.SKELETON.create(param1.level());
         if (var0 != null) {
-            var0.finalizeSpawn((ServerLevel)param1.level, param0, MobSpawnType.TRIGGERED, null, null);
+            var0.finalizeSpawn((ServerLevel)param1.level(), param0, MobSpawnType.TRIGGERED, null, null);
             var0.setPos(param1.getX(), param1.getY(), param1.getZ());
             var0.invulnerableTime = 60;
             var0.setPersistenceRequired();

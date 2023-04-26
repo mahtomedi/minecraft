@@ -41,7 +41,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
         super.onHit(param0);
 
         for(int var0 = 0; var0 < 32; ++var0) {
-            this.level
+            this.level()
                 .addParticle(
                     ParticleTypes.PORTAL,
                     this.getX(),
@@ -53,15 +53,15 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
                 );
         }
 
-        if (!this.level.isClientSide && !this.isRemoved()) {
+        if (!this.level().isClientSide && !this.isRemoved()) {
             Entity var1 = this.getOwner();
             if (var1 instanceof ServerPlayer var2) {
-                if (var2.connection.isAcceptingMessages() && var2.level == this.level && !var2.isSleeping()) {
-                    if (this.random.nextFloat() < 0.05F && this.level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
-                        Endermite var3 = EntityType.ENDERMITE.create(this.level);
+                if (var2.connection.isAcceptingMessages() && var2.level() == this.level() && !var2.isSleeping()) {
+                    if (this.random.nextFloat() < 0.05F && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING)) {
+                        Endermite var3 = EntityType.ENDERMITE.create(this.level());
                         if (var3 != null) {
                             var3.moveTo(var1.getX(), var1.getY(), var1.getZ(), var1.getYRot(), var1.getXRot());
-                            this.level.addFreshEntity(var3);
+                            this.level().addFreshEntity(var3);
                         }
                     }
 
@@ -99,7 +99,7 @@ public class ThrownEnderpearl extends ThrowableItemProjectile {
     @Override
     public Entity changeDimension(ServerLevel param0) {
         Entity var0 = this.getOwner();
-        if (var0 != null && var0.level.dimension() != param0.dimension()) {
+        if (var0 != null && var0.level().dimension() != param0.dimension()) {
             this.setOwner(null);
         }
 

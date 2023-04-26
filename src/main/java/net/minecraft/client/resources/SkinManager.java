@@ -9,7 +9,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.hash.Hashing;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.InsecureTextureException;
+import com.mojang.authlib.minecraft.InsecurePublicKeyException;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
@@ -98,7 +98,7 @@ public class SkinManager {
 
             try {
                 var0x.putAll(this.sessionService.getTextures(param0, param2));
-            } catch (InsecureTextureException var7) {
+            } catch (InsecurePublicKeyException var7) {
             }
 
             if (var0x.isEmpty()) {
@@ -111,7 +111,7 @@ public class SkinManager {
 
                     try {
                         var0x.putAll(this.sessionService.getTextures(param0, param2));
-                    } catch (InsecureTextureException var6) {
+                    } catch (InsecurePublicKeyException var6) {
                     }
                 }
             }

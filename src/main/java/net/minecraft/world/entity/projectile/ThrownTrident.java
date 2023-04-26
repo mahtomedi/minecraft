@@ -58,7 +58,7 @@ public class ThrownTrident extends AbstractArrow {
         int var1 = this.entityData.get(ID_LOYALTY);
         if (var1 > 0 && (this.dealtDamage || this.isNoPhysics()) && var0 != null) {
             if (!this.isAcceptibleReturnOwner()) {
-                if (!this.level.isClientSide && this.pickup == AbstractArrow.Pickup.ALLOWED) {
+                if (!this.level().isClientSide && this.pickup == AbstractArrow.Pickup.ALLOWED) {
                     this.spawnAtLocation(this.getPickupItem(), 0.1F);
                 }
 
@@ -67,7 +67,7 @@ public class ThrownTrident extends AbstractArrow {
                 this.setNoPhysics(true);
                 Vec3 var2 = var0.getEyePosition().subtract(this.position());
                 this.setPosRaw(this.getX(), this.getY() + var2.y * 0.015 * (double)var1, this.getZ());
-                if (this.level.isClientSide) {
+                if (this.level().isClientSide) {
                     this.yOld = this.getY();
                 }
 
@@ -137,14 +137,14 @@ public class ThrownTrident extends AbstractArrow {
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
         float var7 = 1.0F;
-        if (this.level instanceof ServerLevel && this.level.isThundering() && this.isChanneling()) {
+        if (this.level() instanceof ServerLevel && this.level().isThundering() && this.isChanneling()) {
             BlockPos var8 = var0.blockPosition();
-            if (this.level.canSeeSky(var8)) {
-                LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this.level);
+            if (this.level().canSeeSky(var8)) {
+                LightningBolt var9 = EntityType.LIGHTNING_BOLT.create(this.level());
                 if (var9 != null) {
                     var9.moveTo(Vec3.atBottomCenterOf(var8));
                     var9.setCause(var3 instanceof ServerPlayer ? (ServerPlayer)var3 : null);
-                    this.level.addFreshEntity(var9);
+                    this.level().addFreshEntity(var9);
                     var5 = SoundEvents.TRIDENT_THUNDER;
                     var7 = 5.0F;
                 }

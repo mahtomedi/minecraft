@@ -207,7 +207,7 @@ public abstract class PathNavigation {
             } else if (this.path != null && !this.path.isDone()) {
                 Vec3 var0 = this.getTempMobPos();
                 Vec3 var1 = this.path.getNextEntityPos(this.mob);
-                if (var0.y > var1.y && !this.mob.isOnGround() && Mth.floor(var0.x) == Mth.floor(var1.x) && Mth.floor(var0.z) == Mth.floor(var1.z)) {
+                if (var0.y > var1.y && !this.mob.onGround() && Mth.floor(var0.x) == Mth.floor(var1.x) && Mth.floor(var0.z) == Mth.floor(var1.z)) {
                     this.path.advance();
                 }
             }
@@ -362,7 +362,7 @@ public abstract class PathNavigation {
 
     protected static boolean isClearForMovementBetween(Mob param0, Vec3 param1, Vec3 param2, boolean param3) {
         Vec3 var0 = new Vec3(param2.x, param2.y + (double)param0.getBbHeight() * 0.5, param2.z);
-        return param0.level
+        return param0.level()
                 .clip(new ClipContext(param1, var0, ClipContext.Block.COLLIDER, param3 ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE, param0))
                 .getType()
             == HitResult.Type.MISS;

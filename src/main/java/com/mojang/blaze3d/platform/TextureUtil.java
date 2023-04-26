@@ -11,6 +11,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Path;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.IntUnaryOperator;
+import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -98,6 +100,10 @@ public class TextureUtil {
     }
 
     public static void writeAsPNG(Path param0, String param1, int param2, int param3, int param4, int param5) {
+        writeAsPNG(param0, param1, param2, param3, param4, param5, null);
+    }
+
+    public static void writeAsPNG(Path param0, String param1, int param2, int param3, int param4, int param5, @Nullable IntUnaryOperator param6) {
         RenderSystem.assertOnRenderThread();
         bind(param2);
 
@@ -107,11 +113,15 @@ public class TextureUtil {
 
             try (NativeImage var3 = new NativeImage(var1, var2, false)) {
                 var3.downloadTexture(var0, false);
+                if (param6 != null) {
+                    var3.applyToAllPixels(param6);
+                }
+
                 Path var4 = param0.resolve(param1 + "_" + var0 + ".png");
                 var3.writeToFile(var4);
                 LOGGER.debug("Exported png to: {}", var4.toAbsolutePath());
-            } catch (IOException var14) {
-                LOGGER.debug("Unable to write: ", (Throwable)var14);
+            } catch (IOException var15) {
+                LOGGER.debug("Unable to write: ", (Throwable)var15);
             }
         }
 

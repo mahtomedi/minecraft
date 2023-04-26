@@ -193,11 +193,11 @@ public class Evoker extends SpellcasterIllager {
 
             do {
                 BlockPos var3 = var0.below();
-                BlockState var4 = Evoker.this.level.getBlockState(var3);
-                if (var4.isFaceSturdy(Evoker.this.level, var3, Direction.UP)) {
-                    if (!Evoker.this.level.isEmptyBlock(var0)) {
-                        BlockState var5 = Evoker.this.level.getBlockState(var0);
-                        VoxelShape var6 = var5.getCollisionShape(Evoker.this.level, var0);
+                BlockState var4 = Evoker.this.level().getBlockState(var3);
+                if (var4.isFaceSturdy(Evoker.this.level(), var3, Direction.UP)) {
+                    if (!Evoker.this.level().isEmptyBlock(var0)) {
+                        BlockState var5 = Evoker.this.level().getBlockState(var0);
+                        VoxelShape var6 = var5.getCollisionShape(Evoker.this.level(), var0);
                         if (!var6.isEmpty()) {
                             var2 = var6.max(Direction.Axis.Y);
                         }
@@ -211,7 +211,8 @@ public class Evoker extends SpellcasterIllager {
             } while(var0.getY() >= Mth.floor(param2) - 1);
 
             if (var1) {
-                Evoker.this.level.addFreshEntity(new EvokerFangs(Evoker.this.level, param0, (double)var0.getY() + var2, param1, param4, param5, Evoker.this));
+                Evoker.this.level()
+                    .addFreshEntity(new EvokerFangs(Evoker.this.level(), param0, (double)var0.getY() + var2, param1, param4, param5, Evoker.this));
             }
 
         }
@@ -247,7 +248,7 @@ public class Evoker extends SpellcasterIllager {
             if (!super.canUse()) {
                 return false;
             } else {
-                int var0 = Evoker.this.level
+                int var0 = Evoker.this.level()
                     .getNearbyEntities(Vex.class, this.vexCountTargeting, Evoker.this, Evoker.this.getBoundingBox().inflate(16.0))
                     .size();
                 return Evoker.this.random.nextInt(8) + 1 > var0;
@@ -266,14 +267,14 @@ public class Evoker extends SpellcasterIllager {
 
         @Override
         protected void performSpellCasting() {
-            ServerLevel var0 = (ServerLevel)Evoker.this.level;
+            ServerLevel var0 = (ServerLevel)Evoker.this.level();
 
             for(int var1 = 0; var1 < 3; ++var1) {
                 BlockPos var2 = Evoker.this.blockPosition().offset(-2 + Evoker.this.random.nextInt(5), 1, -2 + Evoker.this.random.nextInt(5));
-                Vex var3 = EntityType.VEX.create(Evoker.this.level);
+                Vex var3 = EntityType.VEX.create(Evoker.this.level());
                 if (var3 != null) {
                     var3.moveTo(var2, 0.0F, 0.0F);
-                    var3.finalizeSpawn(var0, Evoker.this.level.getCurrentDifficultyAt(var2), MobSpawnType.MOB_SUMMONED, null, null);
+                    var3.finalizeSpawn(var0, Evoker.this.level().getCurrentDifficultyAt(var2), MobSpawnType.MOB_SUMMONED, null, null);
                     var3.setOwner(Evoker.this);
                     var3.setBoundOrigin(var2);
                     var3.setLimitedLife(20 * (30 + Evoker.this.random.nextInt(90)));
@@ -307,10 +308,10 @@ public class Evoker extends SpellcasterIllager {
                 return false;
             } else if (Evoker.this.tickCount < this.nextAttackTickCount) {
                 return false;
-            } else if (!Evoker.this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+            } else if (!Evoker.this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                 return false;
             } else {
-                List<Sheep> var0 = Evoker.this.level
+                List<Sheep> var0 = Evoker.this.level()
                     .getNearbyEntities(Sheep.class, this.wololoTargeting, Evoker.this, Evoker.this.getBoundingBox().inflate(16.0, 4.0, 16.0));
                 if (var0.isEmpty()) {
                     return false;

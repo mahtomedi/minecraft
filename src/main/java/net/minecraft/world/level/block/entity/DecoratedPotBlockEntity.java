@@ -1,8 +1,7 @@
 package net.minecraft.world.level.block.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import net.minecraft.Util;
+import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -21,13 +20,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 public class DecoratedPotBlockEntity extends BlockEntity {
     public static final String TAG_SHERDS = "sherds";
-    private static final int SHERDS_IN_POT = 4;
-    private final List<Item> sherds = Util.make(new ArrayList<>(4), param0x -> {
-        param0x.add(Items.BRICK);
-        param0x.add(Items.BRICK);
-        param0x.add(Items.BRICK);
-        param0x.add(Items.BRICK);
-    });
+    private DecoratedPotBlockEntity.Decorations decorations = DecoratedPotBlockEntity.Decorations.EMPTY;
 
     public DecoratedPotBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.DECORATED_POT, param0, param1);
@@ -36,33 +29,13 @@ public class DecoratedPotBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag param0) {
         super.saveAdditional(param0);
-        saveSherds(this.sherds, param0);
+        this.decorations.save(param0);
     }
 
     @Override
     public void load(CompoundTag param0) {
         super.load(param0);
-        if (param0.contains("sherds", 9)) {
-            ListTag var0 = param0.getList("sherds", 8);
-            this.sherds.clear();
-            int var1 = Math.min(4, var0.size());
-
-            for(int var2 = 0; var2 < var1; ++var2) {
-                Tag var6 = var0.get(var2);
-                if (var6 instanceof StringTag var3) {
-                    this.sherds.add(BuiltInRegistries.ITEM.get(new ResourceLocation(var3.getAsString())));
-                } else {
-                    this.sherds.add(Items.BRICK);
-                }
-            }
-
-            int var4 = 4 - var1;
-
-            for(int var5 = 0; var5 < var4; ++var5) {
-                this.sherds.add(Items.BRICK);
-            }
-        }
-
+        this.decorations = DecoratedPotBlockEntity.Decorations.load(param0);
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
@@ -74,35 +47,50 @@ public class DecoratedPotBlockEntity extends BlockEntity {
         return this.saveWithoutMetadata();
     }
 
-    public static void saveSherds(List<Item> param0, CompoundTag param1) {
-        ListTag var0 = new ListTag();
-
-        for(Item var1 : param0) {
-            var0.add(StringTag.valueOf(BuiltInRegistries.ITEM.getKey(var1).toString()));
-        }
-
-        param1.put("sherds", var0);
-    }
-
-    public List<Item> getSherds() {
-        return this.sherds;
-    }
-
     public Direction getDirection() {
         return this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING);
     }
 
-    public void setFromItem(ItemStack param0) {
-        CompoundTag var0 = BlockItem.getBlockEntityData(param0);
-        if (var0 != null) {
-            this.load(var0);
-        } else {
-            this.sherds.clear();
+    public DecoratedPotBlockEntity.Decorations getDecorations() {
+        return this.decorations;
+    }
 
-            for(int var1 = 0; var1 < 4; ++var1) {
-                this.sherds.add(Items.BRICK);
+    public void setFromItem(ItemStack param0) {
+        this.decorations = DecoratedPotBlockEntity.Decorations.load(BlockItem.getBlockEntityData(param0));
+    }
+
+    public static record Decorations(Item back, Item left, Item right, Item front) {
+        public static final DecoratedPotBlockEntity.Decorations EMPTY = new DecoratedPotBlockEntity.Decorations(
+            Items.BRICK, Items.BRICK, Items.BRICK, Items.BRICK
+        );
+
+        public CompoundTag save(CompoundTag param0) {
+            ListTag var0 = new ListTag();
+            this.sorted().forEach(param1 -> var0.add(StringTag.valueOf(BuiltInRegistries.ITEM.getKey(param1).toString())));
+            param0.put("sherds", var0);
+            return param0;
+        }
+
+        public Stream<Item> sorted() {
+            return Stream.of(this.back, this.left, this.right, this.front);
+        }
+
+        public static DecoratedPotBlockEntity.Decorations load(@Nullable CompoundTag param0) {
+            if (param0 != null && param0.contains("sherds", 9)) {
+                ListTag var0 = param0.getList("sherds", 8);
+                return new DecoratedPotBlockEntity.Decorations(itemFromTag(var0, 0), itemFromTag(var0, 1), itemFromTag(var0, 2), itemFromTag(var0, 3));
+            } else {
+                return EMPTY;
             }
         }
 
+        private static Item itemFromTag(ListTag param0, int param1) {
+            if (param1 >= param0.size()) {
+                return Items.BRICK;
+            } else {
+                Tag var0 = param0.get(param1);
+                return BuiltInRegistries.ITEM.get(new ResourceLocation(var0.getAsString()));
+            }
+        }
     }
 }

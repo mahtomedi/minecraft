@@ -72,6 +72,6 @@ public class CalibratedSculkSensorBlock extends SculkSensorBlock {
 
     @Override
     public int getActiveTicks() {
-        return 20;
+        return 10;
     }
 }

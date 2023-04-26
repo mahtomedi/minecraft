@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public class BlendingData {
@@ -102,11 +103,11 @@ public class BlendingData {
     public static BlendingData getOrUpdateBlendingData(WorldGenRegion param0, int param1, int param2) {
         ChunkAccess var0 = param0.getChunk(param1, param2);
         BlendingData var1 = var0.getBlendingData();
-        if (var1 == null) {
-            return null;
-        } else {
+        if (var1 != null && var0.getHighestGeneratedStatus().isOrAfter(ChunkStatus.BIOMES)) {
             var1.calculateData(var0, sideByGenerationAge(param0, param1, param2, false));
             return var1;
+        } else {
+            return null;
         }
     }
 

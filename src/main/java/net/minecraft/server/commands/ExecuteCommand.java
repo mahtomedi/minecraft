@@ -133,7 +133,7 @@ public class ExecuteCommand {
         
                     for(Entity var1x : EntityArgument.getOptionalEntities(param0x, "targets")) {
                         var0x.add(
-                            param0x.getSource().withLevel((ServerLevel)var1x.level).withPosition(var1x.position()).withRotation(var1x.getRotationVector())
+                            param0x.getSource().withLevel((ServerLevel)var1x.level()).withPosition(var1x.position()).withRotation(var1x.getRotationVector())
                         );
                     }
         

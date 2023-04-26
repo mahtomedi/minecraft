@@ -46,14 +46,14 @@ public abstract class ThrowableProjectile extends Projectile {
         boolean var1 = false;
         if (var0.getType() == HitResult.Type.BLOCK) {
             BlockPos var2 = ((BlockHitResult)var0).getBlockPos();
-            BlockState var3 = this.level.getBlockState(var2);
+            BlockState var3 = this.level().getBlockState(var2);
             if (var3.is(Blocks.NETHER_PORTAL)) {
                 this.handleInsidePortal(var2);
                 var1 = true;
             } else if (var3.is(Blocks.END_GATEWAY)) {
-                BlockEntity var4 = this.level.getBlockEntity(var2);
+                BlockEntity var4 = this.level().getBlockEntity(var2);
                 if (var4 instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                    TheEndGatewayBlockEntity.teleportEntity(this.level, var2, var3, this, (TheEndGatewayBlockEntity)var4);
+                    TheEndGatewayBlockEntity.teleportEntity(this.level(), var2, var3, this, (TheEndGatewayBlockEntity)var4);
                 }
 
                 var1 = true;
@@ -74,7 +74,7 @@ public abstract class ThrowableProjectile extends Projectile {
         if (this.isInWater()) {
             for(int var9 = 0; var9 < 4; ++var9) {
                 float var10 = 0.25F;
-                this.level.addParticle(ParticleTypes.BUBBLE, var6 - var5.x * 0.25, var7 - var5.y * 0.25, var8 - var5.z * 0.25, var5.x, var5.y, var5.z);
+                this.level().addParticle(ParticleTypes.BUBBLE, var6 - var5.x * 0.25, var7 - var5.y * 0.25, var8 - var5.z * 0.25, var5.x, var5.y, var5.z);
             }
 
             var11 = 0.8F;

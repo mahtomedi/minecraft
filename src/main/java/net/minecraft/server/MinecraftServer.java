@@ -459,7 +459,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         BlockPos var1 = var0.getSharedSpawnPos();
         param0.updateSpawnPos(new ChunkPos(var1));
         ServerChunkCache var2 = var0.getChunkSource();
-        var2.getLightEngine().setTaskPerBatch(500);
         this.nextTickTime = Util.getMillis();
         var2.addRegionTicket(TicketType.START, new ChunkPos(var1), 11, Unit.INSTANCE);
 
@@ -487,7 +486,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.nextTickTime = Util.getMillis() + 10L;
         this.waitUntilNextTick();
         param0.stop();
-        var2.getLightEngine().setTaskPerBatch(5);
         this.updateMobSpawningFlags();
     }
 
@@ -1076,7 +1074,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void sendDifficultyUpdate(ServerPlayer param0x) {
-        LevelData var0 = param0x.getLevel().getLevelData();
+        LevelData var0 = param0x.level().getLevelData();
         param0x.connection.send(new ClientboundChangeDifficultyPacket(var0.getDifficulty(), var0.isDifficultyLocked()));
     }
 
@@ -1227,8 +1225,9 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.services.sessionService();
     }
 
-    public SignatureValidator getServiceSignatureValidator() {
-        return this.services.serviceSignatureValidator();
+    @Nullable
+    public SignatureValidator getProfileKeySignatureValidator() {
+        return this.services.profileKeySignatureValidator();
     }
 
     public GameProfileRepository getProfileRepository() {

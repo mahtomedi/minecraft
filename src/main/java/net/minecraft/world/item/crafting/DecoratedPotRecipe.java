@@ -1,6 +1,5 @@
 package net.minecraft.world.item.crafting;
 
-import java.util.List;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +28,7 @@ public class DecoratedPotRecipe extends CustomRecipe {
                     case 3:
                     case 5:
                     case 7:
-                        if (!var1.is(ItemTags.DECORATED_POT_SHERDS)) {
+                        if (!var1.is(ItemTags.DECORATED_POT_INGREDIENTS)) {
                             return false;
                         }
                         break;
@@ -48,11 +47,15 @@ public class DecoratedPotRecipe extends CustomRecipe {
     }
 
     public ItemStack assemble(CraftingContainer param0, RegistryAccess param1) {
-        ItemStack var0 = Items.DECORATED_POT.getDefaultInstance();
-        CompoundTag var1 = new CompoundTag();
-        DecoratedPotBlockEntity.saveSherds(
-            List.of(param0.getItem(1).getItem(), param0.getItem(3).getItem(), param0.getItem(5).getItem(), param0.getItem(7).getItem()), var1
+        DecoratedPotBlockEntity.Decorations var0 = new DecoratedPotBlockEntity.Decorations(
+            param0.getItem(1).getItem(), param0.getItem(3).getItem(), param0.getItem(5).getItem(), param0.getItem(7).getItem()
         );
+        return createDecoratedPotItem(var0);
+    }
+
+    public static ItemStack createDecoratedPotItem(DecoratedPotBlockEntity.Decorations param0) {
+        ItemStack var0 = Items.DECORATED_POT.getDefaultInstance();
+        CompoundTag var1 = param0.save(new CompoundTag());
         BlockItem.setBlockEntityData(var0, BlockEntityType.DECORATED_POT, var1);
         return var0;
     }

@@ -98,7 +98,7 @@ public class Pufferfish extends AbstractFish {
 
     @Override
     public void tick() {
-        if (!this.level.isClientSide && this.isAlive() && this.isEffectiveAi()) {
+        if (!this.level().isClientSide && this.isAlive() && this.isEffectiveAi()) {
             if (this.inflateCounter > 0) {
                 if (this.getPuffState() == 0) {
                     this.playSound(SoundEvents.PUFFER_FISH_BLOW_UP, this.getSoundVolume(), this.getVoicePitch());
@@ -129,7 +129,7 @@ public class Pufferfish extends AbstractFish {
     public void aiStep() {
         super.aiStep();
         if (this.isAlive() && this.getPuffState() > 0) {
-            for(Mob var1 : this.level.getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3), param0 -> targetingConditions.test(this, param0))) {
+            for(Mob var1 : this.level().getEntitiesOfClass(Mob.class, this.getBoundingBox().inflate(0.3), param0 -> targetingConditions.test(this, param0))) {
                 if (var1.isAlive()) {
                     this.touch(var1);
                 }
@@ -206,7 +206,7 @@ public class Pufferfish extends AbstractFish {
         @Override
         public boolean canUse() {
             List<LivingEntity> var0 = this.fish
-                .level
+                .level()
                 .getEntitiesOfClass(
                     LivingEntity.class, this.fish.getBoundingBox().inflate(2.0), param0 -> Pufferfish.targetingConditions.test(this.fish, param0)
                 );

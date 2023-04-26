@@ -28,7 +28,7 @@ public abstract class DoorInteractGoal extends Goal {
         if (!this.hasDoor) {
             return false;
         } else {
-            BlockState var0 = this.mob.level.getBlockState(this.doorPos);
+            BlockState var0 = this.mob.level().getBlockState(this.doorPos);
             if (!(var0.getBlock() instanceof DoorBlock)) {
                 this.hasDoor = false;
                 return false;
@@ -40,9 +40,9 @@ public abstract class DoorInteractGoal extends Goal {
 
     protected void setOpen(boolean param0) {
         if (this.hasDoor) {
-            BlockState var0 = this.mob.level.getBlockState(this.doorPos);
+            BlockState var0 = this.mob.level().getBlockState(this.doorPos);
             if (var0.getBlock() instanceof DoorBlock) {
-                ((DoorBlock)var0.getBlock()).setOpen(this.mob, this.mob.level, var0, this.doorPos, param0);
+                ((DoorBlock)var0.getBlock()).setOpen(this.mob, this.mob.level(), var0, this.doorPos, param0);
             }
         }
 
@@ -62,7 +62,7 @@ public abstract class DoorInteractGoal extends Goal {
                     Node var3 = var1.getNode(var2);
                     this.doorPos = new BlockPos(var3.x, var3.y + 1, var3.z);
                     if (!(this.mob.distanceToSqr((double)this.doorPos.getX(), this.mob.getY(), (double)this.doorPos.getZ()) > 2.25)) {
-                        this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level, this.doorPos);
+                        this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level(), this.doorPos);
                         if (this.hasDoor) {
                             return true;
                         }
@@ -70,7 +70,7 @@ public abstract class DoorInteractGoal extends Goal {
                 }
 
                 this.doorPos = this.mob.blockPosition().above();
-                this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level, this.doorPos);
+                this.hasDoor = DoorBlock.isWoodenDoor(this.mob.level(), this.doorPos);
                 return this.hasDoor;
             } else {
                 return false;

@@ -213,7 +213,7 @@ public class Warden extends Monster implements VibrationSystem {
 
     @Override
     public boolean doHurtTarget(Entity param0) {
-        this.level.broadcastEntityEvent(this, (byte)4);
+        this.level().broadcastEntityEvent(this, (byte)4);
         this.playSound(SoundEvents.WARDEN_ATTACK_IMPACT, 10.0F, this.getVoicePitch());
         SonicBoom.setCooldown(this, 40);
         return super.doHurtTarget(param0);
@@ -235,7 +235,7 @@ public class Warden extends Monster implements VibrationSystem {
 
     @Override
     public void tick() {
-        Level var2 = this.level;
+        Level var2 = this.level();
         if (var2 instanceof ServerLevel var0) {
             VibrationSystem.Ticker.tick(var0, this.vibrationData, this.vibrationUser);
             if (this.isPersistenceRequired() || this.requiresCustomPersistence()) {
@@ -244,11 +244,11 @@ public class Warden extends Monster implements VibrationSystem {
         }
 
         super.tick();
-        if (this.level.isClientSide()) {
+        if (this.level().isClientSide()) {
             if (this.tickCount % this.getHeartBeatDelay() == 0) {
                 this.heartAnimation = 10;
                 if (!this.isSilent()) {
-                    this.level
+                    this.level()
                         .playLocalSound(
                             this.getX(), this.getY(), this.getZ(), SoundEvents.WARDEN_HEARTBEAT, this.getSoundSource(), 5.0F, this.getVoicePitch(), false
                         );
@@ -278,10 +278,10 @@ public class Warden extends Monster implements VibrationSystem {
 
     @Override
     protected void customServerAiStep() {
-        ServerLevel var0 = (ServerLevel)this.level;
+        ServerLevel var0 = (ServerLevel)this.level();
         var0.getProfiler().push("wardenBrain");
         this.getBrain().tick(var0, this);
-        this.level.getProfiler().pop();
+        this.level().getProfiler().pop();
         super.customServerAiStep();
         if ((this.tickCount + this.getId()) % 120 == 0) {
             applyDarknessAround(var0, this.position(), this, 20);
@@ -332,7 +332,7 @@ public class Warden extends Monster implements VibrationSystem {
                     double var3 = this.getX() + (double)Mth.randomBetween(var0, -0.7F, 0.7F);
                     double var4 = this.getY();
                     double var5 = this.getZ() + (double)Mth.randomBetween(var0, -0.7F, 0.7F);
-                    this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var1), var3, var4, var5, 0.0, 0.0, 0.0);
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var1), var3, var4, var5, 0.0, 0.0, 0.0);
                 }
             }
         }
@@ -383,7 +383,7 @@ public class Warden extends Monster implements VibrationSystem {
 
     @Override
     public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> param0) {
-        Level var3 = this.level;
+        Level var3 = this.level();
         if (var3 instanceof ServerLevel var0) {
             param0.accept(this.dynamicGameEventListener, var0);
         }
@@ -393,14 +393,14 @@ public class Warden extends Monster implements VibrationSystem {
     @Contract("null->false")
     public boolean canTargetEntity(@Nullable Entity param0x) {
         if (param0x instanceof LivingEntity var0
-            && this.level == param0x.level
+            && this.level() == param0x.level()
             && EntitySelector.NO_CREATIVE_OR_SPECTATOR.test(param0x)
             && !this.isAlliedTo(param0x)
             && var0.getType() != EntityType.ARMOR_STAND
             && var0.getType() != EntityType.WARDEN
             && !var0.isInvulnerable()
             && !var0.isDeadOrDying()
-            && this.level.getWorldBorder().isWithinBounds(var0.getBoundingBox())) {
+            && this.level().getWorldBorder().isWithinBounds(var0.getBoundingBox())) {
             return true;
         }
 
@@ -518,7 +518,7 @@ public class Warden extends Monster implements VibrationSystem {
     @Override
     public boolean hurt(DamageSource param0, float param1) {
         boolean var0 = super.hurt(param0, param1);
-        if (!this.level.isClientSide && !this.isNoAi() && !this.isDiggingOrEmerging()) {
+        if (!this.level().isClientSide && !this.isNoAi() && !this.isDiggingOrEmerging()) {
             Entity var1 = param0.getEntity();
             this.increaseAngerAt(var1, AngerLevel.ANGRY.getMinimumAnger() + 20, false);
             if (this.brain.getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty()

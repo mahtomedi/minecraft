@@ -78,7 +78,7 @@ public class MinecartCommandBlock extends AbstractMinecart {
     @Override
     public void activateMinecart(int param0, int param1, int param2, boolean param3) {
         if (param3 && this.tickCount - this.lastActivated >= 4) {
-            this.getCommandBlock().performCommand(this.level);
+            this.getCommandBlock().performCommand(this.level());
             this.lastActivated = this.tickCount;
         }
 
@@ -111,7 +111,7 @@ public class MinecartCommandBlock extends AbstractMinecart {
     public class MinecartCommandBase extends BaseCommandBlock {
         @Override
         public ServerLevel getLevel() {
-            return (ServerLevel)MinecartCommandBlock.this.level;
+            return (ServerLevel)MinecartCommandBlock.this.level();
         }
 
         @Override

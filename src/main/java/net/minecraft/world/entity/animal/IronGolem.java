@@ -127,9 +127,9 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
             int var0 = Mth.floor(this.getX());
             int var1 = Mth.floor(this.getY() - 0.2F);
             int var2 = Mth.floor(this.getZ());
-            BlockState var3 = this.level.getBlockState(new BlockPos(var0, var1, var2));
+            BlockState var3 = this.level().getBlockState(new BlockPos(var0, var1, var2));
             if (!var3.isAir()) {
-                this.level
+                this.level()
                     .addParticle(
                         new BlockParticleOption(ParticleTypes.BLOCK, var3),
                         this.getX() + ((double)this.random.nextFloat() - 0.5) * (double)this.getBbWidth(),
@@ -142,8 +142,8 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
             }
         }
 
-        if (!this.level.isClientSide) {
-            this.updatePersistentAnger((ServerLevel)this.level, true);
+        if (!this.level().isClientSide) {
+            this.updatePersistentAnger((ServerLevel)this.level(), true);
         }
 
     }
@@ -168,7 +168,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setPlayerCreated(param0.getBoolean("PlayerCreated"));
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData(this.level(), param0);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     @Override
     public boolean doHurtTarget(Entity param0) {
         this.attackAnimationTick = 10;
-        this.level.broadcastEntityEvent(this, (byte)4);
+        this.level().broadcastEntityEvent(this, (byte)4);
         float var0 = this.getAttackDamage();
         float var1 = (int)var0 > 0 ? var0 / 2.0F + (float)this.random.nextInt((int)var0) : var0;
         boolean var2 = param0.hurt(this.damageSources().mobAttack(this), var1);
@@ -256,10 +256,10 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
     public void offerFlower(boolean param0) {
         if (param0) {
             this.offerFlowerTick = 400;
-            this.level.broadcastEntityEvent(this, (byte)11);
+            this.level().broadcastEntityEvent(this, (byte)11);
         } else {
             this.offerFlowerTick = 0;
-            this.level.broadcastEntityEvent(this, (byte)34);
+            this.level().broadcastEntityEvent(this, (byte)34);
         }
 
     }
@@ -291,7 +291,7 @@ public class IronGolem extends AbstractGolem implements NeutralMob {
                     var0.shrink(1);
                 }
 
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
         }
     }

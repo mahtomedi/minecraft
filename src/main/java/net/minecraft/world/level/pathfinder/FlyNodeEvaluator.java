@@ -23,12 +23,12 @@ public class FlyNodeEvaluator extends WalkNodeEvaluator {
     public void prepare(PathNavigationRegion param0, Mob param1) {
         super.prepare(param0, param1);
         this.pathTypeByPosCache.clear();
-        this.oldWaterCost = param1.getPathfindingMalus(BlockPathTypes.WATER);
+        param1.onPathfindingStart();
     }
 
     @Override
     public void done() {
-        this.mob.setPathfindingMalus(BlockPathTypes.WATER, this.oldWaterCost);
+        this.mob.onPathfindingDone();
         this.pathTypeByPosCache.clear();
         super.done();
     }

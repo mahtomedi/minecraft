@@ -225,5 +225,15 @@ public class VanillaGiftLoot implements LootTableSubProvider {
                         .add(LootItem.lootTableItem(Items.IRON_AXE))
                 )
         );
+        param0.accept(
+            BuiltInLootTables.SNIFFER_DIGGING,
+            LootTable.lootTable()
+                .withPool(
+                    LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.TORCHFLOWER_SEEDS))
+                        .add(LootItem.lootTableItem(Items.PITCHER_POD))
+                )
+        );
     }
 }

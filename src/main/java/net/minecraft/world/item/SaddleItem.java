@@ -16,13 +16,13 @@ public class SaddleItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack param0, Player param1, LivingEntity param2, InteractionHand param3) {
         if (param2 instanceof Saddleable var0 && param2.isAlive() && !var0.isSaddled() && var0.isSaddleable()) {
-            if (!param1.level.isClientSide) {
+            if (!param1.level().isClientSide) {
                 var0.equipSaddle(SoundSource.NEUTRAL);
-                param2.level.gameEvent(param2, GameEvent.EQUIP, param2.position());
+                param2.level().gameEvent(param2, GameEvent.EQUIP, param2.position());
                 param0.shrink(1);
             }
 
-            return InteractionResult.sidedSuccess(param1.level.isClientSide);
+            return InteractionResult.sidedSuccess(param1.level().isClientSide);
         }
 
         return InteractionResult.PASS;

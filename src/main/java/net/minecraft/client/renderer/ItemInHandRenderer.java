@@ -124,7 +124,7 @@ public class ItemInHandRenderer {
         if (!param1.isEmpty()) {
             this.itemRenderer
                 .renderStatic(
-                    param0, param1, param2, param3, param4, param5, param0.level, param6, OverlayTexture.NO_OVERLAY, param0.getId() + param2.ordinal()
+                    param0, param1, param2, param3, param4, param5, param0.level(), param6, OverlayTexture.NO_OVERLAY, param0.getId() + param2.ordinal()
                 );
         }
     }

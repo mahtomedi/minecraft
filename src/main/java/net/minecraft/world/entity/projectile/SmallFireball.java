@@ -29,7 +29,7 @@ public class SmallFireball extends Fireball {
     @Override
     protected void onHitEntity(EntityHitResult param0) {
         super.onHitEntity(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             Entity var0 = param0.getEntity();
             Entity var1 = this.getOwner();
             int var2 = var0.getRemainingFireTicks();
@@ -46,12 +46,12 @@ public class SmallFireball extends Fireball {
     @Override
     protected void onHitBlock(BlockHitResult param0) {
         super.onHitBlock(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             Entity var0 = this.getOwner();
-            if (!(var0 instanceof Mob) || this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+            if (!(var0 instanceof Mob) || this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                 BlockPos var1 = param0.getBlockPos().relative(param0.getDirection());
-                if (this.level.isEmptyBlock(var1)) {
-                    this.level.setBlockAndUpdate(var1, BaseFireBlock.getState(this.level, var1));
+                if (this.level().isEmptyBlock(var1)) {
+                    this.level().setBlockAndUpdate(var1, BaseFireBlock.getState(this.level(), var1));
                 }
             }
 
@@ -61,7 +61,7 @@ public class SmallFireball extends Fireball {
     @Override
     protected void onHit(HitResult param0) {
         super.onHit(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.discard();
         }
 

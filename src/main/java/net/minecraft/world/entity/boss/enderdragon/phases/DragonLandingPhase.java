@@ -31,7 +31,7 @@ public class DragonLandingPhase extends AbstractDragonPhaseInstance {
             double var8 = var3 + var5.nextGaussian() / 2.0;
             Vec3 var9 = this.dragon.getDeltaMovement();
             this.dragon
-                .level
+                .level()
                 .addParticle(ParticleTypes.DRAGON_BREATH, var6, var7, var8, -var0.x * 0.08F + var9.x, -var0.y * 0.3F + var9.y, -var0.z * 0.08F + var9.z);
             var0.yRot((float) (Math.PI / 16));
         }
@@ -42,7 +42,7 @@ public class DragonLandingPhase extends AbstractDragonPhaseInstance {
     public void doServerTick() {
         if (this.targetLocation == null) {
             this.targetLocation = Vec3.atBottomCenterOf(
-                this.dragon.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION)
+                this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION)
             );
         }
 

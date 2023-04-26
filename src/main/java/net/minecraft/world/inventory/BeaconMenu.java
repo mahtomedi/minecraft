@@ -64,7 +64,7 @@ public class BeaconMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player param0) {
         super.removed(param0);
-        if (!param0.level.isClientSide) {
+        if (!param0.level().isClientSide) {
             ItemStack var0 = this.paymentSlot.remove(this.paymentSlot.getMaxStackSize());
             if (!var0.isEmpty()) {
                 param0.drop(var0, false);

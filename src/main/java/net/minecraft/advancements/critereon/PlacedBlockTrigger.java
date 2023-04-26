@@ -46,8 +46,8 @@ public class PlacedBlockTrigger extends SimpleCriterionTrigger<PlacedBlockTrigge
     }
 
     public void trigger(ServerPlayer param0, BlockPos param1, ItemStack param2) {
-        BlockState var0 = param0.getLevel().getBlockState(param1);
-        this.trigger(param0, param4 -> param4.matches(var0, param1, param0.getLevel(), param2));
+        BlockState var0 = param0.level().getBlockState(param1);
+        this.trigger(param0, param4 -> param4.matches(var0, param1, param0.serverLevel(), param2));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {

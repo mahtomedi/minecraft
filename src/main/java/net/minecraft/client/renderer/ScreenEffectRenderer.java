@@ -57,8 +57,8 @@ public class ScreenEffectRenderer {
             double var3 = param0.getEyeY() + (double)(((float)((var1 >> 1) % 2) - 0.5F) * 0.1F);
             double var4 = param0.getZ() + (double)(((float)((var1 >> 2) % 2) - 0.5F) * param0.getBbWidth() * 0.8F);
             var0.set(var2, var3, var4);
-            BlockState var5 = param0.level.getBlockState(var0);
-            if (var5.getRenderShape() != RenderShape.INVISIBLE && var5.isViewBlocking(param0.level, var0)) {
+            BlockState var5 = param0.level().getBlockState(var0);
+            if (var5.getRenderShape() != RenderShape.INVISIBLE && var5.isViewBlocking(param0.level(), var0)) {
                 return var5;
             }
         }
@@ -94,7 +94,7 @@ public class ScreenEffectRenderer {
         RenderSystem.setShaderTexture(0, UNDERWATER_LOCATION);
         BufferBuilder var0 = Tesselator.getInstance().getBuilder();
         BlockPos var1 = BlockPos.containing(param0.player.getX(), param0.player.getEyeY(), param0.player.getZ());
-        float var2 = LightTexture.getBrightness(param0.player.level.dimensionType(), param0.player.level.getMaxLocalRawBrightness(var1));
+        float var2 = LightTexture.getBrightness(param0.player.level().dimensionType(), param0.player.level().getMaxLocalRawBrightness(var1));
         RenderSystem.enableBlend();
         RenderSystem.setShaderColor(var2, var2, var2, 0.1F);
         float var3 = 4.0F;

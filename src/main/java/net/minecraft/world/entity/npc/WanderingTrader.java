@@ -64,14 +64,14 @@ public class WanderingTrader extends AbstractVillager {
                     this,
                     PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.INVISIBILITY),
                     SoundEvents.WANDERING_TRADER_DISAPPEARED,
-                    param0 -> this.level.isNight() && !param0.isInvisible()
+                    param0 -> this.level().isNight() && !param0.isInvisible()
                 )
             );
         this.goalSelector
             .addGoal(
                 0,
                 new UseItemGoal<>(
-                    this, new ItemStack(Items.MILK_BUCKET), SoundEvents.WANDERING_TRADER_REAPPEARED, param0 -> this.level.isDay() && param0.isInvisible()
+                    this, new ItemStack(Items.MILK_BUCKET), SoundEvents.WANDERING_TRADER_REAPPEARED, param0 -> this.level().isDay() && param0.isInvisible()
                 )
             );
         this.goalSelector.addGoal(1, new TradeWithPlayerGoal(this));
@@ -111,14 +111,14 @@ public class WanderingTrader extends AbstractVillager {
             }
 
             if (this.getOffers().isEmpty()) {
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             } else {
-                if (!this.level.isClientSide) {
+                if (!this.level().isClientSide) {
                     this.setTradingPlayer(param0);
                     this.openTradingScreen(param0, this.getDisplayName(), 1);
                 }
 
-                return InteractionResult.sidedSuccess(this.level.isClientSide);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
         } else {
             return super.mobInteract(param0, param1);
@@ -175,7 +175,7 @@ public class WanderingTrader extends AbstractVillager {
     protected void rewardTradeXp(MerchantOffer param0) {
         if (param0.shouldRewardExp()) {
             int var0 = 3 + this.random.nextInt(4);
-            this.level.addFreshEntity(new ExperienceOrb(this.level, this.getX(), this.getY() + 0.5, this.getZ(), var0));
+            this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY() + 0.5, this.getZ(), var0));
         }
 
     }
@@ -221,7 +221,7 @@ public class WanderingTrader extends AbstractVillager {
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.maybeDespawn();
         }
 

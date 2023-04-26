@@ -1,7 +1,9 @@
 package net.minecraft.data.advancements.packs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.FrameType;
@@ -14,6 +16,7 @@ import net.minecraft.advancements.critereon.DistancePredicate;
 import net.minecraft.advancements.critereon.DistanceTrigger;
 import net.minecraft.advancements.critereon.EntityEquipmentPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemInteractWithBlockTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledByCrossbowTrigger;
@@ -21,10 +24,12 @@ import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.LighthingBoltPredicate;
 import net.minecraft.advancements.critereon.LightningStrikeTrigger;
 import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.advancements.critereon.LootTableTrigger;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.PlayerHurtEntityTrigger;
 import net.minecraft.advancements.critereon.PlayerPredicate;
 import net.minecraft.advancements.critereon.PlayerTrigger;
+import net.minecraft.advancements.critereon.RecipeCraftedTrigger;
 import net.minecraft.advancements.critereon.ShotCrossbowTrigger;
 import net.minecraft.advancements.critereon.SlideDownBlockTrigger;
 import net.minecraft.advancements.critereon.SummonedEntityTrigger;
@@ -36,6 +41,7 @@ import net.minecraft.advancements.critereon.UsingItemTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.advancements.AdvancementSubProvider;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -45,11 +51,15 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.DecoratedPotRecipe;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSourceParameterList;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 public class VanillaAdventureAdvancements implements AdvancementSubProvider {
     private static final int DISTANCE_FROM_BOTTOM_TO_TOP = 384;
@@ -176,7 +186,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 )
             )
             .save(param1, "adventure/trade_at_world_height");
-        Advancement var3 = this.addMobsToKill(Advancement.Builder.advancement())
+        Advancement var3 = addMobsToKill(Advancement.Builder.advancement())
             .parent(var0)
             .display(
                 Items.IRON_SWORD,
@@ -190,7 +200,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .requirements(RequirementsStrategy.OR)
             .save(param1, "adventure/kill_a_mob");
-        this.addMobsToKill(Advancement.Builder.advancement())
+        addMobsToKill(Advancement.Builder.advancement())
             .parent(var3)
             .display(
                 Items.DIAMOND_SWORD,
@@ -596,6 +606,118 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion("avoid_vibration", PlayerTrigger.TriggerInstance.avoidVibration())
             .save(param1, "adventure/avoid_vibration");
+        Advancement var10 = respectingTheRemnantsCriterions(Advancement.Builder.advancement())
+            .parent(var0)
+            .display(
+                Items.BRUSH,
+                Component.translatable("advancements.adventure.salvage_sherd.title"),
+                Component.translatable("advancements.adventure.salvage_sherd.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .save(param1, "adventure/salvage_sherd");
+        Advancement.Builder.advancement()
+            .parent(var10)
+            .display(
+                DecoratedPotRecipe.createDecoratedPotItem(
+                    new DecoratedPotBlockEntity.Decorations(Items.BRICK, Items.HEART_POTTERY_SHERD, Items.BRICK, Items.EXPLORER_POTTERY_SHERD)
+                ),
+                Component.translatable("advancements.adventure.craft_decorated_pot_using_only_sherds.title"),
+                Component.translatable("advancements.adventure.craft_decorated_pot_using_only_sherds.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .addCriterion(
+                "pot_crafted_using_only_sherds",
+                RecipeCraftedTrigger.TriggerInstance.craftedItem(
+                    new ResourceLocation("minecraft:decorated_pot"),
+                    List.of(
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build()
+                    )
+                )
+            )
+            .save(param1, "adventure/craft_decorated_pot_using_only_sherds");
+        Advancement var11 = craftingANewLook(Advancement.Builder.advancement())
+            .parent(var0)
+            .display(
+                new ItemStack(Items.DUNE_ARMOR_TRIM_SMITHING_TEMPLATE),
+                Component.translatable("advancements.adventure.trim_with_any_armor_pattern.title"),
+                Component.translatable("advancements.adventure.trim_with_any_armor_pattern.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .save(param1, "adventure/trim_with_any_armor_pattern");
+        smithingWithStyle(Advancement.Builder.advancement())
+            .parent(var11)
+            .display(
+                new ItemStack(Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE),
+                Component.translatable("advancements.adventure.trim_with_all_exclusive_armor_patterns.title"),
+                Component.translatable("advancements.adventure.trim_with_all_exclusive_armor_patterns.description"),
+                null,
+                FrameType.TASK,
+                true,
+                true,
+                false
+            )
+            .save(param1, "adventure/trim_with_all_exclusive_armor_patterns");
+    }
+
+    private static Advancement.Builder smithingWithStyle(Advancement.Builder param0) {
+        param0.requirements(RequirementsStrategy.AND);
+        Map<Item, ResourceLocation> var0 = VanillaRecipeProvider.smithingTrims();
+        Stream.of(
+                Items.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SNOUT_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.RIB_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.WARD_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.VEX_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.TIDE_ARMOR_TRIM_SMITHING_TEMPLATE,
+                Items.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE
+            )
+            .forEach(param2 -> {
+                ResourceLocation var0x = var0.get(param2);
+                param0.addCriterion("armor_trimmed_" + var0x, RecipeCraftedTrigger.TriggerInstance.craftedItem(var0x));
+            });
+        return param0;
+    }
+
+    private static Advancement.Builder craftingANewLook(Advancement.Builder param0) {
+        param0.requirements(RequirementsStrategy.OR);
+
+        for(ResourceLocation var0 : VanillaRecipeProvider.smithingTrims().values()) {
+            param0.addCriterion("armor_trimmed_" + var0, RecipeCraftedTrigger.TriggerInstance.craftedItem(var0));
+        }
+
+        return param0;
+    }
+
+    private static Advancement.Builder respectingTheRemnantsCriterions(Advancement.Builder param0) {
+        param0.addCriterion("desert_pyramid", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.DESERT_PYRAMID_ARCHAEOLOGY));
+        param0.addCriterion("desert_well", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.DESERT_WELL_ARCHAEOLOGY));
+        param0.addCriterion("ocean_ruin_cold", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY));
+        param0.addCriterion("ocean_ruin_warm", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY));
+        param0.addCriterion("trail_ruins_rare", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.TRAIL_RUINS_ARCHAEOLOGY_RARE));
+        param0.addCriterion("trail_ruins_common", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.TRAIL_RUINS_ARCHAEOLOGY_COMMON));
+        String[] var0 = param0.getCriteria().keySet().toArray(param0x -> new String[param0x]);
+        String var1 = "has_sherd";
+        param0.addCriterion(
+            "has_sherd", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build())
+        );
+        param0.requirements(new String[][]{var0, {"has_sherd"}});
+        return param0;
     }
 
     protected static void createAdventuringTime(Consumer<Advancement> param0, Advancement param1, MultiNoiseBiomeSourceParameterList.Preset param2) {
@@ -615,7 +737,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .save(param0, "adventure/adventuring_time");
     }
 
-    private Advancement.Builder addMobsToKill(Advancement.Builder param0) {
+    private static Advancement.Builder addMobsToKill(Advancement.Builder param0) {
         for(EntityType<?> var0 : MOBS_TO_KILL) {
             param0.addCriterion(
                 BuiltInRegistries.ENTITY_TYPE.getKey(var0).toString(),

@@ -19,7 +19,7 @@ public class MoveBackToVillageGoal extends RandomStrollGoal {
 
     @Override
     public boolean canUse() {
-        ServerLevel var0 = (ServerLevel)this.mob.level;
+        ServerLevel var0 = (ServerLevel)this.mob.level();
         BlockPos var1 = this.mob.blockPosition();
         return var0.isVillage(var1) ? false : super.canUse();
     }
@@ -27,7 +27,7 @@ public class MoveBackToVillageGoal extends RandomStrollGoal {
     @Nullable
     @Override
     protected Vec3 getPosition() {
-        ServerLevel var0 = (ServerLevel)this.mob.level;
+        ServerLevel var0 = (ServerLevel)this.mob.level();
         BlockPos var1 = this.mob.blockPosition();
         SectionPos var2 = SectionPos.of(var1);
         SectionPos var3 = BehaviorUtils.findSectionClosestToVillage(var0, var2, 2);

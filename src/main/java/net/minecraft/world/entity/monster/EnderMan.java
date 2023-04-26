@@ -175,7 +175,7 @@ public class EnderMan extends Monster implements NeutralMob {
         if (this.tickCount >= this.lastStareSound + 400) {
             this.lastStareSound = this.tickCount;
             if (!this.isSilent()) {
-                this.level.playLocalSound(this.getX(), this.getEyeY(), this.getZ(), SoundEvents.ENDERMAN_STARE, this.getSoundSource(), 2.5F, 1.0F, false);
+                this.level().playLocalSound(this.getX(), this.getEyeY(), this.getZ(), SoundEvents.ENDERMAN_STARE, this.getSoundSource(), 2.5F, 1.0F, false);
             }
         }
 
@@ -183,7 +183,7 @@ public class EnderMan extends Monster implements NeutralMob {
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> param0) {
-        if (DATA_CREEPY.equals(param0) && this.hasBeenStaredAt() && this.level.isClientSide) {
+        if (DATA_CREEPY.equals(param0) && this.hasBeenStaredAt() && this.level().isClientSide) {
             this.playStareSound();
         }
 
@@ -206,14 +206,14 @@ public class EnderMan extends Monster implements NeutralMob {
         super.readAdditionalSaveData(param0);
         BlockState var0 = null;
         if (param0.contains("carriedBlockState", 10)) {
-            var0 = NbtUtils.readBlockState(this.level.holderLookup(Registries.BLOCK), param0.getCompound("carriedBlockState"));
+            var0 = NbtUtils.readBlockState(this.level().holderLookup(Registries.BLOCK), param0.getCompound("carriedBlockState"));
             if (var0.isAir()) {
                 var0 = null;
             }
         }
 
         this.setCarriedBlock(var0);
-        this.readPersistentAngerSaveData(this.level, param0);
+        this.readPersistentAngerSaveData(this.level(), param0);
     }
 
     boolean isLookingAtMe(Player param0) {
@@ -237,9 +237,9 @@ public class EnderMan extends Monster implements NeutralMob {
 
     @Override
     public void aiStep() {
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             for(int var0 = 0; var0 < 2; ++var0) {
-                this.level
+                this.level()
                     .addParticle(
                         ParticleTypes.PORTAL,
                         this.getRandomX(0.5),
@@ -253,8 +253,8 @@ public class EnderMan extends Monster implements NeutralMob {
         }
 
         this.jumping = false;
-        if (!this.level.isClientSide) {
-            this.updatePersistentAnger((ServerLevel)this.level, true);
+        if (!this.level().isClientSide) {
+            this.updatePersistentAnger((ServerLevel)this.level(), true);
         }
 
         super.aiStep();
@@ -267,9 +267,9 @@ public class EnderMan extends Monster implements NeutralMob {
 
     @Override
     protected void customServerAiStep() {
-        if (this.level.isDay() && this.tickCount >= this.targetChangeTime + 600) {
+        if (this.level().isDay() && this.tickCount >= this.targetChangeTime + 600) {
             float var0 = this.getLightLevelDependentMagicValue();
-            if (var0 > 0.5F && this.level.canSeeSky(this.blockPosition()) && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F) {
+            if (var0 > 0.5F && this.level().canSeeSky(this.blockPosition()) && this.random.nextFloat() * 30.0F < (var0 - 0.4F) * 2.0F) {
                 this.setTarget(null);
                 this.teleport();
             }
@@ -279,7 +279,7 @@ public class EnderMan extends Monster implements NeutralMob {
     }
 
     protected boolean teleport() {
-        if (!this.level.isClientSide() && this.isAlive()) {
+        if (!this.level().isClientSide() && this.isAlive()) {
             double var0 = this.getX() + (this.random.nextDouble() - 0.5) * 64.0;
             double var1 = this.getY() + (double)(this.random.nextInt(64) - 32);
             double var2 = this.getZ() + (this.random.nextDouble() - 0.5) * 64.0;
@@ -302,20 +302,20 @@ public class EnderMan extends Monster implements NeutralMob {
     private boolean teleport(double param0, double param1, double param2) {
         BlockPos.MutableBlockPos var0 = new BlockPos.MutableBlockPos(param0, param1, param2);
 
-        while(var0.getY() > this.level.getMinBuildHeight() && !this.level.getBlockState(var0).blocksMotion()) {
+        while(var0.getY() > this.level().getMinBuildHeight() && !this.level().getBlockState(var0).blocksMotion()) {
             var0.move(Direction.DOWN);
         }
 
-        BlockState var1 = this.level.getBlockState(var0);
+        BlockState var1 = this.level().getBlockState(var0);
         boolean var2 = var1.blocksMotion();
         boolean var3 = var1.getFluidState().is(FluidTags.WATER);
         if (var2 && !var3) {
             Vec3 var4 = this.position();
             boolean var5 = this.randomTeleport(param0, param1, param2, true);
             if (var5) {
-                this.level.gameEvent(GameEvent.TELEPORT, var4, GameEvent.Context.of(this));
+                this.level().gameEvent(GameEvent.TELEPORT, var4, GameEvent.Context.of(this));
                 if (!this.isSilent()) {
-                    this.level.playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
+                    this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
                     this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
                 }
             }
@@ -348,8 +348,8 @@ public class EnderMan extends Monster implements NeutralMob {
         if (var0 != null) {
             ItemStack var1 = new ItemStack(Items.DIAMOND_AXE);
             var1.enchant(Enchantments.SILK_TOUCH, 1);
-            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level)
-                .withRandom(this.level.getRandom())
+            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level())
+                .withRandom(this.level().getRandom())
                 .withParameter(LootContextParams.ORIGIN, this.position())
                 .withParameter(LootContextParams.TOOL, var1)
                 .withOptionalParameter(LootContextParams.THIS_ENTITY, this);
@@ -378,7 +378,7 @@ public class EnderMan extends Monster implements NeutralMob {
             boolean var0 = param0.getDirectEntity() instanceof ThrownPotion;
             if (!param0.is(DamageTypeTags.IS_PROJECTILE) && !var0) {
                 boolean var3 = super.hurt(param0, param1);
-                if (!this.level.isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
+                if (!this.level().isClientSide() && !(param0.getEntity() instanceof LivingEntity) && this.random.nextInt(10) != 0) {
                     this.teleport();
                 }
 
@@ -465,7 +465,7 @@ public class EnderMan extends Monster implements NeutralMob {
         public boolean canUse() {
             if (this.enderman.getCarriedBlock() == null) {
                 return false;
-            } else if (!this.enderman.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+            } else if (!this.enderman.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                 return false;
             } else {
                 return this.enderman.getRandom().nextInt(reducedTickDelay(2000)) == 0;
@@ -475,7 +475,7 @@ public class EnderMan extends Monster implements NeutralMob {
         @Override
         public void tick() {
             RandomSource var0 = this.enderman.getRandom();
-            Level var1 = this.enderman.level;
+            Level var1 = this.enderman.level();
             int var2 = Mth.floor(this.enderman.getX() - 1.0 + var0.nextDouble() * 2.0);
             int var3 = Mth.floor(this.enderman.getY() + var0.nextDouble() * 2.0);
             int var4 = Mth.floor(this.enderman.getZ() - 1.0 + var0.nextDouble() * 2.0);
@@ -485,7 +485,7 @@ public class EnderMan extends Monster implements NeutralMob {
             BlockState var8 = var1.getBlockState(var7);
             BlockState var9 = this.enderman.getCarriedBlock();
             if (var9 != null) {
-                var9 = Block.updateFromNeighbourShapes(var9, this.enderman.level, var5);
+                var9 = Block.updateFromNeighbourShapes(var9, this.enderman.level(), var5);
                 if (this.canPlaceBlock(var1, var5, var9, var6, var8, var7)) {
                     var1.setBlock(var5, var9, 3);
                     var1.gameEvent(GameEvent.BLOCK_PLACE, var5, GameEvent.Context.of(this.enderman, var9));
@@ -524,7 +524,7 @@ public class EnderMan extends Monster implements NeutralMob {
 
         @Override
         public boolean canUse() {
-            this.pendingTarget = this.enderman.level.getNearestPlayer(this.startAggroTargetConditions, this.enderman);
+            this.pendingTarget = this.enderman.level().getNearestPlayer(this.startAggroTargetConditions, this.enderman);
             return this.pendingTarget != null;
         }
 
@@ -609,7 +609,7 @@ public class EnderMan extends Monster implements NeutralMob {
         public boolean canUse() {
             if (this.enderman.getCarriedBlock() != null) {
                 return false;
-            } else if (!this.enderman.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+            } else if (!this.enderman.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
                 return false;
             } else {
                 return this.enderman.getRandom().nextInt(reducedTickDelay(20)) == 0;
@@ -619,7 +619,7 @@ public class EnderMan extends Monster implements NeutralMob {
         @Override
         public void tick() {
             RandomSource var0 = this.enderman.getRandom();
-            Level var1 = this.enderman.level;
+            Level var1 = this.enderman.level();
             int var2 = Mth.floor(this.enderman.getX() - 2.0 + var0.nextDouble() * 4.0);
             int var3 = Mth.floor(this.enderman.getY() + var0.nextDouble() * 3.0);
             int var4 = Mth.floor(this.enderman.getZ() - 2.0 + var0.nextDouble() * 4.0);

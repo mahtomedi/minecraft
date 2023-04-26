@@ -32,7 +32,7 @@ public class FoodData {
     }
 
     public void tick(Player param0) {
-        Difficulty var0 = param0.level.getDifficulty();
+        Difficulty var0 = param0.level().getDifficulty();
         this.lastFoodLevel = this.foodLevel;
         if (this.exhaustionLevel > 4.0F) {
             this.exhaustionLevel -= 4.0F;
@@ -43,7 +43,7 @@ public class FoodData {
             }
         }
 
-        boolean var1 = param0.level.getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION);
+        boolean var1 = param0.level().getGameRules().getBoolean(GameRules.RULE_NATURAL_REGENERATION);
         if (var1 && this.saturationLevel > 0.0F && param0.isHurt() && this.foodLevel >= 20) {
             ++this.tickTimer;
             if (this.tickTimer >= 10) {

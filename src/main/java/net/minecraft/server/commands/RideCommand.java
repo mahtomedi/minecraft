@@ -64,7 +64,7 @@ public class RideCommand {
             throw ERROR_MOUNTING_PLAYER.create();
         } else if (param1.getSelfAndPassengers().anyMatch(param1x -> param1x == param2)) {
             throw ERROR_MOUNTING_LOOP.create();
-        } else if (param1.getLevel() != param2.getLevel()) {
+        } else if (param1.level() != param2.level()) {
             throw ERROR_WRONG_DIMENSION.create();
         } else if (!param1.startRiding(param2, true)) {
             throw ERROR_MOUNT_FAILED.create(param1.getDisplayName(), param2.getDisplayName());

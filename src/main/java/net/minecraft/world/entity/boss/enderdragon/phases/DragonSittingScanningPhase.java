@@ -23,7 +23,7 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
     @Override
     public void doServerTick() {
         ++this.scanningTime;
-        LivingEntity var0 = this.dragon.level.getNearestPlayer(this.scanTargeting, this.dragon, this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
+        LivingEntity var0 = this.dragon.level().getNearestPlayer(this.scanTargeting, this.dragon, this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
         if (var0 != null) {
             if (this.scanningTime > 25) {
                 this.dragon.getPhaseManager().setPhase(EnderDragonPhase.SITTING_ATTACKING);
@@ -55,7 +55,7 @@ public class DragonSittingScanningPhase extends AbstractDragonSittingPhase {
                 }
             }
         } else if (this.scanningTime >= 100) {
-            var0 = this.dragon.level.getNearestPlayer(CHARGE_TARGETING, this.dragon, this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
+            var0 = this.dragon.level().getNearestPlayer(CHARGE_TARGETING, this.dragon, this.dragon.getX(), this.dragon.getY(), this.dragon.getZ());
             this.dragon.getPhaseManager().setPhase(EnderDragonPhase.TAKEOFF);
             if (var0 != null) {
                 this.dragon.getPhaseManager().setPhase(EnderDragonPhase.CHARGING_PLAYER);

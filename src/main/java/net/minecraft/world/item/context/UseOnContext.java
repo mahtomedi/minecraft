@@ -19,7 +19,7 @@ public class UseOnContext {
     private final ItemStack itemStack;
 
     public UseOnContext(Player param0, InteractionHand param1, BlockHitResult param2) {
-        this(param0.level, param0, param1, param0.getItemInHand(param1), param2);
+        this(param0.level(), param0, param1, param0.getItemInHand(param1), param2);
     }
 
     protected UseOnContext(Level param0, @Nullable Player param1, InteractionHand param2, ItemStack param3, BlockHitResult param4) {

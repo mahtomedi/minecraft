@@ -25,7 +25,7 @@ public class FollowBoatGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        List<Boat> var0 = this.mob.level.getEntitiesOfClass(Boat.class, this.mob.getBoundingBox().inflate(5.0));
+        List<Boat> var0 = this.mob.level().getEntitiesOfClass(Boat.class, this.mob.getBoundingBox().inflate(5.0));
         boolean var1 = false;
 
         for(Boat var2 : var0) {
@@ -51,7 +51,7 @@ public class FollowBoatGoal extends Goal {
 
     @Override
     public void start() {
-        for(Boat var1 : this.mob.level.getEntitiesOfClass(Boat.class, this.mob.getBoundingBox().inflate(5.0))) {
+        for(Boat var1 : this.mob.level().getEntitiesOfClass(Boat.class, this.mob.getBoundingBox().inflate(5.0))) {
             if (var1.getControllingPassenger() != null && var1.getControllingPassenger() instanceof Player) {
                 this.following = (Player)var1.getControllingPassenger();
                 break;

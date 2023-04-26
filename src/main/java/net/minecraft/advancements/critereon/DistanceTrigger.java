@@ -27,7 +27,7 @@ public class DistanceTrigger extends SimpleCriterionTrigger<DistanceTrigger.Trig
 
     public void trigger(ServerPlayer param0, Vec3 param1) {
         Vec3 var0 = param0.position();
-        this.trigger(param0, param3 -> param3.matches(param0.getLevel(), param1, var0));
+        this.trigger(param0, param3 -> param3.matches(param0.serverLevel(), param1, var0));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {

@@ -137,7 +137,7 @@ public class ChaseServer {
             return null;
         } else {
             ServerPlayer var1 = var0.get(0);
-            String var2 = ChaseCommand.DIMENSION_NAMES.inverse().get(var1.getLevel().dimension());
+            String var2 = ChaseCommand.DIMENSION_NAMES.inverse().get(var1.level().dimension());
             return var2 == null ? null : new ChaseServer.PlayerPosition(var2, var1.getX(), var1.getY(), var1.getZ(), var1.getYRot(), var1.getXRot());
         }
     }

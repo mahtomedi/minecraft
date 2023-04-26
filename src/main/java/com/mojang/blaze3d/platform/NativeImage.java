@@ -235,6 +235,21 @@ public final class NativeImage implements AutoCloseable {
         }
     }
 
+    public void applyToAllPixels(IntUnaryOperator param0) {
+        if (this.format != NativeImage.Format.RGBA) {
+            throw new IllegalArgumentException(String.format(Locale.ROOT, "function application only works on RGBA images; have %s", this.format));
+        } else {
+            this.checkAllocated();
+            int var0 = this.width * this.height;
+            IntBuffer var1 = MemoryUtil.memIntBuffer(this.pixels, var0);
+
+            for(int var2 = 0; var2 < var0; ++var2) {
+                var1.put(var2, param0.applyAsInt(var1.get(var2)));
+            }
+
+        }
+    }
+
     public int[] getPixelsRGBA() {
         if (this.format != NativeImage.Format.RGBA) {
             throw new IllegalArgumentException(String.format(Locale.ROOT, "getPixelsRGBA only works on RGBA images; have %s", this.format));

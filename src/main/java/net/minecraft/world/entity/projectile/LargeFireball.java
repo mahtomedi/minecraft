@@ -24,9 +24,9 @@ public class LargeFireball extends Fireball {
     @Override
     protected void onHit(HitResult param0) {
         super.onHit(param0);
-        if (!this.level.isClientSide) {
-            boolean var0 = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
-            this.level.explode(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionPower, var0, Level.ExplosionInteraction.MOB);
+        if (!this.level().isClientSide) {
+            boolean var0 = this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+            this.level().explode(this, this.getX(), this.getY(), this.getZ(), (float)this.explosionPower, var0, Level.ExplosionInteraction.MOB);
             this.discard();
         }
 
@@ -35,7 +35,7 @@ public class LargeFireball extends Fireball {
     @Override
     protected void onHitEntity(EntityHitResult param0) {
         super.onHitEntity(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             Entity var0 = param0.getEntity();
             Entity var1 = this.getOwner();
             var0.hurt(this.damageSources().fireball(this, var1), 6.0F);

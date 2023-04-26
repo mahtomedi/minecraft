@@ -116,11 +116,11 @@ public class RaidCommand {
     private static int start(CommandSourceStack param0, int param1) throws CommandSyntaxException {
         ServerPlayer var0 = param0.getPlayerOrException();
         BlockPos var1 = var0.blockPosition();
-        if (var0.getLevel().isRaided(var1)) {
+        if (var0.serverLevel().isRaided(var1)) {
             param0.sendFailure(Component.literal("Raid already started close by"));
             return -1;
         } else {
-            Raids var2 = var0.getLevel().getRaids();
+            Raids var2 = var0.serverLevel().getRaids();
             Raid var3 = var2.createOrExtendRaid(var0);
             if (var3 != null) {
                 var3.setBadOmenLevel(param1);
@@ -137,7 +137,7 @@ public class RaidCommand {
     private static int stop(CommandSourceStack param0) throws CommandSyntaxException {
         ServerPlayer var0 = param0.getPlayerOrException();
         BlockPos var1 = var0.blockPosition();
-        Raid var2 = var0.getLevel().getRaidAt(var1);
+        Raid var2 = var0.serverLevel().getRaidAt(var1);
         if (var2 != null) {
             var2.stop();
             param0.sendSuccess(Component.literal("Stopped raid"), false);
@@ -175,6 +175,6 @@ public class RaidCommand {
 
     @Nullable
     private static Raid getRaid(ServerPlayer param0) {
-        return param0.getLevel().getRaidAt(param0.blockPosition());
+        return param0.serverLevel().getRaidAt(param0.blockPosition());
     }
 }

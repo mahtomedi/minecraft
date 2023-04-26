@@ -123,7 +123,7 @@ public class Interaction extends Entity implements Attackable, Targeting {
     @Override
     public boolean skipAttackInteraction(Entity param0) {
         if (param0 instanceof Player var0) {
-            this.attack = new Interaction.PlayerAction(var0.getUUID(), this.level.getGameTime());
+            this.attack = new Interaction.PlayerAction(var0.getUUID(), this.level().getGameTime());
             if (var0 instanceof ServerPlayer var1) {
                 CriteriaTriggers.PLAYER_HURT_ENTITY.trigger(var1, this, var0.damageSources().generic(), 1.0F, 1.0F, false);
             }
@@ -136,10 +136,10 @@ public class Interaction extends Entity implements Attackable, Targeting {
 
     @Override
     public InteractionResult interact(Player param0, InteractionHand param1) {
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             return this.getResponse() ? InteractionResult.SUCCESS : InteractionResult.CONSUME;
         } else {
-            this.interaction = new Interaction.PlayerAction(param0.getUUID(), this.level.getGameTime());
+            this.interaction = new Interaction.PlayerAction(param0.getUUID(), this.level().getGameTime());
             return InteractionResult.CONSUME;
         }
     }
@@ -151,13 +151,13 @@ public class Interaction extends Entity implements Attackable, Targeting {
     @Nullable
     @Override
     public LivingEntity getLastAttacker() {
-        return this.attack != null ? this.level.getPlayerByUUID(this.attack.player()) : null;
+        return this.attack != null ? this.level().getPlayerByUUID(this.attack.player()) : null;
     }
 
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.interaction != null ? this.level.getPlayerByUUID(this.interaction.player()) : null;
+        return this.interaction != null ? this.level().getPlayerByUUID(this.interaction.player()) : null;
     }
 
     private void setWidth(float param0) {

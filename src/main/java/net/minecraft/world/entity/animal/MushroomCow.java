@@ -108,19 +108,19 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
             }
 
             this.playSound(var5, 1.0F, 1.0F);
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (var0.is(Items.SHEARS) && this.readyForShearing()) {
             this.shear(SoundSource.PLAYERS);
             this.gameEvent(GameEvent.SHEAR, param0);
-            if (!this.level.isClientSide) {
+            if (!this.level().isClientSide) {
                 var0.hurtAndBreak(1, param0, param1x -> param1x.broadcastBreakEvent(param1));
             }
 
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (this.getVariant() == MushroomCow.MushroomType.BROWN && var0.is(ItemTags.SMALL_FLOWERS)) {
             if (this.effect != null) {
                 for(int var7 = 0; var7 < 2; ++var7) {
-                    this.level
+                    this.level()
                         .addParticle(
                             ParticleTypes.SMOKE,
                             this.getX() + this.random.nextDouble() / 2.0,
@@ -143,7 +143,7 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
                 }
 
                 for(int var10 = 0; var10 < 4; ++var10) {
-                    this.level
+                    this.level()
                         .addParticle(
                             ParticleTypes.EFFECT,
                             this.getX() + this.random.nextDouble() / 2.0,
@@ -160,7 +160,7 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
                 this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
             }
 
-            return InteractionResult.sidedSuccess(this.level.isClientSide);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else {
             return super.mobInteract(param0, param1);
         }
@@ -168,11 +168,11 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
 
     @Override
     public void shear(SoundSource param0) {
-        this.level.playSound(null, this, SoundEvents.MOOSHROOM_SHEAR, param0, 1.0F, 1.0F);
-        if (!this.level.isClientSide()) {
-            Cow var0 = EntityType.COW.create(this.level);
+        this.level().playSound(null, this, SoundEvents.MOOSHROOM_SHEAR, param0, 1.0F, 1.0F);
+        if (!this.level().isClientSide()) {
+            Cow var0 = EntityType.COW.create(this.level());
             if (var0 != null) {
-                ((ServerLevel)this.level).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+                ((ServerLevel)this.level()).sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY(0.5), this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
                 this.discard();
                 var0.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
                 var0.setHealth(this.getHealth());
@@ -187,12 +187,12 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
                 }
 
                 var0.setInvulnerable(this.isInvulnerable());
-                this.level.addFreshEntity(var0);
+                this.level().addFreshEntity(var0);
 
                 for(int var1 = 0; var1 < 5; ++var1) {
-                    this.level
+                    this.level()
                         .addFreshEntity(
-                            new ItemEntity(this.level, this.getX(), this.getY(1.0), this.getZ(), new ItemStack(this.getVariant().blockState.getBlock()))
+                            new ItemEntity(this.level(), this.getX(), this.getY(1.0), this.getZ(), new ItemStack(this.getVariant().blockState.getBlock()))
                         );
                 }
             }

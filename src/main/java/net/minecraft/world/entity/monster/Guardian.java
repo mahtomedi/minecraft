@@ -140,11 +140,11 @@ public class Guardian extends Monster {
     public LivingEntity getActiveAttackTarget() {
         if (!this.hasActiveAttackTarget()) {
             return null;
-        } else if (this.level.isClientSide) {
+        } else if (this.level().isClientSide) {
             if (this.clientSideCachedAttackTarget != null) {
                 return this.clientSideCachedAttackTarget;
             } else {
-                Entity var0 = this.level.getEntity(this.entityData.get(DATA_ID_ATTACK_TARGET));
+                Entity var0 = this.level().getEntity(this.entityData.get(DATA_ID_ATTACK_TARGET));
                 if (var0 instanceof LivingEntity) {
                     this.clientSideCachedAttackTarget = (LivingEntity)var0;
                     return this.clientSideCachedAttackTarget;
@@ -207,16 +207,16 @@ public class Guardian extends Monster {
     @Override
     public void aiStep() {
         if (this.isAlive()) {
-            if (this.level.isClientSide) {
+            if (this.level().isClientSide) {
                 this.clientSideTailAnimationO = this.clientSideTailAnimation;
                 if (!this.isInWater()) {
                     this.clientSideTailAnimationSpeed = 2.0F;
                     Vec3 var0 = this.getDeltaMovement();
                     if (var0.y > 0.0 && this.clientSideTouchedGround && !this.isSilent()) {
-                        this.level.playLocalSound(this.getX(), this.getY(), this.getZ(), this.getFlopSound(), this.getSoundSource(), 1.0F, 1.0F, false);
+                        this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), this.getFlopSound(), this.getSoundSource(), 1.0F, 1.0F, false);
                     }
 
-                    this.clientSideTouchedGround = var0.y < 0.0 && this.level.loadedAndEntityCanStandOn(this.blockPosition().below(), this);
+                    this.clientSideTouchedGround = var0.y < 0.0 && this.level().loadedAndEntityCanStandOn(this.blockPosition().below(), this);
                 } else if (this.isMoving()) {
                     if (this.clientSideTailAnimationSpeed < 0.5F) {
                         this.clientSideTailAnimationSpeed = 4.0F;
@@ -241,7 +241,7 @@ public class Guardian extends Monster {
                     Vec3 var1 = this.getViewVector(0.0F);
 
                     for(int var2 = 0; var2 < 2; ++var2) {
-                        this.level
+                        this.level()
                             .addParticle(
                                 ParticleTypes.BUBBLE,
                                 this.getRandomX(0.5) - var1.x * 1.5,
@@ -275,7 +275,7 @@ public class Guardian extends Monster {
 
                         while(var9 < var8) {
                             var9 += 1.8 - var4 + this.random.nextDouble() * (1.7 - var4);
-                            this.level
+                            this.level()
                                 .addParticle(
                                     ParticleTypes.BUBBLE, this.getX() + var5 * var9, this.getEyeY() + var6 * var9, this.getZ() + var7 * var9, 0.0, 0.0, 0.0
                                 );
@@ -286,13 +286,13 @@ public class Guardian extends Monster {
 
             if (this.isInWaterOrBubble()) {
                 this.setAirSupply(300);
-            } else if (this.onGround) {
+            } else if (this.onGround()) {
                 this.setDeltaMovement(
                     this.getDeltaMovement()
                         .add((double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.4F), 0.5, (double)((this.random.nextFloat() * 2.0F - 1.0F) * 0.4F))
                 );
                 this.setYRot(this.random.nextFloat() * 360.0F);
-                this.onGround = false;
+                this.setOnGround(false);
                 this.hasImpulse = true;
             }
 
@@ -340,7 +340,7 @@ public class Guardian extends Monster {
 
     @Override
     public boolean hurt(DamageSource param0, float param1) {
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             return false;
         } else {
             if (!this.isMoving() && !param0.is(DamageTypeTags.AVOIDS_GUARDIAN_THORNS) && !param0.is(DamageTypes.THORNS)) {
@@ -438,11 +438,11 @@ public class Guardian extends Monster {
                     if (this.attackTime == 0) {
                         this.guardian.setActiveAttackTarget(var0.getId());
                         if (!this.guardian.isSilent()) {
-                            this.guardian.level.broadcastEntityEvent(this.guardian, (byte)21);
+                            this.guardian.level().broadcastEntityEvent(this.guardian, (byte)21);
                         }
                     } else if (this.attackTime >= this.guardian.getAttackDuration()) {
                         float var1 = 1.0F;
-                        if (this.guardian.level.getDifficulty() == Difficulty.HARD) {
+                        if (this.guardian.level().getDifficulty() == Difficulty.HARD) {
                             var1 += 2.0F;
                         }
 

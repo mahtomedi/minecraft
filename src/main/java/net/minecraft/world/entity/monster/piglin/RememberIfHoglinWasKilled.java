@@ -16,7 +16,7 @@ public class RememberIfHoglinWasKilled {
                     .apply(param0, (param1, param2) -> (param3, param4, param5) -> {
                             LivingEntity var0x = param0.get(param1);
                             if (var0x.getType() == EntityType.HOGLIN && var0x.isDeadOrDying()) {
-                                param2.setWithExpiry(true, (long)PiglinAi.TIME_BETWEEN_HUNTS.sample(param4.level.random));
+                                param2.setWithExpiry(true, (long)PiglinAi.TIME_BETWEEN_HUNTS.sample(param4.level().random));
                             }
         
                             return true;

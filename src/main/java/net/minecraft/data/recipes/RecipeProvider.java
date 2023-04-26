@@ -147,12 +147,12 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, getItemName(param3) + "_smithing");
     }
 
-    protected static void trimSmithing(Consumer<FinishedRecipe> param0, Item param1) {
+    protected static void trimSmithing(Consumer<FinishedRecipe> param0, Item param1, ResourceLocation param2) {
         SmithingTrimRecipeBuilder.smithingTrim(
                 Ingredient.of(param1), Ingredient.of(ItemTags.TRIMMABLE_ARMOR), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.MISC
             )
             .unlocks("has_smithing_trim_template", has(param1))
-            .save(param0, getItemName(param1) + "_smithing_trim");
+            .save(param0, param2);
     }
 
     protected static void twoByTwoPacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {

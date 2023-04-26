@@ -82,13 +82,13 @@ public class Blaze extends Monster {
 
     @Override
     public void aiStep() {
-        if (!this.onGround && this.getDeltaMovement().y < 0.0) {
+        if (!this.onGround() && this.getDeltaMovement().y < 0.0) {
             this.setDeltaMovement(this.getDeltaMovement().multiply(1.0, 0.6, 1.0));
         }
 
-        if (this.level.isClientSide) {
+        if (this.level().isClientSide) {
             if (this.random.nextInt(24) == 0 && !this.isSilent()) {
-                this.level
+                this.level()
                     .playLocalSound(
                         this.getX() + 0.5,
                         this.getY() + 0.5,
@@ -102,7 +102,7 @@ public class Blaze extends Monster {
             }
 
             for(int var0 = 0; var0 < 2; ++var0) {
-                this.level.addParticle(ParticleTypes.LARGE_SMOKE, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), 0.0, 0.0, 0.0);
+                this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(0.5), 0.0, 0.0, 0.0);
             }
         }
 
@@ -229,19 +229,19 @@ public class Blaze extends Monster {
                         if (this.attackStep > 1) {
                             double var6 = Math.sqrt(Math.sqrt(var2)) * 0.5;
                             if (!this.blaze.isSilent()) {
-                                this.blaze.level.levelEvent(null, 1018, this.blaze.blockPosition(), 0);
+                                this.blaze.level().levelEvent(null, 1018, this.blaze.blockPosition(), 0);
                             }
 
                             for(int var7 = 0; var7 < 1; ++var7) {
                                 SmallFireball var8 = new SmallFireball(
-                                    this.blaze.level,
+                                    this.blaze.level(),
                                     this.blaze,
                                     this.blaze.getRandom().triangle(var3, 2.297 * var6),
                                     var4,
                                     this.blaze.getRandom().triangle(var5, 2.297 * var6)
                                 );
                                 var8.setPos(var8.getX(), this.blaze.getY(0.5) + 0.5, var8.getZ());
-                                this.blaze.level.addFreshEntity(var8);
+                                this.blaze.level().addFreshEntity(var8);
                             }
                         }
                     }

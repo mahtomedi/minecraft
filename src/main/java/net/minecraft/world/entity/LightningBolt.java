@@ -66,9 +66,9 @@ public class LightningBolt extends Entity {
 
     private void powerLightningRod() {
         BlockPos var0 = this.getStrikePosition();
-        BlockState var1 = this.level.getBlockState(var0);
+        BlockState var1 = this.level().getBlockState(var0);
         if (var1.is(Blocks.LIGHTNING_ROD)) {
-            ((LightningRodBlock)var1.getBlock()).onLightningStrike(var1, this.level, var0);
+            ((LightningRodBlock)var1.getBlock()).onLightningStrike(var1, this.level(), var0);
         }
 
     }
@@ -77,8 +77,8 @@ public class LightningBolt extends Entity {
     public void tick() {
         super.tick();
         if (this.life == 2) {
-            if (this.level.isClientSide()) {
-                this.level
+            if (this.level().isClientSide()) {
+                this.level()
                     .playLocalSound(
                         this.getX(),
                         this.getY(),
@@ -89,7 +89,7 @@ public class LightningBolt extends Entity {
                         0.8F + this.random.nextFloat() * 0.2F,
                         false
                     );
-                this.level
+                this.level()
                     .playLocalSound(
                         this.getX(),
                         this.getY(),
@@ -101,13 +101,13 @@ public class LightningBolt extends Entity {
                         false
                     );
             } else {
-                Difficulty var0 = this.level.getDifficulty();
+                Difficulty var0 = this.level().getDifficulty();
                 if (var0 == Difficulty.NORMAL || var0 == Difficulty.HARD) {
                     this.spawnFire(4);
                 }
 
                 this.powerLightningRod();
-                clearCopperOnLightningStrike(this.level, this.getStrikePosition());
+                clearCopperOnLightningStrike(this.level(), this.getStrikePosition());
                 this.gameEvent(GameEvent.LIGHTNING_STRIKE);
             }
         }
@@ -115,8 +115,8 @@ public class LightningBolt extends Entity {
         --this.life;
         if (this.life < 0) {
             if (this.flashes == 0) {
-                if (this.level instanceof ServerLevel) {
-                    List<Entity> var1 = this.level
+                if (this.level() instanceof ServerLevel) {
+                    List<Entity> var1 = this.level()
                         .getEntities(
                             this,
                             new AABB(
@@ -125,7 +125,7 @@ public class LightningBolt extends Entity {
                             param0 -> param0.isAlive() && !this.hitEntities.contains(param0)
                         );
 
-                    for(ServerPlayer var2 : ((ServerLevel)this.level).getPlayers(param0 -> param0.distanceTo(this) < 256.0F)) {
+                    for(ServerPlayer var2 : ((ServerLevel)this.level()).getPlayers(param0 -> param0.distanceTo(this) < 256.0F)) {
                         CriteriaTriggers.LIGHTNING_STRIKE.trigger(var2, this, var1);
                     }
                 }
@@ -140,10 +140,10 @@ public class LightningBolt extends Entity {
         }
 
         if (this.life >= 0) {
-            if (!(this.level instanceof ServerLevel)) {
-                this.level.setSkyFlashTime(2);
+            if (!(this.level() instanceof ServerLevel)) {
+                this.level().setSkyFlashTime(2);
             } else if (!this.visualOnly) {
-                List<Entity> var3 = this.level
+                List<Entity> var3 = this.level()
                     .getEntities(
                         this,
                         new AABB(this.getX() - 3.0, this.getY() - 3.0, this.getZ() - 3.0, this.getX() + 3.0, this.getY() + 6.0 + 3.0, this.getZ() + 3.0),
@@ -151,7 +151,7 @@ public class LightningBolt extends Entity {
                     );
 
                 for(Entity var4 : var3) {
-                    var4.thunderHit((ServerLevel)this.level, this);
+                    var4.thunderHit((ServerLevel)this.level(), this);
                 }
 
                 this.hitEntities.addAll(var3);
@@ -169,19 +169,19 @@ public class LightningBolt extends Entity {
     }
 
     private void spawnFire(int param0) {
-        if (!this.visualOnly && !this.level.isClientSide && this.level.getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+        if (!this.visualOnly && !this.level().isClientSide && this.level().getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
             BlockPos var0 = this.blockPosition();
-            BlockState var1 = BaseFireBlock.getState(this.level, var0);
-            if (this.level.getBlockState(var0).isAir() && var1.canSurvive(this.level, var0)) {
-                this.level.setBlockAndUpdate(var0, var1);
+            BlockState var1 = BaseFireBlock.getState(this.level(), var0);
+            if (this.level().getBlockState(var0).isAir() && var1.canSurvive(this.level(), var0)) {
+                this.level().setBlockAndUpdate(var0, var1);
                 ++this.blocksSetOnFire;
             }
 
             for(int var2 = 0; var2 < param0; ++var2) {
                 BlockPos var3 = var0.offset(this.random.nextInt(3) - 1, this.random.nextInt(3) - 1, this.random.nextInt(3) - 1);
-                var1 = BaseFireBlock.getState(this.level, var3);
-                if (this.level.getBlockState(var3).isAir() && var1.canSurvive(this.level, var3)) {
-                    this.level.setBlockAndUpdate(var3, var1);
+                var1 = BaseFireBlock.getState(this.level(), var3);
+                if (this.level().getBlockState(var3).isAir() && var1.canSurvive(this.level(), var3)) {
+                    this.level().setBlockAndUpdate(var3, var1);
                     ++this.blocksSetOnFire;
                 }
             }

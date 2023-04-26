@@ -1,13 +1,19 @@
 package net.minecraft.world.level.block;
 
 import java.util.List;
+import java.util.stream.Stream;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
@@ -31,8 +37,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final ResourceLocation SHERDS_DYNAMIC_DROP_ID = new ResourceLocation("sherds");
     private static final VoxelShape BOUNDING_BOX = Block.box(1.0, 0.0, 1.0, 15.0, 16.0, 15.0);
-    public static final ResourceLocation SHERDS = new ResourceLocation("sherds");
     private static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     private static final BooleanProperty CRACKED = BlockStateProperties.CRACKED;
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -91,12 +97,7 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
         BlockEntity var0 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (var0 instanceof DecoratedPotBlockEntity var1) {
-            param1.withDynamicDrop(SHERDS, (param1x, param2) -> {
-                for(Item var0x : var1.getSherds()) {
-                    param2.accept(var0x.getDefaultInstance());
-                }
-
-            });
+            param1.withDynamicDrop(SHERDS_DYNAMIC_DROP_ID, (param1x, param2) -> var1.getDecorations().sorted().map(Item::getDefaultInstance).forEach(param2));
         }
 
         return super.getDrops(param0, param1);
@@ -122,5 +123,16 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     @Override
     public SoundType getSoundType(BlockState param0) {
         return param0.getValue(CRACKED) ? SoundType.DECORATED_POT_CRACKED : SoundType.DECORATED_POT;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
+        super.appendHoverText(param0, param1, param2, param3);
+        DecoratedPotBlockEntity.Decorations var0 = DecoratedPotBlockEntity.Decorations.load(BlockItem.getBlockEntityData(param0));
+        if (var0 != DecoratedPotBlockEntity.Decorations.EMPTY) {
+            param2.add(CommonComponents.EMPTY);
+            Stream.of(var0.front(), var0.left(), var0.right(), var0.back())
+                .forEach(param1x -> param2.add(new ItemStack(param1x, 1).getHoverName().plainCopy().withStyle(ChatFormatting.GRAY)));
+        }
     }
 }

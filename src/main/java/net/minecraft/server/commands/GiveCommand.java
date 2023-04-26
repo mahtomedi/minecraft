@@ -71,7 +71,7 @@ public class GiveCommand {
                             var8.makeFakeItem();
                         }
 
-                        var2.level
+                        var2.level()
                             .playSound(
                                 null,
                                 var2.getX(),

@@ -445,11 +445,11 @@ public class PiglinAi {
     }
 
     private static List<ItemStack> getBarterResponseItems(Piglin param0) {
-        LootTable var0 = param0.level.getServer().getLootData().getLootTable(BuiltInLootTables.PIGLIN_BARTERING);
+        LootTable var0 = param0.level().getServer().getLootData().getLootTable(BuiltInLootTables.PIGLIN_BARTERING);
         List<ItemStack> var1 = var0.getRandomItems(
-            new LootContext.Builder((ServerLevel)param0.level)
+            new LootContext.Builder((ServerLevel)param0.level())
                 .withParameter(LootContextParams.THIS_ENTITY, param0)
-                .withRandom(param0.level.random)
+                .withRandom(param0.level().random)
                 .create(LootContextParamSets.PIGLIN_BARTER)
         );
         return var1;
@@ -459,7 +459,7 @@ public class PiglinAi {
         if (param1.getType() != EntityType.HOGLIN) {
             return false;
         } else {
-            return RandomSource.create(param0x.level.getGameTime()).nextFloat() < 0.1F;
+            return RandomSource.create(param0x.level().getGameTime()).nextFloat() < 0.1F;
         }
     }
 
@@ -545,9 +545,9 @@ public class PiglinAi {
     }
 
     public static void angerNearbyPiglins(Player param0, boolean param1) {
-        List<Piglin> var0 = param0.level.getEntitiesOfClass(Piglin.class, param0.getBoundingBox().inflate(16.0));
+        List<Piglin> var0 = param0.level().getEntitiesOfClass(Piglin.class, param0.getBoundingBox().inflate(16.0));
         var0.stream().filter(PiglinAi::isIdle).filter(param2 -> !param1 || BehaviorUtils.canSee(param2, param0)).forEach(param1x -> {
-            if (param1x.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (param1x.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                 setAngerTargetToNearestTargetablePlayerIfFound(param1x, param0);
             } else {
                 setAngerTarget(param1x, param0);
@@ -612,7 +612,7 @@ public class PiglinAi {
         if (!param0.getBrain().isActive(Activity.AVOID)) {
             if (Sensor.isEntityAttackableIgnoringLineOfSight(param0, param1)) {
                 if (!BehaviorUtils.isOtherTargetMuchFurtherAwayThanCurrentAttackTarget(param0, param1, 4.0)) {
-                    if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+                    if (param1.getType() == EntityType.PLAYER && param0.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                         setAngerTargetToNearestTargetablePlayerIfFound(param0, param1);
                         broadcastUniversalAnger(param0);
                     } else {
@@ -679,7 +679,7 @@ public class PiglinAi {
     private static BehaviorControl<LivingEntity> babySometimesRideBabyHoglin() {
         SetEntityLookTargetSometimes.Ticker var0 = new SetEntityLookTargetSometimes.Ticker(RIDE_START_INTERVAL);
         return CopyMemoryWithExpiry.create(
-            param1 -> param1.isBaby() && var0.tickDownAndCheck(param1.level.random),
+            param1 -> param1.isBaby() && var0.tickDownAndCheck(param1.level().random),
             MemoryModuleType.NEAREST_VISIBLE_BABY_HOGLIN,
             MemoryModuleType.RIDE_TARGET,
             RIDE_DURATION
@@ -706,7 +706,7 @@ public class PiglinAi {
                 dontKillAnyMoreHoglinsForAWhile(param0);
             }
 
-            if (param1.getType() == EntityType.PLAYER && param0.level.getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
+            if (param1.getType() == EntityType.PLAYER && param0.level().getGameRules().getBoolean(GameRules.RULE_UNIVERSAL_ANGER)) {
                 param0.getBrain().setMemoryWithExpiry(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
             }
 
@@ -790,12 +790,12 @@ public class PiglinAi {
         param0.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level().random));
         dontKillAnyMoreHoglinsForAWhile(param0);
     }
 
     protected static void dontKillAnyMoreHoglinsForAWhile(AbstractPiglin param0) {
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.sample(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.HUNTED_RECENTLY, true, (long)TIME_BETWEEN_HUNTS.sample(param0.level().random));
     }
 
     private static void eat(Piglin param0) {

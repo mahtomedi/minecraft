@@ -110,7 +110,7 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         double var4 = var0.horizontalDistance();
         this.setXRot(Projectile.lerpRotation(this.xRotO, (float)(Mth.atan2(var0.y, var4) * 180.0F / (float)Math.PI)));
         this.setYRot(Projectile.lerpRotation(this.yRotO, (float)(Mth.atan2(var0.x, var0.z) * 180.0F / (float)Math.PI)));
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             double var5 = this.tx - var1;
             double var6 = this.tz - var3;
             float var7 = (float)Math.sqrt(var5 * var5 + var6 * var6);
@@ -130,10 +130,10 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
         float var12 = 0.25F;
         if (this.isInWater()) {
             for(int var13 = 0; var13 < 4; ++var13) {
-                this.level.addParticle(ParticleTypes.BUBBLE, var1 - var0.x * 0.25, var2 - var0.y * 0.25, var3 - var0.z * 0.25, var0.x, var0.y, var0.z);
+                this.level().addParticle(ParticleTypes.BUBBLE, var1 - var0.x * 0.25, var2 - var0.y * 0.25, var3 - var0.z * 0.25, var0.x, var0.y, var0.z);
             }
         } else {
-            this.level
+            this.level()
                 .addParticle(
                     ParticleTypes.PORTAL,
                     var1 - var0.x * 0.25 + this.random.nextDouble() * 0.6 - 0.3,
@@ -145,16 +145,16 @@ public class EyeOfEnder extends Entity implements ItemSupplier {
                 );
         }
 
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.setPos(var1, var2, var3);
             ++this.life;
-            if (this.life > 80 && !this.level.isClientSide) {
+            if (this.life > 80 && !this.level().isClientSide) {
                 this.playSound(SoundEvents.ENDER_EYE_DEATH, 1.0F, 1.0F);
                 this.discard();
                 if (this.surviveAfterDeath) {
-                    this.level.addFreshEntity(new ItemEntity(this.level, this.getX(), this.getY(), this.getZ(), this.getItem()));
+                    this.level().addFreshEntity(new ItemEntity(this.level(), this.getX(), this.getY(), this.getZ(), this.getItem()));
                 } else {
-                    this.level.levelEvent(2003, this.blockPosition(), 0);
+                    this.level().levelEvent(2003, this.blockPosition(), 0);
                 }
             }
         } else {

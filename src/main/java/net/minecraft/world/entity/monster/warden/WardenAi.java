@@ -209,7 +209,7 @@ public class WardenAi {
     }
 
     public static void setDisturbanceLocation(Warden param0, BlockPos param1) {
-        if (param0.level.getWorldBorder().isWithinBounds(param1)
+        if (param0.level().getWorldBorder().isWithinBounds(param1)
             && !param0.getEntityAngryAt().isPresent()
             && !param0.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
             setDigCooldown(param0);

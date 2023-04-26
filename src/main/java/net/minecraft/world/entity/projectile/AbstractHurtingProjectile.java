@@ -72,7 +72,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
     @Override
     public void tick() {
         Entity var0 = this.getOwner();
-        if (this.level.isClientSide || (var0 == null || !var0.isRemoved()) && this.level.hasChunkAt(this.blockPosition())) {
+        if (this.level().isClientSide || (var0 == null || !var0.isRemoved()) && this.level().hasChunkAt(this.blockPosition())) {
             super.tick();
             if (this.shouldBurn()) {
                 this.setSecondsOnFire(1);
@@ -93,14 +93,14 @@ public abstract class AbstractHurtingProjectile extends Projectile {
             if (this.isInWater()) {
                 for(int var7 = 0; var7 < 4; ++var7) {
                     float var8 = 0.25F;
-                    this.level.addParticle(ParticleTypes.BUBBLE, var3 - var2.x * 0.25, var4 - var2.y * 0.25, var5 - var2.z * 0.25, var2.x, var2.y, var2.z);
+                    this.level().addParticle(ParticleTypes.BUBBLE, var3 - var2.x * 0.25, var4 - var2.y * 0.25, var5 - var2.z * 0.25, var2.x, var2.y, var2.z);
                 }
 
                 var6 = 0.8F;
             }
 
             this.setDeltaMovement(var2.add(this.xPower, this.yPower, this.zPower).scale((double)var6));
-            this.level.addParticle(this.getTrailParticle(), var3, var4 + 0.5, var5, 0.0, 0.0, 0.0);
+            this.level().addParticle(this.getTrailParticle(), var3, var4 + 0.5, var5, 0.0, 0.0, 0.0);
             this.setPos(var3, var4, var5);
         } else {
             this.discard();
@@ -162,7 +162,7 @@ public abstract class AbstractHurtingProjectile extends Projectile {
             this.markHurt();
             Entity var0 = param0.getEntity();
             if (var0 != null) {
-                if (!this.level.isClientSide) {
+                if (!this.level().isClientSide) {
                     Vec3 var1 = var0.getLookAngle();
                     this.setDeltaMovement(var1);
                     this.xPower = var1.x * 0.1;

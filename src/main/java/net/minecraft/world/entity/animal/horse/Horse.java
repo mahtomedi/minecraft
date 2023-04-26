@@ -112,7 +112,7 @@ public class Horse extends AbstractHorse implements VariantHolder<Variant> {
 
     @Override
     protected void updateContainerEquipment() {
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             super.updateContainerEquipment();
             this.setArmorEquipment(this.inventory.getItem(1));
             this.setDropChance(EquipmentSlot.CHEST, 0.0F);
@@ -121,7 +121,7 @@ public class Horse extends AbstractHorse implements VariantHolder<Variant> {
 
     private void setArmorEquipment(ItemStack param0) {
         this.setArmor(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.getAttribute(Attributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             if (this.isArmor(param0)) {
                 int var0 = ((HorseArmorItem)param0.getItem()).getProtection();
@@ -194,7 +194,7 @@ public class Horse extends AbstractHorse implements VariantHolder<Variant> {
 
                 if (!this.isTamed()) {
                     this.makeMad();
-                    return InteractionResult.sidedSuccess(this.level.isClientSide);
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
                 }
             }
 

@@ -31,7 +31,7 @@ public class FireworkEntityRenderer extends EntityRenderer<FireworkRocketEntity>
         }
 
         this.itemRenderer
-            .renderStatic(param0.getItem(), ItemDisplayContext.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.level, param0.getId());
+            .renderStatic(param0.getItem(), ItemDisplayContext.GROUND, param5, OverlayTexture.NO_OVERLAY, param3, param4, param0.level(), param0.getId());
         param3.popPose();
         super.render(param0, param1, param2, param3, param4, param5);
     }

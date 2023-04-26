@@ -247,6 +247,7 @@ import net.minecraft.tags.TagNetworkSerialization;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SignatureValidator;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
@@ -691,8 +692,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     @Override
     public void handleChunkBlocksUpdate(ClientboundSectionBlocksUpdatePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        int var0 = 19 | (param0.shouldSuppressLightUpdates() ? 128 : 0);
-        param0.runUpdates((param1, param2) -> this.level.setServerVerifiedBlockState(param1, param2, var0));
+        param0.runUpdates((param0x, param1) -> this.level.setServerVerifiedBlockState(param0x, param1, 19));
     }
 
     @Override
@@ -747,7 +747,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         LevelLightEngine var0 = this.level.getChunkSource().getLightEngine();
         LevelChunkSection[] var1 = param0.getSections();
         ChunkPos var2 = param0.getPos();
-        var0.enableLightSources(var2, true);
 
         for(int var3 = 0; var3 < var1.length; ++var3) {
             LevelChunkSection var4 = var1[var3];
@@ -756,7 +755,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             this.level.setSectionDirtyWithNeighbors(param1, var5, param2);
         }
 
-        this.level.setLightReady(param1, param2);
     }
 
     @Override
@@ -766,19 +764,18 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         int var1 = param0.getZ();
         ClientChunkCache var2 = this.level.getChunkSource();
         var2.drop(var0, var1);
-        this.queueLightUpdate(param0);
+        this.queueLightRemoval(param0);
     }
 
-    private void queueLightUpdate(ClientboundForgetLevelChunkPacket param0) {
+    private void queueLightRemoval(ClientboundForgetLevelChunkPacket param0) {
         this.level.queueLightUpdate(() -> {
             LevelLightEngine var0 = this.level.getLightEngine();
+            var0.setLightEnabled(new ChunkPos(param0.getX(), param0.getZ()), false);
 
             for(int var1x = this.level.getMinSection(); var1x < this.level.getMaxSection(); ++var1x) {
                 var0.updateSectionStatus(SectionPos.of(param0.getX(), var1x, param0.getZ()), true);
             }
 
-            var0.enableLightSources(new ChunkPos(param0.getX(), param0.getZ()), false);
-            this.level.setLightReady(param0.getX(), param0.getZ());
         });
     }
 
@@ -1095,7 +1092,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             .getHolderOrThrow(param0.getDimensionType());
         LocalPlayer var2 = this.minecraft.player;
         int var3 = var2.getId();
-        if (var0 != var2.level.dimension()) {
+        if (var0 != var2.level().dimension()) {
             Scoreboard var4 = this.level.getScoreboard();
             Map<String, MapItemSavedData> var5 = this.level.getAllMapData();
             boolean var6 = param0.isDebug();
@@ -1129,7 +1126,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
         var10.setId(var3);
         this.minecraft.player = var10;
-        if (var0 != var2.level.dimension()) {
+        if (var0 != var2.level().dimension()) {
             this.minecraft.getMusicManager().stopPlaying();
         }
 
@@ -1808,19 +1805,25 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
     private void initializeChatSession(ClientboundPlayerInfoUpdatePacket.Entry param0, PlayerInfo param1) {
         GameProfile var0 = param1.getProfile();
-        RemoteChatSession.Data var1 = param0.chatSession();
-        if (var1 != null) {
-            try {
-                RemoteChatSession var2 = var1.validate(var0, this.minecraft.getServiceSignatureValidator(), ProfilePublicKey.EXPIRY_GRACE_PERIOD);
-                param1.setChatSession(var2);
-            } catch (ProfilePublicKey.ValidationException var6) {
-                LOGGER.error("Failed to validate profile key for player: '{}'", var0.getName(), var6);
+        SignatureValidator var1 = this.minecraft.getProfileKeySignatureValidator();
+        if (var1 == null) {
+            LOGGER.warn("Ignoring chat session from {} due to missing Services public key", var0.getName());
+            param1.clearChatSession(this.enforcesSecureChat());
+        } else {
+            RemoteChatSession.Data var2 = param0.chatSession();
+            if (var2 != null) {
+                try {
+                    RemoteChatSession var3 = var2.validate(var0, var1, ProfilePublicKey.EXPIRY_GRACE_PERIOD);
+                    param1.setChatSession(var3);
+                } catch (ProfilePublicKey.ValidationException var7) {
+                    LOGGER.error("Failed to validate profile key for player: '{}'", var0.getName(), var7);
+                    param1.clearChatSession(this.enforcesSecureChat());
+                }
+            } else {
                 param1.clearChatSession(this.enforcesSecureChat());
             }
-        } else {
-            param1.clearChatSession(this.enforcesSecureChat());
-        }
 
+        }
     }
 
     private boolean enforcesSecureChat() {
@@ -2452,12 +2455,12 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         BitSet var1 = param2.getSkyYMask();
         BitSet var2 = param2.getEmptySkyYMask();
         Iterator<byte[]> var3 = param2.getSkyUpdates().iterator();
-        this.readSectionList(param0, param1, var0, LightLayer.SKY, var1, var2, var3, param2.getTrustEdges());
+        this.readSectionList(param0, param1, var0, LightLayer.SKY, var1, var2, var3);
         BitSet var4 = param2.getBlockYMask();
         BitSet var5 = param2.getEmptyBlockYMask();
         Iterator<byte[]> var6 = param2.getBlockUpdates().iterator();
-        this.readSectionList(param0, param1, var0, LightLayer.BLOCK, var4, var5, var6, param2.getTrustEdges());
-        this.level.setLightReady(param0, param1);
+        this.readSectionList(param0, param1, var0, LightLayer.BLOCK, var4, var5, var6);
+        var0.setLightEnabled(new ChunkPos(param0, param1), true);
     }
 
     @Override
@@ -2511,17 +2514,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
     }
 
-    private void readSectionList(
-        int param0, int param1, LevelLightEngine param2, LightLayer param3, BitSet param4, BitSet param5, Iterator<byte[]> param6, boolean param7
-    ) {
+    private void readSectionList(int param0, int param1, LevelLightEngine param2, LightLayer param3, BitSet param4, BitSet param5, Iterator<byte[]> param6) {
         for(int var0 = 0; var0 < param2.getLightSectionCount(); ++var0) {
             int var1 = param2.getMinLightSection() + var0;
             boolean var2 = param4.get(var0);
             boolean var3 = param5.get(var0);
             if (var2 || var3) {
-                param2.queueSectionData(
-                    param3, SectionPos.of(param0, var1, param1), var2 ? new DataLayer((byte[])param6.next().clone()) : new DataLayer(), param7
-                );
+                param2.queueSectionData(param3, SectionPos.of(param0, var1, param1), var2 ? new DataLayer((byte[])param6.next().clone()) : new DataLayer());
                 this.level.setSectionDirtyWithNeighbors(param0, var1, param1);
             }
         }

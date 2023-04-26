@@ -217,19 +217,6 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
                 return false;
             } else {
                 BlockState var3 = this.getBlockState(param0);
-                if ((param2 & 128) == 0
-                    && var3 != var2
-                    && (
-                        var3.getLightBlock(this, param0) != var2.getLightBlock(this, param0)
-                            || var3.getLightEmission() != var2.getLightEmission()
-                            || var3.useShapeForLightOcclusion()
-                            || var2.useShapeForLightOcclusion()
-                    )) {
-                    this.getProfiler().push("queueCheckLight");
-                    this.getChunkSource().getLightEngine().checkBlock(param0);
-                    this.getProfiler().pop();
-                }
-
                 if (var3 == param1) {
                     if (var2 != var3) {
                         this.setBlocksDirty(param0, var2, var3);

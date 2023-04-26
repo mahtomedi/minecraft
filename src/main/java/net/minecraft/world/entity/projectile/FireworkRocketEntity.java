@@ -100,7 +100,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
         if (this.isAttachedToEntity()) {
             if (this.attachedToEntity == null) {
                 this.entityData.get(DATA_ATTACHED_TO_TARGET).ifPresent(param0 -> {
-                    Entity var0x = this.level.getEntity(param0);
+                    Entity var0x = this.level().getEntity(param0);
                     if (var0x instanceof LivingEntity) {
                         this.attachedToEntity = (LivingEntity)var0x;
                     }
@@ -150,12 +150,12 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
 
         this.updateRotation();
         if (this.life == 0 && !this.isSilent()) {
-            this.level.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
+            this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
         }
 
         ++this.life;
-        if (this.level.isClientSide && this.life % 2 < 2) {
-            this.level
+        if (this.level().isClientSide && this.life % 2 < 2) {
+            this.level()
                 .addParticle(
                     ParticleTypes.FIREWORK,
                     this.getX(),
@@ -167,14 +167,14 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
                 );
         }
 
-        if (!this.level.isClientSide && this.life > this.lifetime) {
+        if (!this.level().isClientSide && this.life > this.lifetime) {
             this.explode();
         }
 
     }
 
     private void explode() {
-        this.level.broadcastEntityEvent(this, (byte)17);
+        this.level().broadcastEntityEvent(this, (byte)17);
         this.gameEvent(GameEvent.EXPLODE, this.getOwner());
         this.dealExplosionDamage();
         this.discard();
@@ -183,7 +183,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     @Override
     protected void onHitEntity(EntityHitResult param0) {
         super.onHitEntity(param0);
-        if (!this.level.isClientSide) {
+        if (!this.level().isClientSide) {
             this.explode();
         }
     }
@@ -191,8 +191,8 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     @Override
     protected void onHitBlock(BlockHitResult param0) {
         BlockPos var0 = new BlockPos(param0.getBlockPos());
-        this.level.getBlockState(var0).entityInside(this.level, var0, this);
-        if (!this.level.isClientSide() && this.hasExplosion()) {
+        this.level().getBlockState(var0).entityInside(this.level(), var0, this);
+        if (!this.level().isClientSide() && this.hasExplosion()) {
             this.explode();
         }
 
@@ -223,13 +223,13 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
             double var4 = 5.0;
             Vec3 var5 = this.position();
 
-            for(LivingEntity var7 : this.level.getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(5.0))) {
+            for(LivingEntity var7 : this.level().getEntitiesOfClass(LivingEntity.class, this.getBoundingBox().inflate(5.0))) {
                 if (var7 != this.attachedToEntity && !(this.distanceToSqr(var7) > 25.0)) {
                     boolean var8 = false;
 
                     for(int var9 = 0; var9 < 2; ++var9) {
                         Vec3 var10 = new Vec3(var7.getX(), var7.getY(0.5 * (double)var9), var7.getZ());
-                        HitResult var11 = this.level.clip(new ClipContext(var5, var10, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+                        HitResult var11 = this.level().clip(new ClipContext(var5, var10, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
                         if (var11.getType() == HitResult.Type.MISS) {
                             var8 = true;
                             break;
@@ -256,10 +256,10 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
 
     @Override
     public void handleEntityEvent(byte param0) {
-        if (param0 == 17 && this.level.isClientSide) {
+        if (param0 == 17 && this.level().isClientSide) {
             if (!this.hasExplosion()) {
                 for(int var0 = 0; var0 < this.random.nextInt(3) + 2; ++var0) {
-                    this.level
+                    this.level()
                         .addParticle(
                             ParticleTypes.POOF,
                             this.getX(),
@@ -274,7 +274,7 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
                 ItemStack var1 = this.entityData.get(DATA_ID_FIREWORKS_ITEM);
                 CompoundTag var2 = var1.isEmpty() ? null : var1.getTagElement("Fireworks");
                 Vec3 var3 = this.getDeltaMovement();
-                this.level.createFireworks(this.getX(), this.getY(), this.getZ(), var3.x, var3.y, var3.z, var2);
+                this.level().createFireworks(this.getX(), this.getY(), this.getZ(), var3.x, var3.y, var3.z, var2);
             }
         }
 

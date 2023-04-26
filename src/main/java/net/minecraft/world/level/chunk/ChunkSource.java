@@ -3,7 +3,6 @@ package net.minecraft.world.level.chunk;
 import java.io.IOException;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 
@@ -20,7 +19,7 @@ public abstract class ChunkSource implements AutoCloseable, LightChunkGetter {
 
     @Nullable
     @Override
-    public BlockGetter getChunkForLighting(int param0, int param1) {
+    public LightChunk getChunkForLighting(int param0, int param1) {
         return this.getChunk(param0, param1, ChunkStatus.EMPTY, false);
     }
 

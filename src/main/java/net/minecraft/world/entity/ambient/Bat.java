@@ -131,25 +131,26 @@ public class Bat extends AmbientCreature {
         BlockPos var1 = var0.above();
         if (this.isResting()) {
             boolean var2 = this.isSilent();
-            if (this.level.getBlockState(var1).isRedstoneConductor(this.level, var0)) {
+            if (this.level().getBlockState(var1).isRedstoneConductor(this.level(), var0)) {
                 if (this.random.nextInt(200) == 0) {
                     this.yHeadRot = (float)this.random.nextInt(360);
                 }
 
-                if (this.level.getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
+                if (this.level().getNearestPlayer(BAT_RESTING_TARGETING, this) != null) {
                     this.setResting(false);
                     if (!var2) {
-                        this.level.levelEvent(null, 1025, var0, 0);
+                        this.level().levelEvent(null, 1025, var0, 0);
                     }
                 }
             } else {
                 this.setResting(false);
                 if (!var2) {
-                    this.level.levelEvent(null, 1025, var0, 0);
+                    this.level().levelEvent(null, 1025, var0, 0);
                 }
             }
         } else {
-            if (this.targetPosition != null && (!this.level.isEmptyBlock(this.targetPosition) || this.targetPosition.getY() <= this.level.getMinBuildHeight())) {
+            if (this.targetPosition != null
+                && (!this.level().isEmptyBlock(this.targetPosition) || this.targetPosition.getY() <= this.level().getMinBuildHeight())) {
                 this.targetPosition = null;
             }
 
@@ -173,7 +174,7 @@ public class Bat extends AmbientCreature {
             float var9 = Mth.wrapDegrees(var8 - this.getYRot());
             this.zza = 0.5F;
             this.setYRot(this.getYRot() + var9);
-            if (this.random.nextInt(100) == 0 && this.level.getBlockState(var1).isRedstoneConductor(this.level, var1)) {
+            if (this.random.nextInt(100) == 0 && this.level().getBlockState(var1).isRedstoneConductor(this.level(), var1)) {
                 this.setResting(true);
             }
         }
@@ -199,7 +200,7 @@ public class Bat extends AmbientCreature {
         if (this.isInvulnerableTo(param0)) {
             return false;
         } else {
-            if (!this.level.isClientSide && this.isResting()) {
+            if (!this.level().isClientSide && this.isResting()) {
                 this.setResting(false);
             }
 

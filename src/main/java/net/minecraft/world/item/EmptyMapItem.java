@@ -23,7 +23,7 @@ public class EmptyMapItem extends ComplexItem {
             }
 
             param1.awardStat(Stats.ITEM_USED.get(this));
-            param1.level.playSound(null, param1, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, param1.getSoundSource(), 1.0F, 1.0F);
+            param1.level().playSound(null, param1, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, param1.getSoundSource(), 1.0F, 1.0F);
             ItemStack var1 = MapItem.create(param0, param1.getBlockX(), param1.getBlockZ(), (byte)0, true, false);
             if (var0.isEmpty()) {
                 return InteractionResultHolder.consume(var1);

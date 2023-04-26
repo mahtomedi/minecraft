@@ -196,6 +196,10 @@ public class ExtraCodecs {
     public static final Codec<String> NON_EMPTY_STRING = validate(
         Codec.STRING, param0 -> param0.isEmpty() ? DataResult.error(() -> "Expected non-empty string") : DataResult.success(param0)
     );
+    public static final Codec<Integer> CODEPOINT = Codec.STRING.comapFlatMap(param0 -> {
+        int[] var0 = param0.codePoints().toArray();
+        return var0.length != 1 ? DataResult.error(() -> "Expected one codepoint, got: " + param0) : DataResult.success(var0[0]);
+    }, Character::toString);
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
         return new ExtraCodecs.XorCodec<>(param0, param1);

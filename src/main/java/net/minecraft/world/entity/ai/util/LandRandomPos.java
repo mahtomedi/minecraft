@@ -51,7 +51,7 @@ public class LandRandomPos {
 
     @Nullable
     public static BlockPos movePosUpOutOfSolid(PathfinderMob param0, BlockPos param1) {
-        param1 = RandomPos.moveUpOutOfSolid(param1, param0.level.getMaxBuildHeight(), param1x -> GoalUtils.isSolid(param0, param1x));
+        param1 = RandomPos.moveUpOutOfSolid(param1, param0.level().getMaxBuildHeight(), param1x -> GoalUtils.isSolid(param0, param1x));
         return !GoalUtils.isWater(param0, param1) && !GoalUtils.hasMalus(param0, param1) ? param1 : null;
     }
 

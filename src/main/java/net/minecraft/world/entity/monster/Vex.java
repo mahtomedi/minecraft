@@ -365,7 +365,7 @@ public class Vex extends Monster implements TraceableEntity {
 
             for(int var1 = 0; var1 < 3; ++var1) {
                 BlockPos var2 = var0.offset(Vex.this.random.nextInt(15) - 7, Vex.this.random.nextInt(11) - 5, Vex.this.random.nextInt(15) - 7);
-                if (Vex.this.level.isEmptyBlock(var2)) {
+                if (Vex.this.level().isEmptyBlock(var2)) {
                     Vex.this.moveControl.setWantedPosition((double)var2.getX() + 0.5, (double)var2.getY() + 0.5, (double)var2.getZ() + 0.5, 0.25);
                     if (Vex.this.getTarget() == null) {
                         Vex.this.getLookControl().setLookAt((double)var2.getX() + 0.5, (double)var2.getY() + 0.5, (double)var2.getZ() + 0.5, 180.0F, 20.0F);

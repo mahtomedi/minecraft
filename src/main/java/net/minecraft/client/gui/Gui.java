@@ -825,7 +825,7 @@ public class Gui {
         GuiGraphics param0, Player param1, int param2, int param3, int param4, int param5, float param6, int param7, int param8, int param9, boolean param10
     ) {
         Gui.HeartType var0 = Gui.HeartType.forPlayer(param1);
-        int var1 = 9 * (param1.level.getLevelData().isHardcore() ? 5 : 0);
+        int var1 = 9 * (param1.level().getLevelData().isHardcore() ? 5 : 0);
         int var2 = Mth.ceil((double)param6 / 2.0);
         int var3 = Mth.ceil((double)param9 / 2.0);
         int var4 = var2 * 2;
@@ -941,7 +941,7 @@ public class Gui {
     private void updateVignetteBrightness(Entity param0) {
         if (param0 != null) {
             BlockPos var0 = BlockPos.containing(param0.getX(), param0.getEyeY(), param0.getZ());
-            float var1 = LightTexture.getBrightness(param0.level.dimensionType(), param0.level.getMaxLocalRawBrightness(var0));
+            float var1 = LightTexture.getBrightness(param0.level().dimensionType(), param0.level().getMaxLocalRawBrightness(var0));
             float var2 = Mth.clamp(1.0F - var1, 0.0F, 1.0F);
             this.vignetteBrightness += (var2 - this.vignetteBrightness) * 0.01F;
         }

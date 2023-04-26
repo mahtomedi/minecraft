@@ -53,7 +53,7 @@ public class PiglinBruteAi {
     }
 
     protected static void initMemories(PiglinBrute param0) {
-        GlobalPos var0 = GlobalPos.of(param0.level.dimension(), param0.blockPosition());
+        GlobalPos var0 = GlobalPos.of(param0.level().dimension(), param0.blockPosition());
         param0.getBrain().setMemory(MemoryModuleType.HOME, var0);
     }
 
@@ -158,7 +158,7 @@ public class PiglinBruteAi {
     }
 
     protected static void maybePlayActivitySound(PiglinBrute param0) {
-        if ((double)param0.level.random.nextFloat() < 0.0125) {
+        if ((double)param0.level().random.nextFloat() < 0.0125) {
             playActivitySound(param0);
         }
 

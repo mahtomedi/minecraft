@@ -1,5 +1,7 @@
 package net.minecraft.world.level.lighting;
 
+import it.unimi.dsi.fastutil.longs.Long2ByteMap;
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -10,40 +12,32 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.server.level.SectionTracker;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 
-public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>> extends SectionTracker {
-    public static final int LIGHT_AND_DATA = 0;
-    public static final int LIGHT_ONLY = 1;
-    public static final int EMPTY = 2;
-    private static final Direction[] DIRECTIONS = Direction.values();
+public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>> {
     private final LightLayer layer;
-    private final LightChunkGetter chunkSource;
-    protected final LongSet dataSectionSet = new LongOpenHashSet();
-    protected final LongSet toMarkNoData = new LongOpenHashSet();
-    protected final LongSet toMarkData = new LongOpenHashSet();
+    protected final LightChunkGetter chunkSource;
+    protected final Long2ByteMap sectionStates = new Long2ByteOpenHashMap();
+    private final LongSet columnsWithSources = new LongOpenHashSet();
     protected volatile M visibleSectionData;
     protected final M updatingSectionData;
     protected final LongSet changedSections = new LongOpenHashSet();
     protected final LongSet sectionsAffectedByLightUpdates = new LongOpenHashSet();
     protected final Long2ObjectMap<DataLayer> queuedSections = Long2ObjectMaps.synchronize(new Long2ObjectOpenHashMap<>());
-    private final LongSet untrustedSections = new LongOpenHashSet();
     private final LongSet columnsToRetainQueuedDataFor = new LongOpenHashSet();
     private final LongSet toRemove = new LongOpenHashSet();
-    protected volatile boolean hasToRemove;
+    protected volatile boolean hasInconsistencies;
 
     protected LayerLightSectionStorage(LightLayer param0, LightChunkGetter param1, M param2) {
-        super(3, 16, 256);
         this.layer = param0;
         this.chunkSource = param1;
         this.updatingSectionData = param2;
         this.visibleSectionData = param2.copy();
         this.visibleSectionData.disableCache();
+        this.sectionStates.defaultReturnValue((byte)0);
     }
 
     protected boolean storingLightForSection(long param0) {
@@ -58,6 +52,22 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     @Nullable
     protected DataLayer getDataLayer(M param0, long param1) {
         return param0.getLayer(param1);
+    }
+
+    @Nullable
+    protected DataLayer getDataLayerToWrite(long param0) {
+        DataLayer var0 = this.updatingSectionData.getLayer(param0);
+        if (var0 == null) {
+            return null;
+        } else {
+            if (this.changedSections.add(param0)) {
+                var0 = var0.copy();
+                this.updatingSectionData.setLayer(param0, var0);
+                this.updatingSectionData.clearCache();
+            }
+
+            return var0;
+        }
     }
 
     @Nullable
@@ -96,57 +106,6 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
         SectionPos.aroundAndAtBlockPos(param0, this.sectionsAffectedByLightUpdates::add);
     }
 
-    @Override
-    protected int getLevel(long param0) {
-        if (this.isSource(param0)) {
-            return 2;
-        } else if (this.dataSectionSet.contains(param0)) {
-            return 0;
-        } else {
-            return !this.toRemove.contains(param0) && this.updatingSectionData.hasLayer(param0) ? 1 : 2;
-        }
-    }
-
-    @Override
-    protected int getLevelFromSource(long param0) {
-        if (this.toMarkNoData.contains(param0)) {
-            return 2;
-        } else {
-            return !this.dataSectionSet.contains(param0) && !this.toMarkData.contains(param0) ? 2 : 0;
-        }
-    }
-
-    @Override
-    protected void setLevel(long param0, int param1) {
-        int var0 = this.getLevel(param0);
-        if (var0 != 0 && param1 == 0) {
-            this.dataSectionSet.add(param0);
-            this.toMarkData.remove(param0);
-        }
-
-        if (var0 == 0 && param1 != 0) {
-            this.dataSectionSet.remove(param0);
-            this.toMarkNoData.remove(param0);
-        }
-
-        if (var0 >= 2 && param1 != 2) {
-            if (this.toRemove.contains(param0)) {
-                this.toRemove.remove(param0);
-            } else {
-                this.updatingSectionData.setLayer(param0, this.createDataLayer(param0));
-                this.changedSections.add(param0);
-                this.onNodeAdded(param0);
-                this.markSectionAndNeighborsAsAffected(param0);
-            }
-        }
-
-        if (var0 != 2 && param1 >= 2) {
-            this.toRemove.add(param0);
-        }
-
-        this.hasToRemove = !this.toRemove.isEmpty();
-    }
-
     protected void markSectionAndNeighborsAsAffected(long param0) {
         int var0 = SectionPos.x(param0);
         int var1 = SectionPos.y(param0);
@@ -167,36 +126,15 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
         return var0 != null ? var0 : new DataLayer();
     }
 
-    protected void clearQueuedSectionBlocks(LayerLightEngine<?, ?> param0, long param1) {
-        if (param0.getQueueSize() != 0) {
-            if (param0.getQueueSize() < 8192) {
-                param0.removeIf(param1x -> SectionPos.blockToSection(param1x) == param1);
-            } else {
-                int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
-                int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
-                int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
-
-                for(int var3 = 0; var3 < 16; ++var3) {
-                    for(int var4 = 0; var4 < 16; ++var4) {
-                        for(int var5 = 0; var5 < 16; ++var5) {
-                            long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
-                            param0.removeFromQueue(var6);
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
     protected boolean hasInconsistencies() {
-        return this.hasToRemove;
+        return this.hasInconsistencies;
     }
 
-    protected void markNewInconsistencies(LayerLightEngine<M, ?> param0, boolean param1, boolean param2) {
-        if (this.hasInconsistencies() || !this.queuedSections.isEmpty()) {
+    protected void markNewInconsistencies(LightEngine<M, ?> param0) {
+        if (this.hasInconsistencies) {
+            this.hasInconsistencies = false;
+
             for(long var0 : this.toRemove) {
-                this.clearQueuedSectionBlocks(param0, var0);
                 DataLayer var1 = this.queuedSections.remove(var0);
                 DataLayer var2 = this.updatingSectionData.removeLayer(var0);
                 if (this.columnsToRetainQueuedDataFor.contains(SectionPos.getZeroNode(var0))) {
@@ -216,91 +154,24 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
             }
 
             this.toRemove.clear();
-            this.hasToRemove = false;
+            ObjectIterator<Entry<DataLayer>> var4 = Long2ObjectMaps.fastIterator(this.queuedSections);
 
-            for(Entry<DataLayer> var4 : this.queuedSections.long2ObjectEntrySet()) {
-                long var5 = var4.getLongKey();
-                if (this.storingLightForSection(var5)) {
-                    DataLayer var6 = var4.getValue();
-                    if (this.updatingSectionData.getLayer(var5) != var6) {
-                        this.clearQueuedSectionBlocks(param0, var5);
-                        this.updatingSectionData.setLayer(var5, var6);
-                        this.changedSections.add(var5);
+            while(var4.hasNext()) {
+                Entry<DataLayer> var5 = var4.next();
+                long var6 = var5.getLongKey();
+                if (this.storingLightForSection(var6)) {
+                    DataLayer var7 = var5.getValue();
+                    if (this.updatingSectionData.getLayer(var6) != var7) {
+                        param0.clearQueuedSectionBlocks(var6);
+                        this.updatingSectionData.setLayer(var6, var7);
+                        this.changedSections.add(var6);
                     }
+
+                    var4.remove();
                 }
             }
 
             this.updatingSectionData.clearCache();
-            if (!param2) {
-                for(long var7 : this.queuedSections.keySet()) {
-                    this.checkEdgesForSection(param0, var7);
-                }
-            } else {
-                for(long var8 : this.untrustedSections) {
-                    this.checkEdgesForSection(param0, var8);
-                }
-            }
-
-            this.untrustedSections.clear();
-            ObjectIterator<Entry<DataLayer>> var9 = this.queuedSections.long2ObjectEntrySet().iterator();
-
-            while(var9.hasNext()) {
-                Entry<DataLayer> var10 = var9.next();
-                long var11 = var10.getLongKey();
-                if (this.storingLightForSection(var11)) {
-                    var9.remove();
-                }
-            }
-
-        }
-    }
-
-    private void checkEdgesForSection(LayerLightEngine<M, ?> param0, long param1) {
-        if (this.storingLightForSection(param1)) {
-            int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param1));
-            int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param1));
-            int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param1));
-
-            for(Direction var3 : DIRECTIONS) {
-                long var4 = SectionPos.offset(param1, var3);
-                if (!this.queuedSections.containsKey(var4) && this.storingLightForSection(var4)) {
-                    for(int var5 = 0; var5 < 16; ++var5) {
-                        for(int var6 = 0; var6 < 16; ++var6) {
-                            long var7;
-                            long var8;
-                            switch(var3) {
-                                case DOWN:
-                                    var7 = BlockPos.asLong(var0 + var6, var1, var2 + var5);
-                                    var8 = BlockPos.asLong(var0 + var6, var1 - 1, var2 + var5);
-                                    break;
-                                case UP:
-                                    var7 = BlockPos.asLong(var0 + var6, var1 + 16 - 1, var2 + var5);
-                                    var8 = BlockPos.asLong(var0 + var6, var1 + 16, var2 + var5);
-                                    break;
-                                case NORTH:
-                                    var7 = BlockPos.asLong(var0 + var5, var1 + var6, var2);
-                                    var8 = BlockPos.asLong(var0 + var5, var1 + var6, var2 - 1);
-                                    break;
-                                case SOUTH:
-                                    var7 = BlockPos.asLong(var0 + var5, var1 + var6, var2 + 16 - 1);
-                                    var8 = BlockPos.asLong(var0 + var5, var1 + var6, var2 + 16);
-                                    break;
-                                case WEST:
-                                    var7 = BlockPos.asLong(var0, var1 + var5, var2 + var6);
-                                    var8 = BlockPos.asLong(var0 - 1, var1 + var5, var2 + var6);
-                                    break;
-                                default:
-                                    var7 = BlockPos.asLong(var0 + 16 - 1, var1 + var5, var2 + var6);
-                                    var8 = BlockPos.asLong(var0 + 16, var1 + var5, var2 + var6);
-                            }
-
-                            param0.checkEdge(var7, var8, param0.computeLevelFromNeighbor(var7, var8, param0.getLevel(var7)), false);
-                            param0.checkEdge(var8, var7, param0.computeLevelFromNeighbor(var8, var7, param0.getLevel(var8)), false);
-                        }
-                    }
-                }
-            }
-
         }
     }
 
@@ -310,7 +181,18 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     protected void onNodeRemoved(long param0) {
     }
 
-    protected void enableLightSources(long param0, boolean param1) {
+    protected void setLightEnabled(long param0, boolean param1) {
+        if (param1) {
+            this.columnsWithSources.add(param0);
+        } else {
+            this.columnsWithSources.remove(param0);
+        }
+
+    }
+
+    protected boolean lightOnInSection(long param0) {
+        long var0 = SectionPos.getZeroNode(param0);
+        return this.columnsWithSources.contains(var0);
     }
 
     public void retainData(long param0, boolean param1) {
@@ -322,12 +204,10 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
 
     }
 
-    protected void queueSectionData(long param0, @Nullable DataLayer param1, boolean param2) {
+    protected void queueSectionData(long param0, @Nullable DataLayer param1) {
         if (param1 != null) {
             this.queuedSections.put(param0, param1);
-            if (!param2) {
-                this.untrustedSections.add(param0);
-            }
+            this.hasInconsistencies = true;
         } else {
             this.queuedSections.remove(param0);
         }
@@ -335,24 +215,55 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
     }
 
     protected void updateSectionStatus(long param0, boolean param1) {
-        boolean var0 = this.dataSectionSet.contains(param0);
-        if (!var0 && !param1) {
-            this.toMarkData.add(param0);
-            this.checkEdge(Long.MAX_VALUE, param0, 0, true);
-        }
+        byte var0 = this.sectionStates.get(param0);
+        byte var1 = LayerLightSectionStorage.SectionState.hasData(var0, !param1);
+        if (var0 != var1) {
+            this.putSectionState(param0, var1);
+            int var2 = param1 ? -1 : 1;
 
-        if (var0 && param1) {
-            this.toMarkNoData.add(param0);
-            this.checkEdge(Long.MAX_VALUE, param0, 2, false);
+            for(int var3 = -1; var3 <= 1; ++var3) {
+                for(int var4 = -1; var4 <= 1; ++var4) {
+                    for(int var5 = -1; var5 <= 1; ++var5) {
+                        if (var3 != 0 || var4 != 0 || var5 != 0) {
+                            long var6 = SectionPos.offset(param0, var3, var4, var5);
+                            byte var7 = this.sectionStates.get(var6);
+                            this.putSectionState(
+                                var6,
+                                LayerLightSectionStorage.SectionState.neighborCount(var7, LayerLightSectionStorage.SectionState.neighborCount(var7) + var2)
+                            );
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    protected void putSectionState(long param0, byte param1) {
+        if (param1 != 0) {
+            if (this.sectionStates.put(param0, param1) == 0) {
+                this.initializeSection(param0);
+            }
+        } else if (this.sectionStates.remove(param0) != 0) {
+            this.removeSection(param0);
         }
 
     }
 
-    protected void runAllUpdates() {
-        if (this.hasWork()) {
-            this.runUpdates(Integer.MAX_VALUE);
+    private void initializeSection(long param0) {
+        if (!this.toRemove.remove(param0)) {
+            this.updatingSectionData.setLayer(param0, this.createDataLayer(param0));
+            this.changedSections.add(param0);
+            this.onNodeAdded(param0);
+            this.markSectionAndNeighborsAsAffected(param0);
+            this.hasInconsistencies = true;
         }
 
+    }
+
+    private void removeSection(long param0) {
+        this.toRemove.add(param0);
+        this.hasInconsistencies = true;
     }
 
     protected void swapSectionMap() {
@@ -374,5 +285,61 @@ public abstract class LayerLightSectionStorage<M extends DataLayerStorageMap<M>>
             this.sectionsAffectedByLightUpdates.clear();
         }
 
+    }
+
+    public LayerLightSectionStorage.SectionType getDebugSectionType(long param0) {
+        return LayerLightSectionStorage.SectionState.type(this.sectionStates.get(param0));
+    }
+
+    protected static class SectionState {
+        public static final byte EMPTY = 0;
+        private static final int MIN_NEIGHBORS = 0;
+        private static final int MAX_NEIGHBORS = 26;
+        private static final byte HAS_DATA_BIT = 32;
+        private static final byte NEIGHBOR_COUNT_BITS = 31;
+
+        public static byte hasData(byte param0, boolean param1) {
+            return (byte)(param1 ? param0 | 32 : param0 & -33);
+        }
+
+        public static byte neighborCount(byte param0, int param1) {
+            if (param1 >= 0 && param1 <= 26) {
+                return (byte)(param0 & -32 | param1 & 31);
+            } else {
+                throw new IllegalArgumentException("Neighbor count was not within range [0; 26]");
+            }
+        }
+
+        public static boolean hasData(byte param0) {
+            return (param0 & 32) != 0;
+        }
+
+        public static int neighborCount(byte param0) {
+            return param0 & 31;
+        }
+
+        public static LayerLightSectionStorage.SectionType type(byte param0) {
+            if (param0 == 0) {
+                return LayerLightSectionStorage.SectionType.EMPTY;
+            } else {
+                return hasData(param0) ? LayerLightSectionStorage.SectionType.LIGHT_AND_DATA : LayerLightSectionStorage.SectionType.LIGHT_ONLY;
+            }
+        }
+    }
+
+    public static enum SectionType {
+        EMPTY("2"),
+        LIGHT_ONLY("1"),
+        LIGHT_AND_DATA("0");
+
+        private final String display;
+
+        private SectionType(String param0) {
+            this.display = param0;
+        }
+
+        public String display() {
+            return this.display;
+        }
     }
 }

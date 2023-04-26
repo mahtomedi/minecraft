@@ -15,11 +15,9 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
     private final SectionPos sectionPos;
     private final short[] positions;
     private final BlockState[] states;
-    private final boolean suppressLightUpdates;
 
-    public ClientboundSectionBlocksUpdatePacket(SectionPos param0, ShortSet param1, LevelChunkSection param2, boolean param3) {
+    public ClientboundSectionBlocksUpdatePacket(SectionPos param0, ShortSet param1, LevelChunkSection param2) {
         this.sectionPos = param0;
-        this.suppressLightUpdates = param3;
         int var0 = param1.size();
         this.positions = new short[var0];
         this.states = new BlockState[var0];
@@ -35,7 +33,6 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
 
     public ClientboundSectionBlocksUpdatePacket(FriendlyByteBuf param0) {
         this.sectionPos = SectionPos.of(param0.readLong());
-        this.suppressLightUpdates = param0.readBoolean();
         int var0 = param0.readVarInt();
         this.positions = new short[var0];
         this.states = new BlockState[var0];
@@ -51,7 +48,6 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
     @Override
     public void write(FriendlyByteBuf param0) {
         param0.writeLong(this.sectionPos.asLong());
-        param0.writeBoolean(this.suppressLightUpdates);
         param0.writeVarInt(this.positions.length);
 
         for(int var0 = 0; var0 < this.positions.length; ++var0) {
@@ -73,9 +69,5 @@ public class ClientboundSectionBlocksUpdatePacket implements Packet<ClientGamePa
             param0.accept(var0, this.states[var1]);
         }
 
-    }
-
-    public boolean shouldSuppressLightUpdates() {
-        return this.suppressLightUpdates;
     }
 }

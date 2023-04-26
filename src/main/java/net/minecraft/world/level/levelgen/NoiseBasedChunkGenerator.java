@@ -368,11 +368,6 @@ public final class NoiseBasedChunkGenerator extends ChunkGenerator {
 
                                 var30 = this.debugPreliminarySurfaceLevel(var0, var23, var18, var27, var30);
                                 if (var30 != AIR && !SharedConstants.debugVoidTerrain(param3.getPos())) {
-                                    if (var30.getLightEmission() != 0 && param3 instanceof ProtoChunk) {
-                                        var7.set(var23, var18, var27);
-                                        ((ProtoChunk)param3).addLight(var7);
-                                    }
-
                                     var15.setBlockState(var24, var19, var28, var30, false);
                                     var1.update(var24, var18, var28, var30);
                                     var2.update(var24, var18, var28, var30);

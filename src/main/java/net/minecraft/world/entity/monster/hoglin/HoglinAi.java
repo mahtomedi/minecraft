@@ -160,7 +160,7 @@ public class HoglinAi {
     private static void setAvoidTarget(Hoglin param0, LivingEntity param1) {
         param0.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
         param0.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level.random));
+        param0.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, param1, (long)RETREAT_DURATION.sample(param0.level().random));
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(Hoglin param0x) {

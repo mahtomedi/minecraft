@@ -161,7 +161,7 @@ public class TeleportCommand {
             performTeleport(
                 param0,
                 var0,
-                (ServerLevel)param2.level,
+                (ServerLevel)param2.level(),
                 param2.getX(),
                 param2.getY(),
                 param2.getZ(),

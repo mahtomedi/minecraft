@@ -70,11 +70,11 @@ public class CompassItemPropertyFunction implements ClampedItemPropertyFunction 
 
     @Nullable
     private ClientLevel tryFetchLevelIfMissing(Entity param0, @Nullable ClientLevel param1) {
-        return param1 == null && param0.level instanceof ClientLevel ? (ClientLevel)param0.level : param1;
+        return param1 == null && param0.level() instanceof ClientLevel ? (ClientLevel)param0.level() : param1;
     }
 
     private boolean isValidCompassTargetPos(Entity param0, @Nullable GlobalPos param1) {
-        return param1 != null && param1.dimension() == param0.level.dimension() && !(param1.pos().distToCenterSqr(param0.position()) < 1.0E-5F);
+        return param1 != null && param1.dimension() == param0.level().dimension() && !(param1.pos().distToCenterSqr(param0.position()) < 1.0E-5F);
     }
 
     private double getAngleFromEntityToPos(Entity param0, BlockPos param1) {

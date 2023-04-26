@@ -49,7 +49,7 @@ public class GoatAi {
     private static final UniformInt TIME_BETWEEN_RAMS = UniformInt.of(600, 6000);
     private static final UniformInt TIME_BETWEEN_RAMS_SCREAMER = UniformInt.of(100, 300);
     private static final TargetingConditions RAM_TARGET_CONDITIONS = TargetingConditions.forCombat()
-        .selector(param0 -> !param0.getType().equals(EntityType.GOAT) && param0.level.getWorldBorder().isWithinBounds(param0.getBoundingBox()));
+        .selector(param0 -> !param0.getType().equals(EntityType.GOAT) && param0.level().getWorldBorder().isWithinBounds(param0.getBoundingBox()));
     private static final float SPEED_MULTIPLIER_WHEN_RAMMING = 3.0F;
     public static final int RAM_MIN_DISTANCE = 4;
     public static final float ADULT_RAM_KNOCKBACK_FORCE = 2.5F;

@@ -332,7 +332,7 @@ public final class ItemStack {
     }
 
     public <T extends LivingEntity> void hurtAndBreak(int param0, T param1, Consumer<T> param2) {
-        if (!param1.level.isClientSide && (!(param1 instanceof Player) || !((Player)param1).getAbilities().instabuild)) {
+        if (!param1.level().isClientSide && (!(param1 instanceof Player) || !((Player)param1).getAbilities().instabuild)) {
             if (this.isDamageableItem()) {
                 if (this.hurt(param0, param1.getRandom(), param1 instanceof ServerPlayer ? (ServerPlayer)param1 : null)) {
                     param2.accept(param1);
@@ -630,12 +630,12 @@ public final class ItemStack {
 
         int var3 = this.getHideFlags();
         if (shouldShowInTooltip(var3, ItemStack.TooltipPart.ADDITIONAL)) {
-            this.getItem().appendHoverText(this, param0 == null ? null : param0.level, var0, param1);
+            this.getItem().appendHoverText(this, param0 == null ? null : param0.level(), var0, param1);
         }
 
         if (this.hasTag()) {
             if (shouldShowInTooltip(var3, ItemStack.TooltipPart.UPGRADES) && param0 != null) {
-                ArmorTrim.appendUpgradeHoverText(this, param0.level.registryAccess(), var0);
+                ArmorTrim.appendUpgradeHoverText(this, param0.level().registryAccess(), var0);
             }
 
             if (shouldShowInTooltip(var3, ItemStack.TooltipPart.ENCHANTMENTS)) {
@@ -781,7 +781,7 @@ public final class ItemStack {
             }
         }
 
-        if (param0 != null && !this.getItem().isEnabled(param0.getLevel().enabledFeatures())) {
+        if (param0 != null && !this.getItem().isEnabled(param0.level().enabledFeatures())) {
             var0.add(DISABLED_ITEM_TOOLTIP);
         }
 

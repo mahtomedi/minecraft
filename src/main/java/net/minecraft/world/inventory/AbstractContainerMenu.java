@@ -516,7 +516,7 @@ public abstract class AbstractContainerMenu {
     }
 
     private boolean tryItemClickBehaviourOverride(Player param0, ClickAction param1, Slot param2, ItemStack param3, ItemStack param4) {
-        FeatureFlagSet var0 = param0.getLevel().enabledFeatures();
+        FeatureFlagSet var0 = param0.level().enabledFeatures();
         if (param4.isItemEnabled(var0) && param4.overrideStackedOnOther(param2, param1, param0)) {
             return true;
         } else {

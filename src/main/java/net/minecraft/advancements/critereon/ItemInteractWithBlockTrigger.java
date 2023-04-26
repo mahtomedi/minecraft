@@ -28,8 +28,8 @@ public class ItemInteractWithBlockTrigger extends SimpleCriterionTrigger<ItemInt
     }
 
     public void trigger(ServerPlayer param0, BlockPos param1, ItemStack param2) {
-        BlockState var0 = param0.getLevel().getBlockState(param1);
-        this.trigger(param0, param4 -> param4.matches(var0, param0.getLevel(), param1, param2));
+        BlockState var0 = param0.level().getBlockState(param1);
+        this.trigger(param0, param4 -> param4.matches(var0, param0.serverLevel(), param1, param2));
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {

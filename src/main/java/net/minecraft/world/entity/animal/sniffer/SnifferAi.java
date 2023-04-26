@@ -135,7 +135,7 @@ public class SnifferAi {
                         super.start(param0, param1, param2);
                     }
                 }),
-                Pair.of(1, new FollowTemptation(param0x -> 1.25F) {
+                Pair.of(1, new FollowTemptation(param0x -> 1.25F, 3.5) {
                     @Override
                     protected void start(ServerLevel param0, PathfinderMob param1, long param2) {
                         SnifferAi.resetSniffing((Sniffer)param1);

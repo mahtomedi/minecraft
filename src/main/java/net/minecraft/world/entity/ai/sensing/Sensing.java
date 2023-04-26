@@ -26,9 +26,9 @@ public class Sensing {
         } else if (this.unseen.contains(var0)) {
             return false;
         } else {
-            this.mob.level.getProfiler().push("hasLineOfSight");
+            this.mob.level().getProfiler().push("hasLineOfSight");
             boolean var1 = this.mob.hasLineOfSight(param0);
-            this.mob.level.getProfiler().pop();
+            this.mob.level().getProfiler().pop();
             if (var1) {
                 this.seen.add(var0);
             } else {
