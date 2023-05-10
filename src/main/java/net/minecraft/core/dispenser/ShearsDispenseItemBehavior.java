@@ -10,7 +10,6 @@ import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Shearable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
@@ -21,10 +20,10 @@ import net.minecraft.world.phys.AABB;
 public class ShearsDispenseItemBehavior extends OptionalDispenseItemBehavior {
     @Override
     protected ItemStack execute(BlockSource param0, ItemStack param1) {
-        Level var0 = param0.getLevel();
+        ServerLevel var0 = param0.getLevel();
         if (!var0.isClientSide()) {
             BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
-            this.setSuccess(tryShearBeehive((ServerLevel)var0, var1) || tryShearLivingEntity((ServerLevel)var0, var1));
+            this.setSuccess(tryShearBeehive(var0, var1) || tryShearLivingEntity(var0, var1));
             if (this.isSuccess() && param1.hurt(1, var0.getRandom(), null)) {
                 param1.setCount(0);
             }

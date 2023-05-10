@@ -19,7 +19,7 @@ public class DistanceTrigger extends SimpleCriterionTrigger<DistanceTrigger.Trig
         return this.id;
     }
 
-    public DistanceTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public DistanceTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         LocationPredicate var0 = LocationPredicate.fromJson(param0.get("start_position"));
         DistancePredicate var1 = DistancePredicate.fromJson(param0.get("distance"));
         return new DistanceTrigger.TriggerInstance(this.id, param1, var0, var1);
@@ -34,24 +34,24 @@ public class DistanceTrigger extends SimpleCriterionTrigger<DistanceTrigger.Trig
         private final LocationPredicate startPosition;
         private final DistancePredicate distance;
 
-        public TriggerInstance(ResourceLocation param0, EntityPredicate.Composite param1, LocationPredicate param2, DistancePredicate param3) {
+        public TriggerInstance(ResourceLocation param0, ContextAwarePredicate param1, LocationPredicate param2, DistancePredicate param3) {
             super(param0, param1);
             this.startPosition = param2;
             this.distance = param3;
         }
 
         public static DistanceTrigger.TriggerInstance fallFromHeight(EntityPredicate.Builder param0, DistancePredicate param1, LocationPredicate param2) {
-            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.FALL_FROM_HEIGHT.id, EntityPredicate.Composite.wrap(param0.build()), param2, param1);
+            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.FALL_FROM_HEIGHT.id, EntityPredicate.wrap(param0.build()), param2, param1);
         }
 
         public static DistanceTrigger.TriggerInstance rideEntityInLava(EntityPredicate.Builder param0, DistancePredicate param1) {
             return new DistanceTrigger.TriggerInstance(
-                CriteriaTriggers.RIDE_ENTITY_IN_LAVA_TRIGGER.id, EntityPredicate.Composite.wrap(param0.build()), LocationPredicate.ANY, param1
+                CriteriaTriggers.RIDE_ENTITY_IN_LAVA_TRIGGER.id, EntityPredicate.wrap(param0.build()), LocationPredicate.ANY, param1
             );
         }
 
         public static DistanceTrigger.TriggerInstance travelledThroughNether(DistancePredicate param0) {
-            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.NETHER_TRAVEL.id, EntityPredicate.Composite.ANY, LocationPredicate.ANY, param0);
+            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.NETHER_TRAVEL.id, ContextAwarePredicate.ANY, LocationPredicate.ANY, param0);
         }
 
         @Override

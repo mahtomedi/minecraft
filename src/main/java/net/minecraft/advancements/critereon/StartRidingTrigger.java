@@ -12,7 +12,7 @@ public class StartRidingTrigger extends SimpleCriterionTrigger<StartRidingTrigge
         return ID;
     }
 
-    public StartRidingTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public StartRidingTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         return new StartRidingTrigger.TriggerInstance(param1);
     }
 
@@ -21,12 +21,12 @@ public class StartRidingTrigger extends SimpleCriterionTrigger<StartRidingTrigge
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        public TriggerInstance(EntityPredicate.Composite param0) {
+        public TriggerInstance(ContextAwarePredicate param0) {
             super(StartRidingTrigger.ID, param0);
         }
 
         public static StartRidingTrigger.TriggerInstance playerStartsRiding(EntityPredicate.Builder param0) {
-            return new StartRidingTrigger.TriggerInstance(EntityPredicate.Composite.wrap(param0.build()));
+            return new StartRidingTrigger.TriggerInstance(EntityPredicate.wrap(param0.build()));
         }
     }
 }

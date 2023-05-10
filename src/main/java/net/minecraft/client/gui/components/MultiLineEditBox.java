@@ -1,7 +1,5 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.gui.Font;
@@ -9,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -206,10 +205,7 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     }
 
     private void renderHighlight(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        param0.fill(param1, param2, param3, param4, -16776961);
-        RenderSystem.disableColorLogicOp();
+        param0.fill(RenderType.guiTextHighlight(), param1, param2, param3, param4, -16776961);
     }
 
     private void scrollToCursor() {

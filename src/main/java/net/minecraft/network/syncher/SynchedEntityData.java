@@ -92,6 +92,10 @@ public class SynchedEntityData {
         this.lock.writeLock().unlock();
     }
 
+    public <T> boolean hasItem(EntityDataAccessor<T> param0) {
+        return this.itemsById.containsKey(param0.getId());
+    }
+
     private <T> SynchedEntityData.DataItem<T> getItem(EntityDataAccessor<T> param0) {
         this.lock.readLock().lock();
 

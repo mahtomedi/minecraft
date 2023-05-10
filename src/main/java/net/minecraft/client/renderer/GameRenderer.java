@@ -162,10 +162,6 @@ public class GameRenderer implements AutoCloseable {
     @Nullable
     private static ShaderInstance positionTexColorShader;
     @Nullable
-    private static ShaderInstance blockShader;
-    @Nullable
-    private static ShaderInstance newEntityShader;
-    @Nullable
     private static ShaderInstance particleShader;
     @Nullable
     private static ShaderInstance positionColorLightmapShader;
@@ -265,6 +261,14 @@ public class GameRenderer implements AutoCloseable {
     private static ShaderInstance rendertypeLinesShader;
     @Nullable
     private static ShaderInstance rendertypeCrumblingShader;
+    @Nullable
+    private static ShaderInstance rendertypeGuiShader;
+    @Nullable
+    private static ShaderInstance rendertypeGuiOverlayShader;
+    @Nullable
+    private static ShaderInstance rendertypeGuiTextHighlightShader;
+    @Nullable
+    private static ShaderInstance rendertypeGuiGhostRecipeOverlayShader;
 
     public GameRenderer(Minecraft param0, ItemInHandRenderer param1, ResourceManager param2, RenderBuffers param3) {
         this.minecraft = param0;
@@ -429,6 +433,8 @@ public class GameRenderer implements AutoCloseable {
                 throw new RuntimeException("could not preload blit shader", var3);
             }
 
+            rendertypeGuiShader = this.preloadShader(param0, "rendertype_gui", DefaultVertexFormat.POSITION_COLOR);
+            rendertypeGuiOverlayShader = this.preloadShader(param0, "rendertype_gui_overlay", DefaultVertexFormat.POSITION_COLOR);
             positionShader = this.preloadShader(param0, "position", DefaultVertexFormat.POSITION);
             positionColorShader = this.preloadShader(param0, "position_color", DefaultVertexFormat.POSITION_COLOR);
             positionColorTexShader = this.preloadShader(param0, "position_color_tex", DefaultVertexFormat.POSITION_COLOR_TEX);
@@ -457,8 +463,6 @@ public class GameRenderer implements AutoCloseable {
         List<Pair<ShaderInstance, Consumer<ShaderInstance>>> var1 = Lists.newArrayListWithCapacity(this.shaders.size());
 
         try {
-            var1.add(Pair.of(new ShaderInstance(param0, "block", DefaultVertexFormat.BLOCK), param0x -> blockShader = param0x));
-            var1.add(Pair.of(new ShaderInstance(param0, "new_entity", DefaultVertexFormat.NEW_ENTITY), param0x -> newEntityShader = param0x));
             var1.add(Pair.of(new ShaderInstance(param0, "particle", DefaultVertexFormat.PARTICLE), param0x -> particleShader = param0x));
             var1.add(Pair.of(new ShaderInstance(param0, "position", DefaultVertexFormat.POSITION), param0x -> positionShader = param0x));
             var1.add(Pair.of(new ShaderInstance(param0, "position_color", DefaultVertexFormat.POSITION_COLOR), param0x -> positionColorShader = param0x));
@@ -675,6 +679,24 @@ public class GameRenderer implements AutoCloseable {
                 Pair.of(new ShaderInstance(param0, "rendertype_lines", DefaultVertexFormat.POSITION_COLOR_NORMAL), param0x -> rendertypeLinesShader = param0x)
             );
             var1.add(Pair.of(new ShaderInstance(param0, "rendertype_crumbling", DefaultVertexFormat.BLOCK), param0x -> rendertypeCrumblingShader = param0x));
+            var1.add(Pair.of(new ShaderInstance(param0, "rendertype_gui", DefaultVertexFormat.POSITION_COLOR), param0x -> rendertypeGuiShader = param0x));
+            var1.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_gui_overlay", DefaultVertexFormat.POSITION_COLOR), param0x -> rendertypeGuiOverlayShader = param0x
+                )
+            );
+            var1.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_gui_text_highlight", DefaultVertexFormat.POSITION_COLOR),
+                    param0x -> rendertypeGuiTextHighlightShader = param0x
+                )
+            );
+            var1.add(
+                Pair.of(
+                    new ShaderInstance(param0, "rendertype_gui_ghost_recipe_overlay", DefaultVertexFormat.POSITION_COLOR),
+                    param0x -> rendertypeGuiGhostRecipeOverlayShader = param0x
+                )
+            );
         } catch (IOException var5) {
             var1.forEach(param0x -> param0x.getFirst().close());
             throw new RuntimeException("could not reload shaders", var5);
@@ -1013,7 +1035,7 @@ public class GameRenderer implements AutoCloseable {
             if (param2 && this.minecraft.level != null) {
                 this.minecraft.getProfiler().popPush("gui");
                 if (this.minecraft.player != null) {
-                    float var6 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+                    float var6 = Mth.lerp(param0, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity);
                     float var7 = this.minecraft.options.screenEffectScale().get().floatValue();
                     if (var6 > 0.0F && this.minecraft.player.hasEffect(MobEffects.CONFUSION) && var7 < 1.0F) {
                         this.renderConfusionOverlay(var5, var6 * (1.0F - var7));
@@ -1189,7 +1211,7 @@ public class GameRenderer implements AutoCloseable {
         }
 
         float var4 = this.minecraft.options.screenEffectScale().get().floatValue();
-        float var5 = Mth.lerp(param0, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime) * var4 * var4;
+        float var5 = Mth.lerp(param0, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * var4 * var4;
         if (var5 > 0.0F) {
             int var6 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
             float var7 = 5.0F / (var5 * var5 + 5.0F) - var5 * 0.04F;
@@ -1277,8 +1299,8 @@ public class GameRenderer implements AutoCloseable {
     }
 
     private void renderConfusionOverlay(GuiGraphics param0, float param1) {
-        int var0 = this.minecraft.getWindow().getGuiScaledWidth();
-        int var1 = this.minecraft.getWindow().getGuiScaledHeight();
+        int var0 = param0.guiWidth();
+        int var1 = param0.guiHeight();
         param0.pose().pushPose();
         float var2 = Mth.lerp(param1, 2.0F, 1.0F);
         param0.pose().translate((float)var0 / 2.0F, (float)var1 / 2.0F, 0.0F);
@@ -1350,16 +1372,6 @@ public class GameRenderer implements AutoCloseable {
     @Nullable
     public static ShaderInstance getPositionTexColorShader() {
         return positionTexColorShader;
-    }
-
-    @Nullable
-    public static ShaderInstance getBlockShader() {
-        return blockShader;
-    }
-
-    @Nullable
-    public static ShaderInstance getNewEntityShader() {
-        return newEntityShader;
     }
 
     @Nullable
@@ -1610,6 +1622,26 @@ public class GameRenderer implements AutoCloseable {
     @Nullable
     public static ShaderInstance getRendertypeCrumblingShader() {
         return rendertypeCrumblingShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeGuiShader() {
+        return rendertypeGuiShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeGuiOverlayShader() {
+        return rendertypeGuiOverlayShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeGuiTextHighlightShader() {
+        return rendertypeGuiTextHighlightShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeGuiGhostRecipeOverlayShader() {
+        return rendertypeGuiGhostRecipeOverlayShader;
     }
 
     @OnlyIn(Dist.CLIENT)

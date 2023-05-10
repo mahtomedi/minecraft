@@ -57,7 +57,7 @@ public class RealmsSettingsScreen extends RealmsScreen {
                         this.minecraft.setScreen(this);
                     }
 
-                }, RealmsLongConfirmationScreen.Type.Info, var0x, var1x, true));
+                }, RealmsLongConfirmationScreen.Type.INFO, var0x, var1x, true));
             } else {
                 this.configureWorldScreen.openTheWorld(false, this);
             }

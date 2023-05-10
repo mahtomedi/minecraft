@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -73,14 +73,13 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc
             }
 
             this.lootTable = null;
-            LootContext.Builder var1 = new LootContext.Builder((ServerLevel)this.level)
-                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition))
-                .withOptionalRandomSeed(this.lootTableSeed);
+            LootParams.Builder var1 = new LootParams.Builder((ServerLevel)this.level)
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition));
             if (param0 != null) {
                 var1.withLuck(param0.getLuck()).withParameter(LootContextParams.THIS_ENTITY, param0);
             }
 
-            var0.fill(this, var1.create(LootContextParamSets.CHEST));
+            var0.fill(this, var1.create(LootContextParamSets.CHEST), this.lootTableSeed);
         }
 
     }

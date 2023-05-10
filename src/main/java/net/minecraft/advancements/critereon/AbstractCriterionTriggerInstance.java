@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class AbstractCriterionTriggerInstance implements CriterionTriggerInstance {
     private final ResourceLocation criterion;
-    private final EntityPredicate.Composite player;
+    private final ContextAwarePredicate player;
 
-    public AbstractCriterionTriggerInstance(ResourceLocation param0, EntityPredicate.Composite param1) {
+    public AbstractCriterionTriggerInstance(ResourceLocation param0, ContextAwarePredicate param1) {
         this.criterion = param0;
         this.player = param1;
     }
@@ -18,7 +18,7 @@ public abstract class AbstractCriterionTriggerInstance implements CriterionTrigg
         return this.criterion;
     }
 
-    protected EntityPredicate.Composite getPlayerPredicate() {
+    protected ContextAwarePredicate getPlayerPredicate() {
         return this.player;
     }
 

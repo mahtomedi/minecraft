@@ -94,17 +94,16 @@ public class SpawnEggItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
         if (var1.getType() != HitResult.Type.BLOCK) {
             return InteractionResultHolder.pass(var0);
         } else if (!(param0 instanceof ServerLevel)) {
             return InteractionResultHolder.success(var0);
         } else {
-            BlockHitResult var2 = (BlockHitResult)var1;
-            BlockPos var3 = var2.getBlockPos();
+            BlockPos var3 = var1.getBlockPos();
             if (!(param0.getBlockState(var3).getBlock() instanceof LiquidBlock)) {
                 return InteractionResultHolder.pass(var0);
-            } else if (param0.mayInteract(param1, var3) && param1.mayUseItemAt(var3, var2.getDirection(), var0)) {
+            } else if (param0.mayInteract(param1, var3) && param1.mayUseItemAt(var3, var1.getDirection(), var0)) {
                 EntityType<?> var4 = this.getType(var0.getTag());
                 Entity var5 = var4.spawn((ServerLevel)param0, var0, param1, var3, MobSpawnType.SPAWN_EGG, false, false);
                 if (var5 == null) {

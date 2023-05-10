@@ -12,6 +12,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsLongConfirmationScreen extends RealmsScreen {
+    static final Component WARNING = Component.translatable("mco.warning");
+    static final Component INFO = Component.translatable("mco.info");
     private final RealmsLongConfirmationScreen.Type type;
     private final Component line2;
     private final Component line3;
@@ -38,7 +40,7 @@ public class RealmsLongConfirmationScreen extends RealmsScreen {
             );
         } else {
             this.addRenderableWidget(
-                Button.builder(Component.translatable("mco.gui.ok"), param0 -> this.callback.accept(true)).bounds(this.width / 2 - 50, row(8), 100, 20).build()
+                Button.builder(CommonComponents.GUI_OK, param0 -> this.callback.accept(true)).bounds(this.width / 2 - 50, row(8), 100, 20).build()
             );
         }
 
@@ -70,14 +72,14 @@ public class RealmsLongConfirmationScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
-        Warning("Warning!", 16711680),
-        Info("Info!", 8226750);
+        WARNING(RealmsLongConfirmationScreen.WARNING, 16711680),
+        INFO(RealmsLongConfirmationScreen.INFO, 8226750);
 
         public final int colorCode;
         public final Component text;
 
-        private Type(String param0, int param1) {
-            this.text = Component.literal(param0);
+        private Type(Component param0, int param1) {
+            this.text = param0;
             this.colorCode = param1;
         }
     }

@@ -153,6 +153,8 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.client.sounds.MusicManager;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.client.telemetry.ClientTelemetryManager;
+import net.minecraft.client.telemetry.TelemetryProperty;
+import net.minecraft.client.telemetry.events.GameLoadTimesEvent;
 import net.minecraft.client.tutorial.Tutorial;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -440,6 +442,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.virtualScreen = new VirtualScreen(this);
         this.window = this.virtualScreen.newWindow(var3, this.options.fullscreenVideoModeString, this.createTitle());
         this.setWindowActive(true);
+        GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_PRE_WINDOW_MS);
 
         try {
             this.window.setIcon(this.vanillaPackResources, SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
@@ -557,12 +560,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         List<PackResources> var9 = this.resourcePackRepository.openAllSelected();
         this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var9);
         ReloadInstance var10 = this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var9);
+        GameLoadTimesEvent.INSTANCE.beginStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
         this.setOverlay(new LoadingOverlay(this, var10, param0x -> Util.ifElse(param0x, this::rollbackResourcePacks, () -> {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     this.selfTest();
                 }
 
                 this.reloadStateTracker.finishReload();
+                this.onGameLoadFinished();
             }), false));
         this.quickPlayLog = QuickPlayLog.of(param0.quickPlay.path());
         if (this.shouldShowBanNotice()) {
@@ -577,6 +582,12 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.setInitialScreen(var7, var10, param0.quickPlay);
         }
 
+    }
+
+    private void onGameLoadFinished() {
+        GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
+        GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_TOTAL_TIME_MS);
+        GameLoadTimesEvent.INSTANCE.send(this.telemetryManager.getOutsideSessionSender());
     }
 
     private void setInitialScreen(RealmsClient param0, ReloadInstance param1, GameConfig.QuickPlayData param2) {

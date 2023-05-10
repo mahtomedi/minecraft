@@ -35,7 +35,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -449,14 +449,14 @@ public class FishingHook extends Projectile {
                 this.level().broadcastEntityEvent(this, (byte)31);
                 var1 = this.hookedIn instanceof ItemEntity ? 3 : 5;
             } else if (this.nibble > 0) {
-                LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level())
+                LootParams var2 = new LootParams.Builder((ServerLevel)this.level())
                     .withParameter(LootContextParams.ORIGIN, this.position())
                     .withParameter(LootContextParams.TOOL, param0)
                     .withParameter(LootContextParams.THIS_ENTITY, this)
-                    .withRandom(this.random)
-                    .withLuck((float)this.luck + var0.getLuck());
+                    .withLuck((float)this.luck + var0.getLuck())
+                    .create(LootContextParamSets.FISHING);
                 LootTable var3 = this.level().getServer().getLootData().getLootTable(BuiltInLootTables.FISHING);
-                List<ItemStack> var4 = var3.getRandomItems(var2.create(LootContextParamSets.FISHING));
+                List<ItemStack> var4 = var3.getRandomItems(var2);
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)var0, param0, this, var4);
 
                 for(ItemStack var5 : var4) {

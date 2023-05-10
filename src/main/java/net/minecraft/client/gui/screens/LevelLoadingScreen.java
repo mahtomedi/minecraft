@@ -98,21 +98,23 @@ public class LevelLoadingScreen extends Screen {
         int var6 = param3 - var4 / 2;
         int var7 = var2 / 2 + 1;
         int var8 = -16772609;
-        if (param5 != 0) {
-            param0.fill(param2 - var7, param3 - var7, param2 - var7 + 1, param3 + var7, -16772609);
-            param0.fill(param2 + var7 - 1, param3 - var7, param2 + var7, param3 + var7, -16772609);
-            param0.fill(param2 - var7, param3 - var7, param2 + var7, param3 - var7 + 1, -16772609);
-            param0.fill(param2 - var7, param3 + var7 - 1, param2 + var7, param3 + var7, -16772609);
-        }
-
-        for(int var9 = 0; var9 < var3; ++var9) {
-            for(int var10 = 0; var10 < var3; ++var10) {
-                ChunkStatus var11 = param1.getStatus(var9, var10);
-                int var12 = var5 + var9 * var0;
-                int var13 = var6 + var10 * var0;
-                param0.fill(var12, var13, var12 + param4, var13 + param4, COLORS.getInt(var11) | 0xFF000000);
+        param0.drawManaged(() -> {
+            if (param5 != 0) {
+                param0.fill(param2 - var7, param3 - var7, param2 - var7 + 1, param3 + var7, -16772609);
+                param0.fill(param2 + var7 - 1, param3 - var7, param2 + var7, param3 + var7, -16772609);
+                param0.fill(param2 - var7, param3 - var7, param2 + var7, param3 - var7 + 1, -16772609);
+                param0.fill(param2 - var7, param3 + var7 - 1, param2 + var7, param3 + var7, -16772609);
             }
-        }
 
+            for(int var0x = 0; var0x < var3; ++var0x) {
+                for(int var1x = 0; var1x < var3; ++var1x) {
+                    ChunkStatus var2x = param1.getStatus(var0x, var1x);
+                    int var3x = var5 + var0x * var0;
+                    int var4x = var6 + var1x * var0;
+                    param0.fill(var3x, var4x, var3x + param4, var4x + param4, COLORS.getInt(var2x) | 0xFF000000);
+                }
+            }
+
+        });
     }
 }

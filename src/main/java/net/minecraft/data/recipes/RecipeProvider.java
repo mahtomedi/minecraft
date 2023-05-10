@@ -12,8 +12,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EnterBlockTrigger;
-import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -276,13 +276,23 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void coloredWoolFromWhiteWoolAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1)
-            .requires(param2)
-            .requires(Blocks.WHITE_WOOL)
-            .group("wool")
-            .unlockedBy("has_white_wool", has(Blocks.WHITE_WOOL))
-            .save(param0);
+    protected static void colorBlockWithDye(Consumer<FinishedRecipe> param0, List<Item> param1, List<Item> param2) {
+        for(int var0 = 0; var0 < param1.size(); ++var0) {
+            for(int var1 = 0; var1 != param2.size(); ++var1) {
+                if (var0 != var1) {
+                    Item var2 = param1.get(var0);
+                    Item var3 = param2.get(var0);
+                    Item var4 = param2.get(var1);
+                    ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, var3)
+                        .requires(var2)
+                        .requires(var4)
+                        .group(BuiltInRegistries.ITEM.getKey(var3).getPath())
+                        .unlockedBy("has_needed_dye", has(var2))
+                        .save(param0, getConversionRecipeName(var3, var4));
+                }
+            }
+        }
+
     }
 
     protected static void carpet(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
@@ -294,19 +304,6 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void coloredCarpetFromWhiteCarpetAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 8)
-            .define('#', Blocks.WHITE_CARPET)
-            .define('$', param2)
-            .pattern("###")
-            .pattern("#$#")
-            .pattern("###")
-            .group("carpet")
-            .unlockedBy("has_white_carpet", has(Blocks.WHITE_CARPET))
-            .unlockedBy(getHasName(param2), has(param2))
-            .save(param0, getConversionRecipeName(param1, Blocks.WHITE_CARPET));
-    }
-
     protected static void bedFromPlanksAndWool(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1)
             .define('#', param2)
@@ -316,15 +313,6 @@ public abstract class RecipeProvider implements DataProvider {
             .group("bed")
             .unlockedBy(getHasName(param2), has(param2))
             .save(param0);
-    }
-
-    protected static void bedFromWhiteBedAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, param1)
-            .requires(Items.WHITE_BED)
-            .requires(param2)
-            .group("dyed_bed")
-            .unlockedBy("has_bed", has(Items.WHITE_BED))
-            .save(param0, getConversionRecipeName(param1, Items.WHITE_BED));
     }
 
     protected static void banner(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
@@ -596,7 +584,7 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     private static EnterBlockTrigger.TriggerInstance insideOf(Block param0) {
-        return new EnterBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, StatePropertiesPredicate.ANY);
+        return new EnterBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, StatePropertiesPredicate.ANY);
     }
 
     private static InventoryChangeTrigger.TriggerInstance has(MinMaxBounds.Ints param0, ItemLike param1) {
@@ -613,7 +601,7 @@ public abstract class RecipeProvider implements DataProvider {
 
     private static InventoryChangeTrigger.TriggerInstance inventoryTrigger(ItemPredicate... param0) {
         return new InventoryChangeTrigger.TriggerInstance(
-            EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
+            ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
         );
     }
 

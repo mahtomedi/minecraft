@@ -222,7 +222,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
                     return;
                 }
 
-                if (!var4.isEmpty() && !var5.isEmpty() && var4.sameItem(var5) && ItemStack.tagMatches(var4, var5)) {
+                if (!var4.isEmpty() && !var5.isEmpty() && ItemStack.isSameItemSameTags(var4, var5)) {
                     if (param2 == 0) {
                         if (var0) {
                             var4.setCount(var4.getMaxStackSize());

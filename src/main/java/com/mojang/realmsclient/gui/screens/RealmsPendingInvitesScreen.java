@@ -214,7 +214,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
             Component var0 = CommonComponents.joinLines(
                 Component.literal(this.pendingInvite.worldName),
                 Component.literal(this.pendingInvite.worldOwnerName),
-                Component.literal(RealmsUtil.convertToAgePresentationFromInstant(this.pendingInvite.date))
+                RealmsUtil.convertToAgePresentationFromInstant(this.pendingInvite.date)
             );
             return Component.translatable("narrator.select", var0);
         }

@@ -64,7 +64,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -220,12 +220,12 @@ public abstract class BlockBehaviour implements FeatureElement {
     }
 
     @Deprecated
-    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+    public List<ItemStack> getDrops(BlockState param0, LootParams.Builder param1) {
         ResourceLocation var0 = this.getLootTable();
         if (var0 == BuiltInLootTables.EMPTY) {
             return Collections.emptyList();
         } else {
-            LootContext var1 = param1.withParameter(LootContextParams.BLOCK_STATE, param0).create(LootContextParamSets.BLOCK);
+            LootParams var1 = param1.withParameter(LootContextParams.BLOCK_STATE, param0).create(LootContextParamSets.BLOCK);
             ServerLevel var2 = var1.getLevel();
             LootTable var3 = var2.getServer().getLootData().getLootTable(var0);
             return var3.getRandomItems(var1);
@@ -700,7 +700,7 @@ public abstract class BlockBehaviour implements FeatureElement {
             this.getBlock().spawnAfterBreak(this.asState(), param0, param1, param2, param3);
         }
 
-        public List<ItemStack> getDrops(LootContext.Builder param0) {
+        public List<ItemStack> getDrops(LootParams.Builder param0) {
             return this.getBlock().getDrops(this.asState(), param0);
         }
 

@@ -4,7 +4,13 @@ import com.google.common.base.MoreObjects;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -26,19 +32,40 @@ public abstract class Settings<T extends Settings<T>> {
     }
 
     public static Properties loadFromFile(Path param0) {
-        Properties var0 = new Properties();
+        try {
+            try {
+                Properties var13;
+                try (InputStream var0 = Files.newInputStream(param0)) {
+                    CharsetDecoder var1 = StandardCharsets.UTF_8
+                        .newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT);
+                    Properties var2 = new Properties();
+                    var2.load(new InputStreamReader(var0, var1));
+                    var13 = var2;
+                }
 
-        try (InputStream var1 = Files.newInputStream(param0)) {
-            var0.load(var1);
-        } catch (IOException var7) {
-            LOGGER.error("Failed to load properties from file: {}", param0);
+                return var13;
+            } catch (CharacterCodingException var9) {
+                LOGGER.info("Failed to load properties as UTF-8 from file {}, trying ISO_8859_1", param0);
+
+                Properties var41;
+                try (Reader var4 = Files.newBufferedReader(param0, StandardCharsets.ISO_8859_1)) {
+                    Properties var5 = new Properties();
+                    var5.load(var4);
+                    var41 = var5;
+                }
+
+                return var41;
+            }
+        } catch (IOException var10) {
+            LOGGER.error("Failed to load properties from file: {}", param0, var10);
+            return new Properties();
         }
-
-        return var0;
     }
 
     public void store(Path param0) {
-        try (OutputStream var0 = Files.newOutputStream(param0)) {
+        try (Writer var0 = Files.newBufferedWriter(param0, StandardCharsets.UTF_8)) {
             this.properties.store(var0, "Minecraft server properties");
         } catch (IOException var7) {
             LOGGER.error("Failed to store properties to file: {}", param0);

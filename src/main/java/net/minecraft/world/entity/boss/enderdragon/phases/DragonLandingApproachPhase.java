@@ -52,7 +52,9 @@ public class DragonLandingApproachPhase extends AbstractDragonPhaseInstance {
     private void findNewTarget() {
         if (this.currentPath == null || this.currentPath.isDone()) {
             int var0 = this.dragon.findClosestNode();
-            BlockPos var1 = this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.END_PODIUM_LOCATION);
+            BlockPos var1 = this.dragon
+                .level()
+                .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, EndPodiumFeature.getLocation(this.dragon.getFightOrigin()));
             Player var2 = this.dragon.level().getNearestPlayer(NEAR_EGG_TARGETING, this.dragon, (double)var1.getX(), (double)var1.getY(), (double)var1.getZ());
             int var4;
             if (var2 != null) {

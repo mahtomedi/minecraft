@@ -161,9 +161,9 @@ public class ServerPlaceRecipe<C extends Container> implements PlaceRecipe<Integ
                     int var4 = this.inventory.getSlotWithRemainingSpace(var3);
                     if (var4 == -1 && var0.size() <= var1) {
                         for(ItemStack var5 : var0) {
-                            if (var5.sameItem(var3) && var5.getCount() != var5.getMaxStackSize() && var5.getCount() + var3.getCount() <= var5.getMaxStackSize()
-                                )
-                             {
+                            if (ItemStack.isSameItem(var5, var3)
+                                && var5.getCount() != var5.getMaxStackSize()
+                                && var5.getCount() + var3.getCount() <= var5.getMaxStackSize()) {
                                 var5.grow(var3.getCount());
                                 var3.setCount(0);
                                 break;

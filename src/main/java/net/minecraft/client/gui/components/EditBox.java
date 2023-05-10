@@ -1,7 +1,5 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -17,6 +15,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -447,10 +446,7 @@ public class EditBox extends AbstractWidget implements Renderable {
             param1 = this.getX() + this.width;
         }
 
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-        param0.fill(param1, param2, param3, param4, -16776961);
-        RenderSystem.disableColorLogicOp();
+        param0.fill(RenderType.guiTextHighlight(), param1, param2, param3, param4, -16776961);
     }
 
     public void setMaxLength(int param0) {

@@ -74,7 +74,8 @@ public class MagmaCube extends Slime {
     @Override
     protected void jumpFromGround() {
         Vec3 var0 = this.getDeltaMovement();
-        this.setDeltaMovement(var0.x, (double)(this.getJumpPower() + (float)this.getSize() * 0.1F), var0.z);
+        float var1 = (float)this.getSize() * 0.1F;
+        this.setDeltaMovement(var0.x, (double)(this.getJumpPower() + var1), var0.z);
         this.hasImpulse = true;
     }
 

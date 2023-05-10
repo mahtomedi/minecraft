@@ -21,9 +21,9 @@ public class PickedUpItemTrigger extends SimpleCriterionTrigger<PickedUpItemTrig
         return this.id;
     }
 
-    protected PickedUpItemTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    protected PickedUpItemTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "entity", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "entity", param2);
         return new PickedUpItemTrigger.TriggerInstance(this.id, param1, var0, var1);
     }
 
@@ -34,22 +34,22 @@ public class PickedUpItemTrigger extends SimpleCriterionTrigger<PickedUpItemTrig
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ItemPredicate item;
-        private final EntityPredicate.Composite entity;
+        private final ContextAwarePredicate entity;
 
-        public TriggerInstance(ResourceLocation param0, EntityPredicate.Composite param1, ItemPredicate param2, EntityPredicate.Composite param3) {
+        public TriggerInstance(ResourceLocation param0, ContextAwarePredicate param1, ItemPredicate param2, ContextAwarePredicate param3) {
             super(param0, param1);
             this.item = param2;
             this.entity = param3;
         }
 
         public static PickedUpItemTrigger.TriggerInstance thrownItemPickedUpByEntity(
-            EntityPredicate.Composite param0, ItemPredicate param1, EntityPredicate.Composite param2
+            ContextAwarePredicate param0, ItemPredicate param1, ContextAwarePredicate param2
         ) {
             return new PickedUpItemTrigger.TriggerInstance(CriteriaTriggers.THROWN_ITEM_PICKED_UP_BY_ENTITY.getId(), param0, param1, param2);
         }
 
         public static PickedUpItemTrigger.TriggerInstance thrownItemPickedUpByPlayer(
-            EntityPredicate.Composite param0, ItemPredicate param1, EntityPredicate.Composite param2
+            ContextAwarePredicate param0, ItemPredicate param1, ContextAwarePredicate param2
         ) {
             return new PickedUpItemTrigger.TriggerInstance(CriteriaTriggers.THROWN_ITEM_PICKED_UP_BY_PLAYER.getId(), param0, param1, param2);
         }

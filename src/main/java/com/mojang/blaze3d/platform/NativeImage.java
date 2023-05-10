@@ -406,26 +406,29 @@ public final class NativeImage implements AutoCloseable {
     private void _upload(
         int param0, int param1, int param2, int param3, int param4, int param5, int param6, boolean param7, boolean param8, boolean param9, boolean param10
     ) {
-        RenderSystem.assertOnRenderThreadOrInit();
-        this.checkAllocated();
-        setFilter(param7, param9);
-        if (param5 == this.getWidth()) {
-            GlStateManager._pixelStore(3314, 0);
-        } else {
-            GlStateManager._pixelStore(3314, this.getWidth());
-        }
+        try {
+            RenderSystem.assertOnRenderThreadOrInit();
+            this.checkAllocated();
+            setFilter(param7, param9);
+            if (param5 == this.getWidth()) {
+                GlStateManager._pixelStore(3314, 0);
+            } else {
+                GlStateManager._pixelStore(3314, this.getWidth());
+            }
 
-        GlStateManager._pixelStore(3316, param3);
-        GlStateManager._pixelStore(3315, param4);
-        this.format.setUnpackPixelStoreState();
-        GlStateManager._texSubImage2D(3553, param0, param1, param2, param5, param6, this.format.glFormat(), 5121, this.pixels);
-        if (param8) {
-            GlStateManager._texParameter(3553, 10242, 33071);
-            GlStateManager._texParameter(3553, 10243, 33071);
-        }
+            GlStateManager._pixelStore(3316, param3);
+            GlStateManager._pixelStore(3315, param4);
+            this.format.setUnpackPixelStoreState();
+            GlStateManager._texSubImage2D(3553, param0, param1, param2, param5, param6, this.format.glFormat(), 5121, this.pixels);
+            if (param8) {
+                GlStateManager._texParameter(3553, 10242, 33071);
+                GlStateManager._texParameter(3553, 10243, 33071);
+            }
+        } finally {
+            if (param10) {
+                this.close();
+            }
 
-        if (param10) {
-            this.close();
         }
 
     }

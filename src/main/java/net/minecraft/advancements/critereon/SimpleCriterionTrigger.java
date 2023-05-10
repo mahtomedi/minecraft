@@ -38,10 +38,10 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
         this.players.remove(param0);
     }
 
-    protected abstract T createInstance(JsonObject var1, EntityPredicate.Composite var2, DeserializationContext var3);
+    protected abstract T createInstance(JsonObject var1, ContextAwarePredicate var2, DeserializationContext var3);
 
     public final T createInstance(JsonObject param0, DeserializationContext param1) {
-        EntityPredicate.Composite var0 = EntityPredicate.Composite.fromJson(param0, "player", param1);
+        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "player", param1);
         return this.createInstance(param0, var0, param1);
     }
 

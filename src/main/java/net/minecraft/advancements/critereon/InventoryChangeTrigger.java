@@ -20,7 +20,7 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         return ID;
     }
 
-    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         JsonObject var0 = GsonHelper.getAsJsonObject(param0, "slots", new JsonObject());
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(var0.get("occupied"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(var0.get("full"));
@@ -60,7 +60,7 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         private final ItemPredicate[] predicates;
 
         public TriggerInstance(
-            EntityPredicate.Composite param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, ItemPredicate[] param4
+            ContextAwarePredicate param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, ItemPredicate[] param4
         ) {
             super(InventoryChangeTrigger.ID, param0);
             this.slotsOccupied = param1;
@@ -71,7 +71,7 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
 
         public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate... param0) {
             return new InventoryChangeTrigger.TriggerInstance(
-                EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
+                ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
             );
         }
 

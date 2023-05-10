@@ -107,7 +107,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -139,6 +139,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
     private static final int TICKS_PER_ELYTRA_FREE_FALL_EVENT = 10;
     private static final int FREE_FALL_EVENTS_PER_ELYTRA_BREAK = 2;
     public static final int USE_ITEM_INTERVAL = 4;
+    private static final float BASE_JUMP_POWER = 0.42F;
     private static final double MAX_LINE_OF_SIGHT_TEST_RANGE = 128.0;
     protected static final int LIVING_ENTITY_FLAG_IS_USING = 1;
     protected static final int LIVING_ENTITY_FLAG_OFF_HAND = 2;
@@ -257,7 +258,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     @Override
     public void kill() {
-        this.hurt(this.damageSources().outOfWorld(), Float.MAX_VALUE);
+        this.hurt(this.damageSources().genericKill(), Float.MAX_VALUE);
     }
 
     public boolean canAttackType(EntityType<?> param0) {
@@ -295,14 +296,23 @@ public abstract class LivingEntity extends Entity implements Attackable {
             this.tryAddSoulSpeed();
         }
 
-        if (!this.level().isClientSide && this.fallDistance > 3.0F && param1) {
-            float var0 = (float)Mth.ceil(this.fallDistance - 3.0F);
-            if (!param2.isAir()) {
-                double var1 = Math.min((double)(0.2F + var0 / 15.0F), 2.5);
-                int var2 = (int)(150.0 * var1);
-                ((ServerLevel)this.level())
-                    .sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, param2), this.getX(), this.getY(), this.getZ(), var2, 0.0, 0.0, 0.0, 0.15F);
+        if (!this.level().isClientSide && this.fallDistance > 3.0F && param1 && !param2.isAir()) {
+            double var0 = this.getX();
+            double var1 = this.getY();
+            double var2 = this.getZ();
+            BlockPos var3 = this.blockPosition();
+            if (param3.getX() != var3.getX() || param3.getZ() != var3.getZ()) {
+                double var4 = var0 - (double)param3.getX() - 0.5;
+                double var5 = var2 - (double)param3.getZ() - 0.5;
+                double var6 = Math.max(Math.abs(var4), Math.abs(var5));
+                var0 = (double)param3.getX() + 0.5 + var4 / var6 * 0.5;
+                var2 = (double)param3.getZ() + 0.5 + var5 / var6 * 0.5;
             }
+
+            float var7 = (float)Mth.ceil(this.fallDistance - 3.0F);
+            double var8 = Math.min((double)(0.2F + var7 / 15.0F), 2.5);
+            int var9 = (int)(150.0 * var8);
+            ((ServerLevel)this.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, param2), var0, var1, var2, var9, 0.0, 0.0, 0.0, 0.15F);
         }
 
         super.checkFallDamage(param0, param1, param2, param3);
@@ -343,7 +353,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                     if (var1 < 0.0) {
                         double var2 = this.level().getWorldBorder().getDamagePerBlock();
                         if (var2 > 0.0) {
-                            this.hurt(this.damageSources().inWall(), (float)Math.max(1, Mth.floor(-var1 * var2)));
+                            this.hurt(this.damageSources().outOfBorder(), (float)Math.max(1, Mth.floor(-var1 * var2)));
                         }
                     }
                 }
@@ -1384,26 +1394,25 @@ public abstract class LivingEntity extends Entity implements Attackable {
         return this.getType().getDefaultLootTable();
     }
 
+    public long getLootTableSeed() {
+        return 0L;
+    }
+
     protected void dropFromLootTable(DamageSource param0, boolean param1) {
         ResourceLocation var0 = this.getLootTable();
         LootTable var1 = this.level().getServer().getLootData().getLootTable(var0);
-        LootContext.Builder var2 = this.createLootContext(param1, param0);
-        var1.getRandomItems(var2.create(LootContextParamSets.ENTITY), this::spawnAtLocation);
-    }
-
-    protected LootContext.Builder createLootContext(boolean param0, DamageSource param1) {
-        LootContext.Builder var0 = new LootContext.Builder((ServerLevel)this.level())
-            .withRandom(this.random)
+        LootParams.Builder var2 = new LootParams.Builder((ServerLevel)this.level())
             .withParameter(LootContextParams.THIS_ENTITY, this)
             .withParameter(LootContextParams.ORIGIN, this.position())
-            .withParameter(LootContextParams.DAMAGE_SOURCE, param1)
-            .withOptionalParameter(LootContextParams.KILLER_ENTITY, param1.getEntity())
-            .withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, param1.getDirectEntity());
-        if (param0 && this.lastHurtByPlayer != null) {
-            var0 = var0.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, this.lastHurtByPlayer).withLuck(this.lastHurtByPlayer.getLuck());
+            .withParameter(LootContextParams.DAMAGE_SOURCE, param0)
+            .withOptionalParameter(LootContextParams.KILLER_ENTITY, param0.getEntity())
+            .withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, param0.getDirectEntity());
+        if (param1 && this.lastHurtByPlayer != null) {
+            var2 = var2.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, this.lastHurtByPlayer).withLuck(this.lastHurtByPlayer.getLuck());
         }
 
-        return var0;
+        LootParams var3 = var2.create(LootContextParamSets.ENTITY);
+        var1.getRandomItems(var3, this.getLootTableSeed(), this::spawnAtLocation);
     }
 
     public void knockback(double param0, double param1, double param2) {
@@ -1799,8 +1808,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     @Override
-    protected void outOfWorld() {
-        this.hurt(this.damageSources().outOfWorld(), 4.0F);
+    protected void onBelowWorld() {
+        this.hurt(this.damageSources().fellOutOfWorld(), 4.0F);
     }
 
     protected void updateSwingTime() {
@@ -1978,20 +1987,19 @@ public abstract class LivingEntity extends Entity implements Attackable {
     }
 
     protected float getJumpPower() {
-        return 0.42F * this.getBlockJumpFactor();
+        return 0.42F * this.getBlockJumpFactor() + this.getJumpBoostPower();
     }
 
-    public double getJumpBoostPower() {
-        return this.hasEffect(MobEffects.JUMP) ? (double)(0.1F * (float)(this.getEffect(MobEffects.JUMP).getAmplifier() + 1)) : 0.0;
+    public float getJumpBoostPower() {
+        return this.hasEffect(MobEffects.JUMP) ? 0.1F * ((float)this.getEffect(MobEffects.JUMP).getAmplifier() + 1.0F) : 0.0F;
     }
 
     protected void jumpFromGround() {
-        double var0 = (double)this.getJumpPower() + this.getJumpBoostPower();
-        Vec3 var1 = this.getDeltaMovement();
-        this.setDeltaMovement(var1.x, var0, var1.z);
+        Vec3 var0 = this.getDeltaMovement();
+        this.setDeltaMovement(var0.x, (double)this.getJumpPower(), var0.z);
         if (this.isSprinting()) {
-            float var2 = this.getYRot() * (float) (Math.PI / 180.0);
-            this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var2) * 0.2F), 0.0, (double)(Mth.cos(var2) * 0.2F)));
+            float var1 = this.getYRot() * (float) (Math.PI / 180.0);
+            this.setDeltaMovement(this.getDeltaMovement().add((double)(-Mth.sin(var1) * 0.2F), 0.0, (double)(Mth.cos(var1) * 0.2F)));
         }
 
         this.hasImpulse = true;
@@ -2875,7 +2883,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     private void updatingUsingItem() {
         if (this.isUsingItem()) {
-            if (ItemStack.isSame(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
+            if (ItemStack.isSameItem(this.getItemInHand(this.getUsedItemHand()), this.useItem)) {
                 this.useItem = this.getItemInHand(this.getUsedItemHand());
                 this.updateUsingItem(this.useItem);
             } else {

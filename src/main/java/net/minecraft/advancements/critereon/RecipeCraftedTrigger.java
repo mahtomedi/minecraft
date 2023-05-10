@@ -18,7 +18,7 @@ public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTr
         return ID;
     }
 
-    protected RecipeCraftedTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    protected RecipeCraftedTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "recipe_id"));
         ItemPredicate[] var1 = ItemPredicate.fromJsonArray(param0.get("ingredients"));
         return new RecipeCraftedTrigger.TriggerInstance(param1, var0, List.of(var1));
@@ -32,18 +32,18 @@ public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTr
         private final ResourceLocation recipeId;
         private final List<ItemPredicate> predicates;
 
-        public TriggerInstance(EntityPredicate.Composite param0, ResourceLocation param1, List<ItemPredicate> param2) {
+        public TriggerInstance(ContextAwarePredicate param0, ResourceLocation param1, List<ItemPredicate> param2) {
             super(RecipeCraftedTrigger.ID, param0);
             this.recipeId = param1;
             this.predicates = param2;
         }
 
         public static RecipeCraftedTrigger.TriggerInstance craftedItem(ResourceLocation param0, List<ItemPredicate> param1) {
-            return new RecipeCraftedTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1);
+            return new RecipeCraftedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, param1);
         }
 
         public static RecipeCraftedTrigger.TriggerInstance craftedItem(ResourceLocation param0) {
-            return new RecipeCraftedTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, List.of());
+            return new RecipeCraftedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, List.of());
         }
 
         boolean matches(ResourceLocation param0, List<ItemStack> param1) {

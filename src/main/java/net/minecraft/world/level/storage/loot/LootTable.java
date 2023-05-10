@@ -17,6 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -32,23 +33,26 @@ import org.slf4j.Logger;
 
 public class LootTable {
     static final Logger LOGGER = LogUtils.getLogger();
-    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, new LootPool[0], new LootItemFunction[0]);
+    public static final ResourceLocation DEFAULT_RANDOM_SEQUENCE = new ResourceLocation("default");
+    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, DEFAULT_RANDOM_SEQUENCE, new LootPool[0], new LootItemFunction[0]);
     public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
     final LootContextParamSet paramSet;
+    final ResourceLocation randomSequence;
     final LootPool[] pools;
     final LootItemFunction[] functions;
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
 
-    LootTable(LootContextParamSet param0, LootPool[] param1, LootItemFunction[] param2) {
+    LootTable(LootContextParamSet param0, ResourceLocation param1, LootPool[] param2, LootItemFunction[] param3) {
         this.paramSet = param0;
-        this.pools = param1;
-        this.functions = param2;
-        this.compositeFunction = LootItemFunctions.compose(param2);
+        this.randomSequence = param1;
+        this.pools = param2;
+        this.functions = param3;
+        this.compositeFunction = LootItemFunctions.compose(param3);
     }
 
-    public static Consumer<ItemStack> createStackSplitter(LootContext param0, Consumer<ItemStack> param1) {
+    public static Consumer<ItemStack> createStackSplitter(ServerLevel param0, Consumer<ItemStack> param1) {
         return param2 -> {
-            if (param2.isItemEnabled(param0.getLevel().enabledFeatures())) {
+            if (param2.isItemEnabled(param0.enabledFeatures())) {
                 if (param2.getCount() < param2.getMaxStackSize()) {
                     param1.accept(param2);
                 } else {
@@ -63,6 +67,10 @@ public class LootTable {
 
             }
         };
+    }
+
+    public void getRandomItemsRaw(LootParams param0, Consumer<ItemStack> param1) {
+        this.getRandomItemsRaw(new LootContext.Builder(param0).create(this.randomSequence), param1);
     }
 
     public void getRandomItemsRaw(LootContext param0, Consumer<ItemStack> param1) {
@@ -81,11 +89,29 @@ public class LootTable {
 
     }
 
-    public void getRandomItems(LootContext param0, Consumer<ItemStack> param1) {
-        this.getRandomItemsRaw(param0, createStackSplitter(param0, param1));
+    public void getRandomItems(LootParams param0, long param1, Consumer<ItemStack> param2) {
+        this.getRandomItemsRaw(
+            new LootContext.Builder(param0).withOptionalRandomSeed(param1).create(this.randomSequence), createStackSplitter(param0.getLevel(), param2)
+        );
     }
 
-    public ObjectArrayList<ItemStack> getRandomItems(LootContext param0) {
+    public void getRandomItems(LootParams param0, Consumer<ItemStack> param1) {
+        this.getRandomItemsRaw(param0, createStackSplitter(param0.getLevel(), param1));
+    }
+
+    public void getRandomItems(LootContext param0, Consumer<ItemStack> param1) {
+        this.getRandomItemsRaw(param0, createStackSplitter(param0.getLevel(), param1));
+    }
+
+    public ObjectArrayList<ItemStack> getRandomItems(LootParams param0, long param1) {
+        return this.getRandomItems(new LootContext.Builder(param0).withOptionalRandomSeed(param1).create(this.randomSequence));
+    }
+
+    public ObjectArrayList<ItemStack> getRandomItems(LootParams param0) {
+        return this.getRandomItems(new LootContext.Builder(param0).create(this.randomSequence));
+    }
+
+    private ObjectArrayList<ItemStack> getRandomItems(LootContext param0) {
         ObjectArrayList<ItemStack> var0 = new ObjectArrayList<>();
         this.getRandomItems(param0, var0::add);
         return var0;
@@ -106,22 +132,23 @@ public class LootTable {
 
     }
 
-    public void fill(Container param0, LootContext param1) {
-        ObjectArrayList<ItemStack> var0 = this.getRandomItems(param1);
-        RandomSource var1 = param1.getRandom();
-        List<Integer> var2 = this.getAvailableSlots(param0, var1);
-        this.shuffleAndSplitItems(var0, var2.size(), var1);
+    public void fill(Container param0, LootParams param1, long param2) {
+        LootContext var0 = new LootContext.Builder(param1).withOptionalRandomSeed(param2).create(this.randomSequence);
+        ObjectArrayList<ItemStack> var1 = this.getRandomItems(var0);
+        RandomSource var2 = var0.getRandom();
+        List<Integer> var3 = this.getAvailableSlots(param0, var2);
+        this.shuffleAndSplitItems(var1, var3.size(), var2);
 
-        for(ItemStack var3 : var0) {
-            if (var2.isEmpty()) {
+        for(ItemStack var4 : var1) {
+            if (var3.isEmpty()) {
                 LOGGER.warn("Tried to over-fill a container");
                 return;
             }
 
-            if (var3.isEmpty()) {
-                param0.setItem(var2.remove(var2.size() - 1), ItemStack.EMPTY);
+            if (var4.isEmpty()) {
+                param0.setItem(var3.remove(var3.size() - 1), ItemStack.EMPTY);
             } else {
-                param0.setItem(var2.remove(var2.size() - 1), var3);
+                param0.setItem(var3.remove(var3.size() - 1), var4);
             }
         }
 
@@ -183,6 +210,7 @@ public class LootTable {
         private final List<LootPool> pools = Lists.newArrayList();
         private final List<LootItemFunction> functions = Lists.newArrayList();
         private LootContextParamSet paramSet = LootTable.DEFAULT_PARAM_SET;
+        private ResourceLocation randomSequence = LootTable.DEFAULT_RANDOM_SEQUENCE;
 
         public LootTable.Builder withPool(LootPool.Builder param0) {
             this.pools.add(param0.build());
@@ -191,6 +219,11 @@ public class LootTable {
 
         public LootTable.Builder setParamSet(LootContextParamSet param0) {
             this.paramSet = param0;
+            return this;
+        }
+
+        public LootTable.Builder setRandomSequence(ResourceLocation param0) {
+            this.randomSequence = param0;
             return this;
         }
 
@@ -204,7 +237,7 @@ public class LootTable {
         }
 
         public LootTable build() {
-            return new LootTable(this.paramSet, this.pools.toArray(new LootPool[0]), this.functions.toArray(new LootItemFunction[0]));
+            return new LootTable(this.paramSet, this.randomSequence, this.pools.toArray(new LootPool[0]), this.functions.toArray(new LootItemFunction[0]));
         }
     }
 
@@ -218,8 +251,16 @@ public class LootTable {
                 var2 = LootContextParamSets.get(new ResourceLocation(var3));
             }
 
-            LootItemFunction[] var4 = GsonHelper.getAsObject(var0, "functions", new LootItemFunction[0], param2, LootItemFunction[].class);
-            return new LootTable(var2 != null ? var2 : LootContextParamSets.ALL_PARAMS, var1, var4);
+            ResourceLocation var5;
+            if (var0.has("random_sequence")) {
+                String var4 = GsonHelper.getAsString(var0, "random_sequence");
+                var5 = new ResourceLocation(var4);
+            } else {
+                var5 = LootTable.DEFAULT_RANDOM_SEQUENCE;
+            }
+
+            LootItemFunction[] var7 = GsonHelper.getAsObject(var0, "functions", new LootItemFunction[0], param2, LootItemFunction[].class);
+            return new LootTable(var2 != null ? var2 : LootContextParamSets.ALL_PARAMS, var5, var1, var7);
         }
 
         public JsonElement serialize(LootTable param0, Type param1, JsonSerializationContext param2) {
@@ -233,6 +274,7 @@ public class LootTable {
                 }
             }
 
+            var0.addProperty("random_sequence", param0.randomSequence.toString());
             if (param0.pools.length > 0) {
                 var0.add("pools", param2.serialize(param0.pools));
             }

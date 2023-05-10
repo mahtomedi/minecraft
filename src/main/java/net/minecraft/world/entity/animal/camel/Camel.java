@@ -287,7 +287,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
 
     @Override
     protected void executeRidersJump(float param0, Vec3 param1) {
-        double var0 = this.getAttributeValue(Attributes.JUMP_STRENGTH) * (double)this.getBlockJumpFactor() + this.getJumpBoostPower();
+        double var0 = this.getAttributeValue(Attributes.JUMP_STRENGTH) * (double)this.getBlockJumpFactor() + (double)this.getJumpBoostPower();
         this.addDeltaMovement(
             this.getLookAngle()
                 .multiply(1.0, 0.0, 1.0)

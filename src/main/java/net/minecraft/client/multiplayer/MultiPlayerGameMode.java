@@ -167,7 +167,7 @@ public class MultiPlayerGameMode {
                         this.destroyingItem = this.minecraft.player.getMainHandItem();
                         this.destroyProgress = 0.0F;
                         this.destroyTicks = 0.0F;
-                        this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0F) - 1);
+                        this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, this.getDestroyStage());
                     }
 
                     return new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK, param0, param1, param3);
@@ -242,7 +242,7 @@ public class MultiPlayerGameMode {
                     this.destroyDelay = 5;
                 }
 
-                this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, (int)(this.destroyProgress * 10.0F) - 1);
+                this.minecraft.level.destroyBlockProgress(this.minecraft.player.getId(), this.destroyBlockPos, this.getDestroyStage());
                 return true;
             }
         } else {
@@ -275,14 +275,7 @@ public class MultiPlayerGameMode {
 
     private boolean sameDestroyTarget(BlockPos param0) {
         ItemStack var0 = this.minecraft.player.getMainHandItem();
-        boolean var1 = this.destroyingItem.isEmpty() && var0.isEmpty();
-        if (!this.destroyingItem.isEmpty() && !var0.isEmpty()) {
-            var1 = var0.is(this.destroyingItem.getItem())
-                && ItemStack.tagMatches(var0, this.destroyingItem)
-                && (var0.isDamageableItem() || var0.getDamageValue() == this.destroyingItem.getDamageValue());
-        }
-
-        return param0.equals(this.destroyBlockPos) && var1;
+        return param0.equals(this.destroyBlockPos) && ItemStack.isSameItemSameTags(var0, this.destroyingItem);
     }
 
     private void ensureHasSentCarriedItem() {
@@ -499,6 +492,10 @@ public class MultiPlayerGameMode {
 
     public boolean isDestroying() {
         return this.isDestroying;
+    }
+
+    public int getDestroyStage() {
+        return (int)(this.destroyProgress * 10.0F);
     }
 
     public void handlePickItem(int param0) {

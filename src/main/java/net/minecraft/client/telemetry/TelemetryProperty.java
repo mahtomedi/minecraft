@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import net.minecraft.client.telemetry.events.GameLoadTimesEvent;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,6 +30,7 @@ public record TelemetryProperty<T>(String id, String exportKey, Codec<T> codec, 
     public static final TelemetryProperty<String> OPERATING_SYSTEM = string("operating_system", "buildPlatform");
     public static final TelemetryProperty<String> PLATFORM = string("platform", "platform");
     public static final TelemetryProperty<Boolean> CLIENT_MODDED = bool("client_modded", "clientModded");
+    public static final TelemetryProperty<String> LAUNCHER_NAME = string("launcher_name", "launcherName");
     public static final TelemetryProperty<UUID> WORLD_SESSION_ID = uuid("world_session_id", "worldSessionId");
     public static final TelemetryProperty<Boolean> SERVER_MODDED = bool("server_modded", "serverModded");
     public static final TelemetryProperty<TelemetryProperty.ServerType> SERVER_TYPE = create(
@@ -44,6 +46,7 @@ public record TelemetryProperty<T>(String id, String exportKey, Codec<T> codec, 
     public static final TelemetryProperty<TelemetryProperty.GameMode> GAME_MODE = create(
         "game_mode", "playerGameMode", TelemetryProperty.GameMode.CODEC, (param0, param1, param2) -> param0.addProperty(param1, param2.id())
     );
+    public static final TelemetryProperty<String> REALMS_MAP_CONTENT = string("realms_map_content", "realmsMapContent");
     public static final TelemetryProperty<Integer> SECONDS_SINCE_LOAD = integer("seconds_since_load", "secondsSinceLoad");
     public static final TelemetryProperty<Integer> TICKS_SINCE_LOAD = integer("ticks_since_load", "ticksSinceLoad");
     public static final TelemetryProperty<LongList> FRAME_RATE_SAMPLES = longSamples("frame_rate_samples", "serializedFpsSamples");
@@ -54,6 +57,20 @@ public record TelemetryProperty<T>(String id, String exportKey, Codec<T> codec, 
     public static final TelemetryProperty<Integer> DEDICATED_MEMORY_KB = integer("dedicated_memory_kb", "dedicatedMemoryKb");
     public static final TelemetryProperty<Integer> WORLD_LOAD_TIME_MS = integer("world_load_time_ms", "worldLoadTimeMs");
     public static final TelemetryProperty<Boolean> NEW_WORLD = bool("new_world", "newWorld");
+    public static final TelemetryProperty<GameLoadTimesEvent.Measurement> LOAD_TIME_TOTAL_TIME_MS = gameLoadMeasurement(
+        "load_time_total_time_ms", "loadTimeTotalTimeMs"
+    );
+    public static final TelemetryProperty<GameLoadTimesEvent.Measurement> LOAD_TIME_PRE_WINDOW_MS = gameLoadMeasurement(
+        "load_time_pre_window_ms", "loadTimePreWindowMs"
+    );
+    public static final TelemetryProperty<GameLoadTimesEvent.Measurement> LOAD_TIME_BOOTSTRAP_MS = gameLoadMeasurement(
+        "load_time_bootstrap_ms", "loadTimeBootstrapMs"
+    );
+    public static final TelemetryProperty<GameLoadTimesEvent.Measurement> LOAD_TIME_LOADING_OVERLAY_MS = gameLoadMeasurement(
+        "load_time_loading_overlay_ms", "loadTimeLoadingOverlayMs"
+    );
+    public static final TelemetryProperty<String> ADVANCEMENT_ID = string("advancement_id", "advancementId");
+    public static final TelemetryProperty<Long> ADVANCEMENT_GAME_TIME = makeLong("advancement_game_time", "advancementGameTime");
 
     public static <T> TelemetryProperty<T> create(String param0, String param1, Codec<T> param2, TelemetryProperty.Exporter<T> param3) {
         return new TelemetryProperty<>(param0, param1, param2, param3);
@@ -71,8 +88,16 @@ public record TelemetryProperty<T>(String id, String exportKey, Codec<T> codec, 
         return create(param0, param1, Codec.INT, TelemetryPropertyContainer::addProperty);
     }
 
+    public static TelemetryProperty<Long> makeLong(String param0, String param1) {
+        return create(param0, param1, Codec.LONG, TelemetryPropertyContainer::addProperty);
+    }
+
     public static TelemetryProperty<UUID> uuid(String param0, String param1) {
         return create(param0, param1, UUIDUtil.STRING_CODEC, (param0x, param1x, param2) -> param0x.addProperty(param1x, param2.toString()));
+    }
+
+    public static TelemetryProperty<GameLoadTimesEvent.Measurement> gameLoadMeasurement(String param0, String param1) {
+        return create(param0, param1, GameLoadTimesEvent.Measurement.CODEC, (param0x, param1x, param2) -> param0x.addProperty(param1x, param2.millis()));
     }
 
     public static TelemetryProperty<LongList> longSamples(String param0, String param1) {

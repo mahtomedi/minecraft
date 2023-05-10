@@ -67,7 +67,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -447,10 +447,7 @@ public class PiglinAi {
     private static List<ItemStack> getBarterResponseItems(Piglin param0) {
         LootTable var0 = param0.level().getServer().getLootData().getLootTable(BuiltInLootTables.PIGLIN_BARTERING);
         List<ItemStack> var1 = var0.getRandomItems(
-            new LootContext.Builder((ServerLevel)param0.level())
-                .withParameter(LootContextParams.THIS_ENTITY, param0)
-                .withRandom(param0.level().random)
-                .create(LootContextParamSets.PIGLIN_BARTER)
+            new LootParams.Builder((ServerLevel)param0.level()).withParameter(LootContextParams.THIS_ENTITY, param0).create(LootContextParamSets.PIGLIN_BARTER)
         );
         return var1;
     }

@@ -1,6 +1,7 @@
 package net.minecraft.world.level;
 
 import com.google.common.collect.AbstractIterator;
+import java.util.function.BiFunction;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
@@ -15,7 +16,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class BlockCollisions extends AbstractIterator<VoxelShape> {
+public class BlockCollisions<T> extends AbstractIterator<T> {
     private final AABB box;
     private final CollisionContext context;
     private final Cursor3D cursor;
@@ -26,18 +27,18 @@ public class BlockCollisions extends AbstractIterator<VoxelShape> {
     @Nullable
     private BlockGetter cachedBlockGetter;
     private long cachedBlockGetterPos;
+    private final BiFunction<BlockPos.MutableBlockPos, VoxelShape, T> resultProvider;
 
-    public BlockCollisions(CollisionGetter param0, @Nullable Entity param1, AABB param2) {
-        this(param0, param1, param2, false);
-    }
-
-    public BlockCollisions(CollisionGetter param0, @Nullable Entity param1, AABB param2, boolean param3) {
+    public BlockCollisions(
+        CollisionGetter param0, @Nullable Entity param1, AABB param2, boolean param3, BiFunction<BlockPos.MutableBlockPos, VoxelShape, T> param4
+    ) {
         this.context = param1 == null ? CollisionContext.empty() : CollisionContext.of(param1);
         this.pos = new BlockPos.MutableBlockPos();
         this.entityShape = Shapes.create(param2);
         this.collisionGetter = param0;
         this.box = param2;
         this.onlySuffocatingBlocks = param3;
+        this.resultProvider = param4;
         int var0 = Mth.floor(param2.minX - 1.0E-7) - 1;
         int var1 = Mth.floor(param2.maxX + 1.0E-7) + 1;
         int var2 = Mth.floor(param2.minY - 1.0E-7) - 1;
@@ -62,7 +63,8 @@ public class BlockCollisions extends AbstractIterator<VoxelShape> {
         }
     }
 
-    protected VoxelShape computeNext() {
+    @Override
+    protected T computeNext() {
         while(this.cursor.advance()) {
             int var0 = this.cursor.nextX();
             int var1 = this.cursor.nextY();
@@ -79,12 +81,12 @@ public class BlockCollisions extends AbstractIterator<VoxelShape> {
                         VoxelShape var6 = var5.getCollisionShape(this.collisionGetter, this.pos, this.context);
                         if (var6 == Shapes.block()) {
                             if (this.box.intersects((double)var0, (double)var1, (double)var2, (double)var0 + 1.0, (double)var1 + 1.0, (double)var2 + 1.0)) {
-                                return var6.move((double)var0, (double)var1, (double)var2);
+                                return this.resultProvider.apply(this.pos, var6.move((double)var0, (double)var1, (double)var2));
                             }
                         } else {
                             VoxelShape var7 = var6.move((double)var0, (double)var1, (double)var2);
-                            if (Shapes.joinIsNotEmpty(var7, this.entityShape, BooleanOp.AND)) {
-                                return var7;
+                            if (!var7.isEmpty() && Shapes.joinIsNotEmpty(var7, this.entityShape, BooleanOp.AND)) {
+                                return this.resultProvider.apply(this.pos, var7);
                             }
                         }
                     }

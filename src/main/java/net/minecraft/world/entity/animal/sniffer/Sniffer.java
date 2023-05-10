@@ -50,7 +50,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -63,6 +63,8 @@ public class Sniffer extends Animal {
     private static final int DIGGING_PARTICLES_AMOUNT = 30;
     private static final int DIGGING_DROP_SEED_OFFSET_TICKS = 120;
     private static final int SNIFFER_BABY_AGE_TICKS = 48000;
+    private static final float DIGGING_BB_HEIGHT_OFFSET = 0.4F;
+    private static final EntityDimensions DIGGING_DIMENSIONS = EntityDimensions.scalable(EntityType.SNIFFER.getWidth(), EntityType.SNIFFER.getHeight() - 0.4F);
     private static final EntityDataAccessor<Sniffer.State> DATA_STATE = SynchedEntityData.defineId(Sniffer.class, EntityDataSerializers.SNIFFER_STATE);
     private static final EntityDataAccessor<Integer> DATA_DROP_SEED_AT_TICK = SynchedEntityData.defineId(Sniffer.class, EntityDataSerializers.INT);
     public final AnimationState feelingHappyAnimationState = new AnimationState();
@@ -103,6 +105,13 @@ public class Sniffer extends Animal {
     @Override
     public void onPathfindingDone() {
         this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose param0) {
+        return this.entityData.hasItem(DATA_STATE) && this.getState() == Sniffer.State.DIGGING
+            ? DIGGING_DIMENSIONS.scale(this.getScale())
+            : super.getDimensions(param0);
     }
 
     public boolean isPanicking() {
@@ -164,6 +173,8 @@ public class Sniffer extends Animal {
                 case FEELING_HAPPY:
                     this.feelingHappyAnimationState.startIfStopped(this.tickCount);
             }
+
+            this.refreshDimensions();
         }
 
         super.onSyncedDataUpdated(param0);
@@ -257,11 +268,11 @@ public class Sniffer extends Animal {
         if (!this.level().isClientSide() && this.entityData.get(DATA_DROP_SEED_AT_TICK) == this.tickCount) {
             ServerLevel var0 = (ServerLevel)this.level();
             LootTable var1 = var0.getServer().getLootData().getLootTable(BuiltInLootTables.SNIFFER_DIGGING);
-            LootContext.Builder var2 = new LootContext.Builder(var0)
+            LootParams var2 = new LootParams.Builder(var0)
                 .withParameter(LootContextParams.ORIGIN, this.getHeadPosition())
                 .withParameter(LootContextParams.THIS_ENTITY, this)
-                .withRandom(this.random);
-            List<ItemStack> var3 = var1.getRandomItems(var2.create(LootContextParamSets.GIFT));
+                .create(LootContextParamSets.GIFT);
+            List<ItemStack> var3 = var1.getRandomItems(var2);
             BlockPos var4 = this.getHeadBlock();
 
             for(ItemStack var5 : var3) {
@@ -277,17 +288,17 @@ public class Sniffer extends Animal {
     private Sniffer emitDiggingParticles(AnimationState param0) {
         boolean var0 = param0.getAccumulatedTime() > 1700L && param0.getAccumulatedTime() < 6000L;
         if (var0) {
-            BlockState var1 = this.getBlockStateOn();
-            BlockPos var2 = this.getHeadBlock();
-            if (var1.getRenderShape() != RenderShape.INVISIBLE) {
+            BlockPos var1 = this.getHeadBlock();
+            BlockState var2 = this.level().getBlockState(var1.below());
+            if (var2.getRenderShape() != RenderShape.INVISIBLE) {
                 for(int var3 = 0; var3 < 30; ++var3) {
-                    Vec3 var4 = Vec3.atCenterOf(var2).add(0.0, -0.65F, 0.0);
-                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var1), var4.x, var4.y, var4.z, 0.0, 0.0, 0.0);
+                    Vec3 var4 = Vec3.atCenterOf(var1).add(0.0, -0.65F, 0.0);
+                    this.level().addParticle(new BlockParticleOption(ParticleTypes.BLOCK, var2), var4.x, var4.y, var4.z, 0.0, 0.0, 0.0);
                 }
 
                 if (this.tickCount % 10 == 0) {
                     this.level()
-                        .playLocalSound(this.getX(), this.getY(), this.getZ(), var1.getSoundType().getHitSound(), this.getSoundSource(), 0.5F, 0.5F, false);
+                        .playLocalSound(this.getX(), this.getY(), this.getZ(), var2.getSoundType().getHitSound(), this.getSoundSource(), 0.5F, 0.5F, false);
                 }
             }
         }

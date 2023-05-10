@@ -220,7 +220,7 @@ public class DataCommands {
                                                             )
                                                     )
                                                     .then(
-                                                        Commands.argument("start", IntegerArgumentType.integer(0))
+                                                        Commands.argument("start", IntegerArgumentType.integer())
                                                             .executes(
                                                                 param3x -> manipulateData(
                                                                         param3x,
@@ -228,12 +228,12 @@ public class DataCommands {
                                                                         param2x,
                                                                         stringifyTagList(
                                                                             resolveSourcePath(param3x, var1x),
-                                                                            param1x -> param1x.substring(IntegerArgumentType.getInteger(param3x, "start"))
+                                                                            param1x -> substring(param1x, IntegerArgumentType.getInteger(param3x, "start"))
                                                                         )
                                                                     )
                                                             )
                                                             .then(
-                                                                Commands.argument("end", IntegerArgumentType.integer(0))
+                                                                Commands.argument("end", IntegerArgumentType.integer())
                                                                     .executes(
                                                                         param3x -> manipulateData(
                                                                                 param3x,
@@ -241,7 +241,8 @@ public class DataCommands {
                                                                                 param2x,
                                                                                 stringifyTagList(
                                                                                     resolveSourcePath(param3x, var1x),
-                                                                                    param1x -> param1x.substring(
+                                                                                    param1x -> substring(
+                                                                                            param1x,
                                                                                             IntegerArgumentType.getInteger(param3x, "start"),
                                                                                             IntegerArgumentType.getInteger(param3x, "end")
                                                                                         )
@@ -265,6 +266,19 @@ public class DataCommands {
         }
 
         return var0;
+    }
+
+    private static String substring(String param0, int param1, int param2) {
+        int var0 = param0.length();
+        return param0.substring(getOffset(param1, var0), getOffset(param2, var0));
+    }
+
+    private static String substring(String param0, int param1) {
+        return param0.substring(getOffset(param1, param0.length()));
+    }
+
+    private static int getOffset(int param0, int param1) {
+        return param0 >= 0 ? param0 : param1 + param0;
     }
 
     private static List<Tag> getSingletonSource(CommandContext<CommandSourceStack> param0, DataCommands.DataProvider param1) throws CommandSyntaxException {

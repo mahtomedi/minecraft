@@ -103,7 +103,7 @@ public class ExperienceOrb extends Entity {
         this.move(MoverType.SELF, this.getDeltaMovement());
         float var3 = 0.98F;
         if (this.onGround()) {
-            var3 = this.level().getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
+            var3 = this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getFriction() * 0.98F;
         }
 
         this.setDeltaMovement(this.getDeltaMovement().multiply((double)var3, 0.98, (double)var3));
@@ -116,6 +116,11 @@ public class ExperienceOrb extends Entity {
             this.discard();
         }
 
+    }
+
+    @Override
+    protected BlockPos getBlockPosBelowThatAffectsMyMovement() {
+        return this.getOnPos(0.999999F);
     }
 
     private void scanForEntities() {

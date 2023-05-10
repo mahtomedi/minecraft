@@ -65,6 +65,7 @@ import java.util.function.ToIntFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
@@ -634,6 +635,16 @@ public class Util {
         int[] var0 = param0.limit((long)(param1 + 1)).toArray();
         if (var0.length != param1) {
             Supplier<String> var1 = () -> "Input is not a list of " + param1 + " ints";
+            return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
+        } else {
+            return DataResult.success(var0);
+        }
+    }
+
+    public static DataResult<long[]> fixedSize(LongStream param0, int param1) {
+        long[] var0 = param0.limit((long)(param1 + 1)).toArray();
+        if (var0.length != param1) {
+            Supplier<String> var1 = () -> "Input is not a list of " + param1 + " longs";
             return var0.length >= param1 ? DataResult.error(var1, Arrays.copyOf(var0, param1)) : DataResult.error(var1);
         } else {
             return DataResult.success(var0);

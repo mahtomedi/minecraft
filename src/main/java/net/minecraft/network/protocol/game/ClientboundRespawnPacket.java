@@ -25,6 +25,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
     private final boolean isFlat;
     private final byte dataToKeep;
     private final Optional<GlobalPos> lastDeathLocation;
+    private final int portalCooldown;
 
     public ClientboundRespawnPacket(
         ResourceKey<DimensionType> param0,
@@ -35,7 +36,8 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         boolean param5,
         boolean param6,
         byte param7,
-        Optional<GlobalPos> param8
+        Optional<GlobalPos> param8,
+        int param9
     ) {
         this.dimensionType = param0;
         this.dimension = param1;
@@ -46,6 +48,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.isFlat = param6;
         this.dataToKeep = param7;
         this.lastDeathLocation = param8;
+        this.portalCooldown = param9;
     }
 
     public ClientboundRespawnPacket(FriendlyByteBuf param0) {
@@ -58,6 +61,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         this.isFlat = param0.readBoolean();
         this.dataToKeep = param0.readByte();
         this.lastDeathLocation = param0.readOptional(FriendlyByteBuf::readGlobalPos);
+        this.portalCooldown = param0.readVarInt();
     }
 
     @Override
@@ -71,6 +75,7 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
         param0.writeBoolean(this.isFlat);
         param0.writeByte(this.dataToKeep);
         param0.writeOptional(this.lastDeathLocation, FriendlyByteBuf::writeGlobalPos);
+        param0.writeVarInt(this.portalCooldown);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -112,5 +117,9 @@ public class ClientboundRespawnPacket implements Packet<ClientGamePacketListener
 
     public Optional<GlobalPos> getLastDeathLocation() {
         return this.lastDeathLocation;
+    }
+
+    public int getPortalCooldown() {
+        return this.portalCooldown;
     }
 }

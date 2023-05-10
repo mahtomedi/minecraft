@@ -64,7 +64,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Attackable;
@@ -83,6 +83,8 @@ import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.storage.loot.LootDataType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -452,7 +454,7 @@ public class ExecuteCommand {
         int var1 = SectionPos.blockToSectionCoord(param1.getZ());
         LevelChunk var2 = param0.getChunkSource().getChunkNow(var0, var1);
         if (var2 != null) {
-            return var2.getFullStatus() == ChunkHolder.FullChunkStatus.ENTITY_TICKING;
+            return var2.getFullStatus() == FullChunkStatus.ENTITY_TICKING;
         } else {
             return false;
         }
@@ -714,12 +716,13 @@ public class ExecuteCommand {
 
     private static boolean checkCustomPredicate(CommandSourceStack param0, LootItemCondition param1) {
         ServerLevel var0 = param0.getLevel();
-        LootContext var1 = new LootContext.Builder(var0)
+        LootParams var1 = new LootParams.Builder(var0)
             .withParameter(LootContextParams.ORIGIN, param0.getPosition())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity())
             .create(LootContextParamSets.COMMAND);
-        var1.pushVisitedElement(LootContext.createVisitedEntry(param1));
-        return param1.test(var1);
+        LootContext var2 = new LootContext.Builder(var1).create(LootTable.DEFAULT_RANDOM_SEQUENCE);
+        var2.pushVisitedElement(LootContext.createVisitedEntry(param1));
+        return param1.test(var2);
     }
 
     private static Collection<CommandSourceStack> expect(CommandContext<CommandSourceStack> param0, boolean param1, boolean param2) {

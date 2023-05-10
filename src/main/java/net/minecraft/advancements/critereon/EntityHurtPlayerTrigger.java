@@ -13,7 +13,7 @@ public class EntityHurtPlayerTrigger extends SimpleCriterionTrigger<EntityHurtPl
         return ID;
     }
 
-    public EntityHurtPlayerTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public EntityHurtPlayerTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         DamagePredicate var0 = DamagePredicate.fromJson(param0.get("damage"));
         return new EntityHurtPlayerTrigger.TriggerInstance(param1, var0);
     }
@@ -25,21 +25,21 @@ public class EntityHurtPlayerTrigger extends SimpleCriterionTrigger<EntityHurtPl
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final DamagePredicate damage;
 
-        public TriggerInstance(EntityPredicate.Composite param0, DamagePredicate param1) {
+        public TriggerInstance(ContextAwarePredicate param0, DamagePredicate param1) {
             super(EntityHurtPlayerTrigger.ID, param0);
             this.damage = param1;
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer() {
-            return new EntityHurtPlayerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, DamagePredicate.ANY);
+            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, DamagePredicate.ANY);
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer(DamagePredicate param0) {
-            return new EntityHurtPlayerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
+            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer(DamagePredicate.Builder param0) {
-            return new EntityHurtPlayerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0.build());
+            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0.build());
         }
 
         public boolean matches(ServerPlayer param0, DamageSource param1, float param2, float param3, boolean param4) {

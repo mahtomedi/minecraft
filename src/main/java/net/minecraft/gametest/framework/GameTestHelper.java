@@ -13,7 +13,10 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -193,6 +196,11 @@ public class GameTestHelper {
         };
     }
 
+    public LivingEntity withLowHealth(LivingEntity param0) {
+        param0.setHealth(0.25F);
+        return param0;
+    }
+
     public Player makeMockPlayer() {
         return new Player(this.getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
             @Override
@@ -210,6 +218,22 @@ public class GameTestHelper {
                 return true;
             }
         };
+    }
+
+    public ServerPlayer makeMockServerPlayerInLevel() {
+        ServerPlayer var0 = new ServerPlayer(this.getLevel().getServer(), this.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+            @Override
+            public boolean isSpectator() {
+                return false;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return true;
+            }
+        };
+        this.getLevel().getServer().getPlayerList().placeNewPlayer(new Connection(PacketFlow.SERVERBOUND), var0);
+        return var0;
     }
 
     public void pullLever(int param0, int param1, int param2) {
@@ -390,10 +414,10 @@ public class GameTestHelper {
         List<ItemEntity> var1 = this.getLevel().getEntities(EntityType.ITEM, new AABB(var0).inflate(param2), Entity::isAlive);
         int var2 = 0;
 
-        for(Entity var3 : var1) {
-            ItemEntity var4 = (ItemEntity)var3;
-            if (var4.getItem().getItem().equals(param0)) {
-                var2 += var4.getItem().getCount();
+        for(ItemEntity var3 : var1) {
+            ItemStack var4 = var3.getItem();
+            if (var4.is(param0)) {
+                var2 += var4.getCount();
             }
         }
 

@@ -188,10 +188,10 @@ public class PistonMovingBlockEntity extends BlockEntity {
             Direction var0 = param3.getMovementDirection();
             if (var0.getAxis().isHorizontal()) {
                 double var1 = param3.movedState.getCollisionShape(param0, param1).max(Direction.Axis.Y);
-                AABB var2 = moveByPositionAndProgress(param1, new AABB(0.0, var1, 0.0, 1.0, 1.5000000999999998, 1.0), param3);
+                AABB var2 = moveByPositionAndProgress(param1, new AABB(0.0, var1, 0.0, 1.0, 1.5000010000000001, 1.0), param3);
                 double var3 = (double)(param2 - param3.progress);
 
-                for(Entity var5 : param0.getEntities((Entity)null, var2, param1x -> matchesStickyCritera(var2, param1x))) {
+                for(Entity var5 : param0.getEntities((Entity)null, var2, param2x -> matchesStickyCritera(var2, param2x, param1))) {
                     moveEntityByPiston(var0, var5, var3, var0);
                 }
 
@@ -199,13 +199,13 @@ public class PistonMovingBlockEntity extends BlockEntity {
         }
     }
 
-    private static boolean matchesStickyCritera(AABB param0, Entity param1) {
+    private static boolean matchesStickyCritera(AABB param0, Entity param1, BlockPos param2) {
         return param1.getPistonPushReaction() == PushReaction.NORMAL
             && param1.onGround()
-            && param1.getX() >= param0.minX
-            && param1.getX() <= param0.maxX
-            && param1.getZ() >= param0.minZ
-            && param1.getZ() <= param0.maxZ;
+            && (
+                param1.isSupportedBy(param2)
+                    || param1.getX() >= param0.minX && param1.getX() <= param0.maxX && param1.getZ() >= param0.minZ && param1.getZ() <= param0.maxZ
+            );
     }
 
     private boolean isStickyForEntities() {

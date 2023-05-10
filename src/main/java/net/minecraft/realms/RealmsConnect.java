@@ -57,13 +57,15 @@ public class RealmsConnect {
                             return;
                         }
     
-                        RealmsConnect.this.connection
-                            .setListener(
-                                new ClientHandshakePacketListenerImpl(
-                                    RealmsConnect.this.connection, var0, param0.toServerData(var1), RealmsConnect.this.onlineScreen, false, null, param0xx -> {
-                                    }
-                                )
-                            );
+                        ClientHandshakePacketListenerImpl var1 = new ClientHandshakePacketListenerImpl(
+                            RealmsConnect.this.connection, var0, param0.toServerData(var1), RealmsConnect.this.onlineScreen, false, null, param0xx -> {
+                            }
+                        );
+                        if (param0.worldType == RealmsServer.WorldType.MINIGAME) {
+                            var1.setMinigameName(param0.minigameName);
+                        }
+    
+                        RealmsConnect.this.connection.setListener(var1);
                         if (RealmsConnect.this.aborted) {
                             return;
                         }
@@ -73,28 +75,28 @@ public class RealmsConnect {
                             return;
                         }
     
-                        String var1 = var0.getUser().getName();
-                        UUID var2 = var0.getUser().getProfileId();
-                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var1, Optional.ofNullable(var2)));
+                        String var2 = var0.getUser().getName();
+                        UUID var3 = var0.getUser().getProfileId();
+                        RealmsConnect.this.connection.send(new ServerboundHelloPacket(var2, Optional.ofNullable(var3)));
                         var0.updateReportEnvironment(ReportEnvironment.realm(param0));
                         var0.quickPlayLog().setWorldData(QuickPlayLog.Type.REALMS, String.valueOf(param0.id), param0.name);
-                    } catch (Exception var5) {
+                    } catch (Exception var51) {
                         var0.getDownloadedPackSource().clearServerPack();
                         if (RealmsConnect.this.aborted) {
                             return;
                         }
     
-                        RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var5);
-                        String var4 = var5.toString();
+                        RealmsConnect.LOGGER.error("Couldn't connect to world", (Throwable)var51);
+                        String var5 = var51.toString();
                         if (var0 != null) {
-                            String var5 = var0 + ":" + var2;
-                            var4 = var4.replaceAll(var5, "");
+                            String var6 = var0 + ":" + var2;
+                            var5 = var5.replaceAll(var6, "");
                         }
     
-                        DisconnectedRealmsScreen var6 = new DisconnectedRealmsScreen(
-                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var4)
+                        DisconnectedRealmsScreen var7 = new DisconnectedRealmsScreen(
+                            RealmsConnect.this.onlineScreen, CommonComponents.CONNECT_FAILED, Component.translatable("disconnect.genericReason", var5)
                         );
-                        var0.execute(() -> var0.setScreen(var6));
+                        var0.execute(() -> var0.setScreen(var7));
                     }
     
                 }

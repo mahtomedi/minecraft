@@ -1,7 +1,6 @@
 package net.minecraft.client.gui;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -10,16 +9,15 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Divisor;
 import it.unimi.dsi.fastutil.ints.IntIterator;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -34,6 +32,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -63,6 +62,7 @@ public class GuiGraphics {
     private final PoseStack pose;
     private final MultiBufferSource.BufferSource bufferSource;
     private final GuiGraphics.ScissorStack scissorStack = new GuiGraphics.ScissorStack();
+    private boolean managed;
 
     private GuiGraphics(Minecraft param0, PoseStack param1, MultiBufferSource.BufferSource param2) {
         this.minecraft = param0;
@@ -72,6 +72,31 @@ public class GuiGraphics {
 
     public GuiGraphics(Minecraft param0, MultiBufferSource.BufferSource param1) {
         this(param0, new PoseStack(), param1);
+    }
+
+    @Deprecated
+    public void drawManaged(Runnable param0) {
+        this.flush();
+        this.managed = true;
+        param0.run();
+        this.managed = false;
+        this.flush();
+    }
+
+    @Deprecated
+    private void flushIfUnmanaged() {
+        if (!this.managed) {
+            this.flush();
+        }
+
+    }
+
+    @Deprecated
+    private void flushIfManaged() {
+        if (this.managed) {
+            this.flush();
+        }
+
     }
 
     public int guiWidth() {
@@ -91,38 +116,49 @@ public class GuiGraphics {
     }
 
     public void flush() {
+        RenderSystem.disableDepthTest();
         this.bufferSource.endBatch();
+        RenderSystem.enableDepthTest();
     }
 
     public void hLine(int param0, int param1, int param2, int param3) {
-        if (param1 < param0) {
-            int var0 = param0;
-            param0 = param1;
-            param1 = var0;
-        }
-
-        this.fill(param0, param2, param1 + 1, param2 + 1, param3);
+        this.hLine(RenderType.gui(), param0, param1, param2, param3);
     }
 
-    public void vLine(int param0, int param1, int param2, int param3) {
+    public void hLine(RenderType param0, int param1, int param2, int param3, int param4) {
         if (param2 < param1) {
             int var0 = param1;
             param1 = param2;
             param2 = var0;
         }
 
-        this.fill(param0, param1 + 1, param0 + 1, param2, param3);
+        this.fill(param0, param1, param3, param2 + 1, param3 + 1, param4);
+    }
+
+    public void vLine(int param0, int param1, int param2, int param3) {
+        this.vLine(RenderType.gui(), param0, param1, param2, param3);
+    }
+
+    public void vLine(RenderType param0, int param1, int param2, int param3, int param4) {
+        if (param3 < param2) {
+            int var0 = param2;
+            param2 = param3;
+            param3 = var0;
+        }
+
+        this.fill(param0, param1, param2 + 1, param1 + 1, param3, param4);
     }
 
     public void enableScissor(int param0, int param1, int param2, int param3) {
-        applyScissor(this.scissorStack.push(new ScreenRectangle(param0, param1, param2 - param0, param3 - param1)));
+        this.applyScissor(this.scissorStack.push(new ScreenRectangle(param0, param1, param2 - param0, param3 - param1)));
     }
 
     public void disableScissor() {
-        applyScissor(this.scissorStack.pop());
+        this.applyScissor(this.scissorStack.pop());
     }
 
-    private static void applyScissor(@Nullable ScreenRectangle param0) {
+    private void applyScissor(@Nullable ScreenRectangle param0) {
+        this.flushIfManaged();
         if (param0 != null) {
             Window var0 = Minecraft.getInstance().getWindow();
             int var1 = var0.getHeight();
@@ -139,6 +175,7 @@ public class GuiGraphics {
     }
 
     public void setColor(float param0, float param1, float param2, float param3) {
+        this.flushIfManaged();
         RenderSystem.setShaderColor(param0, param1, param2, param3);
     }
 
@@ -147,33 +184,37 @@ public class GuiGraphics {
     }
 
     public void fill(int param0, int param1, int param2, int param3, int param4, int param5) {
+        this.fill(RenderType.gui(), param0, param1, param2, param3, param4, param5);
+    }
+
+    public void fill(RenderType param0, int param1, int param2, int param3, int param4, int param5) {
+        this.fill(param0, param1, param2, param3, param4, 0, param5);
+    }
+
+    public void fill(RenderType param0, int param1, int param2, int param3, int param4, int param5, int param6) {
         Matrix4f var0 = this.pose.last().pose();
-        if (param0 < param2) {
-            int var1 = param0;
-            param0 = param2;
-            param2 = var1;
-        }
-
         if (param1 < param3) {
-            int var2 = param1;
+            int var1 = param1;
             param1 = param3;
-            param3 = var2;
+            param3 = var1;
         }
 
-        float var3 = (float)FastColor.ARGB32.alpha(param5) / 255.0F;
-        float var4 = (float)FastColor.ARGB32.red(param5) / 255.0F;
-        float var5 = (float)FastColor.ARGB32.green(param5) / 255.0F;
-        float var6 = (float)FastColor.ARGB32.blue(param5) / 255.0F;
-        BufferBuilder var7 = Tesselator.getInstance().getBuilder();
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        var7.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        var7.vertex(var0, (float)param0, (float)param1, (float)param4).color(var4, var5, var6, var3).endVertex();
-        var7.vertex(var0, (float)param0, (float)param3, (float)param4).color(var4, var5, var6, var3).endVertex();
-        var7.vertex(var0, (float)param2, (float)param3, (float)param4).color(var4, var5, var6, var3).endVertex();
-        var7.vertex(var0, (float)param2, (float)param1, (float)param4).color(var4, var5, var6, var3).endVertex();
-        BufferUploader.drawWithShader(var7.end());
-        RenderSystem.disableBlend();
+        if (param2 < param4) {
+            int var2 = param2;
+            param2 = param4;
+            param4 = var2;
+        }
+
+        float var3 = (float)FastColor.ARGB32.alpha(param6) / 255.0F;
+        float var4 = (float)FastColor.ARGB32.red(param6) / 255.0F;
+        float var5 = (float)FastColor.ARGB32.green(param6) / 255.0F;
+        float var6 = (float)FastColor.ARGB32.blue(param6) / 255.0F;
+        VertexConsumer var7 = this.bufferSource.getBuffer(param0);
+        var7.vertex(var0, (float)param1, (float)param2, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param1, (float)param4, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param3, (float)param4, (float)param5).color(var4, var5, var6, var3).endVertex();
+        var7.vertex(var0, (float)param3, (float)param2, (float)param5).color(var4, var5, var6, var3).endVertex();
+        this.flushIfUnmanaged();
     }
 
     public void fillGradient(int param0, int param1, int param2, int param3, int param4, int param5) {
@@ -181,17 +222,16 @@ public class GuiGraphics {
     }
 
     public void fillGradient(int param0, int param1, int param2, int param3, int param4, int param5, int param6) {
-        RenderSystem.enableBlend();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        Tesselator var0 = Tesselator.getInstance();
-        BufferBuilder var1 = var0.getBuilder();
-        var1.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        this.fillGradient(var1, param0, param1, param2, param3, param4, param5, param6);
-        var0.end();
-        RenderSystem.disableBlend();
+        this.fillGradient(RenderType.gui(), param0, param1, param2, param3, param5, param6, param4);
     }
 
-    void fillGradient(BufferBuilder param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+    public void fillGradient(RenderType param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
+        VertexConsumer var0 = this.bufferSource.getBuffer(param0);
+        this.fillGradient(var0, param1, param2, param3, param4, param7, param5, param6);
+        this.flushIfUnmanaged();
+    }
+
+    private void fillGradient(VertexConsumer param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7) {
         float var0 = (float)FastColor.ARGB32.alpha(param6) / 255.0F;
         float var1 = (float)FastColor.ARGB32.red(param6) / 255.0F;
         float var2 = (float)FastColor.ARGB32.green(param6) / 255.0F;
@@ -241,7 +281,7 @@ public class GuiGraphics {
                 15728880,
                 param0.isBidirectional()
             );
-            this.flush();
+            this.flushIfUnmanaged();
             return var0;
         }
     }
@@ -254,7 +294,7 @@ public class GuiGraphics {
         int var0 = param0.drawInBatch(
             param1, (float)param2, (float)param3, param4, param5, this.pose.last().pose(), this.bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
         );
-        this.flush();
+        this.flushIfUnmanaged();
         return var0;
     }
 
@@ -272,21 +312,6 @@ public class GuiGraphics {
             param3 += 9;
         }
 
-    }
-
-    public void blitOutlineBlack(int param0, int param1, BiConsumer<Integer, Integer> param2) {
-        RenderSystem.blendFuncSeparate(
-            GlStateManager.SourceFactor.ZERO,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-            GlStateManager.SourceFactor.SRC_ALPHA,
-            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA
-        );
-        param2.accept(param0 + 1, param1);
-        param2.accept(param0 - 1, param1);
-        param2.accept(param0, param1 + 1);
-        param2.accept(param0, param1 - 1);
-        RenderSystem.defaultBlendFunc();
-        param2.accept(param0, param1);
     }
 
     public void blit(int param0, int param1, int param2, int param3, int param4, TextureAtlasSprite param5) {
@@ -562,7 +587,6 @@ public class GuiGraphics {
                     .getItemRenderer()
                     .render(param2, ItemDisplayContext.GUI, false, this.pose, this.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, var0);
                 this.flush();
-                RenderSystem.enableDepthTest();
                 if (var1) {
                     Lighting.setupFor3DItems();
                 }
@@ -594,24 +618,20 @@ public class GuiGraphics {
             }
 
             if (param1.isBarVisible()) {
-                RenderSystem.disableDepthTest();
                 int var1 = param1.getBarWidth();
                 int var2 = param1.getBarColor();
                 int var3 = param2 + 2;
                 int var4 = param3 + 13;
-                this.fill(var3, var4, var3 + 13, var4 + 2, -16777216);
-                this.fill(var3, var4, var3 + var1, var4 + 1, var2 | 0xFF000000);
-                RenderSystem.enableDepthTest();
+                this.fill(RenderType.guiOverlay(), var3, var4, var3 + 13, var4 + 2, -16777216);
+                this.fill(RenderType.guiOverlay(), var3, var4, var3 + var1, var4 + 1, var2 | 0xFF000000);
             }
 
             LocalPlayer var5 = this.minecraft.player;
             float var6 = var5 == null ? 0.0F : var5.getCooldowns().getCooldownPercent(param1.getItem(), this.minecraft.getFrameTime());
             if (var6 > 0.0F) {
-                RenderSystem.disableDepthTest();
                 int var7 = param3 + Mth.floor(16.0F * (1.0F - var6));
                 int var8 = var7 + Mth.ceil(16.0F * var6);
-                this.fill(param2, var7, param2 + 16, var8, Integer.MAX_VALUE);
-                RenderSystem.enableDepthTest();
+                this.fill(RenderType.guiOverlay(), param2, var7, param2 + 16, var8, Integer.MAX_VALUE);
             }
 
             this.pose.popPose();
@@ -629,7 +649,7 @@ public class GuiGraphics {
     }
 
     public void renderTooltip(Font param0, Component param1, int param2, int param3) {
-        this.renderTooltip(param0, Arrays.asList(param1.getVisualOrderText()), param2, param3);
+        this.renderTooltip(param0, List.of(param1.getVisualOrderText()), param2, param3);
     }
 
     public void renderComponentTooltip(Font param0, List<Component> param1, int param2, int param3) {
@@ -660,12 +680,14 @@ public class GuiGraphics {
                 var1 += var2.getHeight();
             }
 
-            Vector2ic var6 = param4.positionTooltip(this.guiWidth(), this.guiHeight(), param2, param3, var0, var1);
+            int var4 = var0;
+            int var5 = var1;
+            Vector2ic var6 = param4.positionTooltip(this.guiWidth(), this.guiHeight(), param2, param3, var4, var5);
             int var7 = var6.x();
             int var8 = var6.y();
             this.pose.pushPose();
             int var9 = 400;
-            TooltipRenderUtil.renderTooltipBackground(this, var7, var8, var0, var1, 400);
+            this.drawManaged(() -> TooltipRenderUtil.renderTooltipBackground(this, var7, var8, var4, var5, 400));
             this.pose.translate(0.0F, 0.0F, 400.0F);
             int var10 = var8;
 
@@ -679,7 +701,7 @@ public class GuiGraphics {
 
             for(int var13 = 0; var13 < param1.size(); ++var13) {
                 ClientTooltipComponent var14 = param1.get(var13);
-                var14.renderText(param0, var7, var10, this.pose.last().pose(), this.bufferSource);
+                var14.renderImage(param0, var7, var10, this);
                 var10 += var14.getHeight() + (var13 == 0 ? 2 : 0);
             }
 

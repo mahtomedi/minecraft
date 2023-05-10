@@ -36,7 +36,7 @@ public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceMenu> exten
         this.addRenderableWidget(new ImageButton(this.leftPos + 20, this.height / 2 - 49, 20, 18, 0, 0, 19, RECIPE_BUTTON_LOCATION, param0 -> {
             this.recipeBookComponent.toggleVisibility();
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
-            ((ImageButton)param0).setPosition(this.leftPos + 20, this.height / 2 - 49);
+            param0.setPosition(this.leftPos + 20, this.height / 2 - 49);
         }));
         this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }

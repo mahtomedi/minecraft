@@ -708,6 +708,53 @@ public abstract class RenderType extends RenderStateShard {
             .setCullState(CULL)
             .createCompositeState(false)
     );
+    private static final RenderType.CompositeRenderType GUI = create(
+        "gui",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.QUADS,
+        256,
+        RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_GUI_SHADER)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .createCompositeState(false)
+    );
+    private static final RenderType.CompositeRenderType GUI_OVERLAY = create(
+        "gui_overlay",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.QUADS,
+        256,
+        RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_GUI_OVERLAY_SHADER)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setDepthTestState(NO_DEPTH_TEST)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(false)
+    );
+    private static final RenderType.CompositeRenderType GUI_TEXT_HIGHLIGHT = create(
+        "gui_text_highlight",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.QUADS,
+        256,
+        RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_GUI_TEXT_HIGHLIGHT_SHADER)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setDepthTestState(NO_DEPTH_TEST)
+            .setColorLogicState(OR_REVERSE_COLOR_LOGIC)
+            .createCompositeState(false)
+    );
+    private static final RenderType.CompositeRenderType GUI_GHOST_RECIPE_OVERLAY = create(
+        "gui_ghost_recipe_overlay",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.QUADS,
+        256,
+        RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_GUI_GHOST_RECIPE_OVERLAY_SHADER)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setDepthTestState(GREATER_DEPTH_TEST)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(false)
+    );
     private static final ImmutableList<RenderType> CHUNK_BUFFER_LAYERS = ImmutableList.of(solid(), cutoutMipped(), cutout(), translucent(), tripwire());
     private final VertexFormat format;
     private final VertexFormat.Mode mode;
@@ -986,6 +1033,22 @@ public abstract class RenderType extends RenderStateShard {
         return DEBUG_SECTION_QUADS;
     }
 
+    public static RenderType gui() {
+        return GUI;
+    }
+
+    public static RenderType guiOverlay() {
+        return GUI_OVERLAY;
+    }
+
+    public static RenderType guiTextHighlight() {
+        return GUI_TEXT_HIGHLIGHT;
+    }
+
+    public static RenderType guiGhostRecipeOverlay() {
+        return GUI_GHOST_RECIPE_OVERLAY;
+    }
+
     public RenderType(
         String param0, VertexFormat param1, VertexFormat.Mode param2, int param3, boolean param4, boolean param5, Runnable param6, Runnable param7
     ) {
@@ -1137,6 +1200,7 @@ public abstract class RenderType extends RenderStateShard {
         private final RenderStateShard.TexturingStateShard texturingState;
         private final RenderStateShard.WriteMaskStateShard writeMaskState;
         private final RenderStateShard.LineStateShard lineState;
+        private final RenderStateShard.ColorLogicStateShard colorLogicState;
         final RenderType.OutlineProperty outlineProperty;
         final ImmutableList<RenderStateShard> states;
 
@@ -1153,7 +1217,8 @@ public abstract class RenderType extends RenderStateShard {
             RenderStateShard.TexturingStateShard param9,
             RenderStateShard.WriteMaskStateShard param10,
             RenderStateShard.LineStateShard param11,
-            RenderType.OutlineProperty param12
+            RenderStateShard.ColorLogicStateShard param12,
+            RenderType.OutlineProperty param13
         ) {
             this.textureState = param0;
             this.shaderState = param1;
@@ -1167,7 +1232,8 @@ public abstract class RenderType extends RenderStateShard {
             this.texturingState = param9;
             this.writeMaskState = param10;
             this.lineState = param11;
-            this.outlineProperty = param12;
+            this.colorLogicState = param12;
+            this.outlineProperty = param13;
             this.states = ImmutableList.of(
                 this.textureState,
                 this.shaderState,
@@ -1180,6 +1246,7 @@ public abstract class RenderType extends RenderStateShard {
                 this.outputState,
                 this.texturingState,
                 this.writeMaskState,
+                this.colorLogicState,
                 this.lineState
             );
         }
@@ -1207,6 +1274,7 @@ public abstract class RenderType extends RenderStateShard {
             private RenderStateShard.TexturingStateShard texturingState = RenderStateShard.DEFAULT_TEXTURING;
             private RenderStateShard.WriteMaskStateShard writeMaskState = RenderStateShard.COLOR_DEPTH_WRITE;
             private RenderStateShard.LineStateShard lineState = RenderStateShard.DEFAULT_LINE;
+            private RenderStateShard.ColorLogicStateShard colorLogicState = RenderStateShard.NO_COLOR_LOGIC;
 
             CompositeStateBuilder() {
             }
@@ -1271,6 +1339,11 @@ public abstract class RenderType extends RenderStateShard {
                 return this;
             }
 
+            public RenderType.CompositeState.CompositeStateBuilder setColorLogicState(RenderStateShard.ColorLogicStateShard param0) {
+                this.colorLogicState = param0;
+                return this;
+            }
+
             public RenderType.CompositeState createCompositeState(boolean param0) {
                 return this.createCompositeState(param0 ? RenderType.OutlineProperty.AFFECTS_OUTLINE : RenderType.OutlineProperty.NONE);
             }
@@ -1289,6 +1362,7 @@ public abstract class RenderType extends RenderStateShard {
                     this.texturingState,
                     this.writeMaskState,
                     this.lineState,
+                    this.colorLogicState,
                     param0
                 );
             }

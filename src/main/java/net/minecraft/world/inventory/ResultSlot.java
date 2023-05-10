@@ -72,7 +72,7 @@ public class ResultSlot extends Slot {
             if (!var3.isEmpty()) {
                 if (var2.isEmpty()) {
                     this.craftSlots.setItem(var1, var3);
-                } else if (ItemStack.isSame(var2, var3) && ItemStack.tagMatches(var2, var3)) {
+                } else if (ItemStack.isSameItemSameTags(var2, var3)) {
                     var3.grow(var2.getCount());
                     this.craftSlots.setItem(var1, var3);
                 } else if (!this.player.getInventory().add(var3)) {

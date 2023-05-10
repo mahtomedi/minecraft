@@ -12,7 +12,7 @@ public class ConstructBeaconTrigger extends SimpleCriterionTrigger<ConstructBeac
         return ID;
     }
 
-    public ConstructBeaconTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public ConstructBeaconTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         MinMaxBounds.Ints var0 = MinMaxBounds.Ints.fromJson(param0.get("level"));
         return new ConstructBeaconTrigger.TriggerInstance(param1, var0);
     }
@@ -24,17 +24,17 @@ public class ConstructBeaconTrigger extends SimpleCriterionTrigger<ConstructBeac
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final MinMaxBounds.Ints level;
 
-        public TriggerInstance(EntityPredicate.Composite param0, MinMaxBounds.Ints param1) {
+        public TriggerInstance(ContextAwarePredicate param0, MinMaxBounds.Ints param1) {
             super(ConstructBeaconTrigger.ID, param0);
             this.level = param1;
         }
 
         public static ConstructBeaconTrigger.TriggerInstance constructedBeacon() {
-            return new ConstructBeaconTrigger.TriggerInstance(EntityPredicate.Composite.ANY, MinMaxBounds.Ints.ANY);
+            return new ConstructBeaconTrigger.TriggerInstance(ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY);
         }
 
         public static ConstructBeaconTrigger.TriggerInstance constructedBeacon(MinMaxBounds.Ints param0) {
-            return new ConstructBeaconTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
+            return new ConstructBeaconTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
         }
 
         public boolean matches(int param0) {

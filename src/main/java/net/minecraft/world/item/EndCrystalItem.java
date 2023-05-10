@@ -43,7 +43,7 @@ public class EndCrystalItem extends Item {
                         var8.setShowBottom(false);
                         var0.addFreshEntity(var8);
                         var0.gameEvent(param0.getPlayer(), GameEvent.ENTITY_PLACE, var3);
-                        EndDragonFight var9 = ((ServerLevel)var0).dragonFight();
+                        EndDragonFight var9 = ((ServerLevel)var0).getDragonFight();
                         if (var9 != null) {
                             var9.tryRespawn();
                         }

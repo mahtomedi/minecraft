@@ -51,10 +51,10 @@ public class SpectatorGui implements SpectatorMenuListener {
             if (var0 <= 0.0F) {
                 this.menu.exit();
             } else {
-                int var1 = this.minecraft.getWindow().getGuiScaledWidth() / 2;
+                int var1 = param0.guiWidth() / 2;
                 param0.pose().pushPose();
                 param0.pose().translate(0.0F, 0.0F, -90.0F);
-                int var2 = Mth.floor((float)this.minecraft.getWindow().getGuiScaledHeight() - 22.0F * var0);
+                int var2 = Mth.floor((float)param0.guiHeight() - 22.0F * var0);
                 SpectatorPage var3 = this.menu.getCurrentPage();
                 this.renderPage(param0, var0, var1, var2, var3);
                 param0.pose().popPose();
@@ -73,9 +73,7 @@ public class SpectatorGui implements SpectatorMenuListener {
         param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
         for(int var0 = 0; var0 < 9; ++var0) {
-            this.renderSlot(
-                param0, var0, this.minecraft.getWindow().getGuiScaledWidth() / 2 - 90 + var0 * 20 + 2, (float)(param3 + 3), param1, param4.getItem(var0)
-            );
+            this.renderSlot(param0, var0, param0.guiWidth() / 2 - 90 + var0 * 20 + 2, (float)(param3 + 3), param1, param4.getItem(var0));
         }
 
         RenderSystem.disableBlend();
@@ -105,8 +103,8 @@ public class SpectatorGui implements SpectatorMenuListener {
             SpectatorMenuItem var1 = this.menu.getSelectedItem();
             Component var2 = var1 == SpectatorMenu.EMPTY_SLOT ? this.menu.getSelectedCategory().getPrompt() : var1.getName();
             if (var2 != null) {
-                int var3 = (this.minecraft.getWindow().getGuiScaledWidth() - this.minecraft.font.width(var2)) / 2;
-                int var4 = this.minecraft.getWindow().getGuiScaledHeight() - 35;
+                int var3 = (param0.guiWidth() - this.minecraft.font.width(var2)) / 2;
+                int var4 = param0.guiHeight() - 35;
                 param0.drawString(this.minecraft.font, var2, var3, var4, 16777215 + (var0 << 24));
             }
         }

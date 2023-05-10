@@ -110,10 +110,9 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private static final int CHUNK_SAVED_PER_TICK = 200;
     private static final int CHUNK_SAVED_EAGERLY_PER_TICK = 20;
     private static final int EAGER_CHUNK_SAVE_COOLDOWN_IN_MILLIS = 10000;
-    private static final int MIN_VIEW_DISTANCE = 3;
-    public static final int MAX_VIEW_DISTANCE = 33;
-    public static final int MAX_CHUNK_DISTANCE = 33 + ChunkStatus.maxDistance();
-    public static final int FORCED_TICKET_LEVEL = 31;
+    private static final int MIN_VIEW_DISTANCE = 2;
+    public static final int MAX_VIEW_DISTANCE = 32;
+    public static final int FORCED_TICKET_LEVEL = ChunkLevel.byStatus(FullChunkStatus.ENTITY_TICKING);
     private final Long2ObjectLinkedOpenHashMap<ChunkHolder> updatingChunkMap = new Long2ObjectLinkedOpenHashMap<>();
     private volatile Long2ObjectLinkedOpenHashMap<ChunkHolder> visibleChunkMap = this.updatingChunkMap.clone();
     private final Long2ObjectLinkedOpenHashMap<ChunkHolder> pendingUnloads = new Long2ObjectLinkedOpenHashMap<>();
@@ -224,22 +223,18 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         long var2 = (long)Math.max(0, Math.max(var0, var1) - 1);
         long var3 = (long)Math.min(var0, var1);
         long var4 = var3 * var3 + var2 * var2;
-        int var5 = param4 - 1;
-        int var6 = var5 * var5;
-        return var4 <= (long)var6;
+        int var5 = param4 * param4;
+        return var4 < (long)var5;
     }
 
     private static boolean isChunkOnRangeBorder(int param0, int param1, int param2, int param3, int param4) {
         if (!isChunkInRange(param0, param1, param2, param3, param4)) {
             return false;
-        } else if (!isChunkInRange(param0 + 1, param1, param2, param3, param4)) {
-            return true;
-        } else if (!isChunkInRange(param0, param1 + 1, param2, param3, param4)) {
-            return true;
-        } else if (!isChunkInRange(param0 - 1, param1, param2, param3, param4)) {
-            return true;
         } else {
-            return !isChunkInRange(param0, param1 - 1, param2, param3, param4);
+            return !isChunkInRange(param0 + 1, param1 + 1, param2, param3, param4)
+                || !isChunkInRange(param0 - 1, param1 + 1, param2, param3, param4)
+                || !isChunkInRange(param0 + 1, param1 - 1, param2, param3, param4)
+                || !isChunkInRange(param0 - 1, param1 - 1, param2, param3, param4);
         }
     }
 
@@ -282,7 +277,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                 var1 = var1 + "Ch: \u00a7" + var3.getStatus().getIndex() + var3.getStatus() + "\u00a7r\n";
             }
 
-            ChunkHolder.FullChunkStatus var4 = var0.getFullStatus();
+            FullChunkStatus var4 = var0.getFullStatus();
             var1 = var1 + "\u00a7" + var4.ordinal() + var4;
             return var1 + "\u00a7r";
         }
@@ -387,7 +382,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
     @Nullable
     ChunkHolder updateChunkScheduling(long param0, int param1, @Nullable ChunkHolder param2, int param3) {
-        if (param3 > MAX_CHUNK_DISTANCE && param1 > MAX_CHUNK_DISTANCE) {
+        if (!ChunkLevel.isLoaded(param3) && !ChunkLevel.isLoaded(param1)) {
             return param2;
         } else {
             if (param2 != null) {
@@ -395,14 +390,14 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             }
 
             if (param2 != null) {
-                if (param1 > MAX_CHUNK_DISTANCE) {
+                if (!ChunkLevel.isLoaded(param1)) {
                     this.toDrop.add(param0);
                 } else {
                     this.toDrop.remove(param0);
                 }
             }
 
-            if (param1 <= MAX_CHUNK_DISTANCE && param2 == null) {
+            if (ChunkLevel.isLoaded(param1) && param2 == null) {
                 param2 = this.pendingUnloads.remove(param0);
                 if (param2 != null) {
                     param2.setTicketLevel(param1);
@@ -568,7 +563,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
             return this.scheduleChunkLoad(var0);
         } else {
             if (param1 == ChunkStatus.LIGHT) {
-                this.distanceManager.addTicket(TicketType.LIGHT, var0, 33 + ChunkStatus.getDistance(ChunkStatus.LIGHT), var0);
+                this.distanceManager.addTicket(TicketType.LIGHT, var0, ChunkLevel.byStatus(ChunkStatus.LIGHT), var0);
             }
 
             if (!param1.hasLoadDependencies()) {
@@ -696,7 +691,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         this.mainThreadExecutor
             .tell(
                 Util.name(
-                    () -> this.distanceManager.removeTicket(TicketType.LIGHT, param0, 33 + ChunkStatus.getDistance(ChunkStatus.LIGHT), param0),
+                    () -> this.distanceManager.removeTicket(TicketType.LIGHT, param0, ChunkLevel.byStatus(ChunkStatus.LIGHT), param0),
                     () -> "release light ticket " + param0
                 )
             );
@@ -723,7 +718,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     private CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> protoChunkToFullChunk(ChunkHolder param0) {
         CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> var0 = param0.getFutureIfPresentUnchecked(ChunkStatus.FULL.getParent());
         return var0.thenApplyAsync(param1 -> {
-            ChunkStatus var0x = ChunkHolder.getStatus(param0.getTicketLevel());
+            ChunkStatus var0x = ChunkLevel.generationStatus(param0.getTicketLevel());
             return !var0x.isOrAfter(ChunkStatus.FULL) ? ChunkHolder.UNLOADED_CHUNK : param1.mapLeft(param1x -> {
                 ChunkPos var0xx = param0.getPos();
                 ProtoChunk var1x = (ProtoChunk)param1x;
@@ -735,7 +730,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     param0.replaceProtoChunk(new ImposterProtoChunk(var3x, false));
                 }
 
-                var3x.setFullStatus(() -> ChunkHolder.getFullChunkStatus(param0.getTicketLevel()));
+                var3x.setFullStatus(() -> ChunkLevel.fullStatus(param0.getTicketLevel()));
                 var3x.runPostLoad();
                 if (this.entitiesInLevel.add(var0xx.toLong())) {
                     var3x.setLoaded(true);
@@ -758,8 +753,11 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
                     param0xx.postProcessGeneration();
                     this.level.startTickingChunk(param0xx);
                 }), this.mainThreadExecutor);
+        var1.handle((param0x, param1) -> {
+            this.tickingGenerated.getAndIncrement();
+            return null;
+        });
         var1.thenAcceptAsync(param1 -> param1.ifLeft(param1x -> {
-                this.tickingGenerated.getAndIncrement();
                 MutableObject<ClientboundLevelChunkWithLightPacket> var0x = new MutableObject<>();
                 this.getPlayers(param0.getPos(), false).forEach(param2 -> this.playerLoadedChunk(param2, var0x, param1x));
             }), param1 -> this.mainThreadMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1)));
@@ -860,11 +858,11 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
     }
 
     protected void setViewDistance(int param0) {
-        int var0 = Mth.clamp(param0 + 1, 3, 33);
+        int var0 = Mth.clamp(param0, 2, 32);
         if (var0 != this.viewDistance) {
             int var1 = this.viewDistance;
             this.viewDistance = var0;
-            this.distanceManager.updatePlayerTickets(this.viewDistance + 1);
+            this.distanceManager.updatePlayerTickets(this.viewDistance);
 
             for(ChunkHolder var2 : this.updatingChunkMap.values()) {
                 ChunkPos var3 = var2.getPos();
@@ -1108,36 +1106,37 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
 
         int var10 = var3.x();
         int var11 = var3.z();
-        if (Math.abs(var10 - var1) <= this.viewDistance * 2 && Math.abs(var11 - var2) <= this.viewDistance * 2) {
-            int var12 = Math.min(var1, var10) - this.viewDistance - 1;
-            int var13 = Math.min(var2, var11) - this.viewDistance - 1;
-            int var14 = Math.max(var1, var10) + this.viewDistance + 1;
-            int var15 = Math.max(var2, var11) + this.viewDistance + 1;
+        int var12 = this.viewDistance + 1;
+        if (Math.abs(var10 - var1) <= var12 * 2 && Math.abs(var11 - var2) <= var12 * 2) {
+            int var13 = Math.min(var1, var10) - var12;
+            int var14 = Math.min(var2, var11) - var12;
+            int var15 = Math.max(var1, var10) + var12;
+            int var16 = Math.max(var2, var11) + var12;
 
-            for(int var16 = var12; var16 <= var14; ++var16) {
-                for(int var17 = var13; var17 <= var15; ++var17) {
-                    boolean var18 = isChunkInRange(var16, var17, var10, var11, this.viewDistance);
-                    boolean var19 = isChunkInRange(var16, var17, var1, var2, this.viewDistance);
-                    this.updateChunkTracking(param0, new ChunkPos(var16, var17), new MutableObject<>(), var18, var19);
+            for(int var17 = var13; var17 <= var15; ++var17) {
+                for(int var18 = var14; var18 <= var16; ++var18) {
+                    boolean var19 = isChunkInRange(var17, var18, var10, var11, this.viewDistance);
+                    boolean var20 = isChunkInRange(var17, var18, var1, var2, this.viewDistance);
+                    this.updateChunkTracking(param0, new ChunkPos(var17, var18), new MutableObject<>(), var19, var20);
                 }
             }
         } else {
-            for(int var20 = var10 - this.viewDistance - 1; var20 <= var10 + this.viewDistance + 1; ++var20) {
-                for(int var21 = var11 - this.viewDistance - 1; var21 <= var11 + this.viewDistance + 1; ++var21) {
-                    if (isChunkInRange(var20, var21, var10, var11, this.viewDistance)) {
-                        boolean var22 = true;
-                        boolean var23 = false;
-                        this.updateChunkTracking(param0, new ChunkPos(var20, var21), new MutableObject<>(), true, false);
+            for(int var21 = var10 - var12; var21 <= var10 + var12; ++var21) {
+                for(int var22 = var11 - var12; var22 <= var11 + var12; ++var22) {
+                    if (isChunkInRange(var21, var22, var10, var11, this.viewDistance)) {
+                        boolean var23 = true;
+                        boolean var24 = false;
+                        this.updateChunkTracking(param0, new ChunkPos(var21, var22), new MutableObject<>(), true, false);
                     }
                 }
             }
 
-            for(int var24 = var1 - this.viewDistance - 1; var24 <= var1 + this.viewDistance + 1; ++var24) {
-                for(int var25 = var2 - this.viewDistance - 1; var25 <= var2 + this.viewDistance + 1; ++var25) {
-                    if (isChunkInRange(var24, var25, var1, var2, this.viewDistance)) {
-                        boolean var26 = false;
-                        boolean var27 = true;
-                        this.updateChunkTracking(param0, new ChunkPos(var24, var25), new MutableObject<>(), false, true);
+            for(int var25 = var1 - var12; var25 <= var1 + var12; ++var25) {
+                for(int var26 = var2 - var12; var26 <= var2 + var12; ++var26) {
+                    if (isChunkInRange(var25, var26, var1, var2, this.viewDistance)) {
+                        boolean var27 = false;
+                        boolean var28 = true;
+                        this.updateChunkTracking(param0, new ChunkPos(var25, var26), new MutableObject<>(), false, true);
                     }
                 }
             }
@@ -1317,7 +1316,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         return this.storageName;
     }
 
-    void onFullChunkStatusChange(ChunkPos param0, ChunkHolder.FullChunkStatus param1) {
+    void onFullChunkStatusChange(ChunkPos param0, FullChunkStatus param1) {
         this.chunkStatusListener.onChunkStatusChange(param0, param1);
     }
 
@@ -1404,7 +1403,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         public void updatePlayer(ServerPlayer param0) {
             if (param0 != this.entity) {
                 Vec3 var0 = param0.position().subtract(this.entity.position());
-                double var1 = (double)Math.min(this.getEffectiveRange(), (ChunkMap.this.viewDistance - 1) * 16);
+                double var1 = (double)Math.min(this.getEffectiveRange(), ChunkMap.this.viewDistance * 16);
                 double var2 = var0.x * var0.x + var0.z * var0.z;
                 double var3 = var1 * var1;
                 boolean var4 = var2 <= var3 && this.entity.broadcastToPlayer(param0);

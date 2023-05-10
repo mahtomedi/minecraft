@@ -53,7 +53,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -257,8 +257,7 @@ public class Block extends BlockBehaviour implements ItemLike {
     }
 
     public static List<ItemStack> getDrops(BlockState param0, ServerLevel param1, BlockPos param2, @Nullable BlockEntity param3) {
-        LootContext.Builder var0 = new LootContext.Builder(param1)
-            .withRandom(param1.random)
+        LootParams.Builder var0 = new LootParams.Builder(param1)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);
@@ -268,20 +267,12 @@ public class Block extends BlockBehaviour implements ItemLike {
     public static List<ItemStack> getDrops(
         BlockState param0, ServerLevel param1, BlockPos param2, @Nullable BlockEntity param3, @Nullable Entity param4, ItemStack param5
     ) {
-        LootContext.Builder var0 = new LootContext.Builder(param1)
-            .withRandom(param1.random)
+        LootParams.Builder var0 = new LootParams.Builder(param1)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, param5)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param4)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, param3);
         return param0.getDrops(var0);
-    }
-
-    public static void dropResources(BlockState param0, LootContext.Builder param1) {
-        ServerLevel var0 = param1.getLevel();
-        BlockPos var1 = BlockPos.containing(param1.getParameter(LootContextParams.ORIGIN));
-        param0.getDrops(param1).forEach(param2 -> popResource(var0, var1, param2));
-        param0.spawnAfterBreak(var0, var1, ItemStack.EMPTY, true);
     }
 
     public static void dropResources(BlockState param0, Level param1, BlockPos param2) {

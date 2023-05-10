@@ -364,7 +364,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         this.connection = param2;
         this.serverData = param3;
         this.localGameProfile = param4;
-        this.advancements = new ClientAdvancements(param0);
+        this.advancements = new ClientAdvancements(param0, param5);
         this.suggestionsProvider = new ClientSuggestionProvider(this, param0);
         this.telemetryManager = param5;
     }
@@ -438,6 +438,7 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         this.minecraft.player.setReducedDebugInfo(param0.reducedDebugInfo());
         this.minecraft.player.setShowDeathScreen(param0.showDeathScreen());
         this.minecraft.player.setLastDeathLocation(param0.lastDeathLocation());
+        this.minecraft.player.setPortalCooldown(param0.portalCooldown());
         this.minecraft.gameMode.setLocalMode(param0.gameType(), param0.previousGameType());
         this.minecraft.options.setServerRenderDistance(param0.chunkRadius());
         this.minecraft.options.broadcastOptions();
@@ -698,8 +699,18 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     @Override
     public void handleLevelChunkWithLight(ClientboundLevelChunkWithLightPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        this.updateLevelChunk(param0.getX(), param0.getZ(), param0.getChunkData());
-        this.queueLightUpdate(param0.getX(), param0.getZ(), param0.getLightData());
+        int var0 = param0.getX();
+        int var1 = param0.getZ();
+        this.updateLevelChunk(var0, var1, param0.getChunkData());
+        ClientboundLightUpdatePacketData var2 = param0.getLightData();
+        this.level.queueLightUpdate(() -> {
+            this.applyLightData(var0, var1, var2);
+            LevelChunk var0x = this.level.getChunkSource().getChunk(var0, var1, false);
+            if (var0x != null) {
+                this.enableChunkLight(var0x, var0, var1);
+            }
+
+        });
     }
 
     @Override
@@ -732,17 +743,6 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             .replaceWithPacketData(param0, param1, param2.getReadBuffer(), param2.getHeightmaps(), param2.getBlockEntitiesTagsConsumer(param0, param1));
     }
 
-    private void queueLightUpdate(int param0, int param1, ClientboundLightUpdatePacketData param2) {
-        this.level.queueLightUpdate(() -> {
-            this.applyLightData(param0, param1, param2);
-            LevelChunk var0 = this.level.getChunkSource().getChunk(param0, param1, false);
-            if (var0 != null) {
-                this.enableChunkLight(var0, param0, param1);
-            }
-
-        });
-    }
-
     private void enableChunkLight(LevelChunk param0, int param1, int param2) {
         LevelLightEngine var0 = this.level.getChunkSource().getLightEngine();
         LevelChunkSection[] var1 = param0.getSections();
@@ -768,12 +768,19 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
     }
 
     private void queueLightRemoval(ClientboundForgetLevelChunkPacket param0) {
+        ChunkPos var0 = new ChunkPos(param0.getX(), param0.getZ());
         this.level.queueLightUpdate(() -> {
-            LevelLightEngine var0 = this.level.getLightEngine();
-            var0.setLightEnabled(new ChunkPos(param0.getX(), param0.getZ()), false);
+            LevelLightEngine var0x = this.level.getLightEngine();
+            var0x.setLightEnabled(var0, false);
 
-            for(int var1x = this.level.getMinSection(); var1x < this.level.getMaxSection(); ++var1x) {
-                var0.updateSectionStatus(SectionPos.of(param0.getX(), var1x, param0.getZ()), true);
+            for(int var1 = var0x.getMinLightSection(); var1 < var0x.getMaxLightSection(); ++var1) {
+                SectionPos var2x = SectionPos.of(var0, var1);
+                var0x.queueSectionData(LightLayer.BLOCK, var2x, null);
+                var0x.queueSectionData(LightLayer.SKY, var2x, null);
+            }
+
+            for(int var3 = this.level.getMinSection(); var3 < this.level.getMaxSection(); ++var3) {
+                var0x.updateSectionStatus(SectionPos.of(var0, var3), true);
             }
 
         });
@@ -1151,6 +1158,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
         var10.setReducedDebugInfo(var2.isReducedDebugInfo());
         var10.setShowDeathScreen(var2.shouldShowDeathScreen());
         var10.setLastDeathLocation(param0.getLastDeathLocation());
+        var10.setPortalCooldown(param0.getPortalCooldown());
+        var10.spinningEffectIntensity = var2.spinningEffectIntensity;
+        var10.oSpinningEffectIntensity = var2.oSpinningEffectIntensity;
         if (this.minecraft.screen instanceof DeathScreen || this.minecraft.screen instanceof DeathScreen.TitleConfirmScreen) {
             this.minecraft.setScreen(null);
         }
@@ -1785,6 +1795,10 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
                 this.initializeChatSession(param1, param2);
                 break;
             case UPDATE_GAME_MODE:
+                if (param2.getGameMode() != param1.gameMode() && this.minecraft.player != null && this.minecraft.player.getUUID().equals(param1.profileId())) {
+                    this.minecraft.player.onGameModeChanged(param1.gameMode());
+                }
+
                 param2.setGameMode(param1.gameMode());
                 break;
             case UPDATE_LISTED:

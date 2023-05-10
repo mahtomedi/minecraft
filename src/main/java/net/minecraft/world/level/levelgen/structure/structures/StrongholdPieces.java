@@ -1169,7 +1169,7 @@ public class StrongholdPieces {
                         this.placeBlock(param0, Blocks.COBBLESTONE.defaultBlockState(), 6, var3, 6, param4);
                     }
 
-                    this.placeBlock(param0, Blocks.TORCH.defaultBlockState(), 5, 3, 5, param4);
+                    this.placeBlock(param0, Blocks.WALL_TORCH.defaultBlockState(), 5, 3, 5, param4);
 
                     for(int var4 = 2; var4 <= 8; ++var4) {
                         this.placeBlock(param0, Blocks.OAK_PLANKS.defaultBlockState(), 2, 3, var4, param4);

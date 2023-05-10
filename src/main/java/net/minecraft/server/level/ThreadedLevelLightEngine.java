@@ -61,7 +61,7 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
         this.addTask(
             SectionPos.blockToSectionCoord(param0.getX()),
             SectionPos.blockToSectionCoord(param0.getZ()),
-            ThreadedLevelLightEngine.TaskType.POST_UPDATE,
+            ThreadedLevelLightEngine.TaskType.PRE_UPDATE,
             Util.name(() -> super.checkBlock(var0), () -> "checkBlock " + var0)
         );
     }

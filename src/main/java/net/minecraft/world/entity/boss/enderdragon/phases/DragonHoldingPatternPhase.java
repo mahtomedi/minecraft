@@ -53,7 +53,9 @@ public class DragonHoldingPatternPhase extends AbstractDragonPhaseInstance {
 
     private void findNewTarget() {
         if (this.currentPath != null && this.currentPath.isDone()) {
-            BlockPos var0 = this.dragon.level().getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(EndPodiumFeature.END_PODIUM_LOCATION));
+            BlockPos var0 = this.dragon
+                .level()
+                .getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, new BlockPos(EndPodiumFeature.getLocation(this.dragon.getFightOrigin())));
             int var1 = this.dragon.getDragonFight() == null ? 0 : this.dragon.getDragonFight().getCrystalsAlive();
             if (this.dragon.getRandom().nextInt(var1 + 3) == 0) {
                 this.dragon.getPhaseManager().setPhase(EnderDragonPhase.LANDING_APPROACH);

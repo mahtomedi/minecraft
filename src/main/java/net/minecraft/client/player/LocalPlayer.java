@@ -70,6 +70,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BaseCommandBlock;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
 import net.minecraft.world.level.block.entity.HangingSignBlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
@@ -122,8 +123,8 @@ public class LocalPlayer extends AbstractClientPlayer {
     public float xBobO;
     private int jumpRidingTicks;
     private float jumpRidingScale;
-    public float portalTime;
-    public float oPortalTime;
+    public float spinningEffectIntensity;
+    public float oSpinningEffectIntensity;
     private boolean startedUsingItem;
     @Nullable
     private InteractionHand usingItemHand;
@@ -671,7 +672,10 @@ public class LocalPlayer extends AbstractClientPlayer {
             --this.sprintTriggerTime;
         }
 
-        this.handleNetherPortalClient();
+        if (!(this.minecraft.screen instanceof ReceivingLevelScreen)) {
+            this.handleNetherPortalClient();
+        }
+
         boolean var0 = this.input.jumping;
         boolean var1 = this.input.shiftKeyDown;
         boolean var2 = this.hasEnoughImpulseToStartSprinting();
@@ -834,12 +838,10 @@ public class LocalPlayer extends AbstractClientPlayer {
     }
 
     private void handleNetherPortalClient() {
-        this.oPortalTime = this.portalTime;
+        this.oSpinningEffectIntensity = this.spinningEffectIntensity;
+        float var0 = 0.0F;
         if (this.isInsidePortal) {
-            if (this.minecraft.screen != null
-                && !this.minecraft.screen.isPauseScreen()
-                && !(this.minecraft.screen instanceof DeathScreen)
-                && !(this.minecraft.screen instanceof ReceivingLevelScreen)) {
+            if (this.minecraft.screen != null && !this.minecraft.screen.isPauseScreen() && !(this.minecraft.screen instanceof DeathScreen)) {
                 if (this.minecraft.screen instanceof AbstractContainerScreen) {
                     this.closeContainer();
                 }
@@ -847,33 +849,21 @@ public class LocalPlayer extends AbstractClientPlayer {
                 this.minecraft.setScreen(null);
             }
 
-            if (this.portalTime == 0.0F) {
+            if (this.spinningEffectIntensity == 0.0F) {
                 this.minecraft
                     .getSoundManager()
                     .play(SimpleSoundInstance.forLocalAmbience(SoundEvents.PORTAL_TRIGGER, this.random.nextFloat() * 0.4F + 0.8F, 0.25F));
             }
 
-            this.portalTime += 0.0125F;
-            if (this.portalTime >= 1.0F) {
-                this.portalTime = 1.0F;
-            }
-
+            var0 = 0.0125F;
             this.isInsidePortal = false;
         } else if (this.hasEffect(MobEffects.CONFUSION) && !this.getEffect(MobEffects.CONFUSION).endsWithin(60)) {
-            this.portalTime += 0.006666667F;
-            if (this.portalTime > 1.0F) {
-                this.portalTime = 1.0F;
-            }
-        } else {
-            if (this.portalTime > 0.0F) {
-                this.portalTime -= 0.05F;
-            }
-
-            if (this.portalTime < 0.0F) {
-                this.portalTime = 0.0F;
-            }
+            var0 = 0.006666667F;
+        } else if (this.spinningEffectIntensity > 0.0F) {
+            var0 = -0.05F;
         }
 
+        this.spinningEffectIntensity = Mth.clamp(this.spinningEffectIntensity + var0, 0.0F, 1.0F);
         this.processPortalCooldown();
     }
 
@@ -897,8 +887,8 @@ public class LocalPlayer extends AbstractClientPlayer {
     @Override
     public MobEffectInstance removeEffectNoUpdate(@Nullable MobEffect param0) {
         if (param0 == MobEffects.CONFUSION) {
-            this.oPortalTime = 0.0F;
-            this.portalTime = 0.0F;
+            this.oSpinningEffectIntensity = 0.0F;
+            this.spinningEffectIntensity = 0.0F;
         }
 
         return super.removeEffectNoUpdate(param0);
@@ -1083,6 +1073,13 @@ public class LocalPlayer extends AbstractClientPlayer {
                 return var2 * 0.6F + var3 * 0.39999998F;
             }
         }
+    }
+
+    public void onGameModeChanged(GameType param0) {
+        if (param0 == GameType.SPECTATOR) {
+            this.setDeltaMovement(this.getDeltaMovement().with(Direction.Axis.Y, 0.0));
+        }
+
     }
 
     @Override

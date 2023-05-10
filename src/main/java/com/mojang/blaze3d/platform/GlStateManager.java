@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -574,22 +575,31 @@ public class GlStateManager {
         GL11.glTexSubImage2D(param0, param1, param2, param3, param4, param5, param6, param7, param8);
     }
 
-    public static void upload(int param0, int param1, int param2, int param3, int param4, NativeImage.Format param5, IntBuffer param6) {
+    public static void upload(
+        int param0, int param1, int param2, int param3, int param4, NativeImage.Format param5, IntBuffer param6, Consumer<IntBuffer> param7
+    ) {
         if (!RenderSystem.isOnRenderThreadOrInit()) {
-            RenderSystem.recordRenderCall(() -> _upload(param0, param1, param2, param3, param4, param5, param6));
+            RenderSystem.recordRenderCall(() -> _upload(param0, param1, param2, param3, param4, param5, param6, param7));
         } else {
-            _upload(param0, param1, param2, param3, param4, param5, param6);
+            _upload(param0, param1, param2, param3, param4, param5, param6, param7);
         }
 
     }
 
-    private static void _upload(int param0, int param1, int param2, int param3, int param4, NativeImage.Format param5, IntBuffer param6) {
-        RenderSystem.assertOnRenderThreadOrInit();
-        _pixelStore(3314, param3);
-        _pixelStore(3316, 0);
-        _pixelStore(3315, 0);
-        param5.setUnpackPixelStoreState();
-        GL11.glTexSubImage2D(3553, param0, param1, param2, param3, param4, param5.glFormat(), 5121, param6);
+    private static void _upload(
+        int param0, int param1, int param2, int param3, int param4, NativeImage.Format param5, IntBuffer param6, Consumer<IntBuffer> param7
+    ) {
+        try {
+            RenderSystem.assertOnRenderThreadOrInit();
+            _pixelStore(3314, param3);
+            _pixelStore(3316, 0);
+            _pixelStore(3315, 0);
+            param5.setUnpackPixelStoreState();
+            GL11.glTexSubImage2D(3553, param0, param1, param2, param3, param4, param5.glFormat(), 5121, param6);
+        } finally {
+            param7.accept(param6);
+        }
+
     }
 
     public static void _getTexImage(int param0, int param1, int param2, int param3, long param4) {

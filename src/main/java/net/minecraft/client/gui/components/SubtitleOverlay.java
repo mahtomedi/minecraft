@@ -77,9 +77,7 @@ public class SubtitleOverlay implements SoundEventListener {
                 param0.pose().pushPose();
                 param0.pose()
                     .translate(
-                        (float)this.minecraft.getWindow().getGuiScaledWidth() - (float)var16 * 1.0F - 2.0F,
-                        (float)(this.minecraft.getWindow().getGuiScaledHeight() - 35) - (float)(var4 * (var17 + 1)) * 1.0F,
-                        0.0F
+                        (float)param0.guiWidth() - (float)var16 * 1.0F - 2.0F, (float)(param0.guiHeight() - 35) - (float)(var4 * (var17 + 1)) * 1.0F, 0.0F
                     );
                 param0.pose().scale(1.0F, 1.0F, 1.0F);
                 param0.fill(-var16 - 1, -var18 - 1, var16 + 1, var18 + 1, this.minecraft.options.getBackgroundColor(0.8F));

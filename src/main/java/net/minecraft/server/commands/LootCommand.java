@@ -10,7 +10,6 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -36,9 +35,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.storage.loot.LootDataType;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -345,10 +344,7 @@ public class LootCommand {
     }
 
     private static boolean canMergeItems(ItemStack param0, ItemStack param1) {
-        return param0.is(param1.getItem())
-            && param0.getDamageValue() == param1.getDamageValue()
-            && param0.getCount() <= param0.getMaxStackSize()
-            && Objects.equals(param0.getTag(), param1.getTag());
+        return param0.getCount() <= param0.getMaxStackSize() && ItemStack.isSameItemSameTags(param0, param1);
     }
 
     private static int playerGive(Collection<ServerPlayer> param0, List<ItemStack> param1, LootCommand.Callback param2) throws CommandSyntaxException {
@@ -438,7 +434,7 @@ public class LootCommand {
         ServerLevel var1 = var0.getLevel();
         BlockState var2 = var1.getBlockState(param1);
         BlockEntity var3 = var1.getBlockEntity(param1);
-        LootContext.Builder var4 = new LootContext.Builder(var1)
+        LootParams.Builder var4 = new LootParams.Builder(var1)
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param1))
             .withParameter(LootContextParams.BLOCK_STATE, var2)
             .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var3)
@@ -454,10 +450,10 @@ public class LootCommand {
         } else {
             ResourceLocation var0 = ((LivingEntity)param1).getLootTable();
             CommandSourceStack var1 = param0.getSource();
-            LootContext.Builder var2 = new LootContext.Builder(var1.getLevel());
+            LootParams.Builder var2 = new LootParams.Builder(var1.getLevel());
             Entity var3 = var1.getEntity();
-            if (var3 instanceof Player) {
-                var2.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, (Player)var3);
+            if (var3 instanceof Player var4) {
+                var2.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, var4);
             }
 
             var2.withParameter(LootContextParams.DAMAGE_SOURCE, param1.damageSources().magic());
@@ -465,25 +461,27 @@ public class LootCommand {
             var2.withOptionalParameter(LootContextParams.KILLER_ENTITY, var3);
             var2.withParameter(LootContextParams.THIS_ENTITY, param1);
             var2.withParameter(LootContextParams.ORIGIN, var1.getPosition());
-            LootTable var4 = var1.getServer().getLootData().getLootTable(var0);
-            List<ItemStack> var5 = var4.getRandomItems(var2.create(LootContextParamSets.ENTITY));
-            return param2.accept(param0, var5, param2x -> callback(var1, param2x, var0));
+            LootParams var5 = var2.create(LootContextParamSets.ENTITY);
+            LootTable var6 = var1.getServer().getLootData().getLootTable(var0);
+            List<ItemStack> var7 = var6.getRandomItems(var5);
+            return param2.accept(param0, var7, param2x -> callback(var1, param2x, var0));
         }
     }
 
     private static int dropChestLoot(CommandContext<CommandSourceStack> param0, ResourceLocation param1, LootCommand.DropConsumer param2) throws CommandSyntaxException {
         CommandSourceStack var0 = param0.getSource();
-        LootContext.Builder var1 = new LootContext.Builder(var0.getLevel())
+        LootParams var1 = new LootParams.Builder(var0.getLevel())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
-            .withParameter(LootContextParams.ORIGIN, var0.getPosition());
-        return drop(param0, param1, var1.create(LootContextParamSets.CHEST), param2);
+            .withParameter(LootContextParams.ORIGIN, var0.getPosition())
+            .create(LootContextParamSets.CHEST);
+        return drop(param0, param1, var1, param2);
     }
 
     private static int dropFishingLoot(
         CommandContext<CommandSourceStack> param0, ResourceLocation param1, BlockPos param2, ItemStack param3, LootCommand.DropConsumer param4
     ) throws CommandSyntaxException {
         CommandSourceStack var0 = param0.getSource();
-        LootContext var1 = new LootContext.Builder(var0.getLevel())
+        LootParams var1 = new LootParams.Builder(var0.getLevel())
             .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
             .withParameter(LootContextParams.TOOL, param3)
             .withOptionalParameter(LootContextParams.THIS_ENTITY, var0.getEntity())
@@ -491,7 +489,7 @@ public class LootCommand {
         return drop(param0, param1, var1, param4);
     }
 
-    private static int drop(CommandContext<CommandSourceStack> param0, ResourceLocation param1, LootContext param2, LootCommand.DropConsumer param3) throws CommandSyntaxException {
+    private static int drop(CommandContext<CommandSourceStack> param0, ResourceLocation param1, LootParams param2, LootCommand.DropConsumer param3) throws CommandSyntaxException {
         CommandSourceStack var0 = param0.getSource();
         LootTable var1 = var0.getServer().getLootData().getLootTable(param1);
         List<ItemStack> var2 = var1.getRandomItems(param2);

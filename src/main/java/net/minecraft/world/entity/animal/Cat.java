@@ -63,7 +63,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -578,12 +578,12 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
                 );
             var1.set(this.cat.blockPosition());
             LootTable var2 = this.cat.level().getServer().getLootData().getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
-            LootContext.Builder var3 = new LootContext.Builder((ServerLevel)this.cat.level())
+            LootParams var3 = new LootParams.Builder((ServerLevel)this.cat.level())
                 .withParameter(LootContextParams.ORIGIN, this.cat.position())
                 .withParameter(LootContextParams.THIS_ENTITY, this.cat)
-                .withRandom(var0);
+                .create(LootContextParamSets.GIFT);
 
-            for(ItemStack var5 : var2.getRandomItems(var3.create(LootContextParamSets.GIFT))) {
+            for(ItemStack var5 : var2.getRandomItems(var3)) {
                 this.cat
                     .level()
                     .addFreshEntity(

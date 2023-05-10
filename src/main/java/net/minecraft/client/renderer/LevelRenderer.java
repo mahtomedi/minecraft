@@ -597,7 +597,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.darkBuffer.close();
         }
 
-        this.darkBuffer = new VertexBuffer();
+        this.darkBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         BufferBuilder.RenderedBuffer var2 = buildSkyDisc(var1, -16.0F);
         this.darkBuffer.bind();
         this.darkBuffer.upload(var2);
@@ -611,7 +611,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.skyBuffer.close();
         }
 
-        this.skyBuffer = new VertexBuffer();
+        this.skyBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         BufferBuilder.RenderedBuffer var2 = buildSkyDisc(var1, 16.0F);
         this.skyBuffer.bind();
         this.skyBuffer.upload(var2);
@@ -645,7 +645,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
             this.starBuffer.close();
         }
 
-        this.starBuffer = new VertexBuffer();
+        this.starBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
         BufferBuilder.RenderedBuffer var2 = this.drawStars(var1);
         this.starBuffer.bind();
         this.starBuffer.upload(var2);
@@ -1149,7 +1149,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         BlockPos var2 = param1.getOrigin();
         int var3 = SectionPos.blockToSectionCoord(var2.getX());
         int var4 = SectionPos.blockToSectionCoord(var2.getZ());
-        return !ChunkMap.isChunkInRange(var3, var4, var0, var1, this.lastViewDistance - 2);
+        return !ChunkMap.isChunkInRange(var3, var4, var0, var1, this.lastViewDistance - 3);
     }
 
     private void captureFrustum(Matrix4f param0, Matrix4f param1, double param2, double param3, double param4, Frustum param5) {
@@ -2038,7 +2038,7 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                     this.cloudBuffer.close();
                 }
 
-                this.cloudBuffer = new VertexBuffer();
+                this.cloudBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
                 BufferBuilder.RenderedBuffer var16 = this.buildClouds(var15, var5, var6, var7, var11);
                 this.cloudBuffer.bind();
                 this.cloudBuffer.upload(var16);
@@ -2457,6 +2457,31 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         );
     }
 
+    private static Vec3 mixColor(float param0) {
+        float var0 = 5.99999F;
+        int var1 = (int)(Mth.clamp(param0, 0.0F, 1.0F) * 5.99999F);
+        float var2 = param0 * 5.99999F - (float)var1;
+
+        return switch(var1) {
+            case 0 -> new Vec3(1.0, (double)var2, 0.0);
+            case 1 -> new Vec3((double)(1.0F - var2), 1.0, 0.0);
+            case 2 -> new Vec3(0.0, 1.0, (double)var2);
+            case 3 -> new Vec3(0.0, 1.0 - (double)var2, 1.0);
+            case 4 -> new Vec3((double)var2, 0.0, 1.0);
+            case 5 -> new Vec3(1.0, 0.0, 1.0 - (double)var2);
+            default -> throw new IllegalStateException("Unexpected value: " + var1);
+        };
+    }
+
+    private static Vec3 shiftHue(float param0, float param1, float param2, float param3) {
+        Vec3 var0 = mixColor(param3).scale((double)param0);
+        Vec3 var1 = mixColor((param3 + 0.33333334F) % 1.0F).scale((double)param1);
+        Vec3 var2 = mixColor((param3 + 0.6666667F) % 1.0F).scale((double)param2);
+        Vec3 var3 = var0.add(var1).add(var2);
+        double var4 = Math.max(Math.max(1.0, var3.x), Math.max(var3.y, var3.z));
+        return new Vec3(var3.x / var4, var3.y / var4, var3.z / var4);
+    }
+
     public static void renderVoxelShape(
         PoseStack param0,
         VertexConsumer param1,
@@ -2467,21 +2492,22 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
         float param6,
         float param7,
         float param8,
-        float param9
+        float param9,
+        boolean param10
     ) {
         List<AABB> var0 = param2.toAabbs();
-        int var1 = Mth.ceil((double)var0.size() / 3.0);
+        if (!var0.isEmpty()) {
+            int var1 = param10 ? var0.size() : var0.size() * 8;
+            renderShape(param0, param1, Shapes.create(var0.get(0)), param3, param4, param5, param6, param7, param8, param9);
 
-        for(int var2 = 0; var2 < var0.size(); ++var2) {
-            AABB var3 = var0.get(var2);
-            float var4 = ((float)var2 % (float)var1 + 1.0F) / (float)var1;
-            float var5 = (float)(var2 / var1);
-            float var6 = var4 * (float)(var5 == 0.0F ? 1 : 0);
-            float var7 = var4 * (float)(var5 == 1.0F ? 1 : 0);
-            float var8 = var4 * (float)(var5 == 2.0F ? 1 : 0);
-            renderShape(param0, param1, Shapes.create(var3.move(0.0, 0.0, 0.0)), param3, param4, param5, var6, var7, var8, 1.0F);
+            for(int var2 = 1; var2 < var0.size(); ++var2) {
+                AABB var3 = var0.get(var2);
+                float var4 = (float)var2 / (float)var1;
+                Vec3 var5 = shiftHue(param6, param7, param8, var4);
+                renderShape(param0, param1, Shapes.create(var3), param3, param4, param5, (float)var5.x, (float)var5.y, (float)var5.z, param9);
+            }
+
         }
-
     }
 
     private static void renderShape(

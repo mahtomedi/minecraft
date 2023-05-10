@@ -53,7 +53,7 @@ public class EndCrystal extends Entity {
         ++this.time;
         if (this.level() instanceof ServerLevel) {
             BlockPos var0 = this.blockPosition();
-            if (((ServerLevel)this.level()).dragonFight() != null && this.level().getBlockState(var0).isAir()) {
+            if (((ServerLevel)this.level()).getDragonFight() != null && this.level().getBlockState(var0).isAir()) {
                 this.level().setBlockAndUpdate(var0, BaseFireBlock.getState(this.level(), var0));
             }
         }
@@ -115,7 +115,7 @@ public class EndCrystal extends Entity {
 
     private void onDestroyedBy(DamageSource param0) {
         if (this.level() instanceof ServerLevel) {
-            EndDragonFight var0 = ((ServerLevel)this.level()).dragonFight();
+            EndDragonFight var0 = ((ServerLevel)this.level()).getDragonFight();
             if (var0 != null) {
                 var0.onCrystalDestroyed(this, param0);
             }

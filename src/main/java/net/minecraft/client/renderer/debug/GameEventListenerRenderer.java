@@ -67,7 +67,8 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
                                 1.0F,
                                 1.0F,
                                 0.0F,
-                                0.35F
+                                0.35F,
+                                true
                             );
                         }
                     );

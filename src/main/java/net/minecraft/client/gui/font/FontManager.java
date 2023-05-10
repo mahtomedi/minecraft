@@ -4,12 +4,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import java.io.Reader;
@@ -30,8 +33,7 @@ import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.providers.GlyphProviderBuilder;
-import net.minecraft.client.gui.font.providers.GlyphProviderBuilderType;
+import net.minecraft.client.gui.font.providers.GlyphProviderDefinition;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +41,6 @@ import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.DependencySorter;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -83,12 +84,12 @@ public class FontManager implements PreparableReloadListener, AutoCloseable {
         for(Entry<ResourceLocation, List<Resource>> var1 : FONT_DEFINITIONS.listMatchingResourceStacks(param0).entrySet()) {
             ResourceLocation var2 = FONT_DEFINITIONS.fileToId(var1.getKey());
             var0.add(CompletableFuture.supplyAsync(() -> {
-                List<Pair<FontManager.BuilderId, GlyphProviderBuilder>> var0x = loadResourceStack(var1.getValue(), var2);
+                List<Pair<FontManager.BuilderId, GlyphProviderDefinition>> var0x = loadResourceStack(var1.getValue(), var2);
                 FontManager.UnresolvedBuilderBundle var1x = new FontManager.UnresolvedBuilderBundle(var2);
 
-                for(Pair<FontManager.BuilderId, GlyphProviderBuilder> var2x : var0x) {
+                for(Pair<FontManager.BuilderId, GlyphProviderDefinition> var2x : var0x) {
                     FontManager.BuilderId var3x = var2x.getFirst();
-                    var2x.getSecond().build().ifLeft(param4 -> {
+                    var2x.getSecond().unpack().ifLeft(param4 -> {
                         CompletableFuture<Optional<GlyphProvider>> var0xx = this.safeLoad(var3x, param4, param0, param1);
                         var1x.add(var3x, var0xx);
                     }).ifRight(param2x -> var1x.add(var3x, param2x));
@@ -125,7 +126,7 @@ public class FontManager implements PreparableReloadListener, AutoCloseable {
     }
 
     private CompletableFuture<Optional<GlyphProvider>> safeLoad(
-        FontManager.BuilderId param0, GlyphProviderBuilder.Loader param1, ResourceManager param2, Executor param3
+        FontManager.BuilderId param0, GlyphProviderDefinition.Loader param1, ResourceManager param2, Executor param3
     ) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -186,22 +187,23 @@ public class FontManager implements PreparableReloadListener, AutoCloseable {
         }
     }
 
-    private static List<Pair<FontManager.BuilderId, GlyphProviderBuilder>> loadResourceStack(List<Resource> param0, ResourceLocation param1) {
-        List<Pair<FontManager.BuilderId, GlyphProviderBuilder>> var0 = new ArrayList<>();
+    private static List<Pair<FontManager.BuilderId, GlyphProviderDefinition>> loadResourceStack(List<Resource> param0, ResourceLocation param1) {
+        List<Pair<FontManager.BuilderId, GlyphProviderDefinition>> var0 = new ArrayList<>();
 
         for(Resource var1 : param0) {
             try (Reader var2 = var1.openAsReader()) {
-                JsonArray var3 = GsonHelper.getAsJsonArray(GsonHelper.fromJson(GSON, var2, JsonObject.class), "providers");
+                JsonElement var3 = GSON.fromJson(var2, JsonElement.class);
+                FontManager.FontDefinitionFile var4 = Util.getOrThrow(
+                    FontManager.FontDefinitionFile.CODEC.parse(JsonOps.INSTANCE, var3), JsonParseException::new
+                );
+                List<GlyphProviderDefinition> var5 = var4.providers;
 
-                for(int var4 = var3.size() - 1; var4 >= 0; --var4) {
-                    JsonObject var5 = GsonHelper.convertToJsonObject(var3.get(var4), "providers[" + var4 + "]");
-                    String var6 = GsonHelper.getAsString(var5, "type");
-                    GlyphProviderBuilderType var7 = GlyphProviderBuilderType.byName(var6);
-                    FontManager.BuilderId var8 = new FontManager.BuilderId(param1, var1.sourcePackId(), var4);
-                    var0.add(Pair.of(var8, var7.create(var5)));
+                for(int var6 = var5.size() - 1; var6 >= 0; --var6) {
+                    FontManager.BuilderId var7 = new FontManager.BuilderId(param1, var1.sourcePackId(), var6);
+                    var0.add(Pair.of(var7, var5.get(var6)));
                 }
-            } catch (Exception var14) {
-                LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", param1, "fonts.json", var1.sourcePackId(), var14);
+            } catch (Exception var13) {
+                LOGGER.warn("Unable to load font '{}' in {} in resourcepack: '{}'", param1, "fonts.json", var1.sourcePackId(), var13);
             }
         }
 
@@ -264,6 +266,14 @@ public class FontManager implements PreparableReloadListener, AutoCloseable {
     }
 
     @OnlyIn(Dist.CLIENT)
+    static record FontDefinitionFile(List<GlyphProviderDefinition> providers) {
+        public static final Codec<FontManager.FontDefinitionFile> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(GlyphProviderDefinition.CODEC.listOf().fieldOf("providers").forGetter(FontManager.FontDefinitionFile::providers))
+                    .apply(param0, FontManager.FontDefinitionFile::new)
+        );
+    }
+
+    @OnlyIn(Dist.CLIENT)
     static record Preparation(Map<ResourceLocation, List<GlyphProvider>> providers, List<GlyphProvider> allProviders) {
     }
 
@@ -274,7 +284,7 @@ public class FontManager implements PreparableReloadListener, AutoCloseable {
             this(param0, new ArrayList<>(), new HashSet<>());
         }
 
-        public void add(FontManager.BuilderId param0, GlyphProviderBuilder.Reference param1) {
+        public void add(FontManager.BuilderId param0, GlyphProviderDefinition.Reference param1) {
             this.builders.add(new FontManager.BuilderResult(param0, Either.right(param1.id())));
             this.dependencies.add(param1.id());
         }

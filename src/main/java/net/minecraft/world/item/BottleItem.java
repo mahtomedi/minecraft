@@ -45,12 +45,12 @@ public class BottleItem extends Item {
 
             return InteractionResultHolder.sidedSuccess(this.turnBottleIntoItem(var1, param1, new ItemStack(Items.DRAGON_BREATH)), param0.isClientSide());
         } else {
-            HitResult var4 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
+            BlockHitResult var4 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.SOURCE_ONLY);
             if (var4.getType() == HitResult.Type.MISS) {
                 return InteractionResultHolder.pass(var1);
             } else {
                 if (var4.getType() == HitResult.Type.BLOCK) {
-                    BlockPos var5 = ((BlockHitResult)var4).getBlockPos();
+                    BlockPos var5 = var4.getBlockPos();
                     if (!param0.mayInteract(param1, var5)) {
                         return InteractionResultHolder.pass(var1);
                     }

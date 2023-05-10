@@ -1,6 +1,6 @@
 package net.minecraft.world.level.entity;
 
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.FullChunkStatus;
 
 public enum Visibility {
     HIDDEN(false, false),
@@ -23,11 +23,11 @@ public enum Visibility {
         return this.accessible;
     }
 
-    public static Visibility fromFullChunkStatus(ChunkHolder.FullChunkStatus param0) {
-        if (param0.isOrAfter(ChunkHolder.FullChunkStatus.ENTITY_TICKING)) {
+    public static Visibility fromFullChunkStatus(FullChunkStatus param0) {
+        if (param0.isOrAfter(FullChunkStatus.ENTITY_TICKING)) {
             return TICKING;
         } else {
-            return param0.isOrAfter(ChunkHolder.FullChunkStatus.BORDER) ? TRACKED : HIDDEN;
+            return param0.isOrAfter(FullChunkStatus.FULL) ? TRACKED : HIDDEN;
         }
     }
 }

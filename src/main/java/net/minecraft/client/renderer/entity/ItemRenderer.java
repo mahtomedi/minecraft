@@ -123,7 +123,7 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
                 RenderType var4 = ItemBlockRenderTypes.getRenderType(param0, var2);
                 VertexConsumer var6;
-                if (param0.is(ItemTags.COMPASSES) && param0.hasFoil()) {
+                if (hasAnimatedTexture(param0) && param0.hasFoil()) {
                     param3.pushPose();
                     PoseStack.Pose var5 = param3.last();
                     if (param1 == ItemDisplayContext.GUI) {
@@ -152,6 +152,10 @@ public class ItemRenderer implements ResourceManagerReloadListener {
 
             param3.popPose();
         }
+    }
+
+    private static boolean hasAnimatedTexture(ItemStack param0) {
+        return param0.is(ItemTags.COMPASSES) || param0.is(Items.CLOCK);
     }
 
     public static VertexConsumer getArmorFoilBuffer(MultiBufferSource param0, RenderType param1, boolean param2, boolean param3) {

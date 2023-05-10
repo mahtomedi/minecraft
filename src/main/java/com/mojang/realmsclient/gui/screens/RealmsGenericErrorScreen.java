@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraftforge.api.distmarker.Dist;
@@ -39,18 +40,18 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     private static Pair<Component, Component> errorMessage(RealmsServiceException param0) {
         if (param0.realmsError == null) {
-            return Pair.of(Component.literal("An error occurred (" + param0.httpResultCode + "):"), Component.literal(param0.rawResponse));
+            return Pair.of(Component.translatable("mco.errorMessage.realmsService", param0.httpResultCode), Component.literal(param0.rawResponse));
         } else {
             String var0 = "mco.errorMessage." + param0.realmsError.getErrorCode();
             return Pair.of(
-                Component.literal("Realms (" + param0.realmsError + "):"),
+                Component.translatable("mco.errorMessage.realmsService.realmsError", param0.realmsError),
                 (Component)(I18n.exists(var0) ? Component.translatable(var0) : Component.nullToEmpty(param0.realmsError.getErrorMessage()))
             );
         }
     }
 
     private static Pair<Component, Component> errorMessage(Component param0) {
-        return Pair.of(Component.literal("An error occurred: "), param0);
+        return Pair.of(Component.translatable("mco.errorMessage.generic"), param0);
     }
 
     private static Pair<Component, Component> errorMessage(Component param0, Component param1) {
@@ -60,7 +61,7 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
     @Override
     public void init() {
         this.addRenderableWidget(
-            Button.builder(Component.literal("Ok"), param0 -> this.minecraft.setScreen(this.nextScreen))
+            Button.builder(CommonComponents.GUI_OK, param0 -> this.minecraft.setScreen(this.nextScreen))
                 .bounds(this.width / 2 - 100, this.height - 52, 200, 20)
                 .build()
         );

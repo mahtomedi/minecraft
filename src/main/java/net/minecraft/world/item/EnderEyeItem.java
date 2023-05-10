@@ -66,8 +66,8 @@ public class EnderEyeItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level param0, Player param1, InteractionHand param2) {
         ItemStack var0 = param1.getItemInHand(param2);
-        HitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.NONE);
-        if (var1.getType() == HitResult.Type.BLOCK && param0.getBlockState(((BlockHitResult)var1).getBlockPos()).is(Blocks.END_PORTAL_FRAME)) {
+        BlockHitResult var1 = getPlayerPOVHitResult(param0, param1, ClipContext.Fluid.NONE);
+        if (var1.getType() == HitResult.Type.BLOCK && param0.getBlockState(var1.getBlockPos()).is(Blocks.END_PORTAL_FRAME)) {
             return InteractionResultHolder.pass(var0);
         } else {
             param1.startUsingItem(param2);

@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.inventory;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.Arrays;
@@ -21,6 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -435,18 +434,14 @@ public class BookEditScreen extends Screen {
     }
 
     private void renderHighlight(GuiGraphics param0, Rect2i[] param1) {
-        RenderSystem.enableColorLogicOp();
-        RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-
         for(Rect2i var0 : param1) {
             int var1 = var0.getX();
             int var2 = var0.getY();
             int var3 = var1 + var0.getWidth();
             int var4 = var2 + var0.getHeight();
-            param0.fill(var1, var2, var3, var4, -16776961);
+            param0.fill(RenderType.guiTextHighlight(), var1, var2, var3, var4, -16776961);
         }
 
-        RenderSystem.disableColorLogicOp();
     }
 
     private BookEditScreen.Pos2i convertScreenToLocal(BookEditScreen.Pos2i param0) {

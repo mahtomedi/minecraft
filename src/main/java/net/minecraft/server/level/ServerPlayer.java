@@ -197,7 +197,7 @@ public class ServerPlayer extends Player {
     private float respawnAngle;
     private final TextFilter textFilter;
     private boolean textFilteringEnabled;
-    private boolean allowsListing = true;
+    private boolean allowsListing;
     private WardenSpawnTracker wardenSpawnTracker = new WardenSpawnTracker(0, 0, 0);
     private final ContainerSynchronizer containerSynchronizer = new ContainerSynchronizer() {
         @Override
@@ -767,7 +767,8 @@ public class ServerPlayer extends Player {
                         param0.isDebug(),
                         param0.isFlat(),
                         (byte)3,
-                        this.getLastDeathLocation()
+                        this.getLastDeathLocation(),
+                        this.getPortalCooldown()
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var2.getDifficulty(), var2.isDifficultyLocked()));
@@ -972,6 +973,7 @@ public class ServerPlayer extends Player {
 
     public void doCheckFallDamage(double param0, boolean param1) {
         if (!this.touchingUnloadedChunk()) {
+            this.checkSupportingBlock(param1);
             BlockPos var0 = this.getOnPosLegacy();
             super.checkFallDamage(param0, param1, this.level().getBlockState(var0), var0);
         }
@@ -1504,7 +1506,8 @@ public class ServerPlayer extends Player {
                         param0.isDebug(),
                         param0.isFlat(),
                         (byte)3,
-                        this.getLastDeathLocation()
+                        this.getLastDeathLocation(),
+                        this.getPortalCooldown()
                     )
                 );
             this.connection.send(new ClientboundChangeDifficultyPacket(var1.getDifficulty(), var1.isDifficultyLocked()));

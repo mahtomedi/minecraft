@@ -1,12 +1,12 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -65,9 +65,7 @@ public class GhostRecipe {
 
             ItemStack var4 = var1.getItem();
             param0.renderFakeItem(var4, var2, var3);
-            RenderSystem.depthFunc(516);
-            param0.fill(var2, var3, var2 + 16, var3 + 16, 822083583);
-            RenderSystem.depthFunc(515);
+            param0.fill(RenderType.guiGhostRecipeOverlay(), var2, var3, var2 + 16, var3 + 16, 822083583);
             if (var0 == 0) {
                 param0.renderItemDecorations(param1.font, var4, var2, var3);
             }

@@ -19,9 +19,9 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         return ID;
     }
 
-    public FishingRodHookedTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public FishingRodHookedTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ItemPredicate var0 = ItemPredicate.fromJson(param0.get("rod"));
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "entity", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "entity", param2);
         ItemPredicate var2 = ItemPredicate.fromJson(param0.get("item"));
         return new FishingRodHookedTrigger.TriggerInstance(param1, var0, var1, var2);
     }
@@ -33,10 +33,10 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ItemPredicate rod;
-        private final EntityPredicate.Composite entity;
+        private final ContextAwarePredicate entity;
         private final ItemPredicate item;
 
-        public TriggerInstance(EntityPredicate.Composite param0, ItemPredicate param1, EntityPredicate.Composite param2, ItemPredicate param3) {
+        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1, ContextAwarePredicate param2, ItemPredicate param3) {
             super(FishingRodHookedTrigger.ID, param0);
             this.rod = param1;
             this.entity = param2;
@@ -44,7 +44,7 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         }
 
         public static FishingRodHookedTrigger.TriggerInstance fishedItem(ItemPredicate param0, EntityPredicate param1, ItemPredicate param2) {
-            return new FishingRodHookedTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.wrap(param1), param2);
+            return new FishingRodHookedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, EntityPredicate.wrap(param1), param2);
         }
 
         public boolean matches(ItemStack param0, LootContext param1, Collection<ItemStack> param2) {

@@ -20,8 +20,10 @@ import org.lwjgl.system.MemoryUtil;
 
 @OnlyIn(Dist.CLIENT)
 public class TrueTypeGlyphProvider implements GlyphProvider {
-    private final ByteBuffer fontMemory;
-    final STBTTFontinfo font;
+    @Nullable
+    private ByteBuffer fontMemory;
+    @Nullable
+    private STBTTFontinfo font;
     final float oversample;
     private final IntSet skip = new IntArraySet();
     final float shiftX;
@@ -51,44 +53,58 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     @Nullable
     @Override
     public GlyphInfo getGlyph(int param0) {
+        STBTTFontinfo var0 = this.validateFontOpen();
         if (this.skip.contains(param0)) {
             return null;
         } else {
-            GlyphInfo.SpaceGlyphInfo var13;
-            try (MemoryStack var0 = MemoryStack.stackPush()) {
-                int var1 = STBTruetype.stbtt_FindGlyphIndex(this.font, param0);
-                if (var1 == 0) {
+            GlyphInfo.SpaceGlyphInfo var14;
+            try (MemoryStack var1 = MemoryStack.stackPush()) {
+                int var2 = STBTruetype.stbtt_FindGlyphIndex(var0, param0);
+                if (var2 == 0) {
                     return null;
                 }
 
-                IntBuffer var2 = var0.mallocInt(1);
-                IntBuffer var3 = var0.mallocInt(1);
-                IntBuffer var4 = var0.mallocInt(1);
-                IntBuffer var5 = var0.mallocInt(1);
-                IntBuffer var6 = var0.mallocInt(1);
-                IntBuffer var7 = var0.mallocInt(1);
-                STBTruetype.stbtt_GetGlyphHMetrics(this.font, var1, var6, var7);
-                STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(this.font, var1, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var2, var3, var4, var5);
-                float var8 = (float)var6.get(0) * this.pointScale;
-                int var9 = var4.get(0) - var2.get(0);
+                IntBuffer var3 = var1.mallocInt(1);
+                IntBuffer var4 = var1.mallocInt(1);
+                IntBuffer var5 = var1.mallocInt(1);
+                IntBuffer var6 = var1.mallocInt(1);
+                IntBuffer var7 = var1.mallocInt(1);
+                IntBuffer var8 = var1.mallocInt(1);
+                STBTruetype.stbtt_GetGlyphHMetrics(var0, var2, var7, var8);
+                STBTruetype.stbtt_GetGlyphBitmapBoxSubpixel(var0, var2, this.pointScale, this.pointScale, this.shiftX, this.shiftY, var3, var4, var5, var6);
+                float var9 = (float)var7.get(0) * this.pointScale;
                 int var10 = var5.get(0) - var3.get(0);
-                if (var9 > 0 && var10 > 0) {
+                int var11 = var6.get(0) - var4.get(0);
+                if (var10 > 0 && var11 > 0) {
                     return new TrueTypeGlyphProvider.Glyph(
-                        var2.get(0), var4.get(0), -var3.get(0), -var5.get(0), var8, (float)var7.get(0) * this.pointScale, var1
+                        var3.get(0), var5.get(0), -var4.get(0), -var6.get(0), var9, (float)var8.get(0) * this.pointScale, var2
                     );
                 }
 
-                var13 = () -> var8 / this.oversample;
+                var14 = () -> var9 / this.oversample;
             }
 
-            return var13;
+            return var14;
+        }
+    }
+
+    STBTTFontinfo validateFontOpen() {
+        if (this.fontMemory != null && this.font != null) {
+            return this.font;
+        } else {
+            throw new IllegalArgumentException("Provider already closed");
         }
     }
 
     @Override
     public void close() {
-        this.font.free();
+        if (this.font != null) {
+            this.font.free();
+            this.font = null;
+        }
+
         MemoryUtil.memFree(this.fontMemory);
+        this.fontMemory = null;
     }
 
     @Override
@@ -150,9 +166,10 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
     
                     @Override
                     public void upload(int param0, int param1) {
-                        NativeImage var0 = new NativeImage(NativeImage.Format.LUMINANCE, Glyph.this.width, Glyph.this.height, false);
-                        var0.copyFromFont(
-                            TrueTypeGlyphProvider.this.font,
+                        STBTTFontinfo var0 = TrueTypeGlyphProvider.this.validateFontOpen();
+                        NativeImage var1 = new NativeImage(NativeImage.Format.LUMINANCE, Glyph.this.width, Glyph.this.height, false);
+                        var1.copyFromFont(
+                            var0,
                             Glyph.this.index,
                             Glyph.this.width,
                             Glyph.this.height,
@@ -163,7 +180,7 @@ public class TrueTypeGlyphProvider implements GlyphProvider {
                             0,
                             0
                         );
-                        var0.upload(0, param0, param1, 0, 0, Glyph.this.width, Glyph.this.height, false, true);
+                        var1.upload(0, param0, param1, 0, 0, Glyph.this.width, Glyph.this.height, false, true);
                     }
     
                     @Override

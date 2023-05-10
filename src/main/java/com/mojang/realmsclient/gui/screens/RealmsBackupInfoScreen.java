@@ -3,7 +3,6 @@ package com.mojang.realmsclient.gui.screens;
 import com.mojang.realmsclient.dto.Backup;
 import java.util.Locale;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -16,13 +15,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupInfoScreen extends RealmsScreen {
-    private static final Component TEXT_UNKNOWN = Component.literal("UNKNOWN");
+    private static final Component UNKNOWN = Component.translatable("mco.backup.unknown");
     private final Screen lastScreen;
     final Backup backup;
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
 
     public RealmsBackupInfoScreen(Screen param0, Backup param1) {
-        super(Component.literal("Changes from last backup"));
+        super(Component.translatable("mco.backup.info.title"));
         this.lastScreen = param0;
         this.backup = param1;
     }
@@ -74,7 +73,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         try {
             return RealmsSlotOptionsScreen.DIFFICULTIES.get(Integer.parseInt(param0)).getDisplayName();
         } catch (Exception var3) {
-            return TEXT_UNKNOWN;
+            return UNKNOWN;
         }
     }
 
@@ -82,7 +81,7 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         try {
             return RealmsSlotOptionsScreen.GAME_MODES.get(Integer.parseInt(param0)).getShortDisplayName();
         } catch (Exception var3) {
-            return TEXT_UNKNOWN;
+            return UNKNOWN;
         }
     }
 
@@ -102,6 +101,17 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     class BackupInfoListEntry extends ObjectSelectionList.Entry<RealmsBackupInfoScreen.BackupInfoListEntry> {
+        private static final Component TEMPLATE_NAME = Component.translatable("mco.backup.entry.templateName");
+        private static final Component GAME_DIFFICULTY = Component.translatable("mco.backup.entry.gameDifficulty");
+        private static final Component NAME = Component.translatable("mco.backup.entry.name");
+        private static final Component GAME_SERVER_VERSION = Component.translatable("mco.backup.entry.gameServerVersion");
+        private static final Component UPLOADED = Component.translatable("mco.backup.entry.uploaded");
+        private static final Component ENABLED_PACK = Component.translatable("mco.backup.entry.enabledPack");
+        private static final Component DESCRIPTION = Component.translatable("mco.backup.entry.description");
+        private static final Component GAME_MODE = Component.translatable("mco.backup.entry.gameMode");
+        private static final Component SEED = Component.translatable("mco.backup.entry.seed");
+        private static final Component WORLD_TYPE = Component.translatable("mco.backup.entry.worldType");
+        private static final Component UNDEFINED = Component.translatable("mco.backup.entry.undefined");
         private final String key;
         private final String value;
 
@@ -112,9 +122,26 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
         @Override
         public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            Font var0 = RealmsBackupInfoScreen.this.minecraft.font;
-            param0.drawString(var0, this.key, param3, param2, 10526880);
-            param0.drawString(var0, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215);
+            param0.drawString(RealmsBackupInfoScreen.this.font, this.translateKey(this.key), param3, param2, 10526880);
+            param0.drawString(
+                RealmsBackupInfoScreen.this.font, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215
+            );
+        }
+
+        private Component translateKey(String param0) {
+            return switch(param0) {
+                case "template_name" -> TEMPLATE_NAME;
+                case "game_difficulty" -> GAME_DIFFICULTY;
+                case "name" -> NAME;
+                case "game_server_version" -> GAME_SERVER_VERSION;
+                case "uploaded" -> UPLOADED;
+                case "enabled_pack" -> ENABLED_PACK;
+                case "description" -> DESCRIPTION;
+                case "game_mode" -> GAME_MODE;
+                case "seed" -> SEED;
+                case "world_type" -> WORLD_TYPE;
+                default -> UNDEFINED;
+            };
         }
 
         @Override

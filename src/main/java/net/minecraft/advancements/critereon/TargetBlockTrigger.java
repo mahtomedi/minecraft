@@ -15,9 +15,9 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
         return ID;
     }
 
-    public TargetBlockTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public TargetBlockTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         MinMaxBounds.Ints var0 = MinMaxBounds.Ints.fromJson(param0.get("signal_strength"));
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "projectile", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "projectile", param2);
         return new TargetBlockTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -28,16 +28,16 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final MinMaxBounds.Ints signalStrength;
-        private final EntityPredicate.Composite projectile;
+        private final ContextAwarePredicate projectile;
 
-        public TriggerInstance(EntityPredicate.Composite param0, MinMaxBounds.Ints param1, EntityPredicate.Composite param2) {
+        public TriggerInstance(ContextAwarePredicate param0, MinMaxBounds.Ints param1, ContextAwarePredicate param2) {
             super(TargetBlockTrigger.ID, param0);
             this.signalStrength = param1;
             this.projectile = param2;
         }
 
-        public static TargetBlockTrigger.TriggerInstance targetHit(MinMaxBounds.Ints param0, EntityPredicate.Composite param1) {
-            return new TargetBlockTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1);
+        public static TargetBlockTrigger.TriggerInstance targetHit(MinMaxBounds.Ints param0, ContextAwarePredicate param1) {
+            return new TargetBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, param1);
         }
 
         @Override

@@ -70,7 +70,6 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraft.world.level.storage.loot.LootContext;
 
 public abstract class Mob extends LivingEntity implements Targeting {
     private static final EntityDataAccessor<Byte> DATA_MOB_FLAGS_ID = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BYTE);
@@ -494,17 +493,17 @@ public abstract class Mob extends LivingEntity implements Targeting {
     }
 
     @Override
-    protected LootContext.Builder createLootContext(boolean param0, DamageSource param1) {
-        return super.createLootContext(param0, param1).withOptionalRandomSeed(this.lootTableSeed, this.random);
-    }
-
-    @Override
     public final ResourceLocation getLootTable() {
         return this.lootTable == null ? this.getDefaultLootTable() : this.lootTable;
     }
 
     protected ResourceLocation getDefaultLootTable() {
         return super.getLootTable();
+    }
+
+    @Override
+    public long getLootTableSeed() {
+        return this.lootTableSeed;
     }
 
     public void setZza(float param0) {

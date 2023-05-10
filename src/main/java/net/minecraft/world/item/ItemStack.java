@@ -12,6 +12,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
@@ -417,52 +418,24 @@ public final class ItemStack {
         }
     }
 
-    public static boolean tagMatches(ItemStack param0, ItemStack param1) {
-        if (param0.isEmpty() && param1.isEmpty()) {
-            return true;
-        } else if (param0.isEmpty() || param1.isEmpty()) {
-            return false;
-        } else if (param0.tag == null && param1.tag != null) {
-            return false;
-        } else {
-            return param0.tag == null || param0.tag.equals(param1.tag);
-        }
-    }
-
     public static boolean matches(ItemStack param0, ItemStack param1) {
-        if (param0.isEmpty() && param1.isEmpty()) {
-            return true;
-        } else {
-            return !param0.isEmpty() && !param1.isEmpty() ? param0.matches(param1) : false;
-        }
-    }
-
-    private boolean matches(ItemStack param0) {
-        if (this.getCount() != param0.getCount()) {
-            return false;
-        } else if (!this.is(param0.getItem())) {
-            return false;
-        } else if (this.tag == null && param0.tag != null) {
-            return false;
-        } else {
-            return this.tag == null || this.tag.equals(param0.tag);
-        }
-    }
-
-    public static boolean isSame(ItemStack param0, ItemStack param1) {
         if (param0 == param1) {
             return true;
         } else {
-            return !param0.isEmpty() && !param1.isEmpty() ? param0.sameItem(param1) : false;
+            return param0.getCount() != param1.getCount() ? false : isSameItemSameTags(param0, param1);
         }
     }
 
-    public boolean sameItem(ItemStack param0) {
-        return !param0.isEmpty() && this.is(param0.getItem());
+    public static boolean isSameItem(ItemStack param0, ItemStack param1) {
+        return param0.is(param1.getItem());
     }
 
     public static boolean isSameItemSameTags(ItemStack param0, ItemStack param1) {
-        return param0.is(param1.getItem()) && tagMatches(param0, param1);
+        if (!param0.is(param1.getItem())) {
+            return false;
+        } else {
+            return param0.isEmpty() && param1.isEmpty() ? true : Objects.equals(param0.tag, param1.tag);
+        }
     }
 
     public String getDescriptionId() {

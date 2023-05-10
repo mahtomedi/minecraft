@@ -1,6 +1,7 @@
 package net.minecraft.data.recipes.packs;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -8,7 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.ImpossibleTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -59,7 +60,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             this.buildAdvancement(
                 param0,
                 RecipeBuilder.ROOT_RECIPE_ADVANCEMENT,
-                Advancement.Builder.advancement().addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
+                Advancement.Builder.recipeAdvancement().addCriterion("impossible", new ImpossibleTrigger.TriggerInstance())
             )
         );
     }
@@ -101,98 +102,128 @@ public class VanillaRecipeProvider extends RecipeProvider {
         woodenBoat(param0, Items.OAK_BOAT, Blocks.OAK_PLANKS);
         woodenBoat(param0, Items.SPRUCE_BOAT, Blocks.SPRUCE_PLANKS);
         woodenBoat(param0, Items.MANGROVE_BOAT, Blocks.MANGROVE_PLANKS);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.BLACK_WOOL, Items.BLACK_DYE);
+        List<Item> var0 = List.of(
+            Items.BLACK_DYE,
+            Items.BLUE_DYE,
+            Items.BROWN_DYE,
+            Items.CYAN_DYE,
+            Items.GRAY_DYE,
+            Items.GREEN_DYE,
+            Items.LIGHT_BLUE_DYE,
+            Items.LIGHT_GRAY_DYE,
+            Items.LIME_DYE,
+            Items.MAGENTA_DYE,
+            Items.ORANGE_DYE,
+            Items.PINK_DYE,
+            Items.PURPLE_DYE,
+            Items.RED_DYE,
+            Items.YELLOW_DYE,
+            Items.WHITE_DYE
+        );
+        List<Item> var1 = List.of(
+            Items.BLACK_WOOL,
+            Items.BLUE_WOOL,
+            Items.BROWN_WOOL,
+            Items.CYAN_WOOL,
+            Items.GRAY_WOOL,
+            Items.GREEN_WOOL,
+            Items.LIGHT_BLUE_WOOL,
+            Items.LIGHT_GRAY_WOOL,
+            Items.LIME_WOOL,
+            Items.MAGENTA_WOOL,
+            Items.ORANGE_WOOL,
+            Items.PINK_WOOL,
+            Items.PURPLE_WOOL,
+            Items.RED_WOOL,
+            Items.YELLOW_WOOL,
+            Items.WHITE_WOOL
+        );
+        List<Item> var2 = List.of(
+            Items.BLACK_BED,
+            Items.BLUE_BED,
+            Items.BROWN_BED,
+            Items.CYAN_BED,
+            Items.GRAY_BED,
+            Items.GREEN_BED,
+            Items.LIGHT_BLUE_BED,
+            Items.LIGHT_GRAY_BED,
+            Items.LIME_BED,
+            Items.MAGENTA_BED,
+            Items.ORANGE_BED,
+            Items.PINK_BED,
+            Items.PURPLE_BED,
+            Items.RED_BED,
+            Items.YELLOW_BED,
+            Items.WHITE_BED
+        );
+        List<Item> var3 = List.of(
+            Items.BLACK_CARPET,
+            Items.BLUE_CARPET,
+            Items.BROWN_CARPET,
+            Items.CYAN_CARPET,
+            Items.GRAY_CARPET,
+            Items.GREEN_CARPET,
+            Items.LIGHT_BLUE_CARPET,
+            Items.LIGHT_GRAY_CARPET,
+            Items.LIME_CARPET,
+            Items.MAGENTA_CARPET,
+            Items.ORANGE_CARPET,
+            Items.PINK_CARPET,
+            Items.PURPLE_CARPET,
+            Items.RED_CARPET,
+            Items.YELLOW_CARPET,
+            Items.WHITE_CARPET
+        );
+        colorBlockWithDye(param0, var0, var1);
+        colorBlockWithDye(param0, var0, var2);
+        colorBlockWithDye(param0, var0, var3);
         carpet(param0, Blocks.BLACK_CARPET, Blocks.BLACK_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.BLACK_CARPET, Items.BLACK_DYE);
         bedFromPlanksAndWool(param0, Items.BLACK_BED, Blocks.BLACK_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.BLACK_BED, Items.BLACK_DYE);
         banner(param0, Items.BLACK_BANNER, Blocks.BLACK_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.BLUE_WOOL, Items.BLUE_DYE);
         carpet(param0, Blocks.BLUE_CARPET, Blocks.BLUE_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.BLUE_CARPET, Items.BLUE_DYE);
         bedFromPlanksAndWool(param0, Items.BLUE_BED, Blocks.BLUE_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.BLUE_BED, Items.BLUE_DYE);
         banner(param0, Items.BLUE_BANNER, Blocks.BLUE_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.BROWN_WOOL, Items.BROWN_DYE);
         carpet(param0, Blocks.BROWN_CARPET, Blocks.BROWN_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.BROWN_CARPET, Items.BROWN_DYE);
         bedFromPlanksAndWool(param0, Items.BROWN_BED, Blocks.BROWN_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.BROWN_BED, Items.BROWN_DYE);
         banner(param0, Items.BROWN_BANNER, Blocks.BROWN_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.CYAN_WOOL, Items.CYAN_DYE);
         carpet(param0, Blocks.CYAN_CARPET, Blocks.CYAN_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.CYAN_CARPET, Items.CYAN_DYE);
         bedFromPlanksAndWool(param0, Items.CYAN_BED, Blocks.CYAN_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.CYAN_BED, Items.CYAN_DYE);
         banner(param0, Items.CYAN_BANNER, Blocks.CYAN_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.GRAY_WOOL, Items.GRAY_DYE);
         carpet(param0, Blocks.GRAY_CARPET, Blocks.GRAY_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.GRAY_CARPET, Items.GRAY_DYE);
         bedFromPlanksAndWool(param0, Items.GRAY_BED, Blocks.GRAY_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.GRAY_BED, Items.GRAY_DYE);
         banner(param0, Items.GRAY_BANNER, Blocks.GRAY_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.GREEN_WOOL, Items.GREEN_DYE);
         carpet(param0, Blocks.GREEN_CARPET, Blocks.GREEN_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.GREEN_CARPET, Items.GREEN_DYE);
         bedFromPlanksAndWool(param0, Items.GREEN_BED, Blocks.GREEN_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.GREEN_BED, Items.GREEN_DYE);
         banner(param0, Items.GREEN_BANNER, Blocks.GREEN_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.LIGHT_BLUE_WOOL, Items.LIGHT_BLUE_DYE);
         carpet(param0, Blocks.LIGHT_BLUE_CARPET, Blocks.LIGHT_BLUE_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.LIGHT_BLUE_CARPET, Items.LIGHT_BLUE_DYE);
         bedFromPlanksAndWool(param0, Items.LIGHT_BLUE_BED, Blocks.LIGHT_BLUE_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.LIGHT_BLUE_BED, Items.LIGHT_BLUE_DYE);
         banner(param0, Items.LIGHT_BLUE_BANNER, Blocks.LIGHT_BLUE_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.LIGHT_GRAY_WOOL, Items.LIGHT_GRAY_DYE);
         carpet(param0, Blocks.LIGHT_GRAY_CARPET, Blocks.LIGHT_GRAY_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.LIGHT_GRAY_CARPET, Items.LIGHT_GRAY_DYE);
         bedFromPlanksAndWool(param0, Items.LIGHT_GRAY_BED, Blocks.LIGHT_GRAY_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.LIGHT_GRAY_BED, Items.LIGHT_GRAY_DYE);
         banner(param0, Items.LIGHT_GRAY_BANNER, Blocks.LIGHT_GRAY_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.LIME_WOOL, Items.LIME_DYE);
         carpet(param0, Blocks.LIME_CARPET, Blocks.LIME_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.LIME_CARPET, Items.LIME_DYE);
         bedFromPlanksAndWool(param0, Items.LIME_BED, Blocks.LIME_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.LIME_BED, Items.LIME_DYE);
         banner(param0, Items.LIME_BANNER, Blocks.LIME_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.MAGENTA_WOOL, Items.MAGENTA_DYE);
         carpet(param0, Blocks.MAGENTA_CARPET, Blocks.MAGENTA_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.MAGENTA_CARPET, Items.MAGENTA_DYE);
         bedFromPlanksAndWool(param0, Items.MAGENTA_BED, Blocks.MAGENTA_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.MAGENTA_BED, Items.MAGENTA_DYE);
         banner(param0, Items.MAGENTA_BANNER, Blocks.MAGENTA_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.ORANGE_WOOL, Items.ORANGE_DYE);
         carpet(param0, Blocks.ORANGE_CARPET, Blocks.ORANGE_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.ORANGE_CARPET, Items.ORANGE_DYE);
         bedFromPlanksAndWool(param0, Items.ORANGE_BED, Blocks.ORANGE_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.ORANGE_BED, Items.ORANGE_DYE);
         banner(param0, Items.ORANGE_BANNER, Blocks.ORANGE_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.PINK_WOOL, Items.PINK_DYE);
         carpet(param0, Blocks.PINK_CARPET, Blocks.PINK_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.PINK_CARPET, Items.PINK_DYE);
         bedFromPlanksAndWool(param0, Items.PINK_BED, Blocks.PINK_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.PINK_BED, Items.PINK_DYE);
         banner(param0, Items.PINK_BANNER, Blocks.PINK_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.PURPLE_WOOL, Items.PURPLE_DYE);
         carpet(param0, Blocks.PURPLE_CARPET, Blocks.PURPLE_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.PURPLE_CARPET, Items.PURPLE_DYE);
         bedFromPlanksAndWool(param0, Items.PURPLE_BED, Blocks.PURPLE_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.PURPLE_BED, Items.PURPLE_DYE);
         banner(param0, Items.PURPLE_BANNER, Blocks.PURPLE_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.RED_WOOL, Items.RED_DYE);
         carpet(param0, Blocks.RED_CARPET, Blocks.RED_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.RED_CARPET, Items.RED_DYE);
         bedFromPlanksAndWool(param0, Items.RED_BED, Blocks.RED_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.RED_BED, Items.RED_DYE);
         banner(param0, Items.RED_BANNER, Blocks.RED_WOOL);
         carpet(param0, Blocks.WHITE_CARPET, Blocks.WHITE_WOOL);
         bedFromPlanksAndWool(param0, Items.WHITE_BED, Blocks.WHITE_WOOL);
         banner(param0, Items.WHITE_BANNER, Blocks.WHITE_WOOL);
-        coloredWoolFromWhiteWoolAndDye(param0, Blocks.YELLOW_WOOL, Items.YELLOW_DYE);
         carpet(param0, Blocks.YELLOW_CARPET, Blocks.YELLOW_WOOL);
-        coloredCarpetFromWhiteCarpetAndDye(param0, Blocks.YELLOW_CARPET, Items.YELLOW_DYE);
         bedFromPlanksAndWool(param0, Items.YELLOW_BED, Blocks.YELLOW_WOOL);
-        bedFromWhiteBedAndDye(param0, Items.YELLOW_BED, Items.YELLOW_DYE);
         banner(param0, Items.YELLOW_BANNER, Blocks.YELLOW_WOOL);
         carpet(param0, Blocks.MOSS_CARPET, Blocks.MOSS_BLOCK);
         stainedGlassFromGlassAndDye(param0, Blocks.BLACK_STAINED_GLASS, Items.BLACK_DYE);
@@ -525,7 +556,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .unlockedBy(
                 "has_lots_of_items",
                 new InventoryChangeTrigger.TriggerInstance(
-                    EntityPredicate.Composite.ANY, MinMaxBounds.Ints.atLeast(10), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, new ItemPredicate[0]
+                    ContextAwarePredicate.ANY, MinMaxBounds.Ints.atLeast(10), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, new ItemPredicate[0]
                 )
             )
             .save(param0);

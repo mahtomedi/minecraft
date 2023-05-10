@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,6 +19,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RealmsUtil {
     static final MinecraftSessionService SESSION_SERVICE = Minecraft.getInstance().getMinecraftSessionService();
+    private static final Component RIGHT_NOW = Component.translatable("mco.util.time.now");
     private static final LoadingCache<String, GameProfile> GAME_PROFILE_CACHE = CacheBuilder.newBuilder()
         .expireAfterWrite(60L, TimeUnit.MINUTES)
         .build(new CacheLoader<String, GameProfile>() {
@@ -37,27 +39,27 @@ public class RealmsUtil {
         return GAME_PROFILE_CACHE.getUnchecked(param0);
     }
 
-    public static String convertToAgePresentation(long param0) {
+    public static Component convertToAgePresentation(long param0) {
         if (param0 < 0L) {
-            return "right now";
+            return RIGHT_NOW;
         } else {
             long var0 = param0 / 1000L;
             if (var0 < 60L) {
-                return (var0 == 1L ? "1 second" : var0 + " seconds") + " ago";
+                return Component.translatable("mco.time.secondsAgo", var0);
             } else if (var0 < 3600L) {
                 long var1 = var0 / 60L;
-                return (var1 == 1L ? "1 minute" : var1 + " minutes") + " ago";
+                return Component.translatable("mco.time.minutesAgo", var1);
             } else if (var0 < 86400L) {
                 long var2 = var0 / 3600L;
-                return (var2 == 1L ? "1 hour" : var2 + " hours") + " ago";
+                return Component.translatable("mco.time.hoursAgo", var2);
             } else {
                 long var3 = var0 / 86400L;
-                return (var3 == 1L ? "1 day" : var3 + " days") + " ago";
+                return Component.translatable("mco.time.daysAgo", var3);
             }
         }
     }
 
-    public static String convertToAgePresentationFromInstant(Date param0) {
+    public static Component convertToAgePresentationFromInstant(Date param0) {
         return convertToAgePresentation(System.currentTimeMillis() - param0.getTime());
     }
 

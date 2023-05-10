@@ -3,7 +3,6 @@ package net.minecraft.world.level.lighting;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -27,15 +26,7 @@ public abstract class LightEngine<M extends DataLayerStorageMap<M>, S extends La
     protected static final Direction[] PROPAGATION_DIRECTIONS = Direction.values();
     protected final LightChunkGetter chunkSource;
     protected final S storage;
-    private final LongSet blockNodesToCheck = new LongOpenHashSet(512, 0.5F) {
-        @Override
-        protected void rehash(int param0) {
-            if (param0 > 512) {
-                super.rehash(param0);
-            }
-
-        }
-    };
+    private final LongOpenHashSet blockNodesToCheck = new LongOpenHashSet(512, 0.5F);
     private final LongArrayFIFOQueue decreaseQueue = new LongArrayFIFOQueue();
     private final LongArrayFIFOQueue increaseQueue = new LongArrayFIFOQueue();
     private final BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos();
@@ -153,31 +144,8 @@ public abstract class LightEngine<M extends DataLayerStorageMap<M>, S extends La
         this.storage.setLightEnabled(SectionPos.getZeroNode(param0.x, param0.z), param1);
     }
 
-    protected void clearQueuedSectionBlocks(long param0) {
-        if (!this.blockNodesToCheck.isEmpty()) {
-            if (this.blockNodesToCheck.size() < 8192) {
-                this.blockNodesToCheck.removeIf(param1 -> SectionPos.blockToSection(param1) == param0);
-            } else {
-                int var0 = SectionPos.sectionToBlockCoord(SectionPos.x(param0));
-                int var1 = SectionPos.sectionToBlockCoord(SectionPos.y(param0));
-                int var2 = SectionPos.sectionToBlockCoord(SectionPos.z(param0));
-
-                for(int var3 = 0; var3 < 16; ++var3) {
-                    for(int var4 = 0; var4 < 16; ++var4) {
-                        for(int var5 = 0; var5 < 16; ++var5) {
-                            long var6 = BlockPos.asLong(var0 + var3, var1 + var4, var2 + var5);
-                            this.blockNodesToCheck.remove(var6);
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
     @Override
     public int runLightUpdates() {
-        this.storage.markNewInconsistencies(this);
         LongIterator var0 = this.blockNodesToCheck.iterator();
 
         while(var0.hasNext()) {
@@ -185,10 +153,12 @@ public abstract class LightEngine<M extends DataLayerStorageMap<M>, S extends La
         }
 
         this.blockNodesToCheck.clear();
+        this.blockNodesToCheck.trim(512);
         int var1 = 0;
         var1 += this.propagateDecreases();
         var1 += this.propagateIncreases();
         this.clearChunkCache();
+        this.storage.markNewInconsistencies(this);
         this.storage.swapSectionMap();
         return var1;
     }

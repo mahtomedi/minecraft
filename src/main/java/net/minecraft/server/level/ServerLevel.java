@@ -59,6 +59,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.DebugPackets;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerScoreboard;
 import net.minecraft.server.level.progress.ChunkProgressListener;
@@ -70,11 +71,13 @@ import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.CsvOutput;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProgressListener;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.RandomSequences;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -184,11 +187,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private boolean handlingTick;
     private final List<CustomSpawner> customSpawners;
     @Nullable
-    private final EndDragonFight dragonFight;
+    private EndDragonFight dragonFight;
     final Int2ObjectMap<EnderDragonPart> dragonParts = new Int2ObjectOpenHashMap<>();
     private final StructureManager structureManager;
     private final StructureCheck structureCheck;
     private final boolean tickTime;
+    private final RandomSequences randomSequences;
 
     public ServerLevel(
         MinecraftServer param0,
@@ -260,6 +264,14 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         this.sleepStatus = new SleepStatus();
         this.gameEventDispatcher = new GameEventDispatcher(this);
+        this.randomSequences = this.getDataStorage()
+            .computeIfAbsent(param1x -> RandomSequences.load(var4, param1x), () -> new RandomSequences(var4), "random_sequences");
+    }
+
+    @Deprecated
+    @VisibleForTesting
+    public void setDragonFight(@Nullable EndDragonFight param0) {
+        this.dragonFight = param0;
     }
 
     public void setWeatherParameters(int param0, int param1, boolean param2, boolean param3) {
@@ -1469,7 +1481,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     @Nullable
-    public EndDragonFight dragonFight() {
+    public EndDragonFight getDragonFight() {
         return this.dragonFight;
     }
 
@@ -1580,6 +1592,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public FeatureFlagSet enabledFeatures() {
         return this.server.getWorldData().enabledFeatures();
+    }
+
+    public RandomSource getRandomSequence(ResourceLocation param0) {
+        return this.randomSequences.get(param0);
     }
 
     final class EntityCallbacks implements LevelCallback<Entity> {

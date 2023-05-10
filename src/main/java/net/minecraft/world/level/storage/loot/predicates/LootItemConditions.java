@@ -9,7 +9,8 @@ import net.minecraft.world.level.storage.loot.Serializer;
 
 public class LootItemConditions {
     public static final LootItemConditionType INVERTED = register("inverted", new InvertedLootItemCondition.Serializer());
-    public static final LootItemConditionType ALTERNATIVE = register("alternative", new AlternativeLootItemCondition.Serializer());
+    public static final LootItemConditionType ANY_OF = register("any_of", new AnyOfCondition.Serializer());
+    public static final LootItemConditionType ALL_OF = register("all_of", new AllOfCondition.Serializer());
     public static final LootItemConditionType RANDOM_CHANCE = register("random_chance", new LootItemRandomChanceCondition.Serializer());
     public static final LootItemConditionType RANDOM_CHANCE_WITH_LOOTING = register(
         "random_chance_with_looting", new LootItemRandomChanceWithLootingCondition.Serializer()
@@ -37,44 +38,36 @@ public class LootItemConditions {
     }
 
     public static <T> Predicate<T> andConditions(Predicate<T>[] param0) {
-        switch(param0.length) {
-            case 0:
-                return param0x -> true;
-            case 1:
-                return param0[0];
-            case 2:
-                return param0[0].and(param0[1]);
-            default:
-                return param1 -> {
-                    for(Predicate<T> var0x : param0) {
-                        if (!var0x.test(param1)) {
-                            return false;
-                        }
-                    }
+        return switch(param0.length) {
+            case 0 -> param0x -> true;
+            case 1 -> param0[0];
+            case 2 -> param0[0].and(param0[1]);
+            default -> param1 -> {
+            for(Predicate<T> var0x : param0) {
+                if (!var0x.test(param1)) {
+                    return false;
+                }
+            }
 
-                    return true;
-                };
-        }
+            return true;
+        };
+        };
     }
 
     public static <T> Predicate<T> orConditions(Predicate<T>[] param0) {
-        switch(param0.length) {
-            case 0:
-                return param0x -> false;
-            case 1:
-                return param0[0];
-            case 2:
-                return param0[0].or(param0[1]);
-            default:
-                return param1 -> {
-                    for(Predicate<T> var0x : param0) {
-                        if (var0x.test(param1)) {
-                            return true;
-                        }
-                    }
+        return switch(param0.length) {
+            case 0 -> param0x -> false;
+            case 1 -> param0[0];
+            case 2 -> param0[0].or(param0[1]);
+            default -> param1 -> {
+            for(Predicate<T> var0x : param0) {
+                if (var0x.test(param1)) {
+                    return true;
+                }
+            }
 
-                    return false;
-                };
-        }
+            return false;
+        };
+        };
     }
 }

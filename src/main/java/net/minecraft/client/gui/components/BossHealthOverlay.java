@@ -28,7 +28,7 @@ public class BossHealthOverlay {
 
     public void render(GuiGraphics param0) {
         if (!this.events.isEmpty()) {
-            int var0 = this.minecraft.getWindow().getGuiScaledWidth();
+            int var0 = param0.guiWidth();
             int var1 = 12;
 
             for(LerpingBossEvent var2 : this.events.values()) {
@@ -40,7 +40,7 @@ public class BossHealthOverlay {
                 int var8 = var1 - 9;
                 param0.drawString(this.minecraft.font, var5, var7, var8, 16777215);
                 var1 += 10 + 9;
-                if (var1 >= this.minecraft.getWindow().getGuiScaledHeight() / 3) {
+                if (var1 >= param0.guiHeight() / 3) {
                     break;
                 }
             }

@@ -25,7 +25,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
@@ -224,7 +224,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
                     if ((param2 & 2) != 0
                         && (!this.isClientSide || (param2 & 4) == 0)
-                        && (this.isClientSide || var0.getFullStatus() != null && var0.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING))) {
+                        && (this.isClientSide || var0.getFullStatus() != null && var0.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING))) {
                         this.sendBlockUpdated(param0, var2, param1, param2);
                     }
 

@@ -12,6 +12,7 @@ import java.util.function.IntSupplier;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.resources.metadata.texture.TextureMetadataSection;
 import net.minecraft.resources.ResourceLocation;
@@ -66,8 +67,8 @@ public class LoadingOverlay extends Overlay {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        int var0 = this.minecraft.getWindow().getGuiScaledWidth();
-        int var1 = this.minecraft.getWindow().getGuiScaledHeight();
+        int var0 = param0.guiWidth();
+        int var1 = param0.guiHeight();
         long var2 = Util.getMillis();
         if (this.fadeIn && this.fadeInStart == -1L) {
             this.fadeInStart = var2;
@@ -82,7 +83,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var5 = Mth.ceil((1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F)) * 255.0F);
-            param0.fill(0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var5));
+            param0.fill(RenderType.guiOverlay(), 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var5));
             var6 = 1.0F - Mth.clamp(var3 - 1.0F, 0.0F, 1.0F);
         } else if (this.fadeIn) {
             if (this.minecraft.screen != null && var4 < 1.0F) {
@@ -90,7 +91,7 @@ public class LoadingOverlay extends Overlay {
             }
 
             int var7 = Mth.ceil(Mth.clamp((double)var4, 0.15, 1.0) * 255.0);
-            param0.fill(0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
+            param0.fill(RenderType.guiOverlay(), 0, 0, var0, var1, replaceAlpha(BRAND_BACKGROUND.getAsInt(), var7));
             var6 = Mth.clamp(var4, 0.0F, 1.0F);
         } else {
             int var9 = BRAND_BACKGROUND.getAsInt();
@@ -102,12 +103,14 @@ public class LoadingOverlay extends Overlay {
             var6 = 1.0F;
         }
 
-        int var14 = (int)((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.5);
-        int var15 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.5);
-        double var16 = Math.min((double)this.minecraft.getWindow().getGuiScaledWidth() * 0.75, (double)this.minecraft.getWindow().getGuiScaledHeight()) * 0.25;
+        int var14 = (int)((double)param0.guiWidth() * 0.5);
+        int var15 = (int)((double)param0.guiHeight() * 0.5);
+        double var16 = Math.min((double)param0.guiWidth() * 0.75, (double)param0.guiHeight()) * 0.25;
         int var17 = (int)(var16 * 0.5);
         double var18 = var16 * 4.0;
         int var19 = (int)(var18 * 0.5);
+        RenderSystem.disableDepthTest();
+        RenderSystem.depthMask(false);
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(770, 1);
         param0.setColor(1.0F, 1.0F, 1.0F, var6);
@@ -116,7 +119,9 @@ public class LoadingOverlay extends Overlay {
         param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.defaultBlendFunc();
         RenderSystem.disableBlend();
-        int var20 = (int)((double)this.minecraft.getWindow().getGuiScaledHeight() * 0.8325);
+        RenderSystem.depthMask(true);
+        RenderSystem.enableDepthTest();
+        int var20 = (int)((double)param0.guiHeight() * 0.8325);
         float var21 = this.reload.getActualProgress();
         this.currentProgress = Mth.clamp(this.currentProgress * 0.95F + var21 * 0.050000012F, 0.0F, 1.0F);
         if (var3 < 1.0F) {
@@ -137,7 +142,7 @@ public class LoadingOverlay extends Overlay {
 
             this.fadeOutStart = Util.getMillis();
             if (this.minecraft.screen != null) {
-                this.minecraft.screen.init(this.minecraft, this.minecraft.getWindow().getGuiScaledWidth(), this.minecraft.getWindow().getGuiScaledHeight());
+                this.minecraft.screen.init(this.minecraft, param0.guiWidth(), param0.guiHeight());
             }
         }
 

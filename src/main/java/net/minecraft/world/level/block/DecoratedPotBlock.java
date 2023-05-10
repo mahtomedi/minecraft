@@ -30,7 +30,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -94,10 +94,10 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+    public List<ItemStack> getDrops(BlockState param0, LootParams.Builder param1) {
         BlockEntity var0 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (var0 instanceof DecoratedPotBlockEntity var1) {
-            param1.withDynamicDrop(SHERDS_DYNAMIC_DROP_ID, (param1x, param2) -> var1.getDecorations().sorted().map(Item::getDefaultInstance).forEach(param2));
+            param1.withDynamicDrop(SHERDS_DYNAMIC_DROP_ID, param1x -> var1.getDecorations().sorted().map(Item::getDefaultInstance).forEach(param1x));
         }
 
         return super.getDrops(param0, param1);
@@ -129,7 +129,7 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     public void appendHoverText(ItemStack param0, @Nullable BlockGetter param1, List<Component> param2, TooltipFlag param3) {
         super.appendHoverText(param0, param1, param2, param3);
         DecoratedPotBlockEntity.Decorations var0 = DecoratedPotBlockEntity.Decorations.load(BlockItem.getBlockEntityData(param0));
-        if (var0 != DecoratedPotBlockEntity.Decorations.EMPTY) {
+        if (!var0.equals(DecoratedPotBlockEntity.Decorations.EMPTY)) {
             param2.add(CommonComponents.EMPTY);
             Stream.of(var0.front(), var0.left(), var0.right(), var0.back())
                 .forEach(param1x -> param2.add(new ItemStack(param1x, 1).getHoverName().plainCopy().withStyle(ChatFormatting.GRAY)));

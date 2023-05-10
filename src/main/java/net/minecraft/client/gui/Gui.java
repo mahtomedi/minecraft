@@ -29,6 +29,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
@@ -143,8 +144,8 @@ public class Gui {
 
     public void render(GuiGraphics param0, float param1) {
         Window var0 = this.minecraft.getWindow();
-        this.screenWidth = var0.getGuiScaledWidth();
-        this.screenHeight = var0.getGuiScaledHeight();
+        this.screenWidth = param0.guiWidth();
+        this.screenHeight = param0.guiHeight();
         Font var1 = this.getFont();
         RenderSystem.enableBlend();
         if (Minecraft.useFancyGraphics()) {
@@ -171,7 +172,7 @@ public class Gui {
             this.renderTextureOverlay(param0, POWDER_SNOW_OUTLINE_LOCATION, this.minecraft.player.getPercentFrozen());
         }
 
-        float var4 = Mth.lerp(param1, this.minecraft.player.oPortalTime, this.minecraft.player.portalTime);
+        float var4 = Mth.lerp(param1, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity);
         if (var4 > 0.0F && !this.minecraft.player.hasEffect(MobEffects.CONFUSION)) {
             this.renderPortalOverlay(param0, var4);
         }
@@ -211,7 +212,6 @@ public class Gui {
 
         if (this.minecraft.player.getSleepTimer() > 0) {
             this.minecraft.getProfiler().push("sleep");
-            RenderSystem.disableDepthTest();
             float var7 = (float)this.minecraft.player.getSleepTimer();
             float var8 = var7 / 100.0F;
             if (var8 > 1.0F) {
@@ -219,8 +219,7 @@ public class Gui {
             }
 
             int var9 = (int)(220.0F * var8) << 24 | 1052704;
-            param0.fill(0, 0, this.screenWidth, this.screenHeight, var9);
-            RenderSystem.enableDepthTest();
+            param0.fill(RenderType.guiOverlay(), 0, 0, this.screenWidth, this.screenHeight, var9);
             this.minecraft.getProfiler().pop();
         }
 
@@ -919,8 +918,6 @@ public class Gui {
     }
 
     private void renderSpyglassOverlay(GuiGraphics param0, float param1) {
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
         float var0 = (float)Math.min(this.screenWidth, this.screenHeight);
         float var2 = Math.min((float)this.screenWidth / var0, (float)this.screenHeight / var0) * param1;
         int var3 = Mth.floor(var0 * var2);
@@ -930,12 +927,10 @@ public class Gui {
         int var7 = var5 + var3;
         int var8 = var6 + var4;
         param0.blit(SPYGLASS_SCOPE_LOCATION, var5, var6, -90, 0.0F, 0.0F, var3, var4, var3, var4);
-        param0.fill(0, var8, this.screenWidth, this.screenHeight, -90, -16777216);
-        param0.fill(0, 0, this.screenWidth, var6, -90, -16777216);
-        param0.fill(0, var6, var5, var8, -90, -16777216);
-        param0.fill(var7, var6, this.screenWidth, var8, -90, -16777216);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
+        param0.fill(RenderType.guiOverlay(), 0, var8, this.screenWidth, this.screenHeight, -90, -16777216);
+        param0.fill(RenderType.guiOverlay(), 0, 0, this.screenWidth, var6, -90, -16777216);
+        param0.fill(RenderType.guiOverlay(), 0, var6, var5, var8, -90, -16777216);
+        param0.fill(RenderType.guiOverlay(), var7, var6, this.screenWidth, var8, -90, -16777216);
     }
 
     private void updateVignetteBrightness(Entity param0) {

@@ -15,9 +15,9 @@ public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZomb
         return ID;
     }
 
-    public CuredZombieVillagerTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
-        EntityPredicate.Composite var0 = EntityPredicate.Composite.fromJson(param0, "zombie", param2);
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "villager", param2);
+    public CuredZombieVillagerTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "zombie", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "villager", param2);
         return new CuredZombieVillagerTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -28,17 +28,17 @@ public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZomb
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final EntityPredicate.Composite zombie;
-        private final EntityPredicate.Composite villager;
+        private final ContextAwarePredicate zombie;
+        private final ContextAwarePredicate villager;
 
-        public TriggerInstance(EntityPredicate.Composite param0, EntityPredicate.Composite param1, EntityPredicate.Composite param2) {
+        public TriggerInstance(ContextAwarePredicate param0, ContextAwarePredicate param1, ContextAwarePredicate param2) {
             super(CuredZombieVillagerTrigger.ID, param0);
             this.zombie = param1;
             this.villager = param2;
         }
 
         public static CuredZombieVillagerTrigger.TriggerInstance curedZombieVillager() {
-            return new CuredZombieVillagerTrigger.TriggerInstance(EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY, EntityPredicate.Composite.ANY);
+            return new CuredZombieVillagerTrigger.TriggerInstance(ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, ContextAwarePredicate.ANY);
         }
 
         public boolean matches(LootContext param0, LootContext param1) {

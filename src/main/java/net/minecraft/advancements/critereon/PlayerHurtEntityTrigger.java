@@ -15,9 +15,9 @@ public class PlayerHurtEntityTrigger extends SimpleCriterionTrigger<PlayerHurtEn
         return ID;
     }
 
-    public PlayerHurtEntityTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public PlayerHurtEntityTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         DamagePredicate var0 = DamagePredicate.fromJson(param0.get("damage"));
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "entity", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "entity", param2);
         return new PlayerHurtEntityTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -28,36 +28,36 @@ public class PlayerHurtEntityTrigger extends SimpleCriterionTrigger<PlayerHurtEn
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final DamagePredicate damage;
-        private final EntityPredicate.Composite entity;
+        private final ContextAwarePredicate entity;
 
-        public TriggerInstance(EntityPredicate.Composite param0, DamagePredicate param1, EntityPredicate.Composite param2) {
+        public TriggerInstance(ContextAwarePredicate param0, DamagePredicate param1, ContextAwarePredicate param2) {
             super(PlayerHurtEntityTrigger.ID, param0);
             this.damage = param1;
             this.entity = param2;
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity() {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, DamagePredicate.ANY, EntityPredicate.Composite.ANY);
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, DamagePredicate.ANY, ContextAwarePredicate.ANY);
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate param0) {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.ANY);
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, ContextAwarePredicate.ANY);
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate.Builder param0) {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0.build(), EntityPredicate.Composite.ANY);
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0.build(), ContextAwarePredicate.ANY);
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(EntityPredicate param0) {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, DamagePredicate.ANY, EntityPredicate.Composite.wrap(param0));
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, DamagePredicate.ANY, EntityPredicate.wrap(param0));
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate param0, EntityPredicate param1) {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, EntityPredicate.Composite.wrap(param1));
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, EntityPredicate.wrap(param1));
         }
 
         public static PlayerHurtEntityTrigger.TriggerInstance playerHurtEntity(DamagePredicate.Builder param0, EntityPredicate param1) {
-            return new PlayerHurtEntityTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0.build(), EntityPredicate.Composite.wrap(param1));
+            return new PlayerHurtEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0.build(), EntityPredicate.wrap(param1));
         }
 
         public boolean matches(ServerPlayer param0, LootContext param1, DamageSource param2, float param3, float param4, boolean param5) {

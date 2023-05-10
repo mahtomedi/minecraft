@@ -129,7 +129,7 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
                 param1.setYRot(param1.yBodyRot);
                 param1.setDiscardFriction(true);
                 double var0 = this.chosenJump.length();
-                double var1 = var0 + param1.getJumpBoostPower();
+                double var1 = var0 + (double)param1.getJumpBoostPower();
                 param1.setDeltaMovement(this.chosenJump.scale(var1 / var0));
                 param1.getBrain().setMemory(MemoryModuleType.LONG_JUMP_MID_JUMP, true);
                 param0.playSound(null, param1, this.getJumpSound.apply(param1), SoundSource.NEUTRAL, 1.0F, 1.0F);

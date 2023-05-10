@@ -218,7 +218,7 @@ public class ServerChunkCache extends ChunkSource {
     ) {
         ChunkPos var0 = new ChunkPos(param0, param1);
         long var1 = var0.toLong();
-        int var2 = 33 + ChunkStatus.getDistance(param2);
+        int var2 = ChunkLevel.byStatus(param2);
         ChunkHolder var3 = this.getVisibleChunkIfPresent(var1);
         if (param3) {
             this.distanceManager.addTicket(TicketType.UNKNOWN, var0, var2, var0);
@@ -244,7 +244,7 @@ public class ServerChunkCache extends ChunkSource {
     @Override
     public boolean hasChunk(int param0, int param1) {
         ChunkHolder var0 = this.getVisibleChunkIfPresent(new ChunkPos(param0, param1).toLong());
-        int var1 = 33 + ChunkStatus.getDistance(ChunkStatus.FULL);
+        int var1 = ChunkLevel.byStatus(ChunkStatus.FULL);
         return !this.chunkAbsent(var0, var1);
     }
 

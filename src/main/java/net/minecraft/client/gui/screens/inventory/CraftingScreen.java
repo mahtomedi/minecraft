@@ -33,7 +33,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
         this.addRenderableWidget(new ImageButton(this.leftPos + 5, this.height / 2 - 49, 20, 18, 0, 0, 19, RECIPE_BUTTON_LOCATION, param0 -> {
             this.recipeBookComponent.toggleVisibility();
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
-            ((ImageButton)param0).setPosition(this.leftPos + 5, this.height / 2 - 49);
+            param0.setPosition(this.leftPos + 5, this.height / 2 - 49);
         }));
         this.addWidget(this.recipeBookComponent);
         this.setInitialFocus(this.recipeBookComponent);

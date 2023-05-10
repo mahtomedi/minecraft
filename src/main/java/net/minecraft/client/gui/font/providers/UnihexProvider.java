@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.font.providers;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.GlyphProvider;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
@@ -11,7 +10,6 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
@@ -33,7 +31,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.FastBufferedInputStream;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -169,24 +167,56 @@ public class UnihexProvider implements GlyphProvider {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static class Builder implements GlyphProviderBuilder {
-        public static final Codec<UnihexProvider.Builder> CODEC = RecordCodecBuilder.create(
+    static record ByteContents(byte[] contents) implements UnihexProvider.LineData {
+        @Override
+        public int line(int param0) {
+            return this.contents[param0] << 24;
+        }
+
+        static UnihexProvider.LineData read(int param0, ByteList param1) {
+            byte[] var0 = new byte[16];
+            int var1 = 0;
+
+            for(int var2 = 0; var2 < 16; ++var2) {
+                int var3 = UnihexProvider.decodeHex(param0, param1, var1++);
+                int var4 = UnihexProvider.decodeHex(param0, param1, var1++);
+                byte var5 = (byte)(var3 << 4 | var4);
+                var0[var2] = var5;
+            }
+
+            return new UnihexProvider.ByteContents(var0);
+        }
+
+        @Override
+        public int bitWidth() {
+            return 8;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static class Definition implements GlyphProviderDefinition {
+        public static final MapCodec<UnihexProvider.Definition> CODEC = RecordCodecBuilder.mapCodec(
             param0 -> param0.group(
                         ResourceLocation.CODEC.fieldOf("hex_file").forGetter(param0x -> param0x.hexFile),
                         UnihexProvider.OverrideRange.CODEC.listOf().fieldOf("size_overrides").forGetter(param0x -> param0x.sizeOverrides)
                     )
-                    .apply(param0, UnihexProvider.Builder::new)
+                    .apply(param0, UnihexProvider.Definition::new)
         );
         private final ResourceLocation hexFile;
         private final List<UnihexProvider.OverrideRange> sizeOverrides;
 
-        private Builder(ResourceLocation param0, List<UnihexProvider.OverrideRange> param1) {
+        private Definition(ResourceLocation param0, List<UnihexProvider.OverrideRange> param1) {
             this.hexFile = param0;
             this.sizeOverrides = param1;
         }
 
         @Override
-        public Either<GlyphProviderBuilder.Loader, GlyphProviderBuilder.Reference> build() {
+        public GlyphProviderType type() {
+            return GlyphProviderType.UNIHEX;
+        }
+
+        @Override
+        public Either<GlyphProviderDefinition.Loader, GlyphProviderDefinition.Reference> unpack() {
             return Either.left(this::load);
         }
 
@@ -243,38 +273,6 @@ public class UnihexProvider implements GlyphProvider {
             }
 
             return var17;
-        }
-
-        public static GlyphProviderBuilder fromJson(JsonObject param0) {
-            return CODEC.parse(JsonOps.INSTANCE, param0).getOrThrow(false, param0x -> {
-            });
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    static record ByteContents(byte[] contents) implements UnihexProvider.LineData {
-        @Override
-        public int line(int param0) {
-            return this.contents[param0] << 24;
-        }
-
-        static UnihexProvider.LineData read(int param0, ByteList param1) {
-            byte[] var0 = new byte[16];
-            int var1 = 0;
-
-            for(int var2 = 0; var2 < 16; ++var2) {
-                int var3 = UnihexProvider.decodeHex(param0, param1, var1++);
-                int var4 = UnihexProvider.decodeHex(param0, param1, var1++);
-                byte var5 = (byte)(var3 << 4 | var4);
-                var0[var2] = var5;
-            }
-
-            return new UnihexProvider.ByteContents(var0);
-        }
-
-        @Override
-        public int bitWidth() {
-            return 8;
         }
     }
 
@@ -347,13 +345,10 @@ public class UnihexProvider implements GlyphProvider {
 
                 @Override
                 public void upload(int param0, int param1) {
-                    try (MemoryStack var0 = MemoryStack.stackPush()) {
-                        IntBuffer var1 = var0.mallocInt(Glyph.this.width() * 16);
-                        UnihexProvider.unpackBitsToBytes(var1, Glyph.this.contents, Glyph.this.left, Glyph.this.right);
-                        var1.rewind();
-                        GlStateManager.upload(0, param0, param1, Glyph.this.width(), 16, NativeImage.Format.RGBA, var1);
-                    }
-
+                    IntBuffer var0 = MemoryUtil.memAllocInt(Glyph.this.width() * 16);
+                    UnihexProvider.unpackBitsToBytes(var0, Glyph.this.contents, Glyph.this.left, Glyph.this.right);
+                    var0.rewind();
+                    GlStateManager.upload(0, param0, param1, Glyph.this.width(), 16, NativeImage.Format.RGBA, var0, MemoryUtil::memFree);
                 }
 
                 @Override

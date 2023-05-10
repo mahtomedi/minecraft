@@ -19,7 +19,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         return ID;
     }
 
-    public BeeNestDestroyedTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public BeeNestDestroyedTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
         ItemPredicate var1 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(param0.get("num_bees_inside"));
@@ -46,7 +46,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         private final ItemPredicate item;
         private final MinMaxBounds.Ints numBees;
 
-        public TriggerInstance(EntityPredicate.Composite param0, @Nullable Block param1, ItemPredicate param2, MinMaxBounds.Ints param3) {
+        public TriggerInstance(ContextAwarePredicate param0, @Nullable Block param1, ItemPredicate param2, MinMaxBounds.Ints param3) {
             super(BeeNestDestroyedTrigger.ID, param0);
             this.block = param1;
             this.item = param2;
@@ -54,7 +54,7 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         }
 
         public static BeeNestDestroyedTrigger.TriggerInstance destroyedBeeNest(Block param0, ItemPredicate.Builder param1, MinMaxBounds.Ints param2) {
-            return new BeeNestDestroyedTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0, param1.build(), param2);
+            return new BeeNestDestroyedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, param1.build(), param2);
         }
 
         public boolean matches(BlockState param0, ItemStack param1, int param2) {

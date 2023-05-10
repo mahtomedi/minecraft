@@ -51,7 +51,7 @@ public class DesertPyramidStructure extends SinglePieceStructure {
             if (var5 > 0) {
                 --var5;
                 placeSuspiciousSand(param4, param0, var6);
-            } else {
+            } else if (param4.isInside(var6)) {
                 param0.setBlock(var6, Blocks.SAND.defaultBlockState(), 2);
             }
         }

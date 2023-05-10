@@ -40,7 +40,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -155,12 +155,12 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+    public List<ItemStack> getDrops(BlockState param0, LootParams.Builder param1) {
         BlockEntity var0 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (var0 instanceof ShulkerBoxBlockEntity var1) {
-            param1 = param1.withDynamicDrop(CONTENTS, (param1x, param2) -> {
+            param1 = param1.withDynamicDrop(CONTENTS, param1x -> {
                 for(int var0x = 0; var0x < var1.getContainerSize(); ++var0x) {
-                    param2.accept(var1.getItem(var0x));
+                    param1x.accept(var1.getItem(var0x));
                 }
 
             });

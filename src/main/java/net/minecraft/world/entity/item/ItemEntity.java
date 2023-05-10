@@ -132,7 +132,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
                 this.move(MoverType.SELF, this.getDeltaMovement());
                 float var2 = 0.98F;
                 if (this.onGround()) {
-                    var2 = this.level().getBlockState(BlockPos.containing(this.getX(), this.getY() - 1.0, this.getZ())).getBlock().getFriction() * 0.98F;
+                    var2 = this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getBlock().getFriction() * 0.98F;
                 }
 
                 this.setDeltaMovement(this.getDeltaMovement().multiply((double)var2, 0.98, (double)var2));
@@ -169,6 +169,11 @@ public class ItemEntity extends Entity implements TraceableEntity {
             }
 
         }
+    }
+
+    @Override
+    protected BlockPos getBlockPosBelowThatAffectsMyMovement() {
+        return this.getOnPos(0.999999F);
     }
 
     private void setUnderwaterMovement() {

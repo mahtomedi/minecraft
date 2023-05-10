@@ -144,124 +144,131 @@ public abstract class PlayerList {
     public void placeNewPlayer(Connection param0, ServerPlayer param1) {
         GameProfile var0 = param1.getGameProfile();
         GameProfileCache var1 = this.server.getProfileCache();
-        Optional<GameProfile> var2 = var1.get(var0.getId());
-        String var3 = var2.map(GameProfile::getName).orElse(var0.getName());
-        var1.add(var0);
-        CompoundTag var4 = this.load(param1);
-        ResourceKey<Level> var5 = var4 != null
-            ? DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, var4.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(Level.OVERWORLD)
-            : Level.OVERWORLD;
-        ServerLevel var6 = this.server.getLevel(var5);
-        ServerLevel var7;
-        if (var6 == null) {
-            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", var5);
-            var7 = this.server.overworld();
+        String var3;
+        if (var1 != null) {
+            Optional<GameProfile> var2 = var1.get(var0.getId());
+            var3 = var2.map(GameProfile::getName).orElse(var0.getName());
+            var1.add(var0);
         } else {
-            var7 = var6;
+            var3 = var0.getName();
         }
 
-        param1.setServerLevel(var7);
-        String var9 = "local";
+        CompoundTag var5 = this.load(param1);
+        ResourceKey<Level> var6 = var5 != null
+            ? DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, var5.get("Dimension"))).resultOrPartial(LOGGER::error).orElse(Level.OVERWORLD)
+            : Level.OVERWORLD;
+        ServerLevel var7 = this.server.getLevel(var6);
+        ServerLevel var8;
+        if (var7 == null) {
+            LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", var6);
+            var8 = this.server.overworld();
+        } else {
+            var8 = var7;
+        }
+
+        param1.setServerLevel(var8);
+        String var10 = "local";
         if (param0.getRemoteAddress() != null) {
-            var9 = param0.getRemoteAddress().toString();
+            var10 = param0.getRemoteAddress().toString();
         }
 
         LOGGER.info(
             "{}[{}] logged in with entity id {} at ({}, {}, {})",
             param1.getName().getString(),
-            var9,
+            var10,
             param1.getId(),
             param1.getX(),
             param1.getY(),
             param1.getZ()
         );
-        LevelData var10 = var7.getLevelData();
-        param1.loadGameTypes(var4);
-        ServerGamePacketListenerImpl var11 = new ServerGamePacketListenerImpl(this.server, param0, param1);
-        GameRules var12 = var7.getGameRules();
-        boolean var13 = var12.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
-        boolean var14 = var12.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
-        var11.send(
+        LevelData var11 = var8.getLevelData();
+        param1.loadGameTypes(var5);
+        ServerGamePacketListenerImpl var12 = new ServerGamePacketListenerImpl(this.server, param0, param1);
+        GameRules var13 = var8.getGameRules();
+        boolean var14 = var13.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
+        boolean var15 = var13.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
+        var12.send(
             new ClientboundLoginPacket(
                 param1.getId(),
-                var10.isHardcore(),
+                var11.isHardcore(),
                 param1.gameMode.getGameModeForPlayer(),
                 param1.gameMode.getPreviousGameModeForPlayer(),
                 this.server.levelKeys(),
                 this.synchronizedRegistries,
-                var7.dimensionTypeId(),
-                var7.dimension(),
-                BiomeManager.obfuscateSeed(var7.getSeed()),
+                var8.dimensionTypeId(),
+                var8.dimension(),
+                BiomeManager.obfuscateSeed(var8.getSeed()),
                 this.getMaxPlayers(),
                 this.viewDistance,
                 this.simulationDistance,
-                var14,
-                !var13,
-                var7.isDebug(),
-                var7.isFlat(),
-                param1.getLastDeathLocation()
+                var15,
+                !var14,
+                var8.isDebug(),
+                var8.isFlat(),
+                param1.getLastDeathLocation(),
+                param1.getPortalCooldown()
             )
         );
-        var11.send(new ClientboundUpdateEnabledFeaturesPacket(FeatureFlags.REGISTRY.toNames(var7.enabledFeatures())));
-        var11.send(
+        var12.send(new ClientboundUpdateEnabledFeaturesPacket(FeatureFlags.REGISTRY.toNames(var8.enabledFeatures())));
+        var12.send(
             new ClientboundCustomPayloadPacket(
                 ClientboundCustomPayloadPacket.BRAND, new FriendlyByteBuf(Unpooled.buffer()).writeUtf(this.getServer().getServerModName())
             )
         );
-        var11.send(new ClientboundChangeDifficultyPacket(var10.getDifficulty(), var10.isDifficultyLocked()));
-        var11.send(new ClientboundPlayerAbilitiesPacket(param1.getAbilities()));
-        var11.send(new ClientboundSetCarriedItemPacket(param1.getInventory().selected));
-        var11.send(new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
-        var11.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(this.registries)));
+        var12.send(new ClientboundChangeDifficultyPacket(var11.getDifficulty(), var11.isDifficultyLocked()));
+        var12.send(new ClientboundPlayerAbilitiesPacket(param1.getAbilities()));
+        var12.send(new ClientboundSetCarriedItemPacket(param1.getInventory().selected));
+        var12.send(new ClientboundUpdateRecipesPacket(this.server.getRecipeManager().getRecipes()));
+        var12.send(new ClientboundUpdateTagsPacket(TagNetworkSerialization.serializeTagsToNetwork(this.registries)));
         this.sendPlayerPermissionLevel(param1);
         param1.getStats().markAllDirty();
         param1.getRecipeBook().sendInitialRecipeBook(param1);
-        this.updateEntireScoreboard(var7.getScoreboard(), param1);
+        this.updateEntireScoreboard(var8.getScoreboard(), param1);
         this.server.invalidateStatus();
-        MutableComponent var15;
+        MutableComponent var16;
         if (param1.getGameProfile().getName().equalsIgnoreCase(var3)) {
-            var15 = Component.translatable("multiplayer.player.joined", param1.getDisplayName());
+            var16 = Component.translatable("multiplayer.player.joined", param1.getDisplayName());
         } else {
-            var15 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
+            var16 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
         }
 
-        this.broadcastSystemMessage(var15.withStyle(ChatFormatting.YELLOW), false);
-        var11.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
-        ServerStatus var17 = this.server.getStatus();
-        if (var17 != null) {
-            param1.sendServerStatus(var17);
+        this.broadcastSystemMessage(var16.withStyle(ChatFormatting.YELLOW), false);
+        var12.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
+        ServerStatus var18 = this.server.getStatus();
+        if (var18 != null) {
+            param1.sendServerStatus(var18);
         }
 
         param1.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players));
         this.players.add(param1);
         this.playersByUUID.put(param1.getUUID(), param1);
         this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(param1)));
-        this.sendLevelInfo(param1, var7);
-        var7.addNewPlayer(param1);
+        this.sendLevelInfo(param1, var8);
+        var8.addNewPlayer(param1);
         this.server.getCustomBossEvents().onPlayerConnect(param1);
         this.server.getServerResourcePack().ifPresent(param1x -> param1.sendTexturePack(param1x.url(), param1x.hash(), param1x.isRequired(), param1x.prompt()));
 
-        for(MobEffectInstance var18 : param1.getActiveEffects()) {
-            var11.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var18));
+        for(MobEffectInstance var19 : param1.getActiveEffects()) {
+            var12.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var19));
         }
 
-        if (var4 != null && var4.contains("RootVehicle", 10)) {
-            CompoundTag var19 = var4.getCompound("RootVehicle");
-            Entity var20 = EntityType.loadEntityRecursive(var19.getCompound("Entity"), var7, param1x -> !var7.addWithUUID(param1x) ? null : param1x);
-            if (var20 != null) {
-                UUID var21;
-                if (var19.hasUUID("Attach")) {
-                    var21 = var19.getUUID("Attach");
+        if (var5 != null && var5.contains("RootVehicle", 10)) {
+            CompoundTag var20 = var5.getCompound("RootVehicle");
+            Entity var21 = EntityType.loadEntityRecursive(var20.getCompound("Entity"), var8, param1x -> !var8.addWithUUID(param1x) ? null : param1x);
+            if (var21 != null) {
+                UUID var22;
+                if (var20.hasUUID("Attach")) {
+                    var22 = var20.getUUID("Attach");
                 } else {
-                    var21 = null;
+                    var22 = null;
                 }
 
-                if (var20.getUUID().equals(var21)) {
-                    param1.startRiding(var20, true);
+                if (var21.getUUID().equals(var22)) {
+                    param1.startRiding(var21, true);
                 } else {
-                    for(Entity var23 : var20.getIndirectPassengers()) {
-                        if (var23.getUUID().equals(var21)) {
-                            param1.startRiding(var23, true);
+                    for(Entity var24 : var21.getIndirectPassengers()) {
+                        if (var24.getUUID().equals(var22)) {
+                            param1.startRiding(var24, true);
                             break;
                         }
                     }
@@ -269,10 +276,10 @@ public abstract class PlayerList {
 
                 if (!param1.isPassenger()) {
                     LOGGER.warn("Couldn't reattach entity to player");
-                    var20.discard();
+                    var21.discard();
 
-                    for(Entity var24 : var20.getIndirectPassengers()) {
-                        var24.discard();
+                    for(Entity var25 : var21.getIndirectPassengers()) {
+                        var25.discard();
                     }
                 }
             }
@@ -508,7 +515,8 @@ public abstract class PlayerList {
                     var7.level().isDebug(),
                     var7.serverLevel().isFlat(),
                     var16,
-                    var7.getLastDeathLocation()
+                    var7.getLastDeathLocation(),
+                    var7.getPortalCooldown()
                 )
             );
         var7.connection.teleport(var7.getX(), var7.getY(), var7.getZ(), var7.getYRot(), var7.getXRot());

@@ -35,7 +35,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     private static final ResourceLocation EXPIRES_SOON_ICON_LOCATION = new ResourceLocation("realms", "textures/gui/realms/expires_soon_icon.png");
     private static final Component WORLD_LIST_TITLE = Component.translatable("mco.configure.worlds.title");
     private static final Component TITLE = Component.translatable("mco.configure.world.title");
-    private static final Component MINIGAME_PREFIX = Component.translatable("mco.configure.current.minigame").append(": ");
     private static final Component SERVER_EXPIRED_TOOLTIP = Component.translatable("mco.selectServer.expired");
     private static final Component SERVER_EXPIRING_SOON_TOOLTIP = Component.translatable("mco.selectServer.expires.soon");
     private static final Component SERVER_EXPIRING_IN_DAY_TOOLTIP = Component.translatable("mco.selectServer.expires.day");
@@ -249,7 +248,12 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
             this.drawServerStatus(param0, var4, 7, param1, param2);
             if (this.isMinigame()) {
                 param0.drawString(
-                    this.font, MINIGAME_PREFIX.copy().append(this.serverData.getMinigameName()), this.leftX + 80 + 20 + 10, row(13), 16777215, false
+                    this.font,
+                    Component.translatable("mco.configure.world.minigame", this.serverData.getMinigameName()),
+                    this.leftX + 80 + 20 + 10,
+                    row(13),
+                    16777215,
+                    false
                 );
             }
 
@@ -354,7 +358,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                         }
             
                     },
-                    RealmsLongConfirmationScreen.Type.Info,
+                    RealmsLongConfirmationScreen.Type.INFO,
                     var0,
                     var1,
                     true
@@ -388,7 +392,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                         }
             
                     },
-                    RealmsLongConfirmationScreen.Type.Info,
+                    RealmsLongConfirmationScreen.Type.INFO,
                     var0,
                     var1,
                     true

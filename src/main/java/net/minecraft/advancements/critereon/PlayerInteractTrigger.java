@@ -15,9 +15,9 @@ public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteract
         return ID;
     }
 
-    protected PlayerInteractTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    protected PlayerInteractTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
-        EntityPredicate.Composite var1 = EntityPredicate.Composite.fromJson(param0, "entity", param2);
+        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "entity", param2);
         return new PlayerInteractTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -28,22 +28,22 @@ public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteract
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ItemPredicate item;
-        private final EntityPredicate.Composite entity;
+        private final ContextAwarePredicate entity;
 
-        public TriggerInstance(EntityPredicate.Composite param0, ItemPredicate param1, EntityPredicate.Composite param2) {
+        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1, ContextAwarePredicate param2) {
             super(PlayerInteractTrigger.ID, param0);
             this.item = param1;
             this.entity = param2;
         }
 
         public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(
-            EntityPredicate.Composite param0, ItemPredicate.Builder param1, EntityPredicate.Composite param2
+            ContextAwarePredicate param0, ItemPredicate.Builder param1, ContextAwarePredicate param2
         ) {
             return new PlayerInteractTrigger.TriggerInstance(param0, param1.build(), param2);
         }
 
-        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(ItemPredicate.Builder param0, EntityPredicate.Composite param1) {
-            return itemUsedOnEntity(EntityPredicate.Composite.ANY, param0, param1);
+        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(ItemPredicate.Builder param0, ContextAwarePredicate param1) {
+            return itemUsedOnEntity(ContextAwarePredicate.ANY, param0, param1);
         }
 
         public boolean matches(ItemStack param0, LootContext param1) {

@@ -1100,6 +1100,7 @@ public class CreativeModeTabs {
                     param1.accept(Items.CHISELED_BOOKSHELF);
                     param1.accept(Items.FURNACE);
                     param1.accept(Items.TRAPPED_CHEST);
+                    param1.accept(Items.JUKEBOX);
                     param1.accept(Items.OBSERVER);
                     param1.accept(Items.NOTE_BLOCK);
                     param1.accept(Items.COMPOSTER);

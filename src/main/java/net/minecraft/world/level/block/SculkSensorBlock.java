@@ -84,6 +84,9 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         if (getPhase(param0) != SculkSensorPhase.ACTIVE) {
             if (getPhase(param0) == SculkSensorPhase.COOLDOWN) {
                 param1.setBlock(param2, param0.setValue(PHASE, SculkSensorPhase.INACTIVE), 3);
+                if (!param0.getValue(WATERLOGGED)) {
+                    param1.playSound(null, param2, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param1.random.nextFloat() * 0.2F + 0.8F);
+                }
             }
 
         } else {
@@ -195,10 +198,6 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
     public static void deactivate(Level param0, BlockPos param1, BlockState param2) {
         param0.setBlock(param1, param2.setValue(PHASE, SculkSensorPhase.COOLDOWN).setValue(POWER, Integer.valueOf(0)), 3);
         param0.scheduleTick(param1, param2.getBlock(), 10);
-        if (!param2.getValue(WATERLOGGED)) {
-            param0.playSound(null, param1, SoundEvents.SCULK_CLICKING_STOP, SoundSource.BLOCKS, 1.0F, param0.random.nextFloat() * 0.2F + 0.8F);
-        }
-
         updateNeighbours(param0, param1, param2);
     }
 

@@ -76,7 +76,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
     private void findItemsToDisplay(LivingEntity param0, Villager param1) {
         boolean var0 = false;
         ItemStack var1 = param0.getMainHandItem();
-        if (this.playerItemStack == null || !ItemStack.isSame(this.playerItemStack, var1)) {
+        if (this.playerItemStack == null || !ItemStack.isSameItem(this.playerItemStack, var1)) {
             this.playerItemStack = var1;
             var0 = true;
             this.displayItems.clear();
@@ -106,7 +106,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
     }
 
     private boolean playerItemStackMatchesCostOfOffer(MerchantOffer param0) {
-        return ItemStack.isSame(this.playerItemStack, param0.getCostA()) || ItemStack.isSame(this.playerItemStack, param0.getCostB());
+        return ItemStack.isSameItem(this.playerItemStack, param0.getCostA()) || ItemStack.isSameItem(this.playerItemStack, param0.getCostB());
     }
 
     private static void clearHeldItem(Villager param0) {

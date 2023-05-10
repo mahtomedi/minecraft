@@ -13,6 +13,7 @@ import org.joml.Matrix4f;
 
 @OnlyIn(Dist.CLIENT)
 public class VertexBuffer implements AutoCloseable {
+    private final VertexBuffer.Usage usage;
     private int vertexBufferId;
     private int indexBufferId;
     private int arrayObjectId;
@@ -24,7 +25,8 @@ public class VertexBuffer implements AutoCloseable {
     private int indexCount;
     private VertexFormat.Mode mode;
 
-    public VertexBuffer() {
+    public VertexBuffer(VertexBuffer.Usage param0) {
+        this.usage = param0;
         RenderSystem.assertOnRenderThread();
         this.vertexBufferId = GlStateManager._glGenBuffers();
         this.indexBufferId = GlStateManager._glGenBuffers();
@@ -66,7 +68,7 @@ public class VertexBuffer implements AutoCloseable {
                 GlStateManager._glBindBuffer(34962, this.vertexBufferId);
             }
 
-            RenderSystem.glBufferData(34962, param1, 35044);
+            RenderSystem.glBufferData(34962, param1, this.usage.id);
         }
 
         return param0.format();
@@ -76,7 +78,7 @@ public class VertexBuffer implements AutoCloseable {
     private RenderSystem.AutoStorageIndexBuffer uploadIndexBuffer(BufferBuilder.DrawState param0, ByteBuffer param1) {
         if (!param0.sequentialIndex()) {
             GlStateManager._glBindBuffer(34963, this.indexBufferId);
-            RenderSystem.glBufferData(34963, param1, 35044);
+            RenderSystem.glBufferData(34963, param1, this.usage.id);
             return null;
         } else {
             RenderSystem.AutoStorageIndexBuffer var0 = RenderSystem.getSequentialBuffer(param0.mode());
@@ -206,5 +208,17 @@ public class VertexBuffer implements AutoCloseable {
 
     public boolean isInvalid() {
         return this.arrayObjectId == -1;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum Usage {
+        STATIC(35044),
+        DYNAMIC(35048);
+
+        final int id;
+
+        private Usage(int param0) {
+            this.id = param0;
+        }
     }
 }

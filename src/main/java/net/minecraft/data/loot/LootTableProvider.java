@@ -40,6 +40,7 @@ public class LootTableProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput param0) {
         final Map<ResourceLocation, LootTable> var0 = Maps.newHashMap();
         this.subProviders.forEach(param1 -> param1.provider().get().generate((param2, param3) -> {
+                param3.setRandomSequence(param2);
                 if (var0.put(param2, param3.setParamSet(param1.paramSet).build()) != null) {
                     throw new IllegalStateException("Duplicate loot table " + param2);
                 }

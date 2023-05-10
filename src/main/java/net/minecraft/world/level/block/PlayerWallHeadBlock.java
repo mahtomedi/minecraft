@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 
 public class PlayerWallHeadBlock extends WallSkullBlock {
     protected PlayerWallHeadBlock(BlockBehaviour.Properties param0) {
@@ -21,7 +21,7 @@ public class PlayerWallHeadBlock extends WallSkullBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+    public List<ItemStack> getDrops(BlockState param0, LootParams.Builder param1) {
         return Blocks.PLAYER_HEAD.getDrops(param0, param1);
     }
 }

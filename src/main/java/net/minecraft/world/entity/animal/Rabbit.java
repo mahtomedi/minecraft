@@ -107,19 +107,24 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
 
     @Override
     protected float getJumpPower() {
-        if (!this.horizontalCollision && (!this.moveControl.hasWanted() || !(this.moveControl.getWantedY() > this.getY() + 0.5))) {
-            Path var0 = this.navigation.getPath();
-            if (var0 != null && !var0.isDone()) {
-                Vec3 var1 = var0.getNextEntityPos(this);
-                if (var1.y > this.getY() + 0.5) {
-                    return 0.5F;
-                }
-            }
-
-            return this.moveControl.getSpeedModifier() <= 0.6 ? 0.2F : 0.3F;
-        } else {
-            return 0.5F;
+        float var0 = 0.3F;
+        if (this.horizontalCollision || this.moveControl.hasWanted() && this.moveControl.getWantedY() > this.getY() + 0.5) {
+            var0 = 0.5F;
         }
+
+        Path var1 = this.navigation.getPath();
+        if (var1 != null && !var1.isDone()) {
+            Vec3 var2 = var1.getNextEntityPos(this);
+            if (var2.y > this.getY() + 0.5) {
+                var0 = 0.5F;
+            }
+        }
+
+        if (this.moveControl.getSpeedModifier() <= 0.6) {
+            var0 = 0.2F;
+        }
+
+        return var0 + this.getJumpBoostPower();
     }
 
     @Override

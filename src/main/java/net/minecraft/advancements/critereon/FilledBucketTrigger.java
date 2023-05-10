@@ -13,7 +13,7 @@ public class FilledBucketTrigger extends SimpleCriterionTrigger<FilledBucketTrig
         return ID;
     }
 
-    public FilledBucketTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public FilledBucketTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
         return new FilledBucketTrigger.TriggerInstance(param1, var0);
     }
@@ -25,13 +25,13 @@ public class FilledBucketTrigger extends SimpleCriterionTrigger<FilledBucketTrig
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ItemPredicate item;
 
-        public TriggerInstance(EntityPredicate.Composite param0, ItemPredicate param1) {
+        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1) {
             super(FilledBucketTrigger.ID, param0);
             this.item = param1;
         }
 
         public static FilledBucketTrigger.TriggerInstance filledBucket(ItemPredicate param0) {
-            return new FilledBucketTrigger.TriggerInstance(EntityPredicate.Composite.ANY, param0);
+            return new FilledBucketTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
         }
 
         public boolean matches(ItemStack param0) {

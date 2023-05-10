@@ -107,7 +107,7 @@ public abstract class StateHolder<O, S> {
         Comparable<?> var0 = this.values.get(param0);
         if (var0 == null) {
             throw new IllegalArgumentException("Cannot set property " + param0 + " as it does not exist in " + this.owner);
-        } else if (var0 == param1) {
+        } else if (var0.equals(param1)) {
             return (S)this;
         } else {
             S var1 = this.neighbours.get(param0, param1);
@@ -121,7 +121,7 @@ public abstract class StateHolder<O, S> {
 
     public <T extends Comparable<T>, V extends T> S trySetValue(Property<T> param0, V param1) {
         Comparable<?> var0 = this.values.get(param0);
-        if (var0 != null && var0 != param1) {
+        if (var0 != null && !var0.equals(param1)) {
             S var1 = this.neighbours.get(param0, param1);
             if (var1 == null) {
                 throw new IllegalArgumentException("Cannot set property " + param0 + " to " + param1 + " on " + this.owner + ", it is not an allowed value");
@@ -143,7 +143,7 @@ public abstract class StateHolder<O, S> {
                 Property<?> var2 = var1.getKey();
 
                 for(Comparable<?> var3 : var2.getPossibleValues()) {
-                    if (var3 != var1.getValue()) {
+                    if (!var3.equals(var1.getValue())) {
                         var0.put(var2, var3, param0.get(this.makeNeighbourValues(var2, var3)));
                     }
                 }

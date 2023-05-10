@@ -13,7 +13,7 @@ public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurability
         return ID;
     }
 
-    public ItemDurabilityTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public ItemDurabilityTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("durability"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(param0.get("delta"));
@@ -29,7 +29,7 @@ public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurability
         private final MinMaxBounds.Ints durability;
         private final MinMaxBounds.Ints delta;
 
-        public TriggerInstance(EntityPredicate.Composite param0, ItemPredicate param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3) {
+        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3) {
             super(ItemDurabilityTrigger.ID, param0);
             this.item = param1;
             this.durability = param2;
@@ -37,10 +37,10 @@ public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurability
         }
 
         public static ItemDurabilityTrigger.TriggerInstance changedDurability(ItemPredicate param0, MinMaxBounds.Ints param1) {
-            return changedDurability(EntityPredicate.Composite.ANY, param0, param1);
+            return changedDurability(ContextAwarePredicate.ANY, param0, param1);
         }
 
-        public static ItemDurabilityTrigger.TriggerInstance changedDurability(EntityPredicate.Composite param0, ItemPredicate param1, MinMaxBounds.Ints param2) {
+        public static ItemDurabilityTrigger.TriggerInstance changedDurability(ContextAwarePredicate param0, ItemPredicate param1, MinMaxBounds.Ints param2) {
             return new ItemDurabilityTrigger.TriggerInstance(param0, param1, param2, MinMaxBounds.Ints.ANY);
         }
 

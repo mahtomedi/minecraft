@@ -10,6 +10,7 @@ import net.minecraft.advancements.AdvancementList;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.AdvancementToast;
+import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.network.protocol.game.ClientboundUpdateAdvancementsPacket;
 import net.minecraft.network.protocol.game.ServerboundSeenAdvancementsPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 public class ClientAdvancements {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Minecraft minecraft;
+    private final WorldSessionTelemetryManager telemetryManager;
     private final AdvancementList advancements = new AdvancementList();
     private final Map<Advancement, AdvancementProgress> progress = Maps.newHashMap();
     @Nullable
@@ -28,8 +30,9 @@ public class ClientAdvancements {
     @Nullable
     private Advancement selectedTab;
 
-    public ClientAdvancements(Minecraft param0) {
+    public ClientAdvancements(Minecraft param0, WorldSessionTelemetryManager param1) {
         this.minecraft = param0;
+        this.telemetryManager = param1;
     }
 
     public void update(ClientboundUpdateAdvancementsPacket param0) {
@@ -51,8 +54,14 @@ public class ClientAdvancements {
                     this.listener.onUpdateAdvancementProgress(var1, var2);
                 }
 
-                if (!param0.shouldReset() && var2.isDone() && var1.getDisplay() != null && var1.getDisplay().shouldShowToast()) {
-                    this.minecraft.getToasts().addToast(new AdvancementToast(var1));
+                if (!param0.shouldReset() && var2.isDone()) {
+                    if (this.minecraft.level != null) {
+                        this.telemetryManager.onAdvancementDone(this.minecraft.level, var1);
+                    }
+
+                    if (var1.getDisplay() != null && var1.getDisplay().shouldShowToast()) {
+                        this.minecraft.getToasts().addToast(new AdvancementToast(var1));
+                    }
                 }
             } else {
                 LOGGER.warn("Server informed client about progress for unknown advancement {}", var0.getKey());

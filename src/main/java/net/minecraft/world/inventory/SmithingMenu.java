@@ -41,20 +41,8 @@ public class SmithingMenu extends ItemCombinerMenu {
     protected ItemCombinerMenuSlotDefinition createInputSlotDefinitions() {
         return ItemCombinerMenuSlotDefinition.create()
             .withSlot(0, 8, 48, param0 -> this.recipes.stream().anyMatch(param1 -> param1.isTemplateIngredient(param0)))
-            .withSlot(
-                1,
-                26,
-                48,
-                param0 -> this.recipes.stream().anyMatch(param1 -> param1.isBaseIngredient(param0) && param1.isTemplateIngredient(this.slots.get(0).getItem()))
-            )
-            .withSlot(
-                2,
-                44,
-                48,
-                param0 -> this.recipes
-                        .stream()
-                        .anyMatch(param1 -> param1.isAdditionIngredient(param0) && param1.isTemplateIngredient(this.slots.get(0).getItem()))
-            )
+            .withSlot(1, 26, 48, param0 -> this.recipes.stream().anyMatch(param1 -> param1.isBaseIngredient(param0)))
+            .withSlot(2, 44, 48, param0 -> this.recipes.stream().anyMatch(param1 -> param1.isAdditionIngredient(param0)))
             .withResultSlot(3, 98, 48)
             .build();
     }

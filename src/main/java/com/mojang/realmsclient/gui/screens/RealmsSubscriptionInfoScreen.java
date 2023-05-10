@@ -18,7 +18,6 @@ import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.realms.RealmsScreen;
 import net.minecraft.util.CommonLinks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -34,10 +33,6 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     private static final Component DAYS_LEFT_LABEL = Component.translatable("mco.configure.world.subscription.recurring.daysleft");
     private static final Component SUBSCRIPTION_EXPIRED_TEXT = Component.translatable("mco.configure.world.subscription.expired");
     private static final Component SUBSCRIPTION_LESS_THAN_A_DAY_TEXT = Component.translatable("mco.configure.world.subscription.less_than_a_day");
-    private static final Component MONTH_SUFFIX = Component.translatable("mco.configure.world.subscription.month");
-    private static final Component MONTHS_SUFFIX = Component.translatable("mco.configure.world.subscription.months");
-    private static final Component DAY_SUFFIX = Component.translatable("mco.configure.world.subscription.day");
-    private static final Component DAYS_SUFFIX = Component.translatable("mco.configure.world.subscription.days");
     private static final Component UNKNOWN = Component.translatable("mco.configure.world.subscription.unknown");
     private static final Component RECURRING_INFO = Component.translatable("mco.configure.world.subscription.recurring.info");
     private final Screen lastScreen;
@@ -72,7 +67,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.delete.button"), param0 -> {
                 Component var0 = Component.translatable("mco.configure.world.delete.question.line1");
                 Component var1 = Component.translatable("mco.configure.world.delete.question.line2");
-                this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.Warning, var0, var1, true));
+                this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.WARNING, var0, var1, true));
             }).bounds(this.width / 2 - 100, row(10), 200, 20).build());
         } else {
             this.addRenderableWidget(new MultiLineTextWidget(this.width / 2 - 100, row(8), RECURRING_INFO, this.font).setColor(10526880).setMaxWidth(200));
@@ -163,30 +158,15 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
         } else {
             int var0 = param0 / 30;
             int var1 = param0 % 30;
-            MutableComponent var2 = Component.empty();
-            if (var0 > 0) {
-                var2.append(Integer.toString(var0)).append(CommonComponents.SPACE);
-                if (var0 == 1) {
-                    var2.append(MONTH_SUFFIX);
-                } else {
-                    var2.append(MONTHS_SUFFIX);
-                }
+            boolean var2 = var0 > 0;
+            boolean var3 = var1 > 0;
+            if (var2 && var3) {
+                return Component.translatable("mco.configure.world.subscription.remaining.months.days", var0, var1);
+            } else if (var2) {
+                return Component.translatable("mco.configure.world.subscription.remaining.months", var0);
+            } else {
+                return var3 ? Component.translatable("mco.configure.world.subscription.remaining.days", var1) : Component.empty();
             }
-
-            if (var1 > 0) {
-                if (var0 > 0) {
-                    var2.append(", ");
-                }
-
-                var2.append(Integer.toString(var1)).append(CommonComponents.SPACE);
-                if (var1 == 1) {
-                    var2.append(DAY_SUFFIX);
-                } else {
-                    var2.append(DAYS_SUFFIX);
-                }
-            }
-
-            return var2;
         }
     }
 }

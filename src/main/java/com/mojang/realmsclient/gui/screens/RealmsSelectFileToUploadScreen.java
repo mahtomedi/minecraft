@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Component UNABLE_TO_LOAD_WORLD = Component.translatable("selectWorld.unable_to_load");
     static final Component WORLD_TEXT = Component.translatable("selectWorld.world");
     static final Component HARDCORE_TEXT = Component.translatable("mco.upload.hardcore").withStyle(param0 -> param0.withColor(-65536));
     static final Component CHEATS_TEXT = Component.translatable("selectWorld.cheats");
@@ -70,8 +71,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             this.loadLevelList();
         } catch (Exception var2) {
             LOGGER.error("Couldn't load level list", (Throwable)var2);
-            this.minecraft
-                .setScreen(new RealmsGenericErrorScreen(Component.literal("Unable to load worlds"), Component.nullToEmpty(var2.getMessage()), this.lastScreen));
+            this.minecraft.setScreen(new RealmsGenericErrorScreen(UNABLE_TO_LOAD_WORLD, Component.nullToEmpty(var2.getMessage()), this.lastScreen));
             return;
         }
 
@@ -137,13 +137,13 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     class Entry extends ObjectSelectionList.Entry<RealmsSelectFileToUploadScreen.Entry> {
         private final LevelSummary levelSummary;
         private final String name;
-        private final String id;
+        private final Component id;
         private final Component info;
 
         public Entry(LevelSummary param0) {
             this.levelSummary = param0;
             this.name = param0.getLevelName();
-            this.id = param0.getLevelId() + " (" + RealmsSelectFileToUploadScreen.formatLastPlayed(param0) + ")";
+            this.id = Component.translatable("mco.upload.entry.id", param0.getLevelId(), RealmsSelectFileToUploadScreen.formatLastPlayed(param0));
             Component param1;
             if (param0.isHardcore()) {
                 param1 = RealmsSelectFileToUploadScreen.HARDCORE_TEXT;
@@ -152,7 +152,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
             }
 
             if (param0.hasCheats()) {
-                param1 = param1.copy().append(", ").append(RealmsSelectFileToUploadScreen.CHEATS_TEXT);
+                param1 = Component.translatable("mco.upload.entry.cheats", param1.getString(), RealmsSelectFileToUploadScreen.CHEATS_TEXT);
             }
 
             this.info = param1;

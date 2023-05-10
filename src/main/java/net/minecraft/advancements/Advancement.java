@@ -37,6 +37,7 @@ public class Advancement {
     private final String[][] requirements;
     private final Set<Advancement> children = Sets.newLinkedHashSet();
     private final Component chatComponent;
+    private final boolean sendsTelemetryEvent;
 
     public Advancement(
         ResourceLocation param0,
@@ -44,7 +45,8 @@ public class Advancement {
         @Nullable DisplayInfo param2,
         AdvancementRewards param3,
         Map<String, Criterion> param4,
-        String[][] param5
+        String[][] param5,
+        boolean param6
     ) {
         this.id = param0;
         this.display = param2;
@@ -52,6 +54,7 @@ public class Advancement {
         this.parent = param1;
         this.rewards = param3;
         this.requirements = param5;
+        this.sendsTelemetryEvent = param6;
         if (param1 != null) {
             param1.addChild(this);
         }
@@ -69,7 +72,9 @@ public class Advancement {
     }
 
     public Advancement.Builder deconstruct() {
-        return new Advancement.Builder(this.parent == null ? null : this.parent.getId(), this.display, this.rewards, this.criteria, this.requirements);
+        return new Advancement.Builder(
+            this.parent == null ? null : this.parent.getId(), this.display, this.rewards, this.criteria, this.requirements, this.sendsTelemetryEvent
+        );
     }
 
     @Nullable
@@ -99,6 +104,10 @@ public class Advancement {
         return this.display;
     }
 
+    public boolean sendsTelemetryEvent() {
+        return this.sendsTelemetryEvent;
+    }
+
     public AdvancementRewards getRewards() {
         return this.rewards;
     }
@@ -117,6 +126,8 @@ public class Advancement {
             + this.criteria
             + ", requirements="
             + Arrays.deepToString(this.requirements)
+            + ", sendsTelemetryEvent="
+            + this.sendsTelemetryEvent
             + "}";
     }
 
@@ -177,20 +188,34 @@ public class Advancement {
         @Nullable
         private String[][] requirements;
         private RequirementsStrategy requirementsStrategy = RequirementsStrategy.AND;
+        private final boolean sendsTelemetryEvent;
 
-        Builder(@Nullable ResourceLocation param0, @Nullable DisplayInfo param1, AdvancementRewards param2, Map<String, Criterion> param3, String[][] param4) {
+        Builder(
+            @Nullable ResourceLocation param0,
+            @Nullable DisplayInfo param1,
+            AdvancementRewards param2,
+            Map<String, Criterion> param3,
+            String[][] param4,
+            boolean param5
+        ) {
             this.parentId = param0;
             this.display = param1;
             this.rewards = param2;
             this.criteria = param3;
             this.requirements = param4;
+            this.sendsTelemetryEvent = param5;
         }
 
-        private Builder() {
+        private Builder(boolean param0) {
+            this.sendsTelemetryEvent = param0;
         }
 
         public static Advancement.Builder advancement() {
-            return new Advancement.Builder();
+            return new Advancement.Builder(true);
+        }
+
+        public static Advancement.Builder recipeAdvancement() {
+            return new Advancement.Builder(false);
         }
 
         public Advancement.Builder parent(Advancement param0) {
@@ -286,7 +311,7 @@ public class Advancement {
                     this.requirements = this.requirementsStrategy.createRequirements(this.criteria.keySet());
                 }
 
-                return new Advancement(param0, this.parent, this.display, this.rewards, this.criteria, this.requirements);
+                return new Advancement(param0, this.parent, this.display, this.rewards, this.criteria, this.requirements, this.sendsTelemetryEvent);
             }
         }
 
@@ -333,6 +358,7 @@ public class Advancement {
             }
 
             var0.add("requirements", var3);
+            var0.addProperty("sends_telemetry_event", this.sendsTelemetryEvent);
             return var0;
         }
 
@@ -354,6 +380,7 @@ public class Advancement {
                 }
             }
 
+            param0.writeBoolean(this.sendsTelemetryEvent);
         }
 
         @Override
@@ -368,6 +395,8 @@ public class Advancement {
                 + this.criteria
                 + ", requirements="
                 + Arrays.deepToString(this.requirements)
+                + ", sends_telemetry_event="
+                + this.sendsTelemetryEvent
                 + "}";
         }
 
@@ -431,7 +460,8 @@ public class Advancement {
                     }
                 }
 
-                return new Advancement.Builder(var0, var1, var2, var3, var5);
+                boolean var16 = GsonHelper.getAsBoolean(param0, "sends_telemetry_event", false);
+                return new Advancement.Builder(var0, var1, var2, var3, var5, var16);
             }
         }
 
@@ -449,7 +479,8 @@ public class Advancement {
                 }
             }
 
-            return new Advancement.Builder(var0, var1, AdvancementRewards.EMPTY, var2, var3);
+            boolean var6 = param0.readBoolean();
+            return new Advancement.Builder(var0, var1, AdvancementRewards.EMPTY, var2, var3, var6);
         }
 
         public Map<String, Criterion> getCriteria() {

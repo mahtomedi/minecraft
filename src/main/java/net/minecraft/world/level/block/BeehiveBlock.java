@@ -46,7 +46,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -290,7 +290,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     }
 
     @Override
-    public List<ItemStack> getDrops(BlockState param0, LootContext.Builder param1) {
+    public List<ItemStack> getDrops(BlockState param0, LootParams.Builder param1) {
         Entity var0 = param1.getOptionalParameter(LootContextParams.THIS_ENTITY);
         if (var0 instanceof PrimedTnt || var0 instanceof Creeper || var0 instanceof WitherSkull || var0 instanceof WitherBoss || var0 instanceof MinecartTNT) {
             BlockEntity var1 = param1.getOptionalParameter(LootContextParams.BLOCK_ENTITY);

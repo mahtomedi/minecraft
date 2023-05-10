@@ -22,7 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -103,14 +103,12 @@ public interface ContainerEntity extends Container, MenuProvider {
             }
 
             this.setLootTable(null);
-            LootContext.Builder var2 = new LootContext.Builder((ServerLevel)this.level())
-                .withParameter(LootContextParams.ORIGIN, this.position())
-                .withOptionalRandomSeed(this.getLootTableSeed());
+            LootParams.Builder var2 = new LootParams.Builder((ServerLevel)this.level()).withParameter(LootContextParams.ORIGIN, this.position());
             if (param0 != null) {
                 var2.withLuck(param0.getLuck()).withParameter(LootContextParams.THIS_ENTITY, param0);
             }
 
-            var1.fill(this, var2.create(LootContextParamSets.CHEST));
+            var1.fill(this, var2.create(LootContextParamSets.CHEST), this.getLootTableSeed());
         }
 
     }

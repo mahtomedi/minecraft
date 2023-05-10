@@ -19,7 +19,7 @@ public class PlayerTrigger extends SimpleCriterionTrigger<PlayerTrigger.TriggerI
         return this.id;
     }
 
-    public PlayerTrigger.TriggerInstance createInstance(JsonObject param0, EntityPredicate.Composite param1, DeserializationContext param2) {
+    public PlayerTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
         return new PlayerTrigger.TriggerInstance(this.id, param1);
     }
 
@@ -28,34 +28,34 @@ public class PlayerTrigger extends SimpleCriterionTrigger<PlayerTrigger.TriggerI
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        public TriggerInstance(ResourceLocation param0, EntityPredicate.Composite param1) {
+        public TriggerInstance(ResourceLocation param0, ContextAwarePredicate param1) {
             super(param0, param1);
         }
 
         public static PlayerTrigger.TriggerInstance located(LocationPredicate param0) {
             return new PlayerTrigger.TriggerInstance(
-                CriteriaTriggers.LOCATION.id, EntityPredicate.Composite.wrap(EntityPredicate.Builder.entity().located(param0).build())
+                CriteriaTriggers.LOCATION.id, EntityPredicate.wrap(EntityPredicate.Builder.entity().located(param0).build())
             );
         }
 
         public static PlayerTrigger.TriggerInstance located(EntityPredicate param0) {
-            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.LOCATION.id, EntityPredicate.Composite.wrap(param0));
+            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.LOCATION.id, EntityPredicate.wrap(param0));
         }
 
         public static PlayerTrigger.TriggerInstance sleptInBed() {
-            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.SLEPT_IN_BED.id, EntityPredicate.Composite.ANY);
+            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.SLEPT_IN_BED.id, ContextAwarePredicate.ANY);
         }
 
         public static PlayerTrigger.TriggerInstance raidWon() {
-            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.RAID_WIN.id, EntityPredicate.Composite.ANY);
+            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.RAID_WIN.id, ContextAwarePredicate.ANY);
         }
 
         public static PlayerTrigger.TriggerInstance avoidVibration() {
-            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.AVOID_VIBRATION.id, EntityPredicate.Composite.ANY);
+            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.AVOID_VIBRATION.id, ContextAwarePredicate.ANY);
         }
 
         public static PlayerTrigger.TriggerInstance tick() {
-            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.TICK.id, EntityPredicate.Composite.ANY);
+            return new PlayerTrigger.TriggerInstance(CriteriaTriggers.TICK.id, ContextAwarePredicate.ANY);
         }
 
         public static PlayerTrigger.TriggerInstance walkOnBlockWithEquipment(Block param0, Item param1) {

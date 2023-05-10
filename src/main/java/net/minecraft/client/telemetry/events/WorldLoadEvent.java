@@ -14,9 +14,15 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class WorldLoadEvent {
     private boolean eventSent;
     @Nullable
-    private TelemetryProperty.GameMode gameMode = null;
+    private TelemetryProperty.GameMode gameMode;
     @Nullable
     private String serverBrand;
+    @Nullable
+    private final String minigameName;
+
+    public WorldLoadEvent(@Nullable String param0) {
+        this.minigameName = param0;
+    }
 
     public void addProperties(TelemetryPropertyMap.Builder param0) {
         if (this.serverBrand != null) {
@@ -37,7 +43,13 @@ public class WorldLoadEvent {
     public boolean send(TelemetryEventSender param0) {
         if (!this.eventSent && this.gameMode != null && this.serverBrand != null) {
             this.eventSent = true;
-            param0.send(TelemetryEventType.WORLD_LOADED, param0x -> param0x.put(TelemetryProperty.GAME_MODE, this.gameMode));
+            param0.send(TelemetryEventType.WORLD_LOADED, param0x -> {
+                param0x.put(TelemetryProperty.GAME_MODE, this.gameMode);
+                if (this.minigameName != null) {
+                    param0x.put(TelemetryProperty.REALMS_MAP_CONTENT, this.minigameName);
+                }
+
+            });
             return true;
         } else {
             return false;
