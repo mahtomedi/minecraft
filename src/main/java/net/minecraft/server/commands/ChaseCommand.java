@@ -72,13 +72,13 @@ public class ChaseCommand {
     private static int stop(CommandSourceStack param0) {
         if (chaseClient != null) {
             chaseClient.stop();
-            param0.sendSuccess(Component.literal("You have now stopped chasing"), false);
+            param0.sendSuccess(() -> Component.literal("You have now stopped chasing"), false);
             chaseClient = null;
         }
 
         if (chaseServer != null) {
             chaseServer.stop();
-            param0.sendSuccess(Component.literal("You are no longer being chased"), false);
+            param0.sendSuccess(() -> Component.literal("You are no longer being chased"), false);
             chaseServer = null;
         }
 
@@ -106,7 +106,8 @@ public class ChaseCommand {
             try {
                 chaseServer.start();
                 param0.sendSuccess(
-                    Component.literal("Chase server is now running on port " + param2 + ". Clients can follow you using /chase follow <ip> <port>"), false
+                    () -> Component.literal("Chase server is now running on port " + param2 + ". Clients can follow you using /chase follow <ip> <port>"),
+                    false
                 );
             } catch (IOException var4) {
                 var4.printStackTrace();
@@ -125,13 +126,13 @@ public class ChaseCommand {
             chaseClient = new ChaseClient(param1, param2, param0.getServer());
             chaseClient.start();
             param0.sendSuccess(
-                Component.literal(
-                    "You are now chasing "
-                        + param1
-                        + ":"
-                        + param2
-                        + ". If that server does '/chase lead' then you will automatically go to the same position. Use '/chase stop' to stop chasing."
-                ),
+                () -> Component.literal(
+                        "You are now chasing "
+                            + param1
+                            + ":"
+                            + param2
+                            + ". If that server does '/chase lead' then you will automatically go to the same position. Use '/chase stop' to stop chasing."
+                    ),
                 false
             );
             return 0;

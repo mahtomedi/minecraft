@@ -49,7 +49,7 @@ public class BanPlayerCommands {
                 UserBanListEntry var3 = new UserBanListEntry(var2, null, param0.getTextName(), null, param2 == null ? null : param2.getString());
                 var0.add(var3);
                 ++var1;
-                param0.sendSuccess(Component.translatable("commands.ban.success", ComponentUtils.getDisplayName(var2), var3.getReason()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.ban.success", ComponentUtils.getDisplayName(var2), var3.getReason()), true);
                 ServerPlayer var4 = param0.getServer().getPlayerList().getPlayer(var2.getId());
                 if (var4 != null) {
                     var4.connection.disconnect(Component.translatable("multiplayer.disconnect.banned"));

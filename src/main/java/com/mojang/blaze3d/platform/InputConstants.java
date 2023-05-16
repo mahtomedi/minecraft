@@ -7,6 +7,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MethodHandles.Lookup;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -305,8 +306,12 @@ public class InputConstants {
     @OnlyIn(Dist.CLIENT)
     public static enum Type {
         KEYSYM("key.keyboard", (param0, param1) -> {
-            String var0 = GLFW.glfwGetKeyName(param0, -1);
-            return var0 != null ? Component.literal(var0) : Component.translatable(param1);
+            if ("key.keyboard.unknown".equals(param1)) {
+                return Component.translatable(param1);
+            } else {
+                String var0 = GLFW.glfwGetKeyName(param0, -1);
+                return var0 != null ? Component.literal(var0.toUpperCase(Locale.ROOT)) : Component.translatable(param1);
+            }
         }),
         SCANCODE("scancode", (param0, param1) -> {
             String var0 = GLFW.glfwGetKeyName(-1, param0);
@@ -317,6 +322,7 @@ public class InputConstants {
             (param0, param1) -> Language.getInstance().has(param1) ? Component.translatable(param1) : Component.translatable("key.mouse", param0 + 1)
         );
 
+        private static final String KEY_KEYBOARD_UNKNOWN = "key.keyboard.unknown";
         private final Int2ObjectMap<InputConstants.Key> map = new Int2ObjectOpenHashMap<>();
         final String defaultPrefix;
         final BiFunction<Integer, String, Component> displayTextSupplier;

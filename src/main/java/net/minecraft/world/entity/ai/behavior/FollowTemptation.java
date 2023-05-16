@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import net.minecraft.Util;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
@@ -18,13 +19,13 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
     public static final int TEMPTATION_COOLDOWN = 100;
     public static final double CLOSE_ENOUGH_DIST = 2.5;
     private final Function<LivingEntity, Float> speedModifier;
-    private final double closeEnoughDistance;
+    private final Function<LivingEntity, Double> closeEnoughDistance;
 
     public FollowTemptation(Function<LivingEntity, Float> param0) {
-        this(param0, 2.5);
+        this(param0, param0x -> 2.5);
     }
 
-    public FollowTemptation(Function<LivingEntity, Float> param0, double param1) {
+    public FollowTemptation(Function<LivingEntity, Float> param0, Function<LivingEntity, Double> param1) {
         super(Util.make(() -> {
             Builder<MemoryModuleType<?>, MemoryStatus> var0 = ImmutableMap.builder();
             var0.put(MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED);
@@ -75,7 +76,8 @@ public class FollowTemptation extends Behavior<PathfinderMob> {
         Player var0 = this.getTemptingPlayer(param1).get();
         Brain<?> var1 = param1.getBrain();
         var1.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(var0, true));
-        if (param1.distanceToSqr(var0) < this.closeEnoughDistance * this.closeEnoughDistance) {
+        double var2 = this.closeEnoughDistance.apply(param1);
+        if (param1.distanceToSqr(var0) < Mth.square(var2)) {
             var1.eraseMemory(MemoryModuleType.WALK_TARGET);
         } else {
             var1.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new EntityTracker(var0, false), this.getSpeedModifier(param1), 2));

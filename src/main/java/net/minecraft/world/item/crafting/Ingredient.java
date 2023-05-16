@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -27,6 +28,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 
 public final class Ingredient implements Predicate<ItemStack> {
@@ -132,17 +134,23 @@ public final class Ingredient implements Predicate<ItemStack> {
     }
 
     public static Ingredient fromJson(@Nullable JsonElement param0) {
+        return fromJson(param0, true);
+    }
+
+    public static Ingredient fromJson(@Nullable JsonElement param0, boolean param1) {
         if (param0 == null || param0.isJsonNull()) {
             throw new JsonSyntaxException("Item cannot be null");
         } else if (param0.isJsonObject()) {
-            return fromValues(Stream.of(valueFromJson(param0.getAsJsonObject())));
+            return fromValues(Stream.of(valueFromJson(param0.getAsJsonObject(), param1)).filter(Objects::nonNull));
         } else if (param0.isJsonArray()) {
             JsonArray var0 = param0.getAsJsonArray();
-            if (var0.size() == 0) {
+            if (var0.size() == 0 && !param1) {
                 throw new JsonSyntaxException("Item array cannot be empty, at least one item must be defined");
             } else {
                 return fromValues(
-                    StreamSupport.stream(var0.spliterator(), false).map(param0x -> valueFromJson(GsonHelper.convertToJsonObject(param0x, "item")))
+                    StreamSupport.stream(var0.spliterator(), false)
+                        .map(param0x -> valueFromJson(GsonHelper.convertToJsonObject(param0x, "item"), false))
+                        .filter(Objects::nonNull)
                 );
             }
         } else {
@@ -150,16 +158,28 @@ public final class Ingredient implements Predicate<ItemStack> {
         }
     }
 
-    private static Ingredient.Value valueFromJson(JsonObject param0) {
+    @Nullable
+    private static Ingredient.Value valueFromJson(JsonObject param0, boolean param1) {
         if (param0.has("item") && param0.has("tag")) {
             throw new JsonParseException("An ingredient entry is either a tag or an item, not both");
         } else if (param0.has("item")) {
-            Item var0 = ShapedRecipe.itemFromJson(param0);
-            return new Ingredient.ItemValue(new ItemStack(var0));
+            String var0 = GsonHelper.getAsString(param0, "item");
+            Item var1 = BuiltInRegistries.ITEM
+                .getOptional(new ResourceLocation(var0))
+                .orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
+            if (var1 == Items.AIR) {
+                if (param1) {
+                    return null;
+                } else {
+                    throw new JsonSyntaxException("Empty ingredient not allowed here");
+                }
+            } else {
+                return new Ingredient.ItemValue(new ItemStack(var1));
+            }
         } else if (param0.has("tag")) {
-            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
-            TagKey<Item> var2 = TagKey.create(Registries.ITEM, var1);
-            return new Ingredient.TagValue(var2);
+            ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
+            TagKey<Item> var3 = TagKey.create(Registries.ITEM, var2);
+            return new Ingredient.TagValue(var3);
         } else {
             throw new JsonParseException("An ingredient entry needs either a tag or an item");
         }

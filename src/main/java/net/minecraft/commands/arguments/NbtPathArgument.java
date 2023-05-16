@@ -46,6 +46,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
     private static final char KEY_MATCH_START = '{';
     private static final char KEY_MATCH_END = '}';
     private static final char QUOTED_KEY_START = '"';
+    private static final char SINGLE_QUOTED_KEY_START = '\'';
 
     public static NbtPathArgument nbtPath() {
         return new NbtPathArgument();
@@ -78,38 +79,41 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
     }
 
     private static NbtPathArgument.Node parseNode(StringReader param0, boolean param1) throws CommandSyntaxException {
+        Object var10000;
         switch(param0.peek()) {
             case '"':
-                String var4 = param0.readString();
-                return readObjectNode(param0, var4);
+            case '\'':
+                var10000 = readObjectNode(param0, param0.readString());
+                break;
             case '[':
                 param0.skip();
                 int var1 = param0.peek();
                 if (var1 == 123) {
                     CompoundTag var2 = new TagParser(param0).readStruct();
                     param0.expect(']');
-                    return new NbtPathArgument.MatchElementNode(var2);
+                    var10000 = new NbtPathArgument.MatchElementNode(var2);
+                } else if (var1 == 93) {
+                    param0.skip();
+                    var10000 = NbtPathArgument.AllElementsNode.INSTANCE;
                 } else {
-                    if (var1 == 93) {
-                        param0.skip();
-                        return NbtPathArgument.AllElementsNode.INSTANCE;
-                    }
-
                     int var3 = param0.readInt();
                     param0.expect(']');
-                    return new NbtPathArgument.IndexedElementNode(var3);
+                    var10000 = new NbtPathArgument.IndexedElementNode(var3);
                 }
+                break;
             case '{':
                 if (!param1) {
                     throw ERROR_INVALID_NODE.createWithContext(param0);
                 }
 
                 CompoundTag var0 = new TagParser(param0).readStruct();
-                return new NbtPathArgument.MatchRootObjectNode(var0);
+                var10000 = new NbtPathArgument.MatchRootObjectNode(var0);
+                break;
             default:
-                String var5 = readUnquotedName(param0);
-                return readObjectNode(param0, var5);
+                var10000 = readObjectNode(param0, readUnquotedName(param0));
         }
+
+        return (NbtPathArgument.Node)var10000;
     }
 
     private static NbtPathArgument.Node readObjectNode(StringReader param0, String param1) throws CommandSyntaxException {
@@ -141,7 +145,7 @@ public class NbtPathArgument implements ArgumentType<NbtPathArgument.NbtPath> {
     }
 
     private static boolean isAllowedInUnquotedName(char param0) {
-        return param0 != ' ' && param0 != '"' && param0 != '[' && param0 != ']' && param0 != '.' && param0 != '{' && param0 != '}';
+        return param0 != ' ' && param0 != '"' && param0 != '\'' && param0 != '[' && param0 != ']' && param0 != '.' && param0 != '{' && param0 != '}';
     }
 
     static Predicate<Tag> createTagPredicate(CompoundTag param0) {

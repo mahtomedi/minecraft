@@ -337,7 +337,7 @@ public class ItemCommands {
             ItemStack var1 = applyModifier(param0, param3, var0.getItem(param2));
             var0.setItem(param2, var1);
             param0.sendSuccess(
-                Component.translatable("commands.item.block.set.success", param1.getX(), param1.getY(), param1.getZ(), var1.getDisplayName()), true
+                () -> Component.translatable("commands.item.block.set.success", param1.getX(), param1.getY(), param1.getZ(), var1.getDisplayName()), true
             );
             return 1;
         } else {
@@ -367,10 +367,11 @@ public class ItemCommands {
             if (var0.size() == 1) {
                 Entry<Entity, ItemStack> var4 = var0.entrySet().iterator().next();
                 param0.sendSuccess(
-                    Component.translatable("commands.item.entity.set.success.single", var4.getKey().getDisplayName(), var4.getValue().getDisplayName()), true
+                    () -> Component.translatable("commands.item.entity.set.success.single", var4.getKey().getDisplayName(), var4.getValue().getDisplayName()),
+                    true
                 );
             } else {
-                param0.sendSuccess(Component.translatable("commands.item.entity.set.success.multiple", var0.size()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.item.entity.set.success.multiple", var0.size()), true);
             }
 
             return var0.size();
@@ -382,7 +383,7 @@ public class ItemCommands {
         if (param2 >= 0 && param2 < var0.getContainerSize()) {
             var0.setItem(param2, param3);
             param0.sendSuccess(
-                Component.translatable("commands.item.block.set.success", param1.getX(), param1.getY(), param1.getZ(), param3.getDisplayName()), true
+                () -> Component.translatable("commands.item.block.set.success", param1.getX(), param1.getY(), param1.getZ(), param3.getDisplayName()), true
             );
             return 1;
         } else {
@@ -417,10 +418,11 @@ public class ItemCommands {
         } else {
             if (var0.size() == 1) {
                 param0.sendSuccess(
-                    Component.translatable("commands.item.entity.set.success.single", var0.iterator().next().getDisplayName(), param3.getDisplayName()), true
+                    () -> Component.translatable("commands.item.entity.set.success.single", var0.iterator().next().getDisplayName(), param3.getDisplayName()),
+                    true
                 );
             } else {
-                param0.sendSuccess(Component.translatable("commands.item.entity.set.success.multiple", var0.size(), param3.getDisplayName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.item.entity.set.success.multiple", var0.size(), param3.getDisplayName()), true);
             }
 
             return var0.size();

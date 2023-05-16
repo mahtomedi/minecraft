@@ -51,7 +51,7 @@ public class TimeCommand {
     }
 
     private static int queryTime(CommandSourceStack param0, int param1) {
-        param0.sendSuccess(Component.translatable("commands.time.query", param1), false);
+        param0.sendSuccess(() -> Component.translatable("commands.time.query", param1), false);
         return param1;
     }
 
@@ -60,7 +60,7 @@ public class TimeCommand {
             var0.setDayTime((long)param1);
         }
 
-        param0.sendSuccess(Component.translatable("commands.time.set", param1), true);
+        param0.sendSuccess(() -> Component.translatable("commands.time.set", param1), true);
         return getDayTime(param0.getLevel());
     }
 
@@ -70,7 +70,7 @@ public class TimeCommand {
         }
 
         int var1 = getDayTime(param0.getLevel());
-        param0.sendSuccess(Component.translatable("commands.time.set", var1), true);
+        param0.sendSuccess(() -> Component.translatable("commands.time.set", var1), true);
         return var1;
     }
 }

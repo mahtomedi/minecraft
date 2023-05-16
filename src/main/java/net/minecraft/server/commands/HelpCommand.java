@@ -21,7 +21,7 @@ public class HelpCommand {
                     Map<CommandNode<CommandSourceStack>, String> var0x = param0.getSmartUsage(param0.getRoot(), param1.getSource());
         
                     for(String var1 : var0x.values()) {
-                        param1.getSource().sendSuccess(Component.literal("/" + var1), false);
+                        param1.getSource().sendSuccess(() -> Component.literal("/" + var1), false);
                     }
         
                     return var0x.size();
@@ -39,7 +39,7 @@ public class HelpCommand {
                                     );
                     
                                     for(String var2 : var1.values()) {
-                                        param1.getSource().sendSuccess(Component.literal("/" + var0x.getReader().getString() + " " + var2), false);
+                                        param1.getSource().sendSuccess(() -> Component.literal("/" + var0x.getReader().getString() + " " + var2), false);
                                     }
                     
                                     return var1.size();

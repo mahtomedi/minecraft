@@ -58,7 +58,7 @@ public class DebugCommand {
             throw ERROR_ALREADY_RUNNING.create();
         } else {
             var0.startTimeProfiler();
-            param0.sendSuccess(Component.translatable("commands.debug.started"), true);
+            param0.sendSuccess(() -> Component.translatable("commands.debug.started"), true);
             return 0;
         }
     }
@@ -72,9 +72,9 @@ public class DebugCommand {
             double var2 = (double)var1.getNanoDuration() / (double)TimeUtil.NANOSECONDS_PER_SECOND;
             double var3 = (double)var1.getTickDuration() / var2;
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var2), var1.getTickDuration(), String.format(Locale.ROOT, "%.2f", var3)
-                ),
+                () -> Component.translatable(
+                        "commands.debug.stopped", String.format(Locale.ROOT, "%.2f", var2), var1.getTickDuration(), String.format(Locale.ROOT, "%.2f", var3)
+                    ),
                 true
             );
             return (int)var3;
@@ -104,10 +104,11 @@ public class DebugCommand {
             param0.sendFailure(Component.translatable("commands.debug.function.traceFailed"));
         }
 
+        int var9 = var0;
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.debug.function.success.single", var0, param1.iterator().next().getId(), var2), true);
+            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.single", var9, param1.iterator().next().getId(), var2), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.debug.function.success.multiple", var0, param1.size(), var2), true);
+            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.multiple", var9, param1.size(), var2), true);
         }
 
         return var0;

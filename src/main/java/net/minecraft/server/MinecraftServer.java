@@ -116,6 +116,7 @@ import net.minecraft.util.profiling.metrics.profiling.ServerMetricsSamplersProvi
 import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
 import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.RandomSequences;
 import net.minecraft.world.entity.ai.village.VillageSiege;
 import net.minecraft.world.entity.npc.CatSpawner;
 import net.minecraft.world.entity.npc.WanderingTraderSpawner;
@@ -343,7 +344,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             new PhantomSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(var0)
         );
         LevelStem var7 = var2.get(LevelStem.OVERWORLD);
-        ServerLevel var8 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var7, param0, var1, var5, var6, true);
+        ServerLevel var8 = new ServerLevel(this, this.executor, this.storageSource, var0, Level.OVERWORLD, var7, param0, var1, var5, var6, true, null);
         this.levels.put(Level.OVERWORLD, var8);
         DimensionDataStorage var9 = var8.getDataStorage();
         this.readScoreboard(var9);
@@ -356,12 +357,12 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                 if (var1) {
                     this.setupDebugLevel(this.worldData);
                 }
-            } catch (Throwable var22) {
-                CrashReport var12 = CrashReport.forThrowable(var22, "Exception initializing level");
+            } catch (Throwable var23) {
+                CrashReport var12 = CrashReport.forThrowable(var23, "Exception initializing level");
 
                 try {
                     var8.fillReportDetails(var12);
-                } catch (Throwable var21) {
+                } catch (Throwable var22) {
                 }
 
                 throw new ReportedException(var12);
@@ -375,16 +376,18 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             this.getCustomBossEvents().load(this.worldData.getCustomBossEvents());
         }
 
-        for(Entry<ResourceKey<LevelStem>, LevelStem> var13 : var2.entrySet()) {
-            ResourceKey<LevelStem> var14 = var13.getKey();
-            if (var14 != LevelStem.OVERWORLD) {
-                ResourceKey<Level> var15 = ResourceKey.create(Registries.DIMENSION, var14.location());
-                DerivedLevelData var16 = new DerivedLevelData(this.worldData, var0);
-                ServerLevel var17 = new ServerLevel(
-                    this, this.executor, this.storageSource, var16, var15, var13.getValue(), param0, var1, var5, ImmutableList.of(), false
+        RandomSequences var13 = var8.getRandomSequences();
+
+        for(Entry<ResourceKey<LevelStem>, LevelStem> var14 : var2.entrySet()) {
+            ResourceKey<LevelStem> var15 = var14.getKey();
+            if (var15 != LevelStem.OVERWORLD) {
+                ResourceKey<Level> var16 = ResourceKey.create(Registries.DIMENSION, var15.location());
+                DerivedLevelData var17 = new DerivedLevelData(this.worldData, var0);
+                ServerLevel var18 = new ServerLevel(
+                    this, this.executor, this.storageSource, var17, var16, var14.getValue(), param0, var1, var5, ImmutableList.of(), false, var13
                 );
-                var10.addListener(new BorderChangeListener.DelegateBorderChangeListener(var17.getWorldBorder()));
-                this.levels.put(var15, var17);
+                var10.addListener(new BorderChangeListener.DelegateBorderChangeListener(var18.getWorldBorder()));
+                this.levels.put(var16, var18);
             }
         }
 

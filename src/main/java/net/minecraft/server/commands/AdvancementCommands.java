@@ -269,22 +269,23 @@ public class AdvancementCommands {
             if (param3.size() == 1) {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        Component.translatable(
-                            param2.getKey() + ".one.to.one.success", param3.iterator().next().getChatComponent(), param1.iterator().next().getDisplayName()
-                        ),
+                        () -> Component.translatable(
+                                param2.getKey() + ".one.to.one.success", param3.iterator().next().getChatComponent(), param1.iterator().next().getDisplayName()
+                            ),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        Component.translatable(param2.getKey() + ".one.to.many.success", param3.iterator().next().getChatComponent(), param1.size()), true
+                        () -> Component.translatable(param2.getKey() + ".one.to.many.success", param3.iterator().next().getChatComponent(), param1.size()),
+                        true
                     );
                 }
             } else if (param1.size() == 1) {
                 param0.sendSuccess(
-                    Component.translatable(param2.getKey() + ".many.to.one.success", param3.size(), param1.iterator().next().getDisplayName()), true
+                    () -> Component.translatable(param2.getKey() + ".many.to.one.success", param3.size(), param1.iterator().next().getDisplayName()), true
                 );
             } else {
-                param0.sendSuccess(Component.translatable(param2.getKey() + ".many.to.many.success", param3.size(), param1.size()), true);
+                param0.sendSuccess(() -> Component.translatable(param2.getKey() + ".many.to.many.success", param3.size(), param1.size()), true);
             }
 
             return var0;
@@ -319,14 +320,14 @@ public class AdvancementCommands {
             } else {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        Component.translatable(
-                            param2.getKey() + ".criterion.to.one.success", param4, param3.getChatComponent(), param1.iterator().next().getDisplayName()
-                        ),
+                        () -> Component.translatable(
+                                param2.getKey() + ".criterion.to.one.success", param4, param3.getChatComponent(), param1.iterator().next().getDisplayName()
+                            ),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        Component.translatable(param2.getKey() + ".criterion.to.many.success", param4, param3.getChatComponent(), param1.size()), true
+                        () -> Component.translatable(param2.getKey() + ".criterion.to.many.success", param4, param3.getChatComponent(), param1.size()), true
                     );
                 }
 

@@ -69,7 +69,7 @@ public class RideCommand {
         } else if (!param1.startRiding(param2, true)) {
             throw ERROR_MOUNT_FAILED.create(param1.getDisplayName(), param2.getDisplayName());
         } else {
-            param0.sendSuccess(Component.translatable("commands.ride.mount.success", param1.getDisplayName(), param2.getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.ride.mount.success", param1.getDisplayName(), param2.getDisplayName()), true);
             return 1;
         }
     }
@@ -80,7 +80,7 @@ public class RideCommand {
             throw ERROR_NOT_RIDING.create(param1.getDisplayName());
         } else {
             param1.stopRiding();
-            param0.sendSuccess(Component.translatable("commands.ride.dismount.success", param1.getDisplayName(), var0.getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.ride.dismount.success", param1.getDisplayName(), var0.getDisplayName()), true);
             return 1;
         }
     }

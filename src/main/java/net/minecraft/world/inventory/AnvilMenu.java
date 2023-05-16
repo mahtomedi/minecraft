@@ -2,6 +2,9 @@ package net.minecraft.world.inventory;
 
 import com.mojang.logging.LogUtils;
 import java.util.Map;
+import javax.annotation.Nullable;
+import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Inventory;
@@ -13,7 +16,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class AnvilMenu extends ItemCombinerMenu {
@@ -24,6 +26,7 @@ public class AnvilMenu extends ItemCombinerMenu {
     private static final boolean DEBUG_COST = false;
     public static final int MAX_NAME_LENGTH = 50;
     private int repairItemCountCost;
+    @Nullable
     private String itemName;
     private final DataSlot cost = DataSlot.standalone();
     private static final int COST_FAIL = 0;
@@ -227,16 +230,16 @@ public class AnvilMenu extends ItemCombinerMenu {
                 }
             }
 
-            if (StringUtils.isBlank(this.itemName)) {
-                if (var0.hasCustomHoverName()) {
+            if (this.itemName != null && !Util.isBlank(this.itemName)) {
+                if (!this.itemName.equals(var0.getHoverName().getString())) {
                     var3 = 1;
                     var1 += var3;
-                    var4.resetHoverName();
+                    var4.setHoverName(Component.literal(this.itemName));
                 }
-            } else if (!this.itemName.equals(var0.getHoverName().getString())) {
+            } else if (var0.hasCustomHoverName()) {
                 var3 = 1;
                 var1 += var3;
-                var4.setHoverName(Component.literal(this.itemName));
+                var4.resetHoverName();
             }
 
             this.cost.set(var2 + var1);
@@ -275,18 +278,30 @@ public class AnvilMenu extends ItemCombinerMenu {
         return param0 * 2 + 1;
     }
 
-    public void setItemName(String param0) {
-        this.itemName = param0;
-        if (this.getSlot(2).hasItem()) {
-            ItemStack var0 = this.getSlot(2).getItem();
-            if (StringUtils.isBlank(param0)) {
-                var0.resetHoverName();
-            } else {
-                var0.setHoverName(Component.literal(this.itemName));
+    public boolean setItemName(String param0) {
+        String var0 = validateName(param0);
+        if (var0 != null && !var0.equals(this.itemName)) {
+            this.itemName = var0;
+            if (this.getSlot(2).hasItem()) {
+                ItemStack var1 = this.getSlot(2).getItem();
+                if (Util.isBlank(var0)) {
+                    var1.resetHoverName();
+                } else {
+                    var1.setHoverName(Component.literal(var0));
+                }
             }
-        }
 
-        this.createResult();
+            this.createResult();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Nullable
+    private static String validateName(String param0) {
+        String var0 = SharedConstants.filterText(param0);
+        return var0.length() <= 50 ? var0 : null;
     }
 
     public int getCost() {

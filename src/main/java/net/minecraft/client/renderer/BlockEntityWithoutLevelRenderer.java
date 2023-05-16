@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.Util;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.TridentModel;
@@ -53,7 +54,6 @@ import net.minecraft.world.level.block.entity.TrappedChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadListener {
@@ -97,7 +97,7 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
                     CompoundTag var3 = param0.getTag();
                     if (var3.contains("SkullOwner", 10)) {
                         var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
-                    } else if (var3.contains("SkullOwner", 8) && !StringUtils.isBlank(var3.getString("SkullOwner"))) {
+                    } else if (var3.contains("SkullOwner", 8) && !Util.isBlank(var3.getString("SkullOwner"))) {
                         var2 = new GameProfile(null, var3.getString("SkullOwner"));
                         var3.remove("SkullOwner");
                         SkullBlockEntity.updateGameprofile(var2, param1x -> var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1x)));

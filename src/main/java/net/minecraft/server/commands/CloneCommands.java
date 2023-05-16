@@ -299,7 +299,8 @@ public class CloneCommands {
                 if (var31 == 0) {
                     throw ERROR_FAILED.create();
                 } else {
-                    param0.sendSuccess(Component.translatable("commands.clone.success", var31), true);
+                    int var36 = var31;
+                    param0.sendSuccess(() -> Component.translatable("commands.clone.success", var36), true);
                     return var31;
                 }
             } else {

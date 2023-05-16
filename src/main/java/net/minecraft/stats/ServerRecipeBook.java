@@ -38,7 +38,10 @@ public class ServerRecipeBook extends RecipeBook {
             }
         }
 
-        this.sendRecipes(ClientboundRecipePacket.State.ADD, param1, var0);
+        if (var0.size() > 0) {
+            this.sendRecipes(ClientboundRecipePacket.State.ADD, param1, var0);
+        }
+
         return var1;
     }
 

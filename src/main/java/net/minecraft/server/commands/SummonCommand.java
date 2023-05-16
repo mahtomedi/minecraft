@@ -103,7 +103,7 @@ public class SummonCommand {
 
     private static int spawnEntity(CommandSourceStack param0, Holder.Reference<EntityType<?>> param1, Vec3 param2, CompoundTag param3, boolean param4) throws CommandSyntaxException {
         Entity var0 = createEntity(param0, param1, param2, param3, param4);
-        param0.sendSuccess(Component.translatable("commands.summon.success", var0.getDisplayName()), true);
+        param0.sendSuccess(() -> Component.translatable("commands.summon.success", var0.getDisplayName()), true);
         return 1;
     }
 }

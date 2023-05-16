@@ -212,6 +212,10 @@ public class ClientLevel extends Level {
     public void tick(BooleanSupplier param0) {
         this.getWorldBorder().tick();
         this.tickTime();
+        if (this.skyFlashTime > 0) {
+            this.setSkyFlashTime(this.skyFlashTime - 1);
+        }
+
         this.getProfiler().push("blocks");
         this.chunkSource.tick(param0, true);
         this.getProfiler().pop();
@@ -693,16 +697,17 @@ public class ClientLevel extends Level {
             var7 = var7 * var13 + var12 * (1.0F - var13);
         }
 
-        if (!this.minecraft.options.hideLightningFlash().get() && this.skyFlashTime > 0) {
-            float var14 = (float)this.skyFlashTime - param1;
-            if (var14 > 1.0F) {
-                var14 = 1.0F;
+        int var14 = this.getSkyFlashTime();
+        if (var14 > 0) {
+            float var15 = (float)var14 - param1;
+            if (var15 > 1.0F) {
+                var15 = 1.0F;
             }
 
-            var14 *= 0.45F;
-            var5 = var5 * (1.0F - var14) + 0.8F * var14;
-            var6 = var6 * (1.0F - var14) + 0.8F * var14;
-            var7 = var7 * (1.0F - var14) + 1.0F * var14;
+            var15 *= 0.45F;
+            var5 = var5 * (1.0F - var15) + 0.8F * var15;
+            var6 = var6 * (1.0F - var15) + 0.8F * var15;
+            var7 = var7 * (1.0F - var15) + 1.0F * var15;
         }
 
         return new Vec3((double)var5, (double)var6, (double)var7);
@@ -747,7 +752,7 @@ public class ClientLevel extends Level {
     }
 
     public int getSkyFlashTime() {
-        return this.skyFlashTime;
+        return this.minecraft.options.hideLightningFlash().get() ? 0 : this.skyFlashTime;
     }
 
     @Override

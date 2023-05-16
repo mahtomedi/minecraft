@@ -83,7 +83,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Path;
@@ -961,33 +960,29 @@ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
                     BlockPos var1 = Bee.this.blockPosition().below(var0);
                     BlockState var2 = Bee.this.level().getBlockState(var1);
                     Block var3 = var2.getBlock();
-                    boolean var4 = false;
-                    IntegerProperty var5 = null;
+                    BlockState var4 = null;
                     if (var2.is(BlockTags.BEE_GROWABLES)) {
-                        if (var3 instanceof CropBlock var6) {
-                            if (!var6.isMaxAge(var2)) {
-                                var4 = true;
-                                var5 = var6.getAgeProperty();
+                        if (var3 instanceof CropBlock var5) {
+                            if (!var5.isMaxAge(var2)) {
+                                var4 = var5.getStateForAge(var5.getAge(var2) + 1);
                             }
                         } else if (var3 instanceof StemBlock) {
-                            int var7 = var2.getValue(StemBlock.AGE);
-                            if (var7 < 7) {
-                                var4 = true;
-                                var5 = StemBlock.AGE;
+                            int var6 = var2.getValue(StemBlock.AGE);
+                            if (var6 < 7) {
+                                var4 = var2.setValue(StemBlock.AGE, Integer.valueOf(var6 + 1));
                             }
                         } else if (var2.is(Blocks.SWEET_BERRY_BUSH)) {
-                            int var8 = var2.getValue(SweetBerryBushBlock.AGE);
-                            if (var8 < 3) {
-                                var4 = true;
-                                var5 = SweetBerryBushBlock.AGE;
+                            int var7 = var2.getValue(SweetBerryBushBlock.AGE);
+                            if (var7 < 3) {
+                                var4 = var2.setValue(SweetBerryBushBlock.AGE, Integer.valueOf(var7 + 1));
                             }
                         } else if (var2.is(Blocks.CAVE_VINES) || var2.is(Blocks.CAVE_VINES_PLANT)) {
                             ((BonemealableBlock)var2.getBlock()).performBonemeal((ServerLevel)Bee.this.level(), Bee.this.random, var1, var2);
                         }
 
-                        if (var4) {
+                        if (var4 != null) {
                             Bee.this.level().levelEvent(2005, var1, 0);
-                            Bee.this.level().setBlockAndUpdate(var1, var2.setValue(var5, Integer.valueOf(var2.getValue(var5) + 1)));
+                            Bee.this.level().setBlockAndUpdate(var1, var4);
                             Bee.this.incrementNumCropsGrownSincePollination();
                         }
                     }

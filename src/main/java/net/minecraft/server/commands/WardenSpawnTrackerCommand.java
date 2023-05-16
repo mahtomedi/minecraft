@@ -41,9 +41,11 @@ public class WardenSpawnTrackerCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.set.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(
+                () -> Component.translatable("commands.warden_spawn_tracker.set.success.single", param1.iterator().next().getDisplayName()), true
+            );
         } else {
-            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.set.success.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.warden_spawn_tracker.set.success.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -55,9 +57,11 @@ public class WardenSpawnTrackerCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.clear.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(
+                () -> Component.translatable("commands.warden_spawn_tracker.clear.success.single", param1.iterator().next().getDisplayName()), true
+            );
         } else {
-            param0.sendSuccess(Component.translatable("commands.warden_spawn_tracker.clear.success.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.warden_spawn_tracker.clear.success.multiple", param1.size()), true);
         }
 
         return param1.size();

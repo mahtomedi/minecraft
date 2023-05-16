@@ -106,7 +106,7 @@ public class DamageCommand {
 
     private static int damage(CommandSourceStack param0, Entity param1, float param2, DamageSource param3) throws CommandSyntaxException {
         if (param1.hurt(param3, param2)) {
-            param0.sendSuccess(Component.translatable("commands.damage.success", param2, param1.getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.damage.success", param2, param1.getDisplayName()), true);
             return 1;
         } else {
             throw ERROR_INVULNERABLE.create();

@@ -76,16 +76,17 @@ public class ClearInventoryCommands {
                 throw ERROR_MULTIPLE.create(param1.size());
             }
         } else {
+            int var2 = var0;
             if (param3 == 0) {
                 if (param1.size() == 1) {
-                    param0.sendSuccess(Component.translatable("commands.clear.test.single", var0, param1.iterator().next().getDisplayName()), true);
+                    param0.sendSuccess(() -> Component.translatable("commands.clear.test.single", var2, param1.iterator().next().getDisplayName()), true);
                 } else {
-                    param0.sendSuccess(Component.translatable("commands.clear.test.multiple", var0, param1.size()), true);
+                    param0.sendSuccess(() -> Component.translatable("commands.clear.test.multiple", var2, param1.size()), true);
                 }
             } else if (param1.size() == 1) {
-                param0.sendSuccess(Component.translatable("commands.clear.success.single", var0, param1.iterator().next().getDisplayName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.clear.success.single", var2, param1.iterator().next().getDisplayName()), true);
             } else {
-                param0.sendSuccess(Component.translatable("commands.clear.success.multiple", var0, param1.size()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.clear.success.multiple", var2, param1.size()), true);
             }
 
             return var0;

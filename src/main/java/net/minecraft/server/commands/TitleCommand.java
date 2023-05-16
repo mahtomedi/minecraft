@@ -107,9 +107,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.title.cleared.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.cleared.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.title.cleared.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.cleared.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -123,9 +123,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.title.reset.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.reset.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.title.reset.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.reset.multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -139,9 +139,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.title.show." + param3 + ".single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.show." + param3 + ".single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.title.show." + param3 + ".multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.show." + param3 + ".multiple", param1.size()), true);
         }
 
         return param1.size();
@@ -155,9 +155,9 @@ public class TitleCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.title.times.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.times.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.title.times.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.title.times.multiple", param1.size()), true);
         }
 
         return param1.size();

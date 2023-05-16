@@ -60,9 +60,9 @@ public class BanIpCommands {
             List<ServerPlayer> var1 = param0.getServer().getPlayerList().getPlayersWithAddress(param1);
             IpBanListEntry var2 = new IpBanListEntry(param1, null, param0.getTextName(), null, param2 == null ? null : param2.getString());
             var0.add(var2);
-            param0.sendSuccess(Component.translatable("commands.banip.success", param1, var2.getReason()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.banip.success", param1, var2.getReason()), true);
             if (!var1.isEmpty()) {
-                param0.sendSuccess(Component.translatable("commands.banip.info", var1.size(), EntitySelector.joinNames(var1)), true);
+                param0.sendSuccess(() -> Component.translatable("commands.banip.info", var1.size(), EntitySelector.joinNames(var1)), true);
             }
 
             for(ServerPlayer var3 : var1) {

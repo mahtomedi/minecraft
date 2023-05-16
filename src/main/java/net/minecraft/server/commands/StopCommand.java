@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 public class StopCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(Commands.literal("stop").requires(param0x -> param0x.hasPermission(4)).executes(param0x -> {
-            param0x.getSource().sendSuccess(Component.translatable("commands.stop.stopping"), true);
+            param0x.getSource().sendSuccess(() -> Component.translatable("commands.stop.stopping"), true);
             param0x.getSource().getServer().halt(false);
             return 1;
         }));

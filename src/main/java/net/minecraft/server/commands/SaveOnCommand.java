@@ -25,7 +25,7 @@ public class SaveOnCommand {
             if (!var1) {
                 throw ERROR_ALREADY_ON.create();
             } else {
-                var0x.sendSuccess(Component.translatable("commands.save.enabled"), true);
+                var0x.sendSuccess(() -> Component.translatable("commands.save.enabled"), true);
                 return 1;
             }
         }));

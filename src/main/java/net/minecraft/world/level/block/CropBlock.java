@@ -42,7 +42,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return SHAPE_BY_AGE[param0.getValue(this.getAgeProperty())];
+        return SHAPE_BY_AGE[this.getAge(param0)];
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
         return param0.is(Blocks.FARMLAND);
     }
 
-    public IntegerProperty getAgeProperty() {
+    protected IntegerProperty getAgeProperty() {
         return AGE;
     }
 
@@ -58,7 +58,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
         return 7;
     }
 
-    protected int getAge(BlockState param0) {
+    public int getAge(BlockState param0) {
         return param0.getValue(this.getAgeProperty());
     }
 
@@ -66,8 +66,8 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
         return this.defaultBlockState().setValue(this.getAgeProperty(), Integer.valueOf(param0));
     }
 
-    public boolean isMaxAge(BlockState param0) {
-        return param0.getValue(this.getAgeProperty()) >= this.getMaxAge();
+    public final boolean isMaxAge(BlockState param0) {
+        return this.getAge(param0) >= this.getMaxAge();
     }
 
     @Override

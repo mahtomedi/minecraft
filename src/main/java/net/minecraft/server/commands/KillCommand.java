@@ -28,9 +28,9 @@ public class KillCommand {
         }
 
         if (param1.size() == 1) {
-            param0.sendSuccess(Component.translatable("commands.kill.success.single", param1.iterator().next().getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.kill.success.single", param1.iterator().next().getDisplayName()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.kill.success.multiple", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.kill.success.multiple", param1.size()), true);
         }
 
         return param1.size();

@@ -185,7 +185,8 @@ public class FillCommand {
             if (var4 == 0) {
                 throw ERROR_FAILED.create();
             } else {
-                param0.sendSuccess(Component.translatable("commands.fill.success", var4), true);
+                int var10 = var4;
+                param0.sendSuccess(() -> Component.translatable("commands.fill.success", var10), true);
                 return var4;
             }
         }

@@ -54,4 +54,8 @@ public abstract class HierarchicalModel<E extends Entity> extends EntityModel<E>
         param0.updateTime(param2, param3);
         param0.ifStarted(param1x -> KeyframeAnimations.animate(this, param1, param1x.getAccumulatedTime(), 1.0F, ANIMATION_VECTOR_CACHE));
     }
+
+    protected void applyStatic(AnimationDefinition param0) {
+        KeyframeAnimations.animate(this, param0, 0L, 1.0F, ANIMATION_VECTOR_CACHE);
+    }
 }

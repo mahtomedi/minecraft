@@ -48,16 +48,17 @@ public class FunctionCommand {
             var1 |= var5.isPresent();
         }
 
+        int var6 = var0;
         if (param1.size() == 1) {
             if (var1) {
-                param0.sendSuccess(Component.translatable("commands.function.success.single.result", var0, param1.iterator().next().getId()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.function.success.single.result", var6, param1.iterator().next().getId()), true);
             } else {
-                param0.sendSuccess(Component.translatable("commands.function.success.single", var0, param1.iterator().next().getId()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.function.success.single", var6, param1.iterator().next().getId()), true);
             }
         } else if (var1) {
-            param0.sendSuccess(Component.translatable("commands.function.success.multiple.result", param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.function.success.multiple.result", param1.size()), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.function.success.multiple", var0, param1.size()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.function.success.multiple", var6, param1.size()), true);
         }
 
         return var0;

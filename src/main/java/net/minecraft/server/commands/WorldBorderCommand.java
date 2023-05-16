@@ -141,7 +141,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_DAMAGE_BUFFER.create();
         } else {
             var0.setDamageSafeZone((double)param1);
-            param0.sendSuccess(Component.translatable("commands.worldborder.damage.buffer.success", String.format(Locale.ROOT, "%.2f", param1)), true);
+            param0.sendSuccess(() -> Component.translatable("commands.worldborder.damage.buffer.success", String.format(Locale.ROOT, "%.2f", param1)), true);
             return (int)param1;
         }
     }
@@ -152,7 +152,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_DAMAGE_AMOUNT.create();
         } else {
             var0.setDamagePerBlock((double)param1);
-            param0.sendSuccess(Component.translatable("commands.worldborder.damage.amount.success", String.format(Locale.ROOT, "%.2f", param1)), true);
+            param0.sendSuccess(() -> Component.translatable("commands.worldborder.damage.amount.success", String.format(Locale.ROOT, "%.2f", param1)), true);
             return (int)param1;
         }
     }
@@ -163,7 +163,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_WARNING_TIME.create();
         } else {
             var0.setWarningTime(param1);
-            param0.sendSuccess(Component.translatable("commands.worldborder.warning.time.success", param1), true);
+            param0.sendSuccess(() -> Component.translatable("commands.worldborder.warning.time.success", param1), true);
             return param1;
         }
     }
@@ -174,14 +174,14 @@ public class WorldBorderCommand {
             throw ERROR_SAME_WARNING_DISTANCE.create();
         } else {
             var0.setWarningBlocks(param1);
-            param0.sendSuccess(Component.translatable("commands.worldborder.warning.distance.success", param1), true);
+            param0.sendSuccess(() -> Component.translatable("commands.worldborder.warning.distance.success", param1), true);
             return param1;
         }
     }
 
     private static int getSize(CommandSourceStack param0) {
         double var0 = param0.getServer().overworld().getWorldBorder().getSize();
-        param0.sendSuccess(Component.translatable("commands.worldborder.get", String.format(Locale.ROOT, "%.0f", var0)), false);
+        param0.sendSuccess(() -> Component.translatable("commands.worldborder.get", String.format(Locale.ROOT, "%.0f", var0)), false);
         return Mth.floor(var0 + 0.5);
     }
 
@@ -192,9 +192,9 @@ public class WorldBorderCommand {
         } else if (!((double)Math.abs(param1.x) > 2.9999984E7) && !((double)Math.abs(param1.y) > 2.9999984E7)) {
             var0.setCenter((double)param1.x, (double)param1.y);
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.worldborder.center.success", String.format(Locale.ROOT, "%.2f", param1.x), String.format(Locale.ROOT, "%.2f", param1.y)
-                ),
+                () -> Component.translatable(
+                        "commands.worldborder.center.success", String.format(Locale.ROOT, "%.2f", param1.x), String.format(Locale.ROOT, "%.2f", param1.y)
+                    ),
                 true
             );
             return 0;
@@ -217,18 +217,20 @@ public class WorldBorderCommand {
                 var0.lerpSizeBetween(var1, param1, param2);
                 if (param1 > var1) {
                     param0.sendSuccess(
-                        Component.translatable("commands.worldborder.set.grow", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
+                        () -> Component.translatable("commands.worldborder.set.grow", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
                         true
                     );
                 } else {
                     param0.sendSuccess(
-                        Component.translatable("commands.worldborder.set.shrink", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)),
+                        () -> Component.translatable(
+                                "commands.worldborder.set.shrink", String.format(Locale.ROOT, "%.1f", param1), Long.toString(param2 / 1000L)
+                            ),
                         true
                     );
                 }
             } else {
                 var0.setSize(param1);
-                param0.sendSuccess(Component.translatable("commands.worldborder.set.immediate", String.format(Locale.ROOT, "%.1f", param1)), true);
+                param0.sendSuccess(() -> Component.translatable("commands.worldborder.set.immediate", String.format(Locale.ROOT, "%.1f", param1)), true);
             }
 
             return (int)(param1 - var1);

@@ -3674,7 +3674,6 @@ public class Blocks {
         new TallFlowerBlock(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.PLANT)
-                .replaceable()
                 .noCollission()
                 .instabreak()
                 .sound(SoundType.GRASS)
@@ -3688,7 +3687,6 @@ public class Blocks {
         new TallFlowerBlock(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.PLANT)
-                .replaceable()
                 .noCollission()
                 .instabreak()
                 .sound(SoundType.GRASS)
@@ -3702,7 +3700,6 @@ public class Blocks {
         new TallFlowerBlock(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.PLANT)
-                .replaceable()
                 .noCollission()
                 .instabreak()
                 .sound(SoundType.GRASS)
@@ -3716,7 +3713,6 @@ public class Blocks {
         new TallFlowerBlock(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.PLANT)
-                .replaceable()
                 .noCollission()
                 .instabreak()
                 .sound(SoundType.GRASS)

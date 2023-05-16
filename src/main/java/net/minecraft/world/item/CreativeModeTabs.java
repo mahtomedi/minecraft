@@ -718,6 +718,8 @@ public class CreativeModeTabs {
                     param1.accept(Items.ACACIA_LOG);
                     param1.accept(Items.DARK_OAK_LOG);
                     param1.accept(Items.MANGROVE_LOG);
+                    param1.accept(Items.MANGROVE_ROOTS);
+                    param1.accept(Items.MUDDY_MANGROVE_ROOTS);
                     param1.accept(Items.CHERRY_LOG);
                     param1.accept(Items.MUSHROOM_STEM);
                     param1.accept(Items.CRIMSON_STEM);
@@ -729,8 +731,6 @@ public class CreativeModeTabs {
                     param1.accept(Items.ACACIA_LEAVES);
                     param1.accept(Items.DARK_OAK_LEAVES);
                     param1.accept(Items.MANGROVE_LEAVES);
-                    param1.accept(Items.MANGROVE_ROOTS);
-                    param1.accept(Items.MUDDY_MANGROVE_ROOTS);
                     param1.accept(Items.CHERRY_LEAVES);
                     param1.accept(Items.AZALEA_LEAVES);
                     param1.accept(Items.FLOWERING_AZALEA_LEAVES);
@@ -769,12 +769,12 @@ public class CreativeModeTabs {
                     param1.accept(Items.CORNFLOWER);
                     param1.accept(Items.LILY_OF_THE_VALLEY);
                     param1.accept(Items.TORCHFLOWER);
+                    param1.accept(Items.WITHER_ROSE);
                     param1.accept(Items.PINK_PETALS);
                     param1.accept(Items.SPORE_BLOSSOM);
                     param1.accept(Items.BAMBOO);
                     param1.accept(Items.SUGAR_CANE);
                     param1.accept(Items.CACTUS);
-                    param1.accept(Items.WITHER_ROSE);
                     param1.accept(Items.CRIMSON_ROOTS);
                     param1.accept(Items.WARPED_ROOTS);
                     param1.accept(Items.NETHER_SPROUTS);
@@ -827,11 +827,11 @@ public class CreativeModeTabs {
                     param1.accept(Items.BUBBLE_CORAL);
                     param1.accept(Items.FIRE_CORAL);
                     param1.accept(Items.HORN_CORAL);
+                    param1.accept(Items.DEAD_TUBE_CORAL);
                     param1.accept(Items.DEAD_BRAIN_CORAL);
                     param1.accept(Items.DEAD_BUBBLE_CORAL);
                     param1.accept(Items.DEAD_FIRE_CORAL);
                     param1.accept(Items.DEAD_HORN_CORAL);
-                    param1.accept(Items.DEAD_TUBE_CORAL);
                     param1.accept(Items.TUBE_CORAL_FAN);
                     param1.accept(Items.BRAIN_CORAL_FAN);
                     param1.accept(Items.BUBBLE_CORAL_FAN);
@@ -1196,10 +1196,10 @@ public class CreativeModeTabs {
                         param1.accept(Items.NETHERITE_HOE);
                         param1.accept(Items.BUCKET);
                         param1.accept(Items.WATER_BUCKET);
-                        param1.accept(Items.PUFFERFISH_BUCKET);
-                        param1.accept(Items.SALMON_BUCKET);
                         param1.accept(Items.COD_BUCKET);
+                        param1.accept(Items.SALMON_BUCKET);
                         param1.accept(Items.TROPICAL_FISH_BUCKET);
+                        param1.accept(Items.PUFFERFISH_BUCKET);
                         param1.accept(Items.AXOLOTL_BUCKET);
                         param1.accept(Items.TADPOLE_BUCKET);
                         param1.accept(Items.LAVA_BUCKET);

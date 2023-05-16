@@ -103,7 +103,7 @@ public class ForceLoadCommand {
         ResourceKey<Level> var2 = var1.dimension();
         boolean var3 = var1.getForcedChunks().contains(var0.toLong());
         if (var3) {
-            param0.sendSuccess(Component.translatable("commands.forceload.query.success", var0, var2.location()), false);
+            param0.sendSuccess(() -> Component.translatable("commands.forceload.query.success", var0, var2.location()), false);
             return 1;
         } else {
             throw ERROR_NOT_TICKING.create(var0, var2.location());
@@ -118,9 +118,9 @@ public class ForceLoadCommand {
         if (var3 > 0) {
             String var4 = Joiner.on(", ").join(var2.stream().sorted().map(ChunkPos::new).map(ChunkPos::toString).iterator());
             if (var3 == 1) {
-                param0.sendSuccess(Component.translatable("commands.forceload.list.single", var1.location(), var4), false);
+                param0.sendSuccess(() -> Component.translatable("commands.forceload.list.single", var1.location(), var4), false);
             } else {
-                param0.sendSuccess(Component.translatable("commands.forceload.list.multiple", var3, var1.location(), var4), false);
+                param0.sendSuccess(() -> Component.translatable("commands.forceload.list.multiple", var3, var1.location(), var4), false);
             }
         } else {
             param0.sendFailure(Component.translatable("commands.forceload.added.none", var1.location()));
@@ -134,7 +134,7 @@ public class ForceLoadCommand {
         ResourceKey<Level> var1 = var0.dimension();
         LongSet var2 = var0.getForcedChunks();
         var2.forEach(param1 -> var0.setChunkForced(ChunkPos.getX(param1), ChunkPos.getZ(param1), false));
-        param0.sendSuccess(Component.translatable("commands.forceload.removed.all", var1.location()), true);
+        param0.sendSuccess(() -> Component.translatable("commands.forceload.removed.all", var1.location()), true);
         return 0;
     }
 
@@ -169,18 +169,21 @@ public class ForceLoadCommand {
                     }
                 }
 
+                ChunkPos var16 = var11;
                 if (var12 == 0) {
                     throw (param3 ? ERROR_ALL_ADDED : ERROR_NONE_REMOVED).create();
                 } else {
                     if (var12 == 1) {
                         param0.sendSuccess(
-                            Component.translatable("commands.forceload." + (param3 ? "added" : "removed") + ".single", var11, var10.location()), true
+                            () -> Component.translatable("commands.forceload." + (param3 ? "added" : "removed") + ".single", var16, var10.location()), true
                         );
                     } else {
-                        ChunkPos var16 = new ChunkPos(var4, var5);
-                        ChunkPos var17 = new ChunkPos(var6, var7);
+                        ChunkPos var17 = new ChunkPos(var4, var5);
+                        ChunkPos var18 = new ChunkPos(var6, var7);
                         param0.sendSuccess(
-                            Component.translatable("commands.forceload." + (param3 ? "added" : "removed") + ".multiple", var12, var10.location(), var16, var17),
+                            () -> Component.translatable(
+                                    "commands.forceload." + (param3 ? "added" : "removed") + ".multiple", var16, var10.location(), var17, var18
+                                ),
                             true
                         );
                     }

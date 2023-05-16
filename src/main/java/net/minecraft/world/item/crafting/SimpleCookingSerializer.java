@@ -23,7 +23,7 @@ public class SimpleCookingSerializer<T extends AbstractCookingRecipe> implements
         JsonElement var2 = (JsonElement)(GsonHelper.isArrayNode(param1, "ingredient")
             ? GsonHelper.getAsJsonArray(param1, "ingredient")
             : GsonHelper.getAsJsonObject(param1, "ingredient"));
-        Ingredient var3 = Ingredient.fromJson(var2);
+        Ingredient var3 = Ingredient.fromJson(var2, false);
         String var4 = GsonHelper.getAsString(param1, "result");
         ResourceLocation var5 = new ResourceLocation(var4);
         ItemStack var6 = new ItemStack(

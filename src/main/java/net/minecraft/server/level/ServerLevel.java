@@ -205,7 +205,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
         boolean param7,
         long param8,
         List<CustomSpawner> param9,
-        boolean param10
+        boolean param10,
+        @Nullable RandomSequences param11
     ) {
         super(param3, param4, param0.registryAccess(), param5.type(), param0::getProfiler, false, param7, param8, param0.getMaxChainedNeighborUpdates());
         this.tickTime = param10;
@@ -264,8 +265,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
         this.sleepStatus = new SleepStatus();
         this.gameEventDispatcher = new GameEventDispatcher(this);
-        this.randomSequences = this.getDataStorage()
-            .computeIfAbsent(param1x -> RandomSequences.load(var4, param1x), () -> new RandomSequences(var4), "random_sequences");
+        this.randomSequences = Objects.requireNonNullElseGet(
+            param11,
+            () -> this.getDataStorage().computeIfAbsent(param1x -> RandomSequences.load(var4, param1x), () -> new RandomSequences(var4), "random_sequences")
+        );
     }
 
     @Deprecated
@@ -1596,6 +1599,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     public RandomSource getRandomSequence(ResourceLocation param0) {
         return this.randomSequences.get(param0);
+    }
+
+    public RandomSequences getRandomSequences() {
+        return this.randomSequences;
     }
 
     final class EntityCallbacks implements LevelCallback<Entity> {

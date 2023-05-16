@@ -1,13 +1,13 @@
 package net.minecraft.world.item;
 
 import com.mojang.authlib.GameProfile;
+import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
-import org.apache.commons.lang3.StringUtils;
 
 public class PlayerHeadItem extends StandingAndWallBlockItem {
     public static final String TAG_SKULL_OWNER = "SkullOwner";
@@ -41,7 +41,7 @@ public class PlayerHeadItem extends StandingAndWallBlockItem {
     @Override
     public void verifyTagAfterLoad(CompoundTag param0) {
         super.verifyTagAfterLoad(param0);
-        if (param0.contains("SkullOwner", 8) && !StringUtils.isBlank(param0.getString("SkullOwner"))) {
+        if (param0.contains("SkullOwner", 8) && !Util.isBlank(param0.getString("SkullOwner"))) {
             GameProfile var0 = new GameProfile(null, param0.getString("SkullOwner"));
             SkullBlockEntity.updateGameprofile(var0, param1 -> param0.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1)));
         }

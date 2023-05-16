@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +12,13 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.RandomSequence;
+import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.storage.loot.LootDataId;
 import net.minecraft.world.level.storage.loot.LootDataResolver;
 import net.minecraft.world.level.storage.loot.LootDataType;
@@ -39,13 +43,19 @@ public class LootTableProvider implements DataProvider {
     @Override
     public CompletableFuture<?> run(CachedOutput param0) {
         final Map<ResourceLocation, LootTable> var0 = Maps.newHashMap();
-        this.subProviders.forEach(param1 -> param1.provider().get().generate((param2, param3) -> {
-                param3.setRandomSequence(param2);
-                if (var0.put(param2, param3.setParamSet(param1.paramSet).build()) != null) {
-                    throw new IllegalStateException("Duplicate loot table " + param2);
+        Map<RandomSupport.Seed128bit, ResourceLocation> var1 = new Object2ObjectOpenHashMap<>();
+        this.subProviders.forEach(param2 -> param2.provider().get().generate((param3, param4) -> {
+                ResourceLocation var0x = var1.put(RandomSequence.seedForKey(param3), param3);
+                if (var0x != null) {
+                    Util.logAndPauseIfInIde("Loot table random sequence seed collision on " + var0x + " and " + param3);
+                }
+
+                param4.setRandomSequence(param3);
+                if (var0.put(param3, param4.setParamSet(param2.paramSet).build()) != null) {
+                    throw new IllegalStateException("Duplicate loot table " + param3);
                 }
             }));
-        ValidationContext var1 = new ValidationContext(LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
+        ValidationContext var2 = new ValidationContext(LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
             @Nullable
             @Override
             public <T> T getElement(LootDataId<T> param0) {
@@ -53,18 +63,18 @@ public class LootTableProvider implements DataProvider {
             }
         });
 
-        for(ResourceLocation var3 : Sets.difference(this.requiredTables, var0.keySet())) {
-            var1.reportProblem("Missing built-in table: " + var3);
+        for(ResourceLocation var4 : Sets.difference(this.requiredTables, var0.keySet())) {
+            var2.reportProblem("Missing built-in table: " + var4);
         }
 
         var0.forEach(
             (param1, param2) -> param2.validate(
-                    var1.setParams(param2.getParamSet()).enterElement("{" + param1 + "}", new LootDataId<>(LootDataType.TABLE, param1))
+                    var2.setParams(param2.getParamSet()).enterElement("{" + param1 + "}", new LootDataId<>(LootDataType.TABLE, param1))
                 )
         );
-        Multimap<String, String> var4 = var1.getProblems();
-        if (!var4.isEmpty()) {
-            var4.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
+        Multimap<String, String> var5 = var2.getProblems();
+        if (!var5.isEmpty()) {
+            var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
             throw new IllegalStateException("Failed to validate loot tables, see logs");
         } else {
             return CompletableFuture.allOf(var0.entrySet().stream().map(param1 -> {

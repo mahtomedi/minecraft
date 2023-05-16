@@ -139,6 +139,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.HasCustomInventoryScreen;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PlayerRideableJumping;
 import net.minecraft.world.entity.RelativeMovement;
@@ -420,6 +421,10 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                 var11 = var6 - this.vehicleLastGoodY - 1.0E-6;
                 var12 = var7 - this.vehicleLastGoodZ;
                 boolean var16 = var0.verticalCollisionBelow;
+                if (var0 instanceof LivingEntity var17 && var17.onClimbable()) {
+                    var17.resetFallDistance();
+                }
+
                 var0.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
                 var10 = var5 - var0.getX();
                 var11 = var6 - var0.getY();
@@ -429,15 +434,15 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
 
                 var12 = var7 - var0.getZ();
                 var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                boolean var18 = false;
+                boolean var19 = false;
                 if (var14 > 0.0625) {
-                    var18 = true;
+                    var19 = true;
                     LOGGER.warn("{} (vehicle of {}) moved wrongly! {}", var0.getName().getString(), this.player.getName().getString(), Math.sqrt(var14));
                 }
 
                 var0.absMoveTo(var5, var6, var7, var8, var9);
-                boolean var19 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
-                if (var15 && (var18 || !var19)) {
+                boolean var20 = var1.noCollision(var0, var0.getBoundingBox().deflate(0.0625));
+                if (var15 && (var19 || !var20)) {
                     var0.absMoveTo(var2, var3, var4, var8, var9);
                     this.connection.send(new ClientboundMoveVehiclePacket(var0));
                     return;
@@ -630,17 +635,14 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
     @Override
     public void handleRenameItem(ServerboundRenameItemPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.serverLevel());
-        AbstractContainerMenu var1 = this.player.containerMenu;
-        if (var1 instanceof AnvilMenu var0) {
+        AbstractContainerMenu var3 = this.player.containerMenu;
+        if (var3 instanceof AnvilMenu var0) {
             if (!var0.stillValid(this.player)) {
                 LOGGER.debug("Player {} interacted with invalid menu {}", this.player, var0);
                 return;
             }
 
-            String var1x = SharedConstants.filterText(param0.getName());
-            if (var1x.length() <= 50) {
-                var0.setItemName(var1x);
-            }
+            var0.setItemName(param0.getName());
         }
 
     }
@@ -954,10 +956,10 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
-                            this.player.absMoveTo(var1, var2, var3, var4, var5);
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
-                                || (!var21 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17)) {
+                                || (!var21 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17, var1, var2, var3)) {
+                                this.player.absMoveTo(var1, var2, var3, var4, var5);
                                 this.clientIsFloating = var11 >= -0.03125
                                     && !var19
                                     && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
@@ -989,12 +991,13 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
         }
     }
 
-    private boolean isPlayerCollidingWithAnythingNew(LevelReader param0, AABB param1) {
-        Iterable<VoxelShape> var0 = param0.getCollisions(this.player, this.player.getBoundingBox().deflate(1.0E-5F));
-        VoxelShape var1 = Shapes.create(param1.deflate(1.0E-5F));
+    private boolean isPlayerCollidingWithAnythingNew(LevelReader param0, AABB param1, double param2, double param3, double param4) {
+        AABB var0 = this.player.getBoundingBox().move(param2 - this.player.getX(), param3 - this.player.getY(), param4 - this.player.getZ());
+        Iterable<VoxelShape> var1 = param0.getCollisions(this.player, var0.deflate(1.0E-5F));
+        VoxelShape var2 = Shapes.create(param1.deflate(1.0E-5F));
 
-        for(VoxelShape var2 : var0) {
-            if (!Shapes.joinIsNotEmpty(var2, var1, BooleanOp.AND)) {
+        for(VoxelShape var3 : var1) {
+            if (!Shapes.joinIsNotEmpty(var3, var2, BooleanOp.AND)) {
                 return true;
             }
         }

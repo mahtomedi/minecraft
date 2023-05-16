@@ -49,7 +49,7 @@ public class PerfCommand {
             Consumer<ProfileResults> var1 = param1 -> whenStopped(param0, param1);
             Consumer<Path> var2 = param2 -> saveResults(param0, param2, var0);
             var0.startRecordingMetrics(var1, var2);
-            param0.sendSuccess(Component.translatable("commands.perf.started"), false);
+            param0.sendSuccess(() -> Component.translatable("commands.perf.started"), false);
             return 0;
         }
     }
@@ -89,7 +89,7 @@ public class PerfCommand {
             LOGGER.warn("Failed to delete temporary profiling file {}", param1, var9);
         }
 
-        param0.sendSuccess(Component.translatable("commands.perf.reportSaved", var1), false);
+        param0.sendSuccess(() -> Component.translatable("commands.perf.reportSaved", var1), false);
     }
 
     private static void whenStopped(CommandSourceStack param0, ProfileResults param1) {
@@ -97,9 +97,9 @@ public class PerfCommand {
             int var0 = param1.getTickDuration();
             double var1 = (double)param1.getNanoDuration() / (double)TimeUtil.NANOSECONDS_PER_SECOND;
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.perf.stopped", String.format(Locale.ROOT, "%.2f", var1), var0, String.format(Locale.ROOT, "%.2f", (double)var0 / var1)
-                ),
+                () -> Component.translatable(
+                        "commands.perf.stopped", String.format(Locale.ROOT, "%.2f", var1), var0, String.format(Locale.ROOT, "%.2f", (double)var0 / var1)
+                    ),
                 false
             );
         }

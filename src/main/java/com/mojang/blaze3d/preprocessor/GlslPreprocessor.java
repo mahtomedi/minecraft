@@ -8,10 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
+import net.minecraft.Util;
 import net.minecraft.util.StringUtil;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class GlslPreprocessor {
@@ -60,7 +60,7 @@ public abstract class GlslPreprocessor {
                         int var10 = param1.sourceId;
                         List<String> var11 = this.processImports(var9, param1, var6 ? FileUtil.getFullResourcePath(var8) : "");
                         var11.set(0, String.format(Locale.ROOT, "#line %d %d\n%s", 0, var10, this.processVersions(var11.get(0), param1)));
-                        if (!StringUtils.isBlank(var7)) {
+                        if (!Util.isBlank(var7)) {
                             var3.add(var7);
                         }
 
@@ -80,7 +80,7 @@ public abstract class GlslPreprocessor {
         }
 
         String var14 = param0.substring(var1);
-        if (!StringUtils.isBlank(var14)) {
+        if (!Util.isBlank(var14)) {
             var3.add(var2 + var14);
         }
 

@@ -143,5 +143,10 @@ public class MinecartCommandBlock extends AbstractMinecart {
                 MinecartCommandBlock.this
             );
         }
+
+        @Override
+        public boolean isValid() {
+            return !MinecartCommandBlock.this.isRemoved();
+        }
     }
 }

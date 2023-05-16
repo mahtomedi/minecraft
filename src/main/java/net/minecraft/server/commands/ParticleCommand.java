@@ -153,7 +153,9 @@ public class ParticleCommand {
         if (var0 == 0) {
             throw ERROR_FAILED.create();
         } else {
-            param0.sendSuccess(Component.translatable("commands.particle.success", BuiltInRegistries.PARTICLE_TYPE.getKey(param1.getType()).toString()), true);
+            param0.sendSuccess(
+                () -> Component.translatable("commands.particle.success", BuiltInRegistries.PARTICLE_TYPE.getKey(param1.getType()).toString()), true
+            );
             return var0;
         }
     }

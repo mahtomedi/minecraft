@@ -270,7 +270,7 @@ public class TestCommand {
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to copy to clipboard")))
                         .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "final BlockPos " + param1 + " = new BlockPos(" + var6 + ");"))
                 );
-            param0.sendSuccess(Component.literal("Position relative to " + var7 + ": ").append(var8), false);
+            param0.sendSuccess(() -> Component.literal("Position relative to " + var7 + ": ").append(var8), false);
             DebugPackets.sendGameTestAddMarker(var2, new BlockPos(var1), var6, -2147418368, 10000);
             return 1;
         }
@@ -420,7 +420,7 @@ public class TestCommand {
     }
 
     private static void say(CommandSourceStack param0, String param1) {
-        param0.sendSuccess(Component.literal(param1), false);
+        param0.sendSuccess(() -> Component.literal(param1), false);
     }
 
     private static int exportNearestTestStructure(CommandSourceStack param0) {

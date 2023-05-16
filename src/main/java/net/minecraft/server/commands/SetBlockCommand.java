@@ -101,7 +101,7 @@ public class SetBlockCommand {
                 throw ERROR_FAILED.create();
             } else {
                 var0.blockUpdated(param1, param2.getState().getBlock());
-                param0.sendSuccess(Component.translatable("commands.setblock.success", param1.getX(), param1.getY(), param1.getZ()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.setblock.success", param1.getX(), param1.getY(), param1.getZ()), true);
                 return 1;
             }
         }

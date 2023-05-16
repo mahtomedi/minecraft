@@ -116,13 +116,13 @@ public class SpreadPlayersCommand {
             spreadPositions(param1, (double)param2, var0, var2, var3, var4, var5, var6, param4, var7, param5);
             double var8 = setPlayerPositions(param6, var0, var7, param4, param5);
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.spreadplayers.success." + (param5 ? "teams" : "entities"),
-                    var7.length,
-                    param1.x,
-                    param1.y,
-                    String.format(Locale.ROOT, "%.2f", var8)
-                ),
+                () -> Component.translatable(
+                        "commands.spreadplayers.success." + (param5 ? "teams" : "entities"),
+                        var7.length,
+                        param1.x,
+                        param1.y,
+                        String.format(Locale.ROOT, "%.2f", var8)
+                    ),
                 true
             );
             return var7.length;

@@ -45,7 +45,7 @@ public class ReloadCommand {
             WorldData var3 = var1.getWorldData();
             Collection<String> var4 = var2.getSelectedIds();
             Collection<String> var5 = discoverNewPacks(var2, var3, var4);
-            var0x.sendSuccess(Component.translatable("commands.reload.success"), true);
+            var0x.sendSuccess(() -> Component.translatable("commands.reload.success"), true);
             reloadPacks(var5, var0x);
             return 0;
         }));

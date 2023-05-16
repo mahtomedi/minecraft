@@ -736,7 +736,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             return false;
         } else {
             boolean var0 = this.isStateClimbable(param1);
-            if ((this.onGround() || var0 || this.isCrouching() && param4.y == 0.0) && !this.isSwimming()) {
+            if ((this.onGround() || var0 || this.isCrouching() && param4.y == 0.0 || this.isOnRails()) && !this.isSwimming()) {
                 if (param2) {
                     this.walkingStepSound(param0, param1);
                 }
@@ -2195,6 +2195,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             Team var0 = this.getTeam();
             return var0 != null && param0 != null && param0.getTeam() == var0 && var0.canSeeFriendlyInvisibles() ? false : this.isInvisible();
         }
+    }
+
+    public boolean isOnRails() {
+        return false;
     }
 
     public void updateDynamicGameEventListener(BiConsumer<DynamicGameEventListener<?>, ServerLevel> param0) {

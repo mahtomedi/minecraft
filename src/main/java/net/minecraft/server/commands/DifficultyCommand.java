@@ -24,7 +24,7 @@ public class DifficultyCommand {
 
         param0.register(var0.requires(param0x -> param0x.hasPermission(2)).executes(param0x -> {
             Difficulty var0x = param0x.getSource().getLevel().getDifficulty();
-            param0x.getSource().sendSuccess(Component.translatable("commands.difficulty.query", var0x.getDisplayName()), false);
+            param0x.getSource().sendSuccess(() -> Component.translatable("commands.difficulty.query", var0x.getDisplayName()), false);
             return var0x.getId();
         }));
     }
@@ -35,7 +35,7 @@ public class DifficultyCommand {
             throw ERROR_ALREADY_DIFFICULT.create(param1.getKey());
         } else {
             var0.setDifficulty(param1, true);
-            param0.sendSuccess(Component.translatable("commands.difficulty.success", param1.getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.difficulty.success", param1.getDisplayName()), true);
             return 0;
         }
     }

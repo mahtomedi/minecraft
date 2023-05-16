@@ -57,6 +57,7 @@ public abstract class AbstractMinecart extends Entity {
     );
     protected static final float WATER_SLOWDOWN_FACTOR = 0.95F;
     private boolean flipped;
+    private boolean onRails;
     private static final Map<RailShape, Pair<Vec3i, Vec3i>> EXITS = Util.make(Maps.newEnumMap(RailShape.class), param0 -> {
         Vec3i var0 = Direction.WEST.getNormal();
         Vec3i var1 = Direction.EAST.getNormal();
@@ -317,7 +318,8 @@ public abstract class AbstractMinecart extends Entity {
 
             BlockPos var8 = new BlockPos(var5, var6, var7);
             BlockState var9 = this.level().getBlockState(var8);
-            if (BaseRailBlock.isRail(var9)) {
+            this.onRails = BaseRailBlock.isRail(var9);
+            if (this.onRails) {
                 this.moveAlongTrack(var8, var9);
                 if (var9.is(Blocks.ACTIVATOR_RAIL)) {
                     this.activateMinecart(var5, var6, var7, var9.getValue(PoweredRailBlock.POWERED));
@@ -558,6 +560,11 @@ public abstract class AbstractMinecart extends Entity {
             }
         }
 
+    }
+
+    @Override
+    public boolean isOnRails() {
+        return this.onRails;
     }
 
     private boolean isRedstoneConductor(BlockPos param0) {

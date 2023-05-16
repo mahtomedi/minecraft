@@ -6,11 +6,11 @@ import java.io.File;
 import java.net.Proxy;
 import java.nio.file.Path;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.client.User;
 import net.minecraft.client.resources.IndexedAssetSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class GameConfig {
@@ -68,7 +68,7 @@ public class GameConfig {
     @OnlyIn(Dist.CLIENT)
     public static record QuickPlayData(@Nullable String path, @Nullable String singleplayer, @Nullable String multiplayer, @Nullable String realms) {
         public boolean isEnabled() {
-            return !StringUtils.isBlank(this.singleplayer) || !StringUtils.isBlank(this.multiplayer) || !StringUtils.isBlank(this.realms);
+            return !Util.isBlank(this.singleplayer) || !Util.isBlank(this.multiplayer) || !Util.isBlank(this.realms);
         }
     }
 

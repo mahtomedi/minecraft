@@ -46,7 +46,7 @@ public class OpCommand {
             if (!var0.isOp(var2)) {
                 var0.op(var2);
                 ++var1;
-                param0.sendSuccess(Component.translatable("commands.op.success", param1.iterator().next().getName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.op.success", param1.iterator().next().getName()), true);
             }
         }
 

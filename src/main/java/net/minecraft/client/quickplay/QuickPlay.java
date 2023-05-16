@@ -8,6 +8,7 @@ import com.mojang.realmsclient.exception.RealmsServiceException;
 import com.mojang.realmsclient.gui.screens.RealmsLongRunningMcoTaskScreen;
 import com.mojang.realmsclient.util.task.GetServerDetailsTask;
 import java.util.concurrent.locks.ReentrantLock;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
@@ -25,7 +26,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
 public class QuickPlay {
@@ -42,11 +42,11 @@ public class QuickPlay {
         String var1 = param1.multiplayer();
         String var2 = param1.realms();
         param2.done().thenRunAsync(() -> {
-            if (!StringUtils.isBlank(var0)) {
+            if (!Util.isBlank(var0)) {
                 joinSingleplayerWorld(param0, var0);
-            } else if (!StringUtils.isBlank(var1)) {
+            } else if (!Util.isBlank(var1)) {
                 joinMultiplayerWorld(param0, var1);
-            } else if (!StringUtils.isBlank(var2)) {
+            } else if (!Util.isBlank(var2)) {
                 joinRealmsWorld(param0, param3, var2);
             }
 

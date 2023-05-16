@@ -64,7 +64,7 @@ public class PublishCommand {
         } else if (!param0.getServer().publishServer(param3, param2, param1)) {
             throw ERROR_FAILED.create();
         } else {
-            param0.sendSuccess(getSuccessMessage(param1), true);
+            param0.sendSuccess(() -> getSuccessMessage(param1), true);
             return param1;
         }
     }

@@ -35,7 +35,7 @@ public class DeOpCommands {
             if (var0.isOp(var2)) {
                 var0.deop(var2);
                 ++var1;
-                param0.sendSuccess(Component.translatable("commands.deop.success", param1.iterator().next().getName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.deop.success", param1.iterator().next().getName()), true);
             }
         }
 

@@ -32,7 +32,7 @@ public class ListPlayersCommand {
         PlayerList var0 = param0.getServer().getPlayerList();
         List<ServerPlayer> var1 = var0.getPlayers();
         Component var2 = ComponentUtils.formatList(var1, param1);
-        param0.sendSuccess(Component.translatable("commands.list.players", var1.size(), var0.getMaxPlayers(), var2), false);
+        param0.sendSuccess(() -> Component.translatable("commands.list.players", var1.size(), var0.getMaxPlayers(), var2), false);
         return var1.size();
     }
 }

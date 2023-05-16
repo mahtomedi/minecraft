@@ -103,7 +103,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionCallback(var1));
-                param0.sendSuccess(Component.translatable("commands.schedule.created.function", var1, param2, var0), true);
+                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.function", var1, param2, var0), true);
             }).ifRight(param6 -> {
                 String var0x = "#" + var1;
                 if (param3) {
@@ -111,7 +111,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionTagCallback(var1));
-                param0.sendSuccess(Component.translatable("commands.schedule.created.tag", var1, param2, var0), true);
+                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.tag", var1, param2, var0), true);
             });
             return Math.floorMod(var0, Integer.MAX_VALUE);
         }
@@ -122,7 +122,7 @@ public class ScheduleCommand {
         if (var0 == 0) {
             throw ERROR_CANT_REMOVE.create(param1);
         } else {
-            param0.sendSuccess(Component.translatable("commands.schedule.cleared.success", var0, param1), true);
+            param0.sendSuccess(() -> Component.translatable("commands.schedule.cleared.success", var0, param1), true);
             return var0;
         }
     }

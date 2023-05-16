@@ -228,31 +228,32 @@ public class CommandSuggestions {
     }
 
     private void updateUsageInfo() {
+        boolean var0 = false;
         if (this.input.getCursorPosition() == this.input.getValue().length()) {
             if (this.pendingSuggestions.join().isEmpty() && !this.currentParse.getExceptions().isEmpty()) {
-                int var0 = 0;
+                int var1 = 0;
 
-                for(Entry<CommandNode<SharedSuggestionProvider>, CommandSyntaxException> var1 : this.currentParse.getExceptions().entrySet()) {
-                    CommandSyntaxException var2 = var1.getValue();
-                    if (var2.getType() == CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect()) {
-                        ++var0;
+                for(Entry<CommandNode<SharedSuggestionProvider>, CommandSyntaxException> var2 : this.currentParse.getExceptions().entrySet()) {
+                    CommandSyntaxException var3 = var2.getValue();
+                    if (var3.getType() == CommandSyntaxException.BUILT_IN_EXCEPTIONS.literalIncorrect()) {
+                        ++var1;
                     } else {
-                        this.commandUsage.add(getExceptionMessage(var2));
+                        this.commandUsage.add(getExceptionMessage(var3));
                     }
                 }
 
-                if (var0 > 0) {
+                if (var1 > 0) {
                     this.commandUsage.add(getExceptionMessage(CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().create()));
                 }
             } else if (this.currentParse.getReader().canRead()) {
-                this.commandUsage.add(getExceptionMessage(Commands.getParseException(this.currentParse)));
+                var0 = true;
             }
         }
 
         this.commandUsagePosition = 0;
         this.commandUsageWidth = this.screen.width;
-        if (this.commandUsage.isEmpty()) {
-            this.fillNodeUsage(ChatFormatting.GRAY);
+        if (this.commandUsage.isEmpty() && !this.fillNodeUsage(ChatFormatting.GRAY) && var0) {
+            this.commandUsage.add(getExceptionMessage(Commands.getParseException(this.currentParse)));
         }
 
         this.suggestions = null;
@@ -262,7 +263,7 @@ public class CommandSuggestions {
 
     }
 
-    private void fillNodeUsage(ChatFormatting param0) {
+    private boolean fillNodeUsage(ChatFormatting param0) {
         CommandContextBuilder<SharedSuggestionProvider> var0 = this.currentParse.getContext();
         SuggestionContext<SharedSuggestionProvider> var1 = var0.findSuggestionContext(this.input.getCursorPosition());
         Map<CommandNode<SharedSuggestionProvider>, String> var2 = this.minecraft
@@ -285,8 +286,10 @@ public class CommandSuggestions {
             this.commandUsage.addAll(var3);
             this.commandUsagePosition = Mth.clamp(this.input.getScreenX(var1.startPos), 0, this.input.getScreenX(0) + this.input.getInnerWidth() - var4);
             this.commandUsageWidth = var4;
+            return true;
+        } else {
+            return false;
         }
-
     }
 
     private FormattedCharSequence formatChat(String param0x, int param1x) {

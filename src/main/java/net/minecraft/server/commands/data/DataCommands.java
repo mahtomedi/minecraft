@@ -9,6 +9,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.ArrayList;
@@ -45,6 +46,9 @@ public class DataCommands {
     );
     private static final DynamicCommandExceptionType ERROR_EXPECTED_VALUE = new DynamicCommandExceptionType(
         param0 -> Component.translatable("commands.data.modify.expected_value", param0)
+    );
+    private static final Dynamic2CommandExceptionType ERROR_INVALID_SUBSTRING = new Dynamic2CommandExceptionType(
+        (param0, param1) -> Component.translatable("commands.data.modify.invalid_substring", param0, param1)
     );
     public static final List<Function<String, DataCommands.DataProvider>> ALL_PROVIDERS = ImmutableList.of(
         EntityDataAccessor.PROVIDER, BlockDataAccessor.PROVIDER, StorageDataAccessor.PROVIDER
@@ -169,12 +173,12 @@ public class DataCommands {
         }
     }
 
-    private static List<Tag> stringifyTagList(List<Tag> param0, Function<String, String> param1) throws CommandSyntaxException {
+    private static List<Tag> stringifyTagList(List<Tag> param0, DataCommands.StringProcessor param1) throws CommandSyntaxException {
         List<Tag> var0 = new ArrayList<>(param0.size());
 
         for(Tag var1 : param0) {
             String var2 = getAsText(var1);
-            var0.add(StringTag.valueOf(param1.apply(var2)));
+            var0.add(StringTag.valueOf(param1.process(var2)));
         }
 
         return var0;
@@ -268,13 +272,24 @@ public class DataCommands {
         return var0;
     }
 
-    private static String substring(String param0, int param1, int param2) {
-        int var0 = param0.length();
-        return param0.substring(getOffset(param1, var0), getOffset(param2, var0));
+    private static String validatedSubstring(String param0, int param1, int param2) throws CommandSyntaxException {
+        if (param1 >= 0 && param2 <= param0.length() && param1 <= param2) {
+            return param0.substring(param1, param2);
+        } else {
+            throw ERROR_INVALID_SUBSTRING.create(param1, param2);
+        }
     }
 
-    private static String substring(String param0, int param1) {
-        return param0.substring(getOffset(param1, param0.length()));
+    private static String substring(String param0, int param1, int param2) throws CommandSyntaxException {
+        int var0 = param0.length();
+        int var1 = getOffset(param1, var0);
+        int var2 = getOffset(param2, var0);
+        return validatedSubstring(param0, var1, var2);
+    }
+
+    private static String substring(String param0, int param1) throws CommandSyntaxException {
+        int var0 = param0.length();
+        return validatedSubstring(param0, getOffset(param1, var0), var0);
     }
 
     private static int getOffset(int param0, int param1) {
@@ -303,7 +318,7 @@ public class DataCommands {
             throw ERROR_MERGE_UNCHANGED.create();
         } else {
             var0.setData(var2);
-            param0.getSource().sendSuccess(var0.getModifiedSuccess(), true);
+            param0.getSource().sendSuccess(() -> var0.getModifiedSuccess(), true);
             return var3;
         }
     }
@@ -315,7 +330,7 @@ public class DataCommands {
             throw ERROR_MERGE_UNCHANGED.create();
         } else {
             param1.setData(var0);
-            param0.sendSuccess(param1.getModifiedSuccess(), true);
+            param0.sendSuccess(() -> param1.getModifiedSuccess(), true);
             return var1;
         }
     }
@@ -348,7 +363,7 @@ public class DataCommands {
             var1 = var0.getAsString().length();
         }
 
-        param0.sendSuccess(param1.getPrintSuccess(var0), false);
+        param0.sendSuccess(() -> param1.getPrintSuccess(var0), false);
         return var1;
     }
 
@@ -358,13 +373,14 @@ public class DataCommands {
             throw ERROR_GET_NOT_NUMBER.create(param2.toString());
         } else {
             int var1 = Mth.floor(((NumericTag)var0).getAsDouble() * param3);
-            param0.sendSuccess(param1.getPrintSuccess(param2, param3, var1), false);
+            param0.sendSuccess(() -> param1.getPrintSuccess(param2, param3, var1), false);
             return var1;
         }
     }
 
     private static int getData(CommandSourceStack param0, DataAccessor param1) throws CommandSyntaxException {
-        param0.sendSuccess(param1.getPrintSuccess(param1.getData()), false);
+        CompoundTag var0 = param1.getData();
+        param0.sendSuccess(() -> param1.getPrintSuccess(var0), false);
         return 1;
     }
 
@@ -378,16 +394,18 @@ public class DataCommands {
                 throw ERROR_MERGE_UNCHANGED.create();
             } else {
                 param1.setData(var1);
-                param0.sendSuccess(param1.getModifiedSuccess(), true);
+                param0.sendSuccess(() -> param1.getModifiedSuccess(), true);
                 return 1;
             }
         }
     }
 
+    @FunctionalInterface
     interface DataManipulator {
         int modify(CommandContext<CommandSourceStack> var1, CompoundTag var2, NbtPathArgument.NbtPath var3, List<Tag> var4) throws CommandSyntaxException;
     }
 
+    @FunctionalInterface
     interface DataManipulatorDecorator {
         ArgumentBuilder<CommandSourceStack, ?> create(DataCommands.DataManipulator var1);
     }
@@ -398,5 +416,10 @@ public class DataCommands {
         ArgumentBuilder<CommandSourceStack, ?> wrap(
             ArgumentBuilder<CommandSourceStack, ?> var1, Function<ArgumentBuilder<CommandSourceStack, ?>, ArgumentBuilder<CommandSourceStack, ?>> var2
         );
+    }
+
+    @FunctionalInterface
+    interface StringProcessor {
+        String process(String var1) throws CommandSyntaxException;
     }
 }

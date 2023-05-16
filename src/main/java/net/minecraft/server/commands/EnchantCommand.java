@@ -98,10 +98,11 @@ public class EnchantCommand {
             } else {
                 if (param1.size() == 1) {
                     param0.sendSuccess(
-                        Component.translatable("commands.enchant.success.single", var0.getFullname(param3), param1.iterator().next().getDisplayName()), true
+                        () -> Component.translatable("commands.enchant.success.single", var0.getFullname(param3), param1.iterator().next().getDisplayName()),
+                        true
                     );
                 } else {
-                    param0.sendSuccess(Component.translatable("commands.enchant.success.multiple", var0.getFullname(param3), param1.size()), true);
+                    param0.sendSuccess(() -> Component.translatable("commands.enchant.success.multiple", var0.getFullname(param3), param1.size()), true);
                 }
 
                 return var1;

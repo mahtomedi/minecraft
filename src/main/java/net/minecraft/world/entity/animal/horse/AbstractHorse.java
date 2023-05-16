@@ -237,7 +237,7 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     public void equipArmor(Player param0, ItemStack param1) {
         if (this.isArmor(param1)) {
-            this.inventory.setItem(1, new ItemStack(param1.getItem()));
+            this.inventory.setItem(1, param1.copyWithCount(1));
             if (!param0.getAbilities().instabuild) {
                 param1.shrink(1);
             }

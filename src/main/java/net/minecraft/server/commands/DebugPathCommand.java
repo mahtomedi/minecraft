@@ -45,7 +45,7 @@ public class DebugPathCommand {
             } else if (!var3.canReach()) {
                 throw ERROR_NOT_COMPLETE.create();
             } else {
-                param0.sendSuccess(Component.literal("Made path"), true);
+                param0.sendSuccess(() -> Component.literal("Made path"), true);
                 return 1;
             }
         }

@@ -1,11 +1,13 @@
 package net.minecraft.client.gui.screens;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.navigation.CommonInputs;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.network.chat.CommonComponents;
@@ -32,18 +34,36 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         this.packSelectionList = new LanguageSelectScreen.LanguageSelectionList(this.minecraft);
         this.addWidget(this.packSelectionList);
         this.addRenderableWidget(this.options.forceUnicodeFont().createButton(this.options, this.width / 2 - 155, this.height - 38, 150));
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> {
-            LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
-            if (var0 != null && !var0.code.equals(this.languageManager.getSelected())) {
-                this.languageManager.setSelected(var0.code);
-                this.options.languageCode = var0.code;
-                this.minecraft.reloadResourcePacks();
-                this.options.save();
-            }
-
-            this.minecraft.setScreen(this.lastScreen);
-        }).bounds(this.width / 2 - 155 + 160, this.height - 38, 150, 20).build());
+        this.addRenderableWidget(
+            Button.builder(CommonComponents.GUI_DONE, param0 -> this.onDone()).bounds(this.width / 2 - 155 + 160, this.height - 38, 150, 20).build()
+        );
         super.init();
+    }
+
+    void onDone() {
+        LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
+        if (var0 != null && !var0.code.equals(this.languageManager.getSelected())) {
+            this.languageManager.setSelected(var0.code);
+            this.options.languageCode = var0.code;
+            this.minecraft.reloadResourcePacks();
+            this.options.save();
+        }
+
+        this.minecraft.setScreen(this.lastScreen);
+    }
+
+    @Override
+    public boolean keyPressed(int param0, int param1, int param2) {
+        if (CommonInputs.selected(param0)) {
+            LanguageSelectScreen.LanguageSelectionList.Entry var0 = this.packSelectionList.getSelected();
+            if (var0 != null) {
+                var0.select();
+                this.onDone();
+                return true;
+            }
+        }
+
+        return super.keyPressed(param0, param1, param2);
     }
 
     @Override
@@ -92,6 +112,7 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         public class Entry extends ObjectSelectionList.Entry<LanguageSelectScreen.LanguageSelectionList.Entry> {
             final String code;
             private final Component language;
+            private long lastClickTime;
 
             public Entry(String param1, LanguageInfo param2) {
                 this.code = param1;
@@ -109,13 +130,19 @@ public class LanguageSelectScreen extends OptionsSubScreen {
             public boolean mouseClicked(double param0, double param1, int param2) {
                 if (param2 == 0) {
                     this.select();
+                    if (Util.getMillis() - this.lastClickTime < 250L) {
+                        LanguageSelectScreen.this.onDone();
+                    }
+
+                    this.lastClickTime = Util.getMillis();
                     return true;
                 } else {
+                    this.lastClickTime = Util.getMillis();
                     return false;
                 }
             }
 
-            private void select() {
+            void select() {
                 LanguageSelectionList.this.setSelected(this);
             }
 

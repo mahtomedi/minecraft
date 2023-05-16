@@ -36,7 +36,7 @@ public class KickCommand {
     private static int kickPlayers(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) {
         for(ServerPlayer var0 : param1) {
             var0.connection.disconnect(param2);
-            param0.sendSuccess(Component.translatable("commands.kick.success", var0.getDisplayName(), param2), true);
+            param0.sendSuccess(() -> Component.translatable("commands.kick.success", var0.getDisplayName(), param2), true);
         }
 
         return param1.size();

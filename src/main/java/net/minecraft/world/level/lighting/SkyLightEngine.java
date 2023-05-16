@@ -284,15 +284,16 @@ public final class SkyLightEngine extends LightEngine<SkyLightSectionStorage.Sky
         super.setLightEnabled(param0, param1);
         if (param1) {
             ChunkSkyLightSources var0 = Objects.requireNonNullElse(this.getChunkSources(param0.x, param0.z), this.emptyChunkSources);
-            int var1 = SectionPos.blockToSectionCoord(var0.getHighestLowestSourceY());
-            long var2 = SectionPos.getZeroNode(param0.x, param0.z);
-            int var3 = this.storage.getTopSectionY(var2);
-            int var4 = Math.max(this.storage.getBottomSectionY(), var1);
+            int var1 = var0.getHighestLowestSourceY() - 1;
+            int var2 = SectionPos.blockToSectionCoord(var1) + 1;
+            long var3 = SectionPos.getZeroNode(param0.x, param0.z);
+            int var4 = this.storage.getTopSectionY(var3);
+            int var5 = Math.max(this.storage.getBottomSectionY(), var2);
 
-            for(int var5 = var3 - 1; var5 >= var4; --var5) {
-                DataLayer var6 = this.storage.getDataLayerToWrite(SectionPos.asLong(param0.x, var5, param0.z));
-                if (var6 != null && var6.isEmpty()) {
-                    var6.fill(15);
+            for(int var6 = var4 - 1; var6 >= var5; --var6) {
+                DataLayer var7 = this.storage.getDataLayerToWrite(SectionPos.asLong(param0.x, var6, param0.z));
+                if (var7 != null && var7.isEmpty()) {
+                    var7.fill(15);
                 }
             }
         }

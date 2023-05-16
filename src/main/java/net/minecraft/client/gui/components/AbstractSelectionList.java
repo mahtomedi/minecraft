@@ -19,6 +19,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -237,8 +238,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             param0.blit(Screen.BACKGROUND_LOCATION, this.x0, this.y1, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
             param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
             int var6 = 4;
-            param0.fillGradient(this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0);
-            param0.fillGradient(this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216);
+            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
+            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
         }
 
         int var7 = this.getMaxScroll();

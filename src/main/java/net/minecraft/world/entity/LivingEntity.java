@@ -316,6 +316,10 @@ public abstract class LivingEntity extends Entity implements Attackable {
         }
 
         super.checkFallDamage(param0, param1, param2, param3);
+        if (param1) {
+            this.lastClimbablePos = Optional.empty();
+        }
+
     }
 
     public boolean canBreatheUnderwater() {
@@ -1469,15 +1473,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     public SoundEvent getEatingSound(ItemStack param0) {
         return param0.getEatingSound();
-    }
-
-    @Override
-    public void setOnGround(boolean param0) {
-        super.setOnGround(param0);
-        if (param0) {
-            this.lastClimbablePos = Optional.empty();
-        }
-
     }
 
     public Optional<BlockPos> getLastClimbablePos() {

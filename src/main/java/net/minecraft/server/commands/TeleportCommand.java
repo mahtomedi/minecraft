@@ -174,10 +174,11 @@ public class TeleportCommand {
 
         if (param1.size() == 1) {
             param0.sendSuccess(
-                Component.translatable("commands.teleport.success.entity.single", param1.iterator().next().getDisplayName(), param2.getDisplayName()), true
+                () -> Component.translatable("commands.teleport.success.entity.single", param1.iterator().next().getDisplayName(), param2.getDisplayName()),
+                true
             );
         } else {
-            param0.sendSuccess(Component.translatable("commands.teleport.success.entity.multiple", param1.size(), param2.getDisplayName()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.teleport.success.entity.multiple", param1.size(), param2.getDisplayName()), true);
         }
 
         return param1.size();
@@ -229,20 +230,20 @@ public class TeleportCommand {
 
         if (param1.size() == 1) {
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.teleport.success.location.single",
-                    param1.iterator().next().getDisplayName(),
-                    formatDouble(var0.x),
-                    formatDouble(var0.y),
-                    formatDouble(var0.z)
-                ),
+                () -> Component.translatable(
+                        "commands.teleport.success.location.single",
+                        param1.iterator().next().getDisplayName(),
+                        formatDouble(var0.x),
+                        formatDouble(var0.y),
+                        formatDouble(var0.z)
+                    ),
                 true
             );
         } else {
             param0.sendSuccess(
-                Component.translatable(
-                    "commands.teleport.success.location.multiple", param1.size(), formatDouble(var0.x), formatDouble(var0.y), formatDouble(var0.z)
-                ),
+                () -> Component.translatable(
+                        "commands.teleport.success.location.multiple", param1.size(), formatDouble(var0.x), formatDouble(var0.y), formatDouble(var0.z)
+                    ),
                 true
             );
         }

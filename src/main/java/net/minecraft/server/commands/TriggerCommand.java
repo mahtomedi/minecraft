@@ -93,19 +93,19 @@ public class TriggerCommand {
 
     private static int addValue(CommandSourceStack param0, Score param1, int param2) {
         param1.add(param2);
-        param0.sendSuccess(Component.translatable("commands.trigger.add.success", param1.getObjective().getFormattedDisplayName(), param2), true);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.add.success", param1.getObjective().getFormattedDisplayName(), param2), true);
         return param1.getScore();
     }
 
     private static int setValue(CommandSourceStack param0, Score param1, int param2) {
         param1.setScore(param2);
-        param0.sendSuccess(Component.translatable("commands.trigger.set.success", param1.getObjective().getFormattedDisplayName(), param2), true);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.set.success", param1.getObjective().getFormattedDisplayName(), param2), true);
         return param2;
     }
 
     private static int simpleTrigger(CommandSourceStack param0, Score param1) {
         param1.add(1);
-        param0.sendSuccess(Component.translatable("commands.trigger.simple.success", param1.getObjective().getFormattedDisplayName()), true);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.simple.success", param1.getObjective().getFormattedDisplayName()), true);
         return param1.getScore();
     }
 

@@ -273,7 +273,7 @@ public class ShapedRecipe implements CraftingRecipe {
                 throw new JsonSyntaxException("Invalid key entry: ' ' is a reserved symbol.");
             }
 
-            var0.put(var1.getKey(), Ingredient.fromJson(var1.getValue()));
+            var0.put(var1.getKey(), Ingredient.fromJson(var1.getValue(), false));
         }
 
         var0.put(" ", Ingredient.EMPTY);
@@ -294,11 +294,11 @@ public class ShapedRecipe implements CraftingRecipe {
         }
     }
 
-    public static Item itemFromJson(JsonObject param0) {
+    private static Item itemFromJson(JsonObject param0) {
         String var0 = GsonHelper.getAsString(param0, "item");
         Item var1 = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(var0)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + var0 + "'"));
         if (var1 == Items.AIR) {
-            throw new JsonSyntaxException("Invalid item: " + var0);
+            throw new JsonSyntaxException("Empty ingredient not allowed here");
         } else {
             return var1;
         }

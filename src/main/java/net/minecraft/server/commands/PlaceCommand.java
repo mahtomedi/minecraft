@@ -242,7 +242,7 @@ public class PlaceCommand {
             throw ERROR_FEATURE_FAILED.create();
         } else {
             String var3 = param1.key().location().toString();
-            param0.sendSuccess(Component.translatable("commands.place.feature.success", var3, param2.getX(), param2.getY(), param2.getZ()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.place.feature.success", var3, param2.getX(), param2.getY(), param2.getZ()), true);
             return 1;
         }
     }
@@ -252,7 +252,7 @@ public class PlaceCommand {
         if (!JigsawPlacement.generateJigsaw(var0, param1, param2, param3, param4, false)) {
             throw ERROR_JIGSAW_FAILED.create();
         } else {
-            param0.sendSuccess(Component.translatable("commands.place.jigsaw.success", param4.getX(), param4.getY(), param4.getZ()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.place.jigsaw.success", param4.getX(), param4.getY(), param4.getZ()), true);
             return 1;
         }
     }
@@ -299,7 +299,7 @@ public class PlaceCommand {
                         )
                 );
             String var7 = param1.key().location().toString();
-            param0.sendSuccess(Component.translatable("commands.place.structure.success", var7, param2.getX(), param2.getY(), param2.getZ()), true);
+            param0.sendSuccess(() -> Component.translatable("commands.place.structure.success", var7, param2.getX(), param2.getY(), param2.getZ()), true);
             return 1;
         }
     }
@@ -331,7 +331,7 @@ public class PlaceCommand {
             if (!var7) {
                 throw ERROR_TEMPLATE_FAILED.create();
             } else {
-                param0.sendSuccess(Component.translatable("commands.place.template.success", param1, param2.getX(), param2.getY(), param2.getZ()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.place.template.success", param1, param2.getX(), param2.getY(), param2.getZ()), true);
                 return 1;
             }
         }

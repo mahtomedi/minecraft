@@ -411,7 +411,7 @@ public class EditBox extends AbstractWidget implements Renderable {
 
             if (var6) {
                 if (var11) {
-                    param0.fill(var12, var8 - 1, var12 + 1, var8 + 1 + 9, -3092272);
+                    param0.fill(RenderType.guiOverlay(), var12, var8 - 1, var12 + 1, var8 + 1 + 9, -3092272);
                 } else {
                     param0.drawString(this.font, "_", var12, var8, var1);
                 }

@@ -64,14 +64,14 @@ public class StopSoundCommand {
 
         if (param2 != null) {
             if (param3 != null) {
-                param0.sendSuccess(Component.translatable("commands.stopsound.success.source.sound", param3, param2.getName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.stopsound.success.source.sound", param3, param2.getName()), true);
             } else {
-                param0.sendSuccess(Component.translatable("commands.stopsound.success.source.any", param2.getName()), true);
+                param0.sendSuccess(() -> Component.translatable("commands.stopsound.success.source.any", param2.getName()), true);
             }
         } else if (param3 != null) {
-            param0.sendSuccess(Component.translatable("commands.stopsound.success.sourceless.sound", param3), true);
+            param0.sendSuccess(() -> Component.translatable("commands.stopsound.success.sourceless.sound", param3), true);
         } else {
-            param0.sendSuccess(Component.translatable("commands.stopsound.success.sourceless.any"), true);
+            param0.sendSuccess(() -> Component.translatable("commands.stopsound.success.sourceless.any"), true);
         }
 
         return param1.size();

@@ -74,6 +74,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.Targeting;
 import net.minecraft.world.entity.TraceableEntity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -450,13 +451,12 @@ public class ExecuteCommand {
     }
 
     private static boolean isChunkLoaded(ServerLevel param0, BlockPos param1) {
-        int var0 = SectionPos.blockToSectionCoord(param1.getX());
-        int var1 = SectionPos.blockToSectionCoord(param1.getZ());
-        LevelChunk var2 = param0.getChunkSource().getChunkNow(var0, var1);
-        if (var2 != null) {
-            return var2.getFullStatus() == FullChunkStatus.ENTITY_TICKING;
-        } else {
+        ChunkPos var0 = new ChunkPos(param1);
+        LevelChunk var1 = param0.getChunkSource().getChunkNow(var0.x, var0.z);
+        if (var1 == null) {
             return false;
+        } else {
+            return var1.getFullStatus() == FullChunkStatus.ENTITY_TICKING && param0.areEntitiesLoaded(var0.toLong());
         }
     }
 
@@ -672,7 +672,7 @@ public class ExecuteCommand {
         return param0 ? param1x -> {
             int var0x = param1.test(param1x);
             if (var0x > 0) {
-                param1x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass_count", var0x), false);
+                param1x.getSource().sendSuccess(() -> Component.translatable("commands.execute.conditional.pass_count", var0x), false);
                 return var0x;
             } else {
                 throw ERROR_CONDITIONAL_FAILED.create();
@@ -680,7 +680,7 @@ public class ExecuteCommand {
         } : param1x -> {
             int var0x = param1.test(param1x);
             if (var0x == 0) {
-                param1x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
+                param1x.getSource().sendSuccess(() -> Component.translatable("commands.execute.conditional.pass"), false);
                 return 1;
             } else {
                 throw ERROR_CONDITIONAL_FAILED_COUNT.create(var0x);
@@ -734,7 +734,7 @@ public class ExecuteCommand {
     ) {
         return param1.fork(param0, param2x -> expect(param2x, param2, param3.test(param2x))).executes(param2x -> {
             if (param2 == param3.test(param2x)) {
-                param2x.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
+                param2x.getSource().sendSuccess(() -> Component.translatable("commands.execute.conditional.pass"), false);
                 return 1;
             } else {
                 throw ERROR_CONDITIONAL_FAILED.create();
@@ -752,7 +752,7 @@ public class ExecuteCommand {
     private static int checkIfRegions(CommandContext<CommandSourceStack> param0, boolean param1) throws CommandSyntaxException {
         OptionalInt var0 = checkRegions(param0, param1);
         if (var0.isPresent()) {
-            param0.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass_count", var0.getAsInt()), false);
+            param0.getSource().sendSuccess(() -> Component.translatable("commands.execute.conditional.pass_count", var0.getAsInt()), false);
             return var0.getAsInt();
         } else {
             throw ERROR_CONDITIONAL_FAILED.create();
@@ -764,7 +764,7 @@ public class ExecuteCommand {
         if (var0.isPresent()) {
             throw ERROR_CONDITIONAL_FAILED_COUNT.create(var0.getAsInt());
         } else {
-            param0.getSource().sendSuccess(Component.translatable("commands.execute.conditional.pass"), false);
+            param0.getSource().sendSuccess(() -> Component.translatable("commands.execute.conditional.pass"), false);
             return 1;
         }
     }

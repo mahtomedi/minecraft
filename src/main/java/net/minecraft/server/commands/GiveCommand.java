@@ -52,42 +52,43 @@ public class GiveCommand {
     private static int giveItem(CommandSourceStack param0, ItemInput param1, Collection<ServerPlayer> param2, int param3) throws CommandSyntaxException {
         int var0 = param1.getItem().getMaxStackSize();
         int var1 = var0 * 100;
+        ItemStack var2 = param1.createItemStack(param3, false);
         if (param3 > var1) {
-            param0.sendFailure(Component.translatable("commands.give.failed.toomanyitems", var1, param1.createItemStack(param3, false).getDisplayName()));
+            param0.sendFailure(Component.translatable("commands.give.failed.toomanyitems", var1, var2.getDisplayName()));
             return 0;
         } else {
-            for(ServerPlayer var2 : param2) {
-                int var3 = param3;
+            for(ServerPlayer var3 : param2) {
+                int var4 = param3;
 
-                while(var3 > 0) {
-                    int var4 = Math.min(var0, var3);
-                    var3 -= var4;
-                    ItemStack var5 = param1.createItemStack(var4, false);
-                    boolean var6 = var2.getInventory().add(var5);
-                    if (var6 && var5.isEmpty()) {
-                        var5.setCount(1);
-                        ItemEntity var8 = var2.drop(var5, false);
-                        if (var8 != null) {
-                            var8.makeFakeItem();
+                while(var4 > 0) {
+                    int var5 = Math.min(var0, var4);
+                    var4 -= var5;
+                    ItemStack var6 = param1.createItemStack(var5, false);
+                    boolean var7 = var3.getInventory().add(var6);
+                    if (var7 && var6.isEmpty()) {
+                        var6.setCount(1);
+                        ItemEntity var9 = var3.drop(var6, false);
+                        if (var9 != null) {
+                            var9.makeFakeItem();
                         }
 
-                        var2.level()
+                        var3.level()
                             .playSound(
                                 null,
-                                var2.getX(),
-                                var2.getY(),
-                                var2.getZ(),
+                                var3.getX(),
+                                var3.getY(),
+                                var3.getZ(),
                                 SoundEvents.ITEM_PICKUP,
                                 SoundSource.PLAYERS,
                                 0.2F,
-                                ((var2.getRandom().nextFloat() - var2.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F
+                                ((var3.getRandom().nextFloat() - var3.getRandom().nextFloat()) * 0.7F + 1.0F) * 2.0F
                             );
-                        var2.containerMenu.broadcastChanges();
+                        var3.containerMenu.broadcastChanges();
                     } else {
-                        ItemEntity var7 = var2.drop(var5, false);
-                        if (var7 != null) {
-                            var7.setNoPickUpDelay();
-                            var7.setTarget(var2.getUUID());
+                        ItemEntity var8 = var3.drop(var6, false);
+                        if (var8 != null) {
+                            var8.setNoPickUpDelay();
+                            var8.setTarget(var3.getUUID());
                         }
                     }
                 }
@@ -95,18 +96,11 @@ public class GiveCommand {
 
             if (param2.size() == 1) {
                 param0.sendSuccess(
-                    Component.translatable(
-                        "commands.give.success.single",
-                        param3,
-                        param1.createItemStack(param3, false).getDisplayName(),
-                        param2.iterator().next().getDisplayName()
-                    ),
+                    () -> Component.translatable("commands.give.success.single", param3, var2.getDisplayName(), param2.iterator().next().getDisplayName()),
                     true
                 );
             } else {
-                param0.sendSuccess(
-                    Component.translatable("commands.give.success.single", param3, param1.createItemStack(param3, false).getDisplayName(), param2.size()), true
-                );
+                param0.sendSuccess(() -> Component.translatable("commands.give.success.single", param3, var2.getDisplayName(), param2.size()), true);
             }
 
             return param2.size();

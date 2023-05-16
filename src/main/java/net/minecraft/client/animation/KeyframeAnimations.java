@@ -25,8 +25,14 @@ public class KeyframeAnimations {
                     Keyframe var3x = var0x[var1x];
                     Keyframe var4x = var0x[var2x];
                     float var5x = var0 - var3x.timestamp();
-                    float var6x = Mth.clamp(var5x / (var4x.timestamp() - var3x.timestamp()), 0.0F, 1.0F);
-                    var4x.interpolation().apply(param4, var6x, var0x, var1x, var2x, param3);
+                    float var6;
+                    if (var2x != var1x) {
+                        var6 = Mth.clamp(var5x / (var4x.timestamp() - var3x.timestamp()), 0.0F, 1.0F);
+                    } else {
+                        var6 = 0.0F;
+                    }
+
+                    var4x.interpolation().apply(param4, var6, var0x, var1x, var2x, param3);
                     param4xx.target().apply(param4x, param4);
                 }));
         }

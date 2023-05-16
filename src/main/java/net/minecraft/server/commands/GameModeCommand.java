@@ -42,13 +42,13 @@ public class GameModeCommand {
     private static void logGamemodeChange(CommandSourceStack param0, ServerPlayer param1, GameType param2) {
         Component var0 = Component.translatable("gameMode." + param2.getName());
         if (param0.getEntity() == param1) {
-            param0.sendSuccess(Component.translatable("commands.gamemode.success.self", var0), true);
+            param0.sendSuccess(() -> Component.translatable("commands.gamemode.success.self", var0), true);
         } else {
             if (param0.getLevel().getGameRules().getBoolean(GameRules.RULE_SENDCOMMANDFEEDBACK)) {
                 param1.sendSystemMessage(Component.translatable("gameMode.changed", var0));
             }
 
-            param0.sendSuccess(Component.translatable("commands.gamemode.success.other", param1.getDisplayName(), var0), true);
+            param0.sendSuccess(() -> Component.translatable("commands.gamemode.success.other", param1.getDisplayName(), var0), true);
         }
 
     }
