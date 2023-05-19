@@ -598,7 +598,7 @@ public class ServerPlayer extends Player {
             Component var1 = this.getCombatTracker().getDeathMessage();
             this.connection
                 .send(
-                    new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var1),
+                    new ClientboundPlayerCombatKillPacket(this.getId(), var1),
                     PacketSendListener.exceptionallySend(
                         () -> {
                             int var0x = 256;
@@ -606,7 +606,7 @@ public class ServerPlayer extends Player {
                             Component var2x = Component.translatable("death.attack.message_too_long", Component.literal(var1x).withStyle(ChatFormatting.YELLOW));
                             Component var3x = Component.translatable("death.attack.even_more_magic", this.getDisplayName())
                                 .withStyle(param1 -> param1.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2x)));
-                            return new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), var3x);
+                            return new ClientboundPlayerCombatKillPacket(this.getId(), var3x);
                         }
                     )
                 );
@@ -619,7 +619,7 @@ public class ServerPlayer extends Player {
                 this.server.getPlayerList().broadcastSystemToAllExceptTeam(this, var1);
             }
         } else {
-            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getCombatTracker(), CommonComponents.EMPTY));
+            this.connection.send(new ClientboundPlayerCombatKillPacket(this.getId(), CommonComponents.EMPTY));
         }
 
         this.removeEntitiesOnShoulder();
@@ -1263,7 +1263,7 @@ public class ServerPlayer extends Player {
 
     @Override
     public void moveTo(double param0, double param1, double param2) {
-        this.teleportTo(param0, param1, param2);
+        super.moveTo(param0, param1, param2);
         this.connection.resetPosition();
     }
 
@@ -1722,12 +1722,30 @@ public class ServerPlayer extends Player {
 
     @Override
     public boolean startRiding(Entity param0, boolean param1) {
-        if (super.startRiding(param0, param1)) {
+        if (!super.startRiding(param0, param1)) {
+            return false;
+        } else {
             param0.positionRider(this);
             this.connection.teleport(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+            if (param0 instanceof LivingEntity var0) {
+                for(MobEffectInstance var1 : var0.getActiveEffects()) {
+                    this.connection.send(new ClientboundUpdateMobEffectPacket(param0.getId(), var1));
+                }
+            }
+
             return true;
-        } else {
-            return false;
         }
+    }
+
+    @Override
+    public void stopRiding() {
+        Entity var0 = this.getVehicle();
+        super.stopRiding();
+        if (var0 instanceof LivingEntity var1) {
+            for(MobEffectInstance var2 : var1.getActiveEffects()) {
+                this.connection.send(new ClientboundRemoveMobEffectPacket(var0.getId(), var2.getEffect()));
+            }
+        }
+
     }
 }

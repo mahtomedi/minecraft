@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens.worldselection;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.hash.Hashing;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
@@ -35,11 +33,11 @@ import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.ErrorScreen;
+import net.minecraft.client.gui.screens.FaviconTexture;
 import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.LoadingDotsText;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
@@ -61,7 +59,7 @@ import org.slf4j.Logger;
 public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.Entry> {
     static final Logger LOGGER = LogUtils.getLogger();
     static final DateFormat DATE_FORMAT = new SimpleDateFormat();
-    static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
+    private static final ResourceLocation ICON_MISSING = new ResourceLocation("textures/misc/unknown_server.png");
     static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/world_selection.png");
     static final Component FROM_NEWER_TOOLTIP_1 = Component.translatable("selectWorld.tooltip.fromNewerVersion1").withStyle(ChatFormatting.RED);
     static final Component FROM_NEWER_TOOLTIP_2 = Component.translatable("selectWorld.tooltip.fromNewerVersion2").withStyle(ChatFormatting.RED);
@@ -98,6 +96,12 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
         }
 
         this.handleNewLevels(this.pollLevelsIgnoreErrors());
+    }
+
+    @Override
+    protected void clearEntries() {
+        this.children().forEach(WorldSelectionList.Entry::close);
+        super.clearEntries();
     }
 
     @Nullable
@@ -292,27 +296,22 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
         private final Minecraft minecraft;
         private final SelectWorldScreen screen;
         private final LevelSummary summary;
-        private final ResourceLocation iconLocation;
+        private final FaviconTexture icon;
         @Nullable
         private Path iconFile;
-        @Nullable
-        private final DynamicTexture icon;
         private long lastClickTime;
 
         public WorldListEntry(WorldSelectionList param1, LevelSummary param2) {
             this.minecraft = param1.minecraft;
             this.screen = param1.getScreen();
             this.summary = param2;
-            String var0 = param2.getLevelId();
-            this.iconLocation = new ResourceLocation(
-                "minecraft", "worlds/" + Util.sanitizeName(var0, ResourceLocation::validPathChar) + "/" + Hashing.sha1().hashUnencodedChars(var0) + "/icon"
-            );
+            this.icon = FaviconTexture.forWorld(this.minecraft.getTextureManager(), param2.getLevelId());
             this.iconFile = param2.getIcon();
             if (!Files.isRegularFile(this.iconFile)) {
                 this.iconFile = null;
             }
 
-            this.icon = this.loadServerIcon();
+            this.loadIcon();
         }
 
         @Override
@@ -349,30 +348,29 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
             param0.drawString(this.minecraft.font, var0, param3 + 32 + 3, param2 + 1, 16777215, false);
             param0.drawString(this.minecraft.font, var1, param3 + 32 + 3, param2 + 9 + 3, 8421504, false);
             param0.drawString(this.minecraft.font, var2, param3 + 32 + 3, param2 + 9 + 9 + 3, 8421504, false);
-            ResourceLocation var3 = this.icon != null ? this.iconLocation : WorldSelectionList.ICON_MISSING;
             RenderSystem.enableBlend();
-            param0.blit(var3, param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
+            param0.blit(this.icon.textureLocation(), param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
             RenderSystem.disableBlend();
             if (this.minecraft.options.touchscreen().get() || param8) {
                 param0.fill(param3, param2, param3 + 32, param2 + 32, -1601138544);
-                int var4 = param6 - param3;
-                boolean var5 = var4 < 32;
-                int var6 = var5 ? 32 : 0;
+                int var3 = param6 - param3;
+                boolean var4 = var3 < 32;
+                int var5 = var4 ? 32 : 0;
                 if (this.summary.isLocked()) {
-                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
-                    if (var5) {
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
+                    if (var4) {
                         this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_LOCKED_TOOLTIP, 175));
                     }
                 } else if (this.summary.requiresManualConversion()) {
-                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
-                    if (var5) {
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
+                    if (var4) {
                         this.screen.setTooltipForNextRenderPass(this.minecraft.font.split(WorldSelectionList.WORLD_REQUIRES_CONVERSION, 175));
                     }
                 } else if (this.summary.markVersionInList()) {
-                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 32.0F, (float)var6, 32, 32, 256, 256);
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 32.0F, (float)var5, 32, 32, 256, 256);
                     if (this.summary.askToOpenWorld()) {
-                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var6, 32, 32, 256, 256);
-                        if (var5) {
+                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 96.0F, (float)var5, 32, 32, 256, 256);
+                        if (var4) {
                             this.screen
                                 .setTooltipForNextRenderPass(
                                     ImmutableList.of(
@@ -382,8 +380,8 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                                 );
                         }
                     } else if (!SharedConstants.getCurrentVersion().isStable()) {
-                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 64.0F, (float)var6, 32, 32, 256, 256);
-                        if (var5) {
+                        param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 64.0F, (float)var5, 32, 32, 256, 256);
+                        if (var4) {
                             this.screen
                                 .setTooltipForNextRenderPass(
                                     ImmutableList.of(
@@ -393,7 +391,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         }
                     }
                 } else {
-                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 0.0F, (float)var6, 32, 32, 256, 256);
+                    param0.blit(WorldSelectionList.ICON_OVERLAY_LOCATION, param3, param2, 0.0F, (float)var5, 32, 32, 256, 256);
                 }
             }
 
@@ -594,39 +592,24 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
             this.minecraft.forceSetScreen(new GenericDirtMessageScreen(Component.translatable("selectWorld.data_read")));
         }
 
-        @Nullable
-        private DynamicTexture loadServerIcon() {
+        private void loadIcon() {
             boolean var0 = this.iconFile != null && Files.isRegularFile(this.iconFile);
             if (var0) {
-                try {
-                    DynamicTexture var5;
-                    try (InputStream var1 = Files.newInputStream(this.iconFile)) {
-                        NativeImage var2 = NativeImage.read(var1);
-                        Preconditions.checkState(var2.getWidth() == 64, "Must be 64 pixels wide");
-                        Preconditions.checkState(var2.getHeight() == 64, "Must be 64 pixels high");
-                        DynamicTexture var3 = new DynamicTexture(var2);
-                        this.minecraft.getTextureManager().register(this.iconLocation, var3);
-                        var5 = var3;
-                    }
-
-                    return var5;
-                } catch (Throwable var8) {
-                    WorldSelectionList.LOGGER.error("Invalid icon for world {}", this.summary.getLevelId(), var8);
+                try (InputStream var1 = Files.newInputStream(this.iconFile)) {
+                    this.icon.upload(NativeImage.read(var1));
+                } catch (Throwable var7) {
+                    WorldSelectionList.LOGGER.error("Invalid icon for world {}", this.summary.getLevelId(), var7);
                     this.iconFile = null;
-                    return null;
                 }
             } else {
-                this.minecraft.getTextureManager().release(this.iconLocation);
-                return null;
+                this.icon.clear();
             }
+
         }
 
         @Override
         public void close() {
-            if (this.icon != null) {
-                this.icon.close();
-            }
-
+            this.icon.close();
         }
 
         public String getLevelName() {

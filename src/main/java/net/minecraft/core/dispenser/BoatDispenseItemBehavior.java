@@ -31,7 +31,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
         Level var1 = param0.getLevel();
         double var2 = 0.5625 + (double)EntityType.BOAT.getWidth() / 2.0;
         double var3 = param0.x() + (double)var0.getStepX() * var2;
-        double var4 = param0.y() + (double)var0.getStepY() - (double)EntityType.BOAT.getHeight();
+        double var4 = param0.y() + (double)((float)var0.getStepY() * 1.125F);
         double var5 = param0.z() + (double)var0.getStepZ() * var2;
         BlockPos var6 = param0.getPos().relative(var0);
         double var7;

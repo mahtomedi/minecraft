@@ -70,8 +70,12 @@ public class GameTestHelper {
     }
 
     public void killAllEntities() {
+        this.killAllEntitiesOfClass(Entity.class);
+    }
+
+    public void killAllEntitiesOfClass(Class param0) {
         AABB var0 = this.getBounds();
-        List<Entity> var1 = this.getLevel().getEntitiesOfClass(Entity.class, var0.inflate(1.0), param0 -> !(param0 instanceof Player));
+        List<Entity> var1 = this.getLevel().getEntitiesOfClass(param0, var0.inflate(1.0), param0x -> !(param0x instanceof Player));
         var1.forEach(Entity::kill);
     }
 

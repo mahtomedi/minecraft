@@ -929,20 +929,19 @@ public abstract class Player extends LivingEntity {
         if (!this.isInvulnerableTo(param0)) {
             param1 = this.getDamageAfterArmorAbsorb(param0, param1);
             param1 = this.getDamageAfterMagicAbsorb(param0, param1);
-            float var8 = Math.max(param1 - this.getAbsorptionAmount(), 0.0F);
-            this.setAbsorptionAmount(this.getAbsorptionAmount() - (param1 - var8));
-            float var1 = param1 - var8;
+            float var7 = Math.max(param1 - this.getAbsorptionAmount(), 0.0F);
+            this.setAbsorptionAmount(this.getAbsorptionAmount() - (param1 - var7));
+            float var1 = param1 - var7;
             if (var1 > 0.0F && var1 < 3.4028235E37F) {
                 this.awardStat(Stats.DAMAGE_ABSORBED, Math.round(var1 * 10.0F));
             }
 
-            if (var8 != 0.0F) {
+            if (var7 != 0.0F) {
                 this.causeFoodExhaustion(param0.getFoodExhaustion());
-                float var2 = this.getHealth();
-                this.getCombatTracker().recordDamage(param0, var2, var8);
-                this.setHealth(this.getHealth() - var8);
-                if (var8 < 3.4028235E37F) {
-                    this.awardStat(Stats.DAMAGE_TAKEN, Math.round(var8 * 10.0F));
+                this.getCombatTracker().recordDamage(param0, var7);
+                this.setHealth(this.getHealth() - var7);
+                if (var7 < 3.4028235E37F) {
+                    this.awardStat(Stats.DAMAGE_TAKEN, Math.round(var7 * 10.0F));
                 }
 
                 this.gameEvent(GameEvent.ENTITY_DAMAGE);

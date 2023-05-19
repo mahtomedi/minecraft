@@ -226,28 +226,28 @@ public class ServerEntity {
 
     public void addPairing(ServerPlayer param0) {
         List<Packet<ClientGamePacketListener>> var0 = new ArrayList<>();
-        this.sendPairingData(var0::add);
+        this.sendPairingData(param0, var0::add);
         param0.connection.send(new ClientboundBundlePacket(var0));
         this.entity.startSeenByPlayer(param0);
     }
 
-    public void sendPairingData(Consumer<Packet<ClientGamePacketListener>> param0) {
+    public void sendPairingData(ServerPlayer param0, Consumer<Packet<ClientGamePacketListener>> param1) {
         if (this.entity.isRemoved()) {
             LOGGER.warn("Fetching packet for removed entity {}", this.entity);
         }
 
         Packet<ClientGamePacketListener> var0 = this.entity.getAddEntityPacket();
         this.yHeadRotp = Mth.floor(this.entity.getYHeadRot() * 256.0F / 360.0F);
-        param0.accept(var0);
+        param1.accept(var0);
         if (this.trackedDataValues != null) {
-            param0.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
+            param1.accept(new ClientboundSetEntityDataPacket(this.entity.getId(), this.trackedDataValues));
         }
 
         boolean var1 = this.trackDelta;
         if (this.entity instanceof LivingEntity) {
             Collection<AttributeInstance> var2 = ((LivingEntity)this.entity).getAttributes().getSyncableAttributes();
             if (!var2.isEmpty()) {
-                param0.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
+                param1.accept(new ClientboundUpdateAttributesPacket(this.entity.getId(), var2));
             }
 
             if (((LivingEntity)this.entity).isFallFlying()) {
@@ -257,7 +257,7 @@ public class ServerEntity {
 
         this.ap = this.entity.getDeltaMovement();
         if (var1 && !(this.entity instanceof LivingEntity)) {
-            param0.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
+            param1.accept(new ClientboundSetEntityMotionPacket(this.entity.getId(), this.ap));
         }
 
         if (this.entity instanceof LivingEntity) {
@@ -271,26 +271,27 @@ public class ServerEntity {
             }
 
             if (!var3.isEmpty()) {
-                param0.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var3));
+                param1.accept(new ClientboundSetEquipmentPacket(this.entity.getId(), var3));
             }
         }
 
-        if (this.entity instanceof LivingEntity var6) {
+        Entity var14 = this.entity;
+        if (var14 instanceof LivingEntity var6 && var6.getControllingPassenger() == param0) {
             for(MobEffectInstance var7 : var6.getActiveEffects()) {
-                param0.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
+                param1.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
             }
         }
 
         if (!this.entity.getPassengers().isEmpty()) {
-            param0.accept(new ClientboundSetPassengersPacket(this.entity));
+            param1.accept(new ClientboundSetPassengersPacket(this.entity));
         }
 
         if (this.entity.isPassenger()) {
-            param0.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
+            param1.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
         if (this.entity instanceof Mob var8 && var8.isLeashed()) {
-            param0.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
+            param1.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
         }
 
     }

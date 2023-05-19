@@ -681,7 +681,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
     }
 
     @Override
-    public void positionRider(Entity param0) {
+    protected void positionRider(Entity param0, Entity.MoveFunction param1) {
         if (this.hasPassenger(param0)) {
             float var0 = this.getSinglePassengerXOffset();
             float var1 = (float)((this.isRemoved() ? 0.01F : this.getPassengersRidingOffset()) + param0.getMyRidingOffset());
@@ -699,7 +699,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
             }
 
             Vec3 var3 = new Vec3((double)var0, 0.0, 0.0).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2));
-            param0.setPos(this.getX() + var3.x, this.getY() + (double)var1, this.getZ() + var3.z);
+            param1.accept(param0, this.getX() + var3.x, this.getY() + (double)var1, this.getZ() + var3.z);
             param0.setYRot(param0.getYRot() + this.deltaRotation);
             param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
             this.clampRotation(param0);

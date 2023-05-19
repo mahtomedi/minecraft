@@ -998,14 +998,15 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     }
 
     @Override
-    public void positionRider(Entity param0) {
-        super.positionRider(param0);
+    protected void positionRider(Entity param0, Entity.MoveFunction param1) {
+        super.positionRider(param0, param1);
         if (this.standAnimO > 0.0F) {
             float var0 = Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0));
             float var1 = Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0));
             float var2 = 0.7F * this.standAnimO;
             float var3 = 0.15F * this.standAnimO;
-            param0.setPos(
+            param1.accept(
+                param0,
                 this.getX() + (double)(var2 * var0),
                 this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset() + (double)var3,
                 this.getZ() - (double)(var2 * var1)

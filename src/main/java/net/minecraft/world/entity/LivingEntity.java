@@ -35,8 +35,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundTakeItemEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -1019,6 +1021,15 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.effectsDirty = true;
         if (!this.level().isClientSide) {
             param0.getEffect().addAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
+            this.sendEffectToRider(param0);
+        }
+
+    }
+
+    public void sendEffectToRider(MobEffectInstance param0) {
+        LivingEntity var3 = this.getControllingPassenger();
+        if (var3 instanceof ServerPlayer var0) {
+            var0.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
         }
 
     }
@@ -1031,12 +1042,20 @@ public abstract class LivingEntity extends Entity implements Attackable {
             var0.addAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
         }
 
+        if (!this.level().isClientSide) {
+            this.sendEffectToRider(param0);
+        }
+
     }
 
     protected void onEffectRemoved(MobEffectInstance param0) {
         this.effectsDirty = true;
         if (!this.level().isClientSide) {
             param0.getEffect().removeAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
+            LivingEntity var3 = this.getControllingPassenger();
+            if (var3 instanceof ServerPlayer var0) {
+                var0.connection.send(new ClientboundRemoveMobEffectPacket(this.getId(), param0.getEffect()));
+            }
         }
 
     }
@@ -1629,9 +1648,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
             }
 
             if (var9 != 0.0F) {
-                float var3 = this.getHealth();
-                this.getCombatTracker().recordDamage(param0, var3, var9);
-                this.setHealth(var3 - var9);
+                this.getCombatTracker().recordDamage(param0, var9);
+                this.setHealth(this.getHealth() - var9);
                 this.setAbsorptionAmount(this.getAbsorptionAmount() - var9);
                 this.gameEvent(GameEvent.ENTITY_DAMAGE);
             }
@@ -1644,9 +1662,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
 
     @Nullable
     public LivingEntity getKillCredit() {
-        if (this.combatTracker.getKiller() != null) {
-            return this.combatTracker.getKiller();
-        } else if (this.lastHurtByPlayer != null) {
+        if (this.lastHurtByPlayer != null) {
             return this.lastHurtByPlayer;
         } else {
             return this.lastHurtByMob != null ? this.lastHurtByMob : null;
@@ -2022,7 +2038,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
             boolean var1 = this.getDeltaMovement().y <= 0.0;
             if (var1 && this.hasEffect(MobEffects.SLOW_FALLING)) {
                 var0 = 0.01;
-                this.resetFallDistance();
             }
 
             FluidState var2 = this.level().getFluidState(this.blockPosition());
@@ -2129,7 +2144,6 @@ public abstract class LivingEntity extends Entity implements Attackable {
                 double var28 = var27.y;
                 if (this.hasEffect(MobEffects.LEVITATION)) {
                     var28 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - var27.y) * 0.2;
-                    this.resetFallDistance();
                 } else if (this.level().isClientSide && !this.level().hasChunkAt(var24)) {
                     if (this.getY() > (double)this.level().getMinBuildHeight()) {
                         var28 = -0.1;
@@ -2577,19 +2591,22 @@ public abstract class LivingEntity extends Entity implements Attackable {
             this.noJumpDelay = 0;
         }
 
-        AABB var12;
-        label101: {
-            this.level().getProfiler().pop();
-            this.level().getProfiler().push("travel");
-            this.xxa *= 0.98F;
-            this.zza *= 0.98F;
-            this.updateFallFlying();
-            var12 = this.getBoundingBox();
-            Vec3 var13 = new Vec3((double)this.xxa, (double)this.yya, (double)this.zza);
+        this.level().getProfiler().pop();
+        this.level().getProfiler().push("travel");
+        this.xxa *= 0.98F;
+        this.zza *= 0.98F;
+        this.updateFallFlying();
+        AABB var12 = this.getBoundingBox();
+        Vec3 var13 = new Vec3((double)this.xxa, (double)this.yya, (double)this.zza);
+        if (this.hasEffect(MobEffects.SLOW_FALLING) || this.hasEffect(MobEffects.LEVITATION)) {
+            this.resetFallDistance();
+        }
+
+        label104: {
             LivingEntity var17 = this.getControllingPassenger();
             if (var17 instanceof Player var14 && this.isAlive()) {
                 this.travelRidden(var14, var13);
-                break label101;
+                break label104;
             }
 
             this.travel(var13);

@@ -1855,11 +1855,11 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         }
     }
 
-    public void positionRider(Entity param0) {
+    public final void positionRider(Entity param0) {
         this.positionRider(param0, Entity::setPos);
     }
 
-    private void positionRider(Entity param0, Entity.MoveFunction param1) {
+    protected void positionRider(Entity param0, Entity.MoveFunction param1) {
         if (this.hasPassenger(param0)) {
             double var0 = this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset();
             param1.accept(param0, this.getX(), var0, this.getZ());
