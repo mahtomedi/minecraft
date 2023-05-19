@@ -66,12 +66,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
         this.screen = param0;
     }
 
-    @Override
-    protected void clearEntries() {
-        this.children().forEach(ServerSelectionList.Entry::close);
-        super.clearEntries();
-    }
-
     private void refreshEntries() {
         this.clearEntries();
         this.onlineServers.forEach(param1 -> this.addEntry(param1));
@@ -133,7 +127,6 @@ public class ServerSelectionList extends ObjectSelectionList<ServerSelectionList
     }
 
     public void removed() {
-        this.clearEntries();
     }
 
     @OnlyIn(Dist.CLIENT)
