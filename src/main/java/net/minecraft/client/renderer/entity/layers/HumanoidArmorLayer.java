@@ -9,7 +9,6 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -58,20 +57,23 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
                 this.getParentModel().copyPropertiesTo(param5);
                 this.setPartVisibility(param5, param3);
                 boolean var3x = this.usesInnerModel(param3);
-                boolean var4 = var0.hasFoil();
-                if (var1 instanceof DyeableArmorItem) {
-                    int var5 = ((DyeableArmorItem)var1).getColor(var0);
+                if (var1 instanceof DyeableArmorItem var4) {
+                    int var5 = var4.getColor(var0);
                     float var6 = (float)(var5 >> 16 & 0xFF) / 255.0F;
                     float var7 = (float)(var5 >> 8 & 0xFF) / 255.0F;
                     float var8 = (float)(var5 & 0xFF) / 255.0F;
-                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, var6, var7, var8, null);
-                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, "overlay");
+                    this.renderModel(param0, param1, param4, var1, param5, var3x, var6, var7, var8, null);
+                    this.renderModel(param0, param1, param4, var1, param5, var3x, 1.0F, 1.0F, 1.0F, "overlay");
                 } else {
-                    this.renderModel(param0, param1, param4, var1, var4, param5, var3x, 1.0F, 1.0F, 1.0F, null);
+                    this.renderModel(param0, param1, param4, var1, param5, var3x, 1.0F, 1.0F, 1.0F, null);
                 }
 
                 ArmorTrim.getTrim(param2.level().registryAccess(), var0)
-                    .ifPresent(param7 -> this.renderTrim(var1.getMaterial(), param0, param1, param4, param7, var4, param5, var3, 1.0F, 1.0F, 1.0F));
+                    .ifPresent(param6 -> this.renderTrim(var1.getMaterial(), param0, param1, param4, param6, param5, var3));
+                if (var0.hasFoil()) {
+                    this.renderGlint(param0, param1, param4, param5);
+                }
+
             }
         }
     }
@@ -105,36 +107,25 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
         MultiBufferSource param1,
         int param2,
         ArmorItem param3,
-        boolean param4,
-        A param5,
-        boolean param6,
+        A param4,
+        boolean param5,
+        float param6,
         float param7,
         float param8,
-        float param9,
-        @Nullable String param10
+        @Nullable String param9
     ) {
-        VertexConsumer var0 = ItemRenderer.getArmorFoilBuffer(
-            param1, RenderType.armorCutoutNoCull(this.getArmorLocation(param3, param6, param10)), false, param4
-        );
-        param5.renderToBuffer(param0, var0, param2, OverlayTexture.NO_OVERLAY, param7, param8, param9, 1.0F);
+        VertexConsumer var0 = param1.getBuffer(RenderType.armorCutoutNoCull(this.getArmorLocation(param3, param5, param9)));
+        param4.renderToBuffer(param0, var0, param2, OverlayTexture.NO_OVERLAY, param6, param7, param8, 1.0F);
     }
 
-    private void renderTrim(
-        ArmorMaterial param0,
-        PoseStack param1,
-        MultiBufferSource param2,
-        int param3,
-        ArmorTrim param4,
-        boolean param5,
-        A param6,
-        boolean param7,
-        float param8,
-        float param9,
-        float param10
-    ) {
-        TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param7 ? param4.innerTexture(param0) : param4.outerTexture(param0));
-        VertexConsumer var1 = var0.wrap(ItemRenderer.getFoilBufferDirect(param2, Sheets.armorTrimsSheet(), true, param5));
-        param6.renderToBuffer(param1, var1, param3, OverlayTexture.NO_OVERLAY, param8, param9, param10, 1.0F);
+    private void renderTrim(ArmorMaterial param0, PoseStack param1, MultiBufferSource param2, int param3, ArmorTrim param4, A param5, boolean param6) {
+        TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param6 ? param4.innerTexture(param0) : param4.outerTexture(param0));
+        VertexConsumer var1 = var0.wrap(param2.getBuffer(Sheets.armorTrimsSheet()));
+        param5.renderToBuffer(param1, var1, param3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderGlint(PoseStack param0, MultiBufferSource param1, int param2, A param3) {
+        param3.renderToBuffer(param0, param1.getBuffer(RenderType.armorEntityGlint()), param2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     private A getArmorModel(EquipmentSlot param0) {

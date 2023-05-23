@@ -971,11 +971,11 @@ public class ServerPlayer extends Player {
 
     }
 
-    public void doCheckFallDamage(double param0, boolean param1) {
+    public void doCheckFallDamage(double param0, double param1, double param2, boolean param3) {
         if (!this.touchingUnloadedChunk()) {
-            this.checkSupportingBlock(param1);
+            this.checkSupportingBlock(param3, new Vec3(param0, param1, param2));
             BlockPos var0 = this.getOnPosLegacy();
-            super.checkFallDamage(param0, param1, this.level().getBlockState(var0), var0);
+            super.checkFallDamage(param1, param3, this.level().getBlockState(var0), var0);
         }
     }
 

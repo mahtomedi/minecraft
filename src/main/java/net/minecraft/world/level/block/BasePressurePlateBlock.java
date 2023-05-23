@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -131,6 +132,10 @@ public abstract class BasePressurePlateBlock extends Block {
     @Override
     public boolean isSignalSource(BlockState param0) {
         return true;
+    }
+
+    protected static int getEntityCount(Level param0, AABB param1, Class<? extends Entity> param2) {
+        return param0.getEntitiesOfClass(param2, param1, EntitySelector.NO_SPECTATORS.and(param0x -> !param0x.isIgnoringBlockTriggers())).size();
     }
 
     protected abstract int getSignalStrength(Level var1, BlockPos var2);

@@ -218,7 +218,6 @@ public class ChunkStatus {
         }
 
     });
-    private final String name;
     private final int index;
     private final ChunkStatus parent;
     private final ChunkStatus.GenerationTask generationTask;
@@ -272,7 +271,7 @@ public class ChunkStatus {
         ChunkStatus.GenerationTask param6,
         ChunkStatus.LoadingTask param7
     ) {
-        return Registry.register(BuiltInRegistries.CHUNK_STATUS, param0, new ChunkStatus(param0, param1, param2, param3, param4, param5, param6, param7));
+        return Registry.register(BuiltInRegistries.CHUNK_STATUS, param0, new ChunkStatus(param1, param2, param3, param4, param5, param6, param7));
     }
 
     public static List<ChunkStatus> getStatusList() {
@@ -309,32 +308,26 @@ public class ChunkStatus {
     }
 
     ChunkStatus(
-        String param0,
-        @Nullable ChunkStatus param1,
-        int param2,
-        boolean param3,
-        EnumSet<Heightmap.Types> param4,
-        ChunkStatus.ChunkType param5,
-        ChunkStatus.GenerationTask param6,
-        ChunkStatus.LoadingTask param7
+        @Nullable ChunkStatus param0,
+        int param1,
+        boolean param2,
+        EnumSet<Heightmap.Types> param3,
+        ChunkStatus.ChunkType param4,
+        ChunkStatus.GenerationTask param5,
+        ChunkStatus.LoadingTask param6
     ) {
-        this.name = param0;
-        this.parent = param1 == null ? this : param1;
-        this.generationTask = param6;
-        this.loadingTask = param7;
-        this.range = param2;
-        this.hasLoadDependencies = param3;
-        this.chunkType = param5;
-        this.heightmapsAfter = param4;
-        this.index = param1 == null ? 0 : param1.getIndex() + 1;
+        this.parent = param0 == null ? this : param0;
+        this.generationTask = param5;
+        this.loadingTask = param6;
+        this.range = param1;
+        this.hasLoadDependencies = param2;
+        this.chunkType = param4;
+        this.heightmapsAfter = param3;
+        this.index = param0 == null ? 0 : param0.getIndex() + 1;
     }
 
     public int getIndex() {
         return this.index;
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public ChunkStatus getParent() {
@@ -351,7 +344,7 @@ public class ChunkStatus {
         List<ChunkAccess> param6
     ) {
         ChunkAccess var0 = param6.get(param6.size() / 2);
-        ProfiledDuration var1 = JvmProfiler.INSTANCE.onChunkGenerate(var0.getPos(), param1.dimension(), this.name);
+        ProfiledDuration var1 = JvmProfiler.INSTANCE.onChunkGenerate(var0.getPos(), param1.dimension(), this.toString());
         return this.generationTask
             .doWork(this, param0, param1, param2, param3, param4, param5, param6, var0)
             .thenApply(

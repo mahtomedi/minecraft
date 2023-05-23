@@ -2,6 +2,7 @@ package net.minecraft.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,8 @@ public abstract class DisplayRenderer<T extends Display, S> extends EntityRender
 
         return switch(param0.billboardConstraints()) {
             case FIXED -> param1.orientation();
-            case HORIZONTAL -> new Quaternionf().rotationYXZ((float) (-Math.PI / 180.0) * param1.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
+            case HORIZONTAL -> new Quaternionf()
+            .rotationYXZ(((float) (-Math.PI / 180.0)) * param1.getYRot(), (float) (-Math.PI / 180.0) * var0.getXRot(), 0.0F);
             case VERTICAL -> new Quaternionf()
             .rotationYXZ((float) Math.PI - (float) (Math.PI / 180.0) * var0.getYRot(), (float) (Math.PI / 180.0) * param1.getXRot(), 0.0F);
             case CENTER -> new Quaternionf()
@@ -114,8 +116,7 @@ public abstract class DisplayRenderer<T extends Display, S> extends EntityRender
         public void renderInner(
             Display.ItemDisplay param0, Display.ItemDisplay.ItemRenderState param1, PoseStack param2, MultiBufferSource param3, int param4, float param5
         ) {
-            Matrix4f var0 = param2.last().pose();
-            var0.rotate((float) Math.PI, 0.0F, 1.0F, 0.0F);
+            param2.mulPose(Axis.YP.rotation((float) Math.PI));
             this.itemRenderer
                 .renderStatic(param1.itemStack(), param1.itemTransform(), param4, OverlayTexture.NO_OVERLAY, param2, param3, param0.level(), param0.getId());
         }

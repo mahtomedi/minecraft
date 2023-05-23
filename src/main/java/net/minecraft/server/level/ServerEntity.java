@@ -24,11 +24,9 @@ import net.minecraft.network.protocol.game.ClientboundSetEquipmentPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -275,13 +273,6 @@ public class ServerEntity {
             }
         }
 
-        Entity var14 = this.entity;
-        if (var14 instanceof LivingEntity var6 && var6.getControllingPassenger() == param0) {
-            for(MobEffectInstance var7 : var6.getActiveEffects()) {
-                param1.accept(new ClientboundUpdateMobEffectPacket(this.entity.getId(), var7));
-            }
-        }
-
         if (!this.entity.getPassengers().isEmpty()) {
             param1.accept(new ClientboundSetPassengersPacket(this.entity));
         }
@@ -290,8 +281,8 @@ public class ServerEntity {
             param1.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
-        if (this.entity instanceof Mob var8 && var8.isLeashed()) {
-            param1.accept(new ClientboundSetEntityLinkPacket(var8, var8.getLeashHolder()));
+        if (this.entity instanceof Mob var6 && var6.isLeashed()) {
+            param1.accept(new ClientboundSetEntityLinkPacket(var6, var6.getLeashHolder()));
         }
 
     }

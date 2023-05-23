@@ -133,7 +133,7 @@ public class ResetChunksCommand {
             }
 
             param0.getServer().managedBlock(var18::isDone);
-            LOGGER.debug(var16.getName() + " took " + (System.currentTimeMillis() - var17) + " ms");
+            LOGGER.debug(var16 + " took " + (System.currentTimeMillis() - var17) + " ms");
         }
 
         long var31 = System.currentTimeMillis();

@@ -74,7 +74,7 @@ public class JfrResultJsonSerializer {
         for(Pair<ChunkStatus, TimedStatSummary<ChunkGenStat>> var2 : param0) {
             TimedStatSummary<ChunkGenStat> var3 = var2.getSecond();
             JsonObject var4 = Util.make(new JsonObject(), var1::add);
-            var4.addProperty("state", var2.getFirst().getName());
+            var4.addProperty("state", var2.getFirst().toString());
             var4.addProperty("count", var3.count());
             var4.addProperty("durationNanosTotal", var3.totalDuration().toNanos());
             var4.addProperty("durationNanosAvg", var3.totalDuration().toNanos() / (long)var3.count());

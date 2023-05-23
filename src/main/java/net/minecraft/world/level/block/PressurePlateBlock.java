@@ -1,6 +1,5 @@
 package net.minecraft.world.level.block;
 
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,7 +10,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.phys.AABB;
 
 public class PressurePlateBlock extends BasePressurePlateBlock {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -35,28 +33,11 @@ public class PressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level param0, BlockPos param1) {
-        AABB var0 = TOUCH_AABB.move(param1);
-        List<? extends Entity> var1;
-        switch(this.sensitivity) {
-            case EVERYTHING:
-                var1 = param0.getEntities(null, var0);
-                break;
-            case MOBS:
-                var1 = param0.getEntitiesOfClass(LivingEntity.class, var0);
-                break;
-            default:
-                return 0;
-        }
-
-        if (!var1.isEmpty()) {
-            for(Entity var4 : var1) {
-                if (!var4.isIgnoringBlockTriggers()) {
-                    return 15;
-                }
-            }
-        }
-
-        return 0;
+        Class var0 = switch(this.sensitivity) {
+            case EVERYTHING -> Entity.class;
+            case MOBS -> LivingEntity.class;
+        };
+        return getEntityCount(param0, TOUCH_AABB.move(param1), var0) > 0 ? 15 : 0;
     }
 
     @Override

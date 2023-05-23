@@ -1155,7 +1155,9 @@ public class DataFixers {
         Schema var191 = param0.addSchema(3450, SAME_NAMESPACED);
         param0.addFixer(
             new RemapChunkStatusFix(
-                var191, "Remove liquid_carvers and heightmap chunk statuses", createRenamer(Map.of("liquid_carvers", "carvers", "heightmaps", "spawn"))
+                var191,
+                "Remove liquid_carvers and heightmap chunk statuses",
+                createRenamer(Map.of("minecraft:liquid_carvers", "minecraft:carvers", "minecraft:heightmaps", "minecraft:spawn"))
             )
         );
         Schema var192 = param0.addSchema(3451, SAME_NAMESPACED);

@@ -1021,15 +1021,16 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.effectsDirty = true;
         if (!this.level().isClientSide) {
             param0.getEffect().addAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
-            this.sendEffectToRider(param0);
+            this.sendEffectToPassengers(param0);
         }
 
     }
 
-    public void sendEffectToRider(MobEffectInstance param0) {
-        LivingEntity var3 = this.getControllingPassenger();
-        if (var3 instanceof ServerPlayer var0) {
-            var0.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
+    public void sendEffectToPassengers(MobEffectInstance param0) {
+        for(Entity var0 : this.getPassengers()) {
+            if (var0 instanceof ServerPlayer var1) {
+                var1.connection.send(new ClientboundUpdateMobEffectPacket(this.getId(), param0));
+            }
         }
 
     }
@@ -1043,7 +1044,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
         }
 
         if (!this.level().isClientSide) {
-            this.sendEffectToRider(param0);
+            this.sendEffectToPassengers(param0);
         }
 
     }
@@ -1052,9 +1053,11 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.effectsDirty = true;
         if (!this.level().isClientSide) {
             param0.getEffect().removeAttributeModifiers(this, this.getAttributes(), param0.getAmplifier());
-            LivingEntity var3 = this.getControllingPassenger();
-            if (var3 instanceof ServerPlayer var0) {
-                var0.connection.send(new ClientboundRemoveMobEffectPacket(this.getId(), param0.getEffect()));
+
+            for(Entity var0 : this.getPassengers()) {
+                if (var0 instanceof ServerPlayer var1) {
+                    var1.connection.send(new ClientboundRemoveMobEffectPacket(this.getId(), param0.getEffect()));
+                }
             }
         }
 

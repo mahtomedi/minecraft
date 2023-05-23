@@ -263,7 +263,7 @@ public class ChunkSerializer {
         var1.putInt("zPos", var0.z);
         var1.putLong("LastUpdate", param0.getGameTime());
         var1.putLong("InhabitedTime", param1.getInhabitedTime());
-        var1.putString("Status", param1.getStatus().getName());
+        var1.putString("Status", BuiltInRegistries.CHUNK_STATUS.getKey(param1.getStatus()).toString());
         BlendingData var2 = param1.getBlendingData();
         if (var2 != null) {
             BlendingData.CODEC.encodeStart(NbtOps.INSTANCE, var2).resultOrPartial(LOGGER::error).ifPresent(param1x -> var1.put("blending_data", param1x));

@@ -639,7 +639,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
         CompletableFuture<Either<List<ChunkAccess>, ChunkHolder.ChunkLoadingFailure>> var1 = this.getChunkRangeFuture(
             param0, param1.getRange(), param1x -> this.getDependencyStatus(param1, param1x)
         );
-        this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + param1.getName());
+        this.level.getProfiler().incrementCounter(() -> "chunkGenerate " + param1);
         Executor var2 = param1x -> this.worldgenMailbox.tell(ChunkTaskPriorityQueueSorter.message(param0, param1x));
         return var1.thenComposeAsync(
             param4 -> param4.map(

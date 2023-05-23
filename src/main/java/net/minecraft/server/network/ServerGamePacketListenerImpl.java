@@ -896,72 +896,71 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                         double var6 = this.player.getX();
                         double var7 = this.player.getY();
                         double var8 = this.player.getZ();
-                        double var9 = this.player.getY();
-                        double var10 = var1 - this.firstGoodX;
-                        double var11 = var2 - this.firstGoodY;
-                        double var12 = var3 - this.firstGoodZ;
-                        double var13 = this.player.getDeltaMovement().lengthSqr();
-                        double var14 = var10 * var10 + var11 * var11 + var12 * var12;
+                        double var9 = var1 - this.firstGoodX;
+                        double var10 = var2 - this.firstGoodY;
+                        double var11 = var3 - this.firstGoodZ;
+                        double var12 = this.player.getDeltaMovement().lengthSqr();
+                        double var13 = var9 * var9 + var10 * var10 + var11 * var11;
                         if (this.player.isSleeping()) {
-                            if (var14 > 1.0) {
+                            if (var13 > 1.0) {
                                 this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), var4, var5);
                             }
 
                         } else {
                             ++this.receivedMovePacketCount;
-                            int var15 = this.receivedMovePacketCount - this.knownMovePacketCount;
-                            if (var15 > 5) {
-                                LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName().getString(), var15);
-                                var15 = 1;
+                            int var14 = this.receivedMovePacketCount - this.knownMovePacketCount;
+                            if (var14 > 5) {
+                                LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName().getString(), var14);
+                                var14 = 1;
                             }
 
                             if (!this.player.isChangingDimension()
                                 && (!this.player.level().getGameRules().getBoolean(GameRules.RULE_DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())
                                 )
                              {
-                                float var16 = this.player.isFallFlying() ? 300.0F : 100.0F;
-                                if (var14 - var13 > (double)(var16 * (float)var15) && !this.isSingleplayerOwner()) {
-                                    LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var10, var11, var12);
+                                float var15 = this.player.isFallFlying() ? 300.0F : 100.0F;
+                                if (var13 - var12 > (double)(var15 * (float)var14) && !this.isSingleplayerOwner()) {
+                                    LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var9, var10, var11);
                                     this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
                                     return;
                                 }
                             }
 
-                            AABB var17 = this.player.getBoundingBox();
-                            var10 = var1 - this.lastGoodX;
-                            var11 = var2 - this.lastGoodY;
-                            var12 = var3 - this.lastGoodZ;
-                            boolean var18 = var11 > 0.0;
-                            if (this.player.onGround() && !param0.isOnGround() && var18) {
+                            AABB var16 = this.player.getBoundingBox();
+                            var9 = var1 - this.lastGoodX;
+                            var10 = var2 - this.lastGoodY;
+                            var11 = var3 - this.lastGoodZ;
+                            boolean var17 = var10 > 0.0;
+                            if (this.player.onGround() && !param0.isOnGround() && var17) {
                                 this.player.jumpFromGround();
                             }
 
-                            boolean var19 = this.player.verticalCollisionBelow;
-                            this.player.move(MoverType.PLAYER, new Vec3(var10, var11, var12));
-                            var10 = var1 - this.player.getX();
-                            var11 = var2 - this.player.getY();
-                            if (var11 > -0.5 || var11 < 0.5) {
-                                var11 = 0.0;
+                            boolean var18 = this.player.verticalCollisionBelow;
+                            this.player.move(MoverType.PLAYER, new Vec3(var9, var10, var11));
+                            var9 = var1 - this.player.getX();
+                            var10 = var2 - this.player.getY();
+                            if (var10 > -0.5 || var10 < 0.5) {
+                                var10 = 0.0;
                             }
 
-                            var12 = var3 - this.player.getZ();
-                            var14 = var10 * var10 + var11 * var11 + var12 * var12;
-                            boolean var21 = false;
+                            var11 = var3 - this.player.getZ();
+                            var13 = var9 * var9 + var10 * var10 + var11 * var11;
+                            boolean var20 = false;
                             if (!this.player.isChangingDimension()
-                                && var14 > 0.0625
+                                && var13 > 0.0625
                                 && !this.player.isSleeping()
                                 && !this.player.gameMode.isCreative()
                                 && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR) {
-                                var21 = true;
+                                var20 = true;
                                 LOGGER.warn("{} moved wrongly!", this.player.getName().getString());
                             }
 
                             if (this.player.noPhysics
                                 || this.player.isSleeping()
-                                || (!var21 || !var0.noCollision(this.player, var17)) && !this.isPlayerCollidingWithAnythingNew(var0, var17, var1, var2, var3)) {
+                                || (!var20 || !var0.noCollision(this.player, var16)) && !this.isPlayerCollidingWithAnythingNew(var0, var16, var1, var2, var3)) {
                                 this.player.absMoveTo(var1, var2, var3, var4, var5);
-                                this.clientIsFloating = var11 >= -0.03125
-                                    && !var19
+                                this.clientIsFloating = var10 >= -0.03125
+                                    && !var18
                                     && this.player.gameMode.getGameModeForPlayer() != GameType.SPECTATOR
                                     && !this.server.isFlightAllowed()
                                     && !this.player.getAbilities().mayfly
@@ -970,9 +969,13 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                                     && !this.player.isAutoSpinAttack()
                                     && this.noBlocksAround(this.player);
                                 this.player.serverLevel().getChunkSource().move(this.player);
-                                this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
-                                this.player.setOnGround(param0.isOnGround());
-                                if (var18) {
+                                this.player
+                                    .doCheckFallDamage(this.player.getX() - var6, this.player.getY() - var7, this.player.getZ() - var8, param0.isOnGround());
+                                this.player
+                                    .setOnGroundWithKnownMovement(
+                                        param0.isOnGround(), new Vec3(this.player.getX() - var6, this.player.getY() - var7, this.player.getZ() - var8)
+                                    );
+                                if (var17) {
                                     this.player.resetFallDistance();
                                 }
 
@@ -982,7 +985,8 @@ public class ServerGamePacketListenerImpl implements TickablePacketListener, Ser
                                 this.lastGoodZ = this.player.getZ();
                             } else {
                                 this.teleport(var6, var7, var8, var4, var5);
-                                this.player.doCheckFallDamage(this.player.getY() - var9, param0.isOnGround());
+                                this.player
+                                    .doCheckFallDamage(this.player.getX() - var6, this.player.getY() - var7, this.player.getZ() - var8, param0.isOnGround());
                             }
                         }
                     }

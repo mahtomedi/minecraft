@@ -564,19 +564,28 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public void setOnGround(boolean param0) {
         this.onGround = param0;
-        this.checkSupportingBlock(param0);
+        this.checkSupportingBlock(param0, null);
+    }
+
+    public void setOnGroundWithKnownMovement(boolean param0, Vec3 param1) {
+        this.onGround = param0;
+        this.checkSupportingBlock(param0, param1);
     }
 
     public boolean isSupportedBy(BlockPos param0) {
         return this.mainSupportingBlockPos.isPresent() && this.mainSupportingBlockPos.get().equals(param0);
     }
 
-    protected void checkSupportingBlock(boolean param0) {
+    protected void checkSupportingBlock(boolean param0, @Nullable Vec3 param1) {
         if (param0) {
             AABB var0 = this.getBoundingBox();
             AABB var1 = new AABB(var0.minX, var0.minY - 1.0E-6, var0.minZ, var0.maxX, var0.minY, var0.maxZ);
             Optional<BlockPos> var2 = this.level.findSupportingBlock(this, var1);
             if (var2.isPresent() || this.onGroundNoBlocks) {
+                this.mainSupportingBlockPos = var2;
+            } else if (param1 != null) {
+                AABB var3 = var1.move(-param1.x, 0.0, -param1.z);
+                var2 = this.level.findSupportingBlock(this, var3);
                 this.mainSupportingBlockPos = var2;
             }
 
@@ -643,7 +652,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
                 this.minorHorizontalCollision = false;
             }
 
-            this.setOnGround(this.verticalCollisionBelow);
+            this.setOnGroundWithKnownMovement(this.verticalCollisionBelow, var0);
             BlockPos var5 = this.getOnPosLegacy();
             BlockState var6 = this.level().getBlockState(var5);
             this.checkFallDamage(var0.y, this.onGround(), var6, var5);

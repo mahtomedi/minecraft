@@ -495,7 +495,7 @@ public class MultiPlayerGameMode {
     }
 
     public int getDestroyStage() {
-        return (int)(this.destroyProgress * 10.0F);
+        return this.destroyProgress > 0.0F ? (int)(this.destroyProgress * 10.0F) : -1;
     }
 
     public void handlePickItem(int param0) {

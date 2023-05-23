@@ -174,9 +174,9 @@ public class VanillaRecipeProvider extends RecipeProvider {
             Items.YELLOW_CARPET,
             Items.WHITE_CARPET
         );
-        colorBlockWithDye(param0, var0, var1);
-        colorBlockWithDye(param0, var0, var2);
-        colorBlockWithDye(param0, var0, var3);
+        colorBlockWithDye(param0, var0, var1, "wool");
+        colorBlockWithDye(param0, var0, var2, "bed");
+        colorBlockWithDye(param0, var0, var3, "carpet");
         carpet(param0, Blocks.BLACK_CARPET, Blocks.BLACK_WOOL);
         bedFromPlanksAndWool(param0, Items.BLACK_BED, Blocks.BLACK_WOOL);
         banner(param0, Items.BLACK_BANNER, Blocks.BLACK_WOOL);

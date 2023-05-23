@@ -239,26 +239,18 @@ public class FallingBlockEntity extends Entity {
             if (var0 < 0) {
                 return false;
             } else {
-                Block var7 = this.blockState.getBlock();
-                Predicate<Entity> var2;
-                DamageSource var3;
-                if (var7 instanceof Fallable var1) {
-                    var2 = var1.getHurtsEntitySelector();
-                    var3 = var1.getFallDamageSource(this);
-                } else {
-                    var2 = EntitySelector.NO_SPECTATORS;
-                    var3 = this.damageSources().fallingBlock(this);
-                }
-
-                float var6 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);
-                this.level().getEntities(this, this.getBoundingBox(), var2).forEach(param2x -> param2x.hurt(var3, var6));
-                boolean var7 = this.blockState.is(BlockTags.ANVIL);
-                if (var7 && var6 > 0.0F && this.random.nextFloat() < 0.05F + (float)var0 * 0.05F) {
-                    BlockState var8 = AnvilBlock.damage(this.blockState);
-                    if (var8 == null) {
+                Predicate<Entity> var1 = EntitySelector.NO_CREATIVE_OR_SPECTATOR.and(EntitySelector.LIVING_ENTITY_STILL_ALIVE);
+                Block var5 = this.blockState.getBlock();
+                DamageSource var3 = var5 instanceof Fallable var2 ? var2.getFallDamageSource(this) : this.damageSources().fallingBlock(this);
+                float var4 = (float)Math.min(Mth.floor((float)var0 * this.fallDamagePerDistance), this.fallDamageMax);
+                this.level().getEntities(this, this.getBoundingBox(), var1).forEach(param2x -> param2x.hurt(var3, var4));
+                boolean var5x = this.blockState.is(BlockTags.ANVIL);
+                if (var5x && var4 > 0.0F && this.random.nextFloat() < 0.05F + (float)var0 * 0.05F) {
+                    BlockState var6 = AnvilBlock.damage(this.blockState);
+                    if (var6 == null) {
                         this.cancelDrop = true;
                     } else {
-                        this.blockState = var8;
+                        this.blockState = var6;
                     }
                 }
 
