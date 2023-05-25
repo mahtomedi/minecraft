@@ -142,10 +142,14 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Ren
         return this.getInnerHeight() + 4;
     }
 
-    private void renderBackground(GuiGraphics param0) {
+    protected void renderBackground(GuiGraphics param0) {
+        this.renderBorder(param0, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+    }
+
+    protected void renderBorder(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         int var0 = this.isFocused() ? -1 : -6250336;
-        param0.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, var0);
-        param0.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, -16777216);
+        param0.fill(param1, param2, param1 + param3, param2 + param4, var0);
+        param0.fill(param1 + 1, param2 + 1, param1 + param3 - 1, param2 + param4 - 1, -16777216);
     }
 
     private void renderScrollBar(GuiGraphics param0) {
@@ -169,9 +173,11 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Ren
             && param1 < (double)(this.getY() + this.height);
     }
 
-    protected abstract int getInnerHeight();
+    protected boolean scrollbarVisible() {
+        return this.getInnerHeight() > this.getHeight();
+    }
 
-    protected abstract boolean scrollbarVisible();
+    protected abstract int getInnerHeight();
 
     protected abstract double scrollRate();
 

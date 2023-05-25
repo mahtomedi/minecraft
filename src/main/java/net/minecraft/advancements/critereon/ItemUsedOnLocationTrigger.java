@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
@@ -51,7 +50,7 @@ public class ItemUsedOnLocationTrigger extends SimpleCriterionTrigger<ItemUsedOn
             .withParameter(LootContextParams.BLOCK_STATE, var1)
             .withParameter(LootContextParams.TOOL, param2)
             .create(LootContextParamSets.ADVANCEMENT_LOCATION);
-        LootContext var3 = new LootContext.Builder(var2).create(LootTable.DEFAULT_RANDOM_SEQUENCE);
+        LootContext var3 = new LootContext.Builder(var2).create(null);
         this.trigger(param0, param1x -> param1x.matches(var3));
     }
 

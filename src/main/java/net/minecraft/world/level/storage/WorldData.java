@@ -13,6 +13,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.WorldOptions;
 
 public interface WorldData {
@@ -88,9 +89,9 @@ public interface WorldData {
     @Nullable
     CompoundTag getLoadedPlayerTag();
 
-    CompoundTag endDragonFightData();
+    EndDragonFight.Data endDragonFightData();
 
-    void setEndDragonFightData(CompoundTag var1);
+    void setEndDragonFightData(EndDragonFight.Data var1);
 
     WorldOptions worldGenOptions();
 

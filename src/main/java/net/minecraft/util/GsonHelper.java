@@ -69,11 +69,20 @@ public class GsonHelper {
         return !isValidNode(param0, param1) ? false : param0.get(param1).isJsonPrimitive();
     }
 
-    public static boolean isValidNode(JsonObject param0, String param1) {
+    public static boolean isValidNode(@Nullable JsonObject param0, String param1) {
         if (param0 == null) {
             return false;
         } else {
             return param0.get(param1) != null;
+        }
+    }
+
+    public static JsonElement getNonNull(JsonObject param0, String param1) {
+        JsonElement var0 = param0.get(param1);
+        if (var0 != null && !var0.isJsonNull()) {
+            return var0;
+        } else {
+            throw new JsonSyntaxException("Missing field " + param1);
         }
     }
 

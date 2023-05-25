@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -33,16 +34,16 @@ import org.slf4j.Logger;
 
 public class LootTable {
     static final Logger LOGGER = LogUtils.getLogger();
-    public static final ResourceLocation DEFAULT_RANDOM_SEQUENCE = new ResourceLocation("default");
-    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, DEFAULT_RANDOM_SEQUENCE, new LootPool[0], new LootItemFunction[0]);
+    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, null, new LootPool[0], new LootItemFunction[0]);
     public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
     final LootContextParamSet paramSet;
+    @Nullable
     final ResourceLocation randomSequence;
     final LootPool[] pools;
     final LootItemFunction[] functions;
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
 
-    LootTable(LootContextParamSet param0, ResourceLocation param1, LootPool[] param2, LootItemFunction[] param3) {
+    LootTable(LootContextParamSet param0, @Nullable ResourceLocation param1, LootPool[] param2, LootItemFunction[] param3) {
         this.paramSet = param0;
         this.randomSequence = param1;
         this.pools = param2;
@@ -210,7 +211,8 @@ public class LootTable {
         private final List<LootPool> pools = Lists.newArrayList();
         private final List<LootItemFunction> functions = Lists.newArrayList();
         private LootContextParamSet paramSet = LootTable.DEFAULT_PARAM_SET;
-        private ResourceLocation randomSequence = LootTable.DEFAULT_RANDOM_SEQUENCE;
+        @Nullable
+        private ResourceLocation randomSequence = null;
 
         public LootTable.Builder withPool(LootPool.Builder param0) {
             this.pools.add(param0.build());
@@ -256,7 +258,7 @@ public class LootTable {
                 String var4 = GsonHelper.getAsString(var0, "random_sequence");
                 var5 = new ResourceLocation(var4);
             } else {
-                var5 = LootTable.DEFAULT_RANDOM_SEQUENCE;
+                var5 = null;
             }
 
             LootItemFunction[] var7 = GsonHelper.getAsObject(var0, "functions", new LootItemFunction[0], param2, LootItemFunction[].class);
@@ -274,7 +276,10 @@ public class LootTable {
                 }
             }
 
-            var0.addProperty("random_sequence", param0.randomSequence.toString());
+            if (param0.randomSequence != null) {
+                var0.addProperty("random_sequence", param0.randomSequence.toString());
+            }
+
             if (param0.pools.length > 0) {
                 var0.add("pools", param2.serialize(param0.pools));
             }

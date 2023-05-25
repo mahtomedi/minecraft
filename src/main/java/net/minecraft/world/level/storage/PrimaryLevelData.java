@@ -35,6 +35,7 @@ import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.dimension.end.EndDragonFight;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.timers.TimerCallbacks;
@@ -70,7 +71,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     private boolean initialized;
     private boolean difficultyLocked;
     private WorldBorder.Settings worldBorder;
-    private CompoundTag endDragonFightData;
+    private EndDragonFight.Data endDragonFightData;
     @Nullable
     private CompoundTag customBossEvents;
     private int wanderingTraderSpawnDelay;
@@ -109,7 +110,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         Set<String> param23,
         TimerQueue<MinecraftServer> param24,
         @Nullable CompoundTag param25,
-        CompoundTag param26,
+        EndDragonFight.Data param26,
         LevelSettings param27,
         WorldOptions param28,
         PrimaryLevelData.SpecialWorldProperty param29,
@@ -176,7 +177,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             new HashSet<>(),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS),
             null,
-            new CompoundTag(),
+            EndDragonFight.Data.DEFAULT,
             param0.copy(),
             param1,
             param2,
@@ -196,11 +197,6 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         Lifecycle param8
     ) {
         long var0 = param0.get("Time").asLong(0L);
-        CompoundTag var1 = (CompoundTag)param0.get("DragonFight")
-            .result()
-            .orElseGet(() -> param0.get("DimensionData").get("1").get("DragonFight").orElseEmptyMap())
-            .convert(NbtOps.INSTANCE)
-            .getValue();
         return new PrimaryLevelData(
             param1,
             param2,
@@ -231,7 +227,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
             param0.get("removed_features").asStream().flatMap(param0x -> param0x.asString().result().stream()).collect(Collectors.toSet()),
             new TimerQueue<>(TimerCallbacks.SERVER_CALLBACKS, param0.get("ScheduledEvents").asStream()),
             (CompoundTag)param0.get("CustomBossEvents").orElseEmptyMap().getValue(),
-            var1,
+            param0.get("DragonFight").read(EndDragonFight.Data.CODEC).resultOrPartial(LOGGER::error).orElse(EndDragonFight.Data.DEFAULT),
             param4,
             param7,
             param6,
@@ -291,7 +287,7 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
         param1.putByte("Difficulty", (byte)this.settings.difficulty().getId());
         param1.putBoolean("DifficultyLocked", this.difficultyLocked);
         param1.put("GameRules", this.settings.gameRules().createTag());
-        param1.put("DragonFight", this.endDragonFightData);
+        param1.put("DragonFight", Util.getOrThrow(EndDragonFight.Data.CODEC.encodeStart(NbtOps.INSTANCE, this.endDragonFightData), IllegalStateException::new));
         if (param2 != null) {
             param1.put("Player", param2);
         }
@@ -566,12 +562,12 @@ public class PrimaryLevelData implements ServerLevelData, WorldData {
     }
 
     @Override
-    public CompoundTag endDragonFightData() {
+    public EndDragonFight.Data endDragonFightData() {
         return this.endDragonFightData;
     }
 
     @Override
-    public void setEndDragonFightData(CompoundTag param0) {
+    public void setEndDragonFightData(EndDragonFight.Data param0) {
         this.endDragonFightData = param0;
     }
 

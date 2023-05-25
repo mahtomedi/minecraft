@@ -131,6 +131,7 @@ import net.minecraft.util.datafix.fixes.ItemWrittenBookPagesStrictJsonFix;
 import net.minecraft.util.datafix.fixes.JigsawPropertiesFix;
 import net.minecraft.util.datafix.fixes.JigsawRotationFix;
 import net.minecraft.util.datafix.fixes.LeavesFix;
+import net.minecraft.util.datafix.fixes.LegacyDragonFightFix;
 import net.minecraft.util.datafix.fixes.LevelDataGeneratorOptionsFix;
 import net.minecraft.util.datafix.fixes.LevelFlatGeneratorInfoFix;
 import net.minecraft.util.datafix.fixes.LevelUUIDFix;
@@ -1162,6 +1163,8 @@ public class DataFixers {
         );
         Schema var192 = param0.addSchema(3451, SAME_NAMESPACED);
         param0.addFixer(new ChunkDeleteLightFix(var192));
+        Schema var193 = param0.addSchema(3459, SAME_NAMESPACED);
+        param0.addFixer(new LegacyDragonFightFix(var193));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

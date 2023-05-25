@@ -109,14 +109,16 @@ public class LootContext {
             return this.params.getLevel();
         }
 
-        public LootContext create(ResourceLocation param0) {
+        public LootContext create(@Nullable ResourceLocation param0) {
             ServerLevel var0 = this.getLevel();
             MinecraftServer var1 = var0.getServer();
             RandomSource var2;
             if (this.random != null) {
                 var2 = this.random;
-            } else {
+            } else if (param0 != null) {
                 var2 = var0.getRandomSequence(param0);
+            } else {
+                var2 = var0.getRandom();
             }
 
             return new LootContext(this.params, var2, var1.getLootData());

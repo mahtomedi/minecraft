@@ -1130,7 +1130,13 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
             var2.closeContainer();
         }
 
-        LocalPlayer var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
+        LocalPlayer var10;
+        if (param0.shouldKeep((byte)2)) {
+            var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook(), var2.isShiftKeyDown(), var2.isSprinting());
+        } else {
+            var10 = this.minecraft.gameMode.createPlayer(this.level, var2.getStats(), var2.getRecipeBook());
+        }
+
         var10.setId(var3);
         this.minecraft.player = var10;
         if (var0 != var2.level().dimension()) {
@@ -1139,9 +1145,9 @@ public class ClientPacketListener implements TickablePacketListener, ClientGameP
 
         this.minecraft.cameraEntity = var10;
         if (param0.shouldKeep((byte)2)) {
-            List<SynchedEntityData.DataValue<?>> var11 = var2.getEntityData().getNonDefaultValues();
-            if (var11 != null) {
-                var10.getEntityData().assignValues(var11);
+            List<SynchedEntityData.DataValue<?>> var12 = var2.getEntityData().getNonDefaultValues();
+            if (var12 != null) {
+                var10.getEntityData().assignValues(var12);
             }
         }
 

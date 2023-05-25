@@ -14,7 +14,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -270,7 +269,7 @@ public class EntityPredicate {
             .withParameter(LootContextParams.THIS_ENTITY, param1)
             .withParameter(LootContextParams.ORIGIN, param0.position())
             .create(LootContextParamSets.ADVANCEMENT_ENTITY);
-        return new LootContext.Builder(var0).create(LootTable.DEFAULT_RANDOM_SEQUENCE);
+        return new LootContext.Builder(var0).create(null);
     }
 
     public static class Builder {
