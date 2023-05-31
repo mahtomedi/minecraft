@@ -73,11 +73,12 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        if (param0.getValue(HALF) == DoubleBlockHalf.LOWER && param0.getValue(AGE) >= 3) {
-            BlockState var0 = param1.getBlockState(param2.above());
-            return var0.is(this) && var0.getValue(HALF) == DoubleBlockHalf.UPPER && this.mayPlaceOn(param1.getBlockState(param2.below()), param1, param2);
+        if (!isLower(param0)) {
+            return super.canSurvive(param0, param1, param2);
         } else {
-            return (param1.getRawBrightness(param2, 0) >= 8 || param1.canSeeSky(param2)) && super.canSurvive(param0, param1, param2);
+            return this.mayPlaceOn(param1.getBlockState(param2.below()), param1, param2.below())
+                && sufficientLight(param1, param2)
+                && (param0.getValue(AGE) < 3 || isUpper(param1.getBlockState(param2.above())));
         }
     }
 
@@ -129,42 +130,56 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
 
     private void grow(ServerLevel param0, BlockState param1, BlockPos param2, int param3) {
         int var0 = Math.min(param1.getValue(AGE) + param3, 4);
-        if (var0 < 3 || canGrowInto(param0, isLower(param1) ? param2.above() : param2)) {
+        if (this.canGrow(param0, param2, param1, var0)) {
             param0.setBlock(param2, param1.setValue(AGE, Integer.valueOf(var0)), 2);
             if (var0 >= 3) {
-                if (isLower(param1)) {
-                    BlockPos var1 = param2.above();
-                    param0.setBlock(
-                        var1,
-                        copyWaterloggedFrom(param0, param2, this.defaultBlockState().setValue(AGE, Integer.valueOf(var0)).setValue(HALF, DoubleBlockHalf.UPPER)),
-                        3
-                    );
-                } else {
-                    BlockPos var2 = param2.below();
-                    param0.setBlock(
-                        var2,
-                        copyWaterloggedFrom(param0, param2, this.defaultBlockState().setValue(AGE, Integer.valueOf(var0)).setValue(HALF, DoubleBlockHalf.LOWER)),
-                        3
-                    );
-                }
-
+                BlockPos var1 = param2.above();
+                param0.setBlock(
+                    var1,
+                    copyWaterloggedFrom(param0, param2, this.defaultBlockState().setValue(AGE, Integer.valueOf(var0)).setValue(HALF, DoubleBlockHalf.UPPER)),
+                    3
+                );
             }
+
         }
     }
 
-    private static boolean canGrowInto(ServerLevel param0, BlockPos param1) {
+    private static boolean canGrowInto(LevelReader param0, BlockPos param1) {
         BlockState var0 = param0.getBlockState(param1);
         return var0.isAir() || var0.is(Blocks.PITCHER_CROP);
     }
 
+    private static boolean sufficientLight(LevelReader param0, BlockPos param1) {
+        return param0.getRawBrightness(param1, 0) >= 8 || param0.canSeeSky(param1);
+    }
+
     private static boolean isLower(BlockState param0) {
-        return param0.getValue(HALF) == DoubleBlockHalf.LOWER;
+        return param0.is(Blocks.PITCHER_CROP) && param0.getValue(HALF) == DoubleBlockHalf.LOWER;
+    }
+
+    private static boolean isUpper(BlockState param0) {
+        return param0.is(Blocks.PITCHER_CROP) && param0.getValue(HALF) == DoubleBlockHalf.UPPER;
+    }
+
+    private boolean canGrow(LevelReader param0, BlockPos param1, BlockState param2, int param3) {
+        return !this.isMaxAge(param2) && sufficientLight(param0, param1) && (param3 < 3 || canGrowInto(param0, param1.above()));
+    }
+
+    @Nullable
+    private PitcherCropBlock.PosAndState getLowerHalf(LevelReader param0, BlockPos param1, BlockState param2) {
+        if (isLower(param2)) {
+            return new PitcherCropBlock.PosAndState(param1, param2);
+        } else {
+            BlockPos var0 = param1.below();
+            BlockState var1 = param0.getBlockState(var0);
+            return isLower(var1) ? new PitcherCropBlock.PosAndState(var0, var1) : null;
+        }
     }
 
     @Override
     public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
-        return !this.isMaxAge(param2)
-            && (param2.getValue(AGE) < 2 || param0 instanceof ServerLevel var0 && canGrowInto(var0, isLower(param2) ? param1.above() : param1));
+        PitcherCropBlock.PosAndState var0 = this.getLowerHalf(param0, param1, param2);
+        return var0 == null ? false : this.canGrow(param0, var0.pos, var0.state, var0.state.getValue(AGE) + 1);
     }
 
     @Override
@@ -174,6 +189,12 @@ public class PitcherCropBlock extends DoublePlantBlock implements BonemealableBl
 
     @Override
     public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
-        this.grow(param0, param3, param2, 1);
+        PitcherCropBlock.PosAndState var0 = this.getLowerHalf(param0, param2, param3);
+        if (var0 != null) {
+            this.grow(param0, var0.state, var0.pos, 1);
+        }
+    }
+
+    static record PosAndState(BlockPos pos, BlockState state) {
     }
 }

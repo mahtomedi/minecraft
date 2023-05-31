@@ -338,7 +338,7 @@ public class VanillaItemTagsProvider extends ItemTagsProvider {
             .add(Items.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE)
             .add(Items.RAISER_ARMOR_TRIM_SMITHING_TEMPLATE)
             .add(Items.HOST_ARMOR_TRIM_SMITHING_TEMPLATE);
-        this.tag(ItemTags.BOOKSHELF_BOOKS).add(Items.BOOK, Items.WRITTEN_BOOK, Items.ENCHANTED_BOOK, Items.WRITABLE_BOOK);
+        this.tag(ItemTags.BOOKSHELF_BOOKS).add(Items.BOOK, Items.WRITTEN_BOOK, Items.ENCHANTED_BOOK, Items.WRITABLE_BOOK, Items.KNOWLEDGE_BOOK);
         this.tag(ItemTags.NOTE_BLOCK_TOP_INSTRUMENTS)
             .add(
                 Items.ZOMBIE_HEAD,
