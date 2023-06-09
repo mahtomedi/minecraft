@@ -348,16 +348,18 @@ public class ChunkStatus {
         return this.generationTask
             .doWork(this, param0, param1, param2, param3, param4, param5, param6, var0)
             .thenApply(
-                (Function<? super Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>, ? extends Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>)(param2x -> {
-                    if (var0 instanceof ProtoChunk var0x && !var0x.getStatus().isOrAfter(this)) {
-                        var0x.setStatus(this);
-                    }
+                (Function<? super Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>, ? extends Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>>)(param1x -> {
+                    param1x.ifLeft(param0x -> {
+                        if (param0x instanceof ProtoChunk var0x && !var0x.getStatus().isOrAfter(this)) {
+                            var0x.setStatus(this);
+                        }
         
+                    });
                     if (var1 != null) {
                         var1.finish();
                     }
         
-                    return param2x;
+                    return param1x;
                 })
             );
     }

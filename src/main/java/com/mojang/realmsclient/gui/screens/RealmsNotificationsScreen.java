@@ -146,13 +146,13 @@ public class RealmsNotificationsScreen extends RealmsScreen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (validClient) {
-            this.drawIcons(param0, param1, param2);
+            this.drawIcons(param0);
         }
 
         super.render(param0, param1, param2, param3);
     }
 
-    private void drawIcons(GuiGraphics param0, int param1, int param2) {
+    private void drawIcons(GuiGraphics param0) {
         int var0 = this.numberOfPendingInvites;
         int var1 = 24;
         int var2 = this.height / 4 + 48;
@@ -174,7 +174,7 @@ public class RealmsNotificationsScreen extends RealmsScreen {
             }
 
             if (var0 != 0) {
-                param0.blit(INVITE_ICON_LOCATION, var3 - var5, var4 - 6, 0.0F, 0.0F, 15, 25, 31, 25);
+                param0.blit(INVITE_ICON_LOCATION, var3 - var5, var4, 0.0F, 0.0F, 18, 15, 18, 30);
                 var5 += 16;
             }
 

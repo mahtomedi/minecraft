@@ -280,18 +280,18 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     public void addMiddleButtons() {
-        this.createTrialButton = this.addRenderableWidget(Button.builder(Component.translatable("mco.selectServer.trial"), param0 -> {
+        this.createTrialButton = this.addWidget(Button.builder(Component.translatable("mco.selectServer.trial"), param0 -> {
             if (this.trialsAvailable && !this.createdTrial) {
                 Util.getPlatform().openUri("https://aka.ms/startjavarealmstrial");
                 this.minecraft.setScreen(this.lastScreen);
             }
         }).bounds(this.width / 2 + 52, this.popupY0() + 137 - 20, 98, 20).build());
-        this.buyARealmButton = this.addRenderableWidget(
+        this.buyARealmButton = this.addWidget(
             Button.builder(Component.translatable("mco.selectServer.buy"), param0 -> Util.getPlatform().openUri("https://aka.ms/BuyJavaRealms"))
                 .bounds(this.width / 2 + 52, this.popupY0() + 160 - 20, 98, 20)
                 .build()
         );
-        this.closeButton = this.addRenderableWidget(new RealmsMainScreen.CloseButton());
+        this.closeButton = this.addWidget(new RealmsMainScreen.CloseButton());
     }
 
     public void addFooterButtons() {
@@ -843,7 +843,7 @@ public class RealmsMainScreen extends RealmsScreen {
         if (this.shouldShowPopup()) {
             param0.pose().pushPose();
             param0.pose().translate(0.0F, 0.0F, 100.0F);
-            this.drawPopup(param0);
+            this.drawPopup(param0, param1, param2, param3);
             param0.pose().popPose();
         } else {
             if (this.showingPopup) {
@@ -868,6 +868,8 @@ public class RealmsMainScreen extends RealmsScreen {
                 var2 = 8;
             }
 
+            param0.pose().pushPose();
+            param0.pose().translate(0.0F, 0.0F, 110.0F);
             param0.blit(
                 TRIAL_ICON_LOCATION,
                 this.createTrialButton.getX() + this.createTrialButton.getWidth() - 8 - 4,
@@ -879,6 +881,7 @@ public class RealmsMainScreen extends RealmsScreen {
                 8,
                 16
             );
+            param0.pose().popPose();
         }
 
     }
@@ -900,7 +903,7 @@ public class RealmsMainScreen extends RealmsScreen {
         return param0 < (double)(var0 - 5) || param0 > (double)(var0 + 315) || param1 < (double)(var1 - 5) || param1 > (double)(var1 + 171);
     }
 
-    private void drawPopup(GuiGraphics param0) {
+    private void drawPopup(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.popupX0();
         int var1 = this.popupY0();
         if (!this.showingPopup) {
@@ -922,9 +925,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
         param0.setColor(1.0F, 1.0F, 1.0F, 0.7F);
         RenderSystem.enableBlend();
-        int var2 = 0;
-        int var3 = 32;
-        param0.blit(DARKEN_LOCATION, 0, 32, 0.0F, 0.0F, this.width, this.height - 40 - 32, 310, 166);
+        param0.blit(DARKEN_LOCATION, 0, 44, 0.0F, 0.0F, this.width, this.height - 44, 310, 166);
         RenderSystem.disableBlend();
         param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
         param0.blit(POPUP_LOCATION, var0, var1, 0.0F, 0.0F, 310, 166, 310, 166);
@@ -941,6 +942,9 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         this.formattedPopup.renderLeftAlignedNoShadow(param0, this.width / 2 + 52, var1 + 7, 10, 16777215);
+        this.createTrialButton.render(param0, param1, param2, param3);
+        this.buyARealmButton.render(param0, param1, param2, param3);
+        this.closeButton.render(param0, param1, param2, param3);
     }
 
     int popupX0() {

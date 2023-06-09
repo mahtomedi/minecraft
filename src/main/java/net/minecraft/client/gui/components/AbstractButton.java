@@ -26,7 +26,7 @@ public abstract class AbstractButton extends AbstractWidget {
     public abstract void onPress();
 
     @Override
-    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
+    protected void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         Minecraft var0 = Minecraft.getInstance();
         param0.setColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
