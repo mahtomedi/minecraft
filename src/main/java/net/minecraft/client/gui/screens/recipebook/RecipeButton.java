@@ -21,7 +21,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RecipeButton extends AbstractWidget {
-    private static final ResourceLocation RECIPE_BOOK_LOCATION = new ResourceLocation("textures/gui/recipe_book.png");
+    private static final ResourceLocation SLOT_MANY_CRAFTABLE_SPRITE = new ResourceLocation("recipe_book/slot_many_craftable");
+    private static final ResourceLocation SLOT_CRAFTABLE_SPRITE = new ResourceLocation("recipe_book/slot_craftable");
+    private static final ResourceLocation SLOT_MANY_UNCRAFTABLE_SPRITE = new ResourceLocation("recipe_book/slot_many_uncraftable");
+    private static final ResourceLocation SLOT_UNCRAFTABLE_SPRITE = new ResourceLocation("recipe_book/slot_uncraftable");
     private static final float ANIMATION_TIME = 15.0F;
     private static final int BACKGROUND_SIZE = 25;
     public static final int TICKS_TO_SWAP = 30;
@@ -63,39 +66,41 @@ public class RecipeButton extends AbstractWidget {
             this.time += param3;
         }
 
-        Minecraft var0 = Minecraft.getInstance();
-        int var1 = 29;
-        if (!this.collection.hasCraftable()) {
-            var1 += 25;
+        ResourceLocation var0;
+        if (this.collection.hasCraftable()) {
+            if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
+                var0 = SLOT_MANY_CRAFTABLE_SPRITE;
+            } else {
+                var0 = SLOT_CRAFTABLE_SPRITE;
+            }
+        } else if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
+            var0 = SLOT_MANY_UNCRAFTABLE_SPRITE;
+        } else {
+            var0 = SLOT_UNCRAFTABLE_SPRITE;
         }
 
-        int var2 = 206;
-        if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
-            var2 += 25;
-        }
-
-        boolean var3 = this.animationTime > 0.0F;
-        if (var3) {
-            float var4 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
+        boolean var4 = this.animationTime > 0.0F;
+        if (var4) {
+            float var5 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
             param0.pose().pushPose();
             param0.pose().translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
-            param0.pose().scale(var4, var4, 1.0F);
+            param0.pose().scale(var5, var5, 1.0F);
             param0.pose().translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
             this.animationTime -= param3;
         }
 
-        param0.blit(RECIPE_BOOK_LOCATION, this.getX(), this.getY(), var1, var2, this.width, this.height);
-        List<Recipe<?>> var5 = this.getOrderedRecipes();
-        this.currentIndex = Mth.floor(this.time / 30.0F) % var5.size();
-        ItemStack var6 = var5.get(this.currentIndex).getResultItem(this.collection.registryAccess());
-        int var7 = 4;
+        param0.blitSprite(var0, this.getX(), this.getY(), this.width, this.height);
+        List<Recipe<?>> var6 = this.getOrderedRecipes();
+        this.currentIndex = Mth.floor(this.time / 30.0F) % var6.size();
+        ItemStack var7 = var6.get(this.currentIndex).getResultItem(this.collection.registryAccess());
+        int var8 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
-            param0.renderItem(var6, this.getX() + var7 + 1, this.getY() + var7 + 1, 0, 10);
-            --var7;
+            param0.renderItem(var7, this.getX() + var8 + 1, this.getY() + var8 + 1, 0, 10);
+            --var8;
         }
 
-        param0.renderFakeItem(var6, this.getX() + var7, this.getY() + var7);
-        if (var3) {
+        param0.renderFakeItem(var7, this.getX() + var8, this.getY() + var8);
+        if (var4) {
             param0.pose().popPose();
         }
 

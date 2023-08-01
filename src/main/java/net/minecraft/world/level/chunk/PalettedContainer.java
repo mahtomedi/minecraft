@@ -17,6 +17,7 @@ import java.util.stream.LongStream;
 import javax.annotation.Nullable;
 import net.minecraft.core.IdMap;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.VarInt;
 import net.minecraft.util.BitStorage;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
@@ -316,7 +317,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
         }
 
         public int getSerializedSize() {
-            return 1 + this.palette.getSerializedSize() + FriendlyByteBuf.getVarIntSize(this.storage.getSize()) + this.storage.getRaw().length * 8;
+            return 1 + this.palette.getSerializedSize() + VarInt.getByteSize(this.storage.getSize()) + this.storage.getRaw().length * 8;
         }
 
         public void write(FriendlyByteBuf param0) {

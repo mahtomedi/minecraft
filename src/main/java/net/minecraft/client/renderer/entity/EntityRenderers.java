@@ -1,14 +1,15 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.model.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -20,10 +21,9 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class EntityRenderers {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final String DEFAULT_PLAYER_MODEL = "default";
-    private static final Map<EntityType<?>, EntityRendererProvider<?>> PROVIDERS = Maps.newHashMap();
-    private static final Map<String, EntityRendererProvider<AbstractClientPlayer>> PLAYER_PROVIDERS = ImmutableMap.of(
-        "default", param0 -> new PlayerRenderer(param0, false), "slim", param0 -> new PlayerRenderer(param0, true)
+    private static final Map<EntityType<?>, EntityRendererProvider<?>> PROVIDERS = new Object2ObjectOpenHashMap<>();
+    private static final Map<PlayerSkin.Model, EntityRendererProvider<AbstractClientPlayer>> PLAYER_PROVIDERS = Map.of(
+        PlayerSkin.Model.WIDE, param0 -> new PlayerRenderer(param0, false), PlayerSkin.Model.SLIM, param0 -> new PlayerRenderer(param0, true)
     );
 
     private static <T extends Entity> void register(EntityType<? extends T> param0, EntityRendererProvider<T> param1) {
@@ -42,8 +42,8 @@ public class EntityRenderers {
         return var0.build();
     }
 
-    public static Map<String, EntityRenderer<? extends Player>> createPlayerRenderers(EntityRendererProvider.Context param0) {
-        Builder<String, EntityRenderer<? extends Player>> var0 = ImmutableMap.builder();
+    public static Map<PlayerSkin.Model, EntityRenderer<? extends Player>> createPlayerRenderers(EntityRendererProvider.Context param0) {
+        Builder<PlayerSkin.Model, EntityRenderer<? extends Player>> var0 = ImmutableMap.builder();
         PLAYER_PROVIDERS.forEach((param2, param3) -> {
             try {
                 var0.put(param2, param3.create(param0));

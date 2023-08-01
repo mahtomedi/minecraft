@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -60,7 +61,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
     private static final float MAX_SHADOW_RADIUS = 32.0F;
     private static final float SHADOW_POWER_FALLOFF_Y = 0.5F;
     private Map<EntityType<?>, EntityRenderer<?>> renderers = ImmutableMap.of();
-    private Map<String, EntityRenderer<? extends Player>> playerRenderers = ImmutableMap.of();
+    private Map<PlayerSkin.Model, EntityRenderer<? extends Player>> playerRenderers = Map.of();
     public final TextureManager textureManager;
     private Level level;
     public Camera camera;
@@ -92,10 +93,10 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
     }
 
     public <T extends Entity> EntityRenderer<? super T> getRenderer(T param0) {
-        if (param0 instanceof AbstractClientPlayer) {
-            String var0 = ((AbstractClientPlayer)param0).getModelName();
-            EntityRenderer<? extends Player> var1 = this.playerRenderers.get(var0);
-            return var1 != null ? var1 : this.playerRenderers.get("default");
+        if (param0 instanceof AbstractClientPlayer var0) {
+            PlayerSkin.Model var1 = var0.getSkin().model();
+            EntityRenderer<? extends Player> var2 = this.playerRenderers.get(var1);
+            return var2 != null ? var2 : this.playerRenderers.get(PlayerSkin.Model.WIDE);
         } else {
             return (EntityRenderer<? super T>)this.renderers.get(param0.getType());
         }
@@ -210,13 +211,34 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
             );
         }
 
-        Vec3 var9 = param2.getViewVector(param3);
-        Matrix4f var10 = param0.last().pose();
-        Matrix3f var11 = param0.last().normal();
-        param1.vertex(var10, 0.0F, param2.getEyeHeight(), 0.0F).color(0, 0, 255, 255).normal(var11, (float)var9.x, (float)var9.y, (float)var9.z).endVertex();
-        param1.vertex(var10, (float)(var9.x * 2.0), (float)((double)param2.getEyeHeight() + var9.y * 2.0), (float)(var9.z * 2.0))
+        Entity var9 = param2.getVehicle();
+        if (var9 != null) {
+            float var10 = Math.min(var9.getBbWidth(), param2.getBbWidth()) / 2.0F;
+            float var11 = 0.0625F;
+            Vec3 var12 = var9.getPassengerRidingPosition(param2).subtract(param2.position());
+            LevelRenderer.renderLineBox(
+                param0,
+                param1,
+                var12.x - (double)var10,
+                var12.y,
+                var12.z - (double)var10,
+                var12.x + (double)var10,
+                var12.y + 0.0625,
+                var12.z + (double)var10,
+                1.0F,
+                1.0F,
+                0.0F,
+                1.0F
+            );
+        }
+
+        Vec3 var13 = param2.getViewVector(param3);
+        Matrix4f var14 = param0.last().pose();
+        Matrix3f var15 = param0.last().normal();
+        param1.vertex(var14, 0.0F, param2.getEyeHeight(), 0.0F).color(0, 0, 255, 255).normal(var15, (float)var13.x, (float)var13.y, (float)var13.z).endVertex();
+        param1.vertex(var14, (float)(var13.x * 2.0), (float)((double)param2.getEyeHeight() + var13.y * 2.0), (float)(var13.z * 2.0))
             .color(0, 0, 255, 255)
-            .normal(var11, (float)var9.x, (float)var9.y, (float)var9.z)
+            .normal(var15, (float)var13.x, (float)var13.y, (float)var13.z)
             .endVertex();
     }
 

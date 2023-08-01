@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -118,7 +119,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
                 double var14 = var8.y + 0.2F + 0.5;
                 double var15 = var8.z + 0.2F;
                 renderFilledBox(param0, param1, new AABB(var10, var11, var12, var13, var14, var15), 1.0F, 1.0F, 1.0F, 0.2F);
-                DebugRenderer.renderFloatingText(param0, param1, var7.gameEvent.getName(), var8.x, var8.y + 0.85F, var8.z, -7564911, 0.0075F);
+                DebugRenderer.renderFloatingText(param0, param1, var7.gameEvent.location().toString(), var8.x, var8.y + 0.85F, var8.z, -7564911, 0.0075F);
             }
 
         }
@@ -132,7 +133,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
         }
     }
 
-    public void trackGameEvent(GameEvent param0, Vec3 param1) {
+    public void trackGameEvent(ResourceKey<GameEvent> param0, Vec3 param1) {
         this.trackedGameEvents.add(new GameEventListenerRenderer.TrackedGameEvent(Util.getMillis(), param0, param1));
     }
 
@@ -141,7 +142,7 @@ public class GameEventListenerRenderer implements DebugRenderer.SimpleDebugRende
     }
 
     @OnlyIn(Dist.CLIENT)
-    static record TrackedGameEvent(long timeStamp, GameEvent gameEvent, Vec3 position) {
+    static record TrackedGameEvent(long timeStamp, ResourceKey<GameEvent> gameEvent, Vec3 position) {
         public boolean isExpired() {
             return Util.getMillis() - this.timeStamp > 3000L;
         }

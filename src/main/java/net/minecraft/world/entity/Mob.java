@@ -200,11 +200,9 @@ public abstract class Mob extends LivingEntity implements Targeting {
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
-        if (!this.isNoAi()) {
-            Entity var2 = this.getFirstPassenger();
-            if (var2 instanceof Mob var0) {
-                return var0;
-            }
+        Entity var0 = this.getFirstPassenger();
+        if (!this.isNoAi() && var0 instanceof Mob var1 && var0.canControlVehicle()) {
+            return var1;
         }
 
         return null;

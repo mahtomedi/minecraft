@@ -1,7 +1,9 @@
 package net.minecraft.world.level.block;
 
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -32,7 +34,7 @@ public class KelpPlantBlock extends GrowingPlantBodyBlock implements LiquidBlock
     }
 
     @Override
-    public boolean canPlaceLiquid(BlockGetter param0, BlockPos param1, BlockState param2, Fluid param3) {
+    public boolean canPlaceLiquid(@Nullable Player param0, BlockGetter param1, BlockPos param2, BlockState param3, Fluid param4) {
         return false;
     }
 

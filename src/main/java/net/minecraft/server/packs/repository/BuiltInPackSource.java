@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.VanillaPackResources;
+import net.minecraft.world.level.validation.DirectoryValidator;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -24,11 +25,13 @@ public abstract class BuiltInPackSource implements RepositorySource {
     private final PackType packType;
     private final VanillaPackResources vanillaPack;
     private final ResourceLocation packDir;
+    private final DirectoryValidator validator;
 
-    public BuiltInPackSource(PackType param0, VanillaPackResources param1, ResourceLocation param2) {
+    public BuiltInPackSource(PackType param0, VanillaPackResources param1, ResourceLocation param2, DirectoryValidator param3) {
         this.packType = param0;
         this.vanillaPack = param1;
         this.packDir = param2;
+        this.validator = param3;
     }
 
     @Override
@@ -71,6 +74,7 @@ public abstract class BuiltInPackSource implements RepositorySource {
             try {
                 FolderRepositorySource.discoverPacks(
                     param0,
+                    this.validator,
                     true,
                     (param1x, param2) -> param1.accept(pathToId(param1x), param1xx -> this.createBuiltinPack(param1xx, param2, this.getPackTitle(param1xx)))
                 );
@@ -87,4 +91,18 @@ public abstract class BuiltInPackSource implements RepositorySource {
 
     @Nullable
     protected abstract Pack createBuiltinPack(String var1, Pack.ResourcesSupplier var2, Component var3);
+
+    protected static Pack.ResourcesSupplier fixedResources(final PackResources param0) {
+        return new Pack.ResourcesSupplier() {
+            @Override
+            public PackResources openPrimary(String param0x) {
+                return param0;
+            }
+
+            @Override
+            public PackResources openFull(String param0x, Pack.Info param1) {
+                return param0;
+            }
+        };
+    }
 }

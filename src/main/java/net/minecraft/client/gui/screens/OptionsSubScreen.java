@@ -29,9 +29,8 @@ public class OptionsSubScreen extends Screen {
     }
 
     protected void basicListRender(GuiGraphics param0, OptionsList param1, int param2, int param3, float param4) {
-        this.renderBackground(param0);
+        super.render(param0, param2, param3, param4);
         param1.render(param0, param2, param3, param4);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
-        super.render(param0, param2, param3, param4);
     }
 }

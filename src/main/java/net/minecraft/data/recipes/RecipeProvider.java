@@ -550,21 +550,25 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected static void generateRecipes(Consumer<FinishedRecipe> param0, BlockFamily param1) {
-        param1.getVariants().forEach((param2, param3) -> {
-            BiFunction<ItemLike, ItemLike, RecipeBuilder> var0x = SHAPE_BUILDERS.get(param2);
-            ItemLike var1x = getBaseBlock(param1, param2);
-            if (var0x != null) {
-                RecipeBuilder var2 = (RecipeBuilder)var0x.apply(param3, var1x);
-                param1.getRecipeGroupPrefix().ifPresent(param2x -> var2.group(param2x + (param2 == BlockFamily.Variant.CUT ? "" : "_" + param2.getName())));
-                var2.unlockedBy(param1.getRecipeUnlockedBy().orElseGet(() -> getHasName(var1x)), has(var1x));
-                var2.save(param0);
-            }
-
-            if (param2 == BlockFamily.Variant.CRACKED) {
-                smeltingResultFromBase(param0, param3, var1x);
-            }
-
-        });
+        param1.getVariants()
+            .forEach(
+                (param2, param3) -> {
+                    BiFunction<ItemLike, ItemLike, RecipeBuilder> var0x = SHAPE_BUILDERS.get(param2);
+                    ItemLike var1x = getBaseBlock(param1, param2);
+                    if (var0x != null) {
+                        RecipeBuilder var2 = (RecipeBuilder)var0x.apply(param3, var1x);
+                        param1.getRecipeGroupPrefix()
+                            .ifPresent(param2x -> var2.group(param2x + (param2 == BlockFamily.Variant.CUT ? "" : "_" + param2.getRecipeGroup())));
+                        var2.unlockedBy(param1.getRecipeUnlockedBy().orElseGet(() -> getHasName(var1x)), has(var1x));
+                        var2.save(param0);
+                    }
+        
+                    if (param2 == BlockFamily.Variant.CRACKED) {
+                        smeltingResultFromBase(param0, param3, var1x);
+                    }
+        
+                }
+            );
     }
 
     private static Block getBaseBlock(BlockFamily param0, BlockFamily.Variant param1) {

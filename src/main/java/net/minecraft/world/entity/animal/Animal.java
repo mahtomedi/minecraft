@@ -96,11 +96,6 @@ public abstract class Animal extends AgeableMob {
     }
 
     @Override
-    public double getMyRidingOffset() {
-        return 0.14;
-    }
-
-    @Override
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.inLove = param0.getInt("InLove");

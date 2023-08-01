@@ -48,7 +48,44 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<CreativeModeInventoryScreen.ItemPickerMenu> {
-    private static final ResourceLocation CREATIVE_TABS_LOCATION = new ResourceLocation("textures/gui/container/creative_inventory/tabs.png");
+    private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/creative_inventory/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED_SPRITE = new ResourceLocation("container/creative_inventory/scroller_disabled");
+    private static final ResourceLocation[] UNSELECTED_TOP_TABS = new ResourceLocation[]{
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_1"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_2"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_3"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_4"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_5"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_6"),
+        new ResourceLocation("container/creative_inventory/tab_top_unselected_7")
+    };
+    private static final ResourceLocation[] SELECTED_TOP_TABS = new ResourceLocation[]{
+        new ResourceLocation("container/creative_inventory/tab_top_selected_1"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_2"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_3"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_4"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_5"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_6"),
+        new ResourceLocation("container/creative_inventory/tab_top_selected_7")
+    };
+    private static final ResourceLocation[] UNSELECTED_BOTTOM_TABS = new ResourceLocation[]{
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_1"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_2"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_3"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_4"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_5"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_6"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_unselected_7")
+    };
+    private static final ResourceLocation[] SELECTED_BOTTOM_TABS = new ResourceLocation[]{
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_1"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_2"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_3"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_4"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_5"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_6"),
+        new ResourceLocation("container/creative_inventory/tab_bottom_selected_7")
+    };
     private static final String GUI_CREATIVE_TAB_PREFIX = "textures/gui/container/creative_inventory/tab_";
     private static final String CUSTOM_SLOT_LOCK = "CustomCreativeLock";
     private static final int NUM_ROWS = 5;
@@ -130,8 +167,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
             if (!this.minecraft.gameMode.hasInfiniteItems()) {
                 this.minecraft.setScreen(new InventoryScreen(this.minecraft.player));
-            } else {
-                this.searchBox.tick();
             }
 
         }
@@ -140,7 +175,7 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     @Override
     protected void slotClicked(@Nullable Slot param0, int param1, int param2, ClickType param3) {
         if (this.isCreativeSlot(param0)) {
-            this.searchBox.moveCursorToEnd();
+            this.searchBox.moveCursorToEnd(false);
             this.searchBox.setHighlightPos(0);
         }
 
@@ -564,11 +599,11 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
     }
 
     @Override
-    public boolean mouseScrolled(double param0, double param1, double param2) {
+    public boolean mouseScrolled(double param0, double param1, double param2, double param3) {
         if (!this.canScroll()) {
             return false;
         } else {
-            this.scrollOffs = this.menu.subtractInputFromScroll(this.scrollOffs, param2);
+            this.scrollOffs = this.menu.subtractInputFromScroll(this.scrollOffs, param3);
             this.menu.scrollTo(this.scrollOffs);
             return true;
         }
@@ -610,7 +645,6 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
 
         for(CreativeModeTab var0 : CreativeModeTabs.tabs()) {
@@ -683,18 +717,22 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         int var2 = this.topPos + 18;
         int var3 = var2 + 112;
         if (selectedTab.canScroll()) {
-            param0.blit(CREATIVE_TABS_LOCATION, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 232 + (this.canScroll() ? 0 : 12), 0, 12, 15);
+            ResourceLocation var4 = this.canScroll() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+            param0.blitSprite(var4, var1, var2 + (int)((float)(var3 - var2 - 17) * this.scrollOffs), 12, 15);
         }
 
         this.renderTabButton(param0, selectedTab);
         if (selectedTab.getType() == CreativeModeTab.Type.INVENTORY) {
             InventoryScreen.renderEntityInInventoryFollowsMouse(
                 param0,
-                this.leftPos + 88,
-                this.topPos + 45,
+                this.leftPos + 73,
+                this.topPos + 6,
+                this.leftPos + 105,
+                this.topPos + 49,
                 20,
-                (float)(this.leftPos + 88 - param2),
-                (float)(this.topPos + 45 - 30 - param3),
+                0.0625F,
+                (float)param2,
+                (float)param3,
                 this.minecraft.player
             );
         }
@@ -744,30 +782,23 @@ public class CreativeModeInventoryScreen extends EffectRenderingInventoryScreen<
         boolean var0 = param1 == selectedTab;
         boolean var1 = param1.row() == CreativeModeTab.Row.TOP;
         int var2 = param1.column();
-        int var3 = var2 * 26;
-        int var4 = 0;
-        int var5 = this.leftPos + this.getTabX(param1);
-        int var6 = this.topPos;
-        int var7 = 32;
-        if (var0) {
-            var4 += 32;
-        }
-
+        int var3 = this.leftPos + this.getTabX(param1);
+        int var4 = this.topPos - (var1 ? 28 : -(this.imageHeight - 4));
+        ResourceLocation[] var5;
         if (var1) {
-            var6 -= 28;
+            var5 = var0 ? SELECTED_TOP_TABS : UNSELECTED_TOP_TABS;
         } else {
-            var4 += 64;
-            var6 += this.imageHeight - 4;
+            var5 = var0 ? SELECTED_BOTTOM_TABS : UNSELECTED_BOTTOM_TABS;
         }
 
-        param0.blit(CREATIVE_TABS_LOCATION, var5, var6, var3, var4, 26, 32);
+        param0.blitSprite(var5[Mth.clamp(var2, 0, var5.length)], var3, var4, 26, 32);
         param0.pose().pushPose();
         param0.pose().translate(0.0F, 0.0F, 100.0F);
-        var5 += 5;
-        var6 += 8 + (var1 ? 1 : -1);
-        ItemStack var8 = param1.getIconItem();
-        param0.renderItem(var8, var5, var6);
-        param0.renderItemDecorations(this.font, var8, var5, var6);
+        var3 += 5;
+        var4 += 8 + (var1 ? 1 : -1);
+        ItemStack var7 = param1.getIconItem();
+        param0.renderItem(var7, var3, var4);
+        param0.renderItemDecorations(this.font, var7, var3, var4);
         param0.pose().popPose();
     }
 

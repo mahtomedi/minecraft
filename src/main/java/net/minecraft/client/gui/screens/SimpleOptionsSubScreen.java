@@ -51,6 +51,11 @@ public abstract class SimpleOptionsSubScreen extends OptionsSubScreen {
         this.basicListRender(param0, this.list, param1, param2, param3);
     }
 
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
+    }
+
     public void updateNarratorButton() {
         if (this.narratorButton instanceof CycleButton) {
             ((CycleButton)this.narratorButton).setValue(this.options.narrator().get());

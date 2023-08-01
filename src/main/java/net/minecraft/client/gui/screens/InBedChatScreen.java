@@ -35,6 +35,10 @@ public class InBedChatScreen extends ChatScreen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+    }
+
+    @Override
     public void onClose() {
         this.sendWakeUp();
     }

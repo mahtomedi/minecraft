@@ -29,7 +29,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
-    static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
+    private static final ResourceLocation BEACON_LOCATION = new ResourceLocation("textures/gui/container/beacon.png");
+    static final ResourceLocation BUTTON_DISABLED_SPRITE = new ResourceLocation("container/beacon/button_disabled");
+    static final ResourceLocation BUTTON_SELECTED_SPRITE = new ResourceLocation("container/beacon/button_selected");
+    static final ResourceLocation BUTTON_HIGHLIGHTED_SPRITE = new ResourceLocation("container/beacon/button_highlighted");
+    static final ResourceLocation BUTTON_SPRITE = new ResourceLocation("container/beacon/button");
+    static final ResourceLocation CONFIRM_SPRITE = new ResourceLocation("container/beacon/confirm");
+    static final ResourceLocation CANCEL_SPRITE = new ResourceLocation("container/beacon/cancel");
     private static final Component PRIMARY_EFFECT_LABEL = Component.translatable("block.minecraft.beacon.primary");
     private static final Component SECONDARY_EFFECT_LABEL = Component.translatable("block.minecraft.beacon.secondary");
     private final List<BeaconScreen.BeaconButton> beaconButtons = Lists.newArrayList();
@@ -135,7 +141,6 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
     }
@@ -148,7 +153,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
     @OnlyIn(Dist.CLIENT)
     class BeaconCancelButton extends BeaconScreen.BeaconSpriteScreenButton {
         public BeaconCancelButton(int param0, int param1) {
-            super(param0, param1, 112, 220, CommonComponents.GUI_CANCEL);
+            super(param0, param1, BeaconScreen.CANCEL_SPRITE, CommonComponents.GUI_CANCEL);
         }
 
         @Override
@@ -164,7 +169,7 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
     @OnlyIn(Dist.CLIENT)
     class BeaconConfirmButton extends BeaconScreen.BeaconSpriteScreenButton {
         public BeaconConfirmButton(int param0, int param1) {
-            super(param0, param1, 90, 220, CommonComponents.GUI_DONE);
+            super(param0, param1, BeaconScreen.CONFIRM_SPRITE, CommonComponents.GUI_DONE);
         }
 
         @Override
@@ -249,17 +254,18 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
         @Override
         public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
-            int var0 = 219;
-            int var1 = 0;
+            ResourceLocation var0;
             if (!this.active) {
-                var1 += this.width * 2;
+                var0 = BeaconScreen.BUTTON_DISABLED_SPRITE;
             } else if (this.selected) {
-                var1 += this.width * 1;
+                var0 = BeaconScreen.BUTTON_SELECTED_SPRITE;
             } else if (this.isHoveredOrFocused()) {
-                var1 += this.width * 3;
+                var0 = BeaconScreen.BUTTON_HIGHLIGHTED_SPRITE;
+            } else {
+                var0 = BeaconScreen.BUTTON_SPRITE;
             }
 
-            param0.blit(BeaconScreen.BEACON_LOCATION, this.getX(), this.getY(), var1, 219, this.width, this.height);
+            param0.blitSprite(var0, this.getX(), this.getY(), this.width, this.height);
             this.renderIcon(param0);
         }
 
@@ -281,18 +287,16 @@ public class BeaconScreen extends AbstractContainerScreen<BeaconMenu> {
 
     @OnlyIn(Dist.CLIENT)
     abstract static class BeaconSpriteScreenButton extends BeaconScreen.BeaconScreenButton {
-        private final int iconX;
-        private final int iconY;
+        private final ResourceLocation sprite;
 
-        protected BeaconSpriteScreenButton(int param0, int param1, int param2, int param3, Component param4) {
-            super(param0, param1, param4);
-            this.iconX = param2;
-            this.iconY = param3;
+        protected BeaconSpriteScreenButton(int param0, int param1, ResourceLocation param2, Component param3) {
+            super(param0, param1, param3);
+            this.sprite = param2;
         }
 
         @Override
         protected void renderIcon(GuiGraphics param0) {
-            param0.blit(BeaconScreen.BEACON_LOCATION, this.getX() + 2, this.getY() + 2, this.iconX, this.iconY, 18, 18);
+            param0.blitSprite(this.sprite, this.getX() + 2, this.getY() + 2, 18, 18);
         }
     }
 

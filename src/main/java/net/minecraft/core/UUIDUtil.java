@@ -1,12 +1,11 @@
 package net.minecraft.core;
 
-import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
-import com.mojang.util.UUIDTypeAdapter;
+import com.mojang.util.UndashedUuid;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -26,11 +25,11 @@ public final class UUIDUtil {
     }, UUID::toString);
     public static Codec<UUID> AUTHLIB_CODEC = Codec.either(CODEC, Codec.STRING.comapFlatMap(param0 -> {
         try {
-            return DataResult.success(UUIDTypeAdapter.fromString(param0), Lifecycle.stable());
+            return DataResult.success(UndashedUuid.fromStringLenient(param0), Lifecycle.stable());
         } catch (IllegalArgumentException var2) {
             return DataResult.error(() -> "Invalid UUID " + param0 + ": " + var2.getMessage());
         }
-    }, UUIDTypeAdapter::fromUUID)).xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::right);
+    }, UndashedUuid::toString)).xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::right);
     public static final int UUID_BYTES = 16;
     private static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
 
@@ -64,15 +63,6 @@ public final class UUIDUtil {
         } else {
             return uuidFromIntArray(var0);
         }
-    }
-
-    public static UUID getOrCreatePlayerUUID(GameProfile param0) {
-        UUID var0 = param0.getId();
-        if (var0 == null) {
-            var0 = createOfflinePlayerUUID(param0.getName());
-        }
-
-        return var0;
     }
 
     public static UUID createOfflinePlayerUUID(String param0) {

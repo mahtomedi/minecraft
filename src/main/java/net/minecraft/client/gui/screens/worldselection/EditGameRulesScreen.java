@@ -69,10 +69,10 @@ public class EditGameRulesScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         this.tooltip = null;
         this.rules.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
-        super.render(param0, param1, param2, param3);
     }
 
     private void updateDoneButton() {

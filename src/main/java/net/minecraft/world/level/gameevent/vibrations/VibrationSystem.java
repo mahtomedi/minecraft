@@ -58,8 +58,7 @@ public interface VibrationSystem {
         param0.put(GameEvent.ITEM_INTERACT_FINISH, 3);
         param0.put(GameEvent.PROJECTILE_SHOOT, 3);
         param0.put(GameEvent.INSTRUMENT_PLAY, 3);
-        param0.put(GameEvent.ENTITY_ROAR, 4);
-        param0.put(GameEvent.ENTITY_SHAKE, 4);
+        param0.put(GameEvent.ENTITY_ACTION, 4);
         param0.put(GameEvent.ELYTRA_GLIDE, 4);
         param0.put(GameEvent.ENTITY_DISMOUNT, 5);
         param0.put(GameEvent.EQUIP, 5);

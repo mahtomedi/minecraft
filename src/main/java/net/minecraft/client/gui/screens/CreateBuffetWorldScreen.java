@@ -68,11 +68,15 @@ public class CreateBuffetWorldScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderDirtBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.list.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         param0.drawCenteredString(this.font, BIOME_SELECT_INFO, this.width / 2, 28, 10526880);
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     @OnlyIn(Dist.CLIENT)

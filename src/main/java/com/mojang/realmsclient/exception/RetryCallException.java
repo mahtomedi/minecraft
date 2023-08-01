@@ -1,5 +1,6 @@
 package com.mojang.realmsclient.exception;
 
+import com.mojang.realmsclient.client.RealmsError;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,7 +10,7 @@ public class RetryCallException extends RealmsServiceException {
     public final int delaySeconds;
 
     public RetryCallException(int param0, int param1) {
-        super(param1, "Retry operation");
+        super(RealmsError.CustomError.retry(param1));
         if (param0 >= 0 && param0 <= 120) {
             this.delaySeconds = param0;
         } else {

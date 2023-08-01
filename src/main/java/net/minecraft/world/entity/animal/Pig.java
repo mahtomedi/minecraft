@@ -17,6 +17,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ItemBasedSteering;
@@ -46,6 +47,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class Pig extends Animal implements ItemSteerable, Saddleable {
     private static final EntityDataAccessor<Boolean> DATA_SADDLE_ID = SynchedEntityData.defineId(Pig.class, EntityDataSerializers.BOOLEAN);
@@ -79,12 +81,12 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     public LivingEntity getControllingPassenger() {
         if (this.isSaddled()) {
             Entity var2 = this.getFirstPassenger();
-            if (var2 instanceof Player var0 && (var0.getMainHandItem().is(Items.CARROT_ON_A_STICK) || var0.getOffhandItem().is(Items.CARROT_ON_A_STICK))) {
+            if (var2 instanceof Player var0 && var0.isHolding(Items.CARROT_ON_A_STICK)) {
                 return var0;
             }
         }
 
-        return null;
+        return super.getControllingPassenger();
     }
 
     @Override
@@ -275,5 +277,10 @@ public class Pig extends Animal implements ItemSteerable, Saddleable {
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - 0.03125F * param2, 0.0F);
     }
 }

@@ -1,6 +1,7 @@
 package net.minecraft.gametest.framework;
 
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -15,12 +16,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
+import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -225,6 +229,9 @@ public class GameTestHelper {
         };
     }
 
+    @Deprecated(
+        forRemoval = true
+    )
     public ServerPlayer makeMockServerPlayerInLevel() {
         ServerPlayer var0 = new ServerPlayer(this.getLevel().getServer(), this.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player")) {
             @Override
@@ -237,7 +244,10 @@ public class GameTestHelper {
                 return true;
             }
         };
-        this.getLevel().getServer().getPlayerList().placeNewPlayer(new Connection(PacketFlow.SERVERBOUND), var0);
+        Connection var1 = new Connection(PacketFlow.SERVERBOUND);
+        EmbeddedChannel var2 = new EmbeddedChannel(var1);
+        var2.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
+        this.getLevel().getServer().getPlayerList().placeNewPlayer(var1, var0, 0);
         return var0;
     }
 
@@ -618,6 +628,14 @@ public class GameTestHelper {
         T var0 = param1.apply(param0);
         if (!var0.equals(param3)) {
             throw new GameTestAssertException("Entity " + param0 + " value " + param2 + "=" + var0 + " is not equal to expected " + param3);
+        }
+    }
+
+    public void assertLivingEntityHasMobEffect(LivingEntity param0, MobEffect param1, int param2) {
+        MobEffectInstance var0 = param0.getEffect(param1);
+        if (var0 == null || var0.getAmplifier() != param2) {
+            int var1 = param2 + 1;
+            throw new GameTestAssertException("Entity " + param0 + " failed has " + param1.getDescriptionId() + " x " + var1 + " test");
         }
     }
 

@@ -5,12 +5,17 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class PageButton extends Button {
+    private static final ResourceLocation PAGE_FORWARD_HIGHLIGHTED_SPRITE = new ResourceLocation("widget/page_forward_highlighted");
+    private static final ResourceLocation PAGE_FORWARD_SPRITE = new ResourceLocation("widget/page_forward");
+    private static final ResourceLocation PAGE_BACKWARD_HIGHLIGHTED_SPRITE = new ResourceLocation("widget/page_backward_highlighted");
+    private static final ResourceLocation PAGE_BACKWARD_SPRITE = new ResourceLocation("widget/page_backward");
     private final boolean isForward;
     private final boolean playTurnSound;
 
@@ -22,17 +27,14 @@ public class PageButton extends Button {
 
     @Override
     public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
-        int var0 = 0;
-        int var1 = 192;
-        if (this.isHoveredOrFocused()) {
-            var0 += 23;
+        ResourceLocation var0;
+        if (this.isForward) {
+            var0 = this.isHoveredOrFocused() ? PAGE_FORWARD_HIGHLIGHTED_SPRITE : PAGE_FORWARD_SPRITE;
+        } else {
+            var0 = this.isHoveredOrFocused() ? PAGE_BACKWARD_HIGHLIGHTED_SPRITE : PAGE_BACKWARD_SPRITE;
         }
 
-        if (!this.isForward) {
-            var1 += 13;
-        }
-
-        param0.blit(BookViewScreen.BOOK_LOCATION, this.getX(), this.getY(), var0, var1, 23, 13);
+        param0.blitSprite(var0, this.getX(), this.getY(), 23, 13);
     }
 
     @Override

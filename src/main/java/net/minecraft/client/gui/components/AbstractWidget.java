@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.components;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -23,7 +22,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,8 +29,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractWidget implements Renderable, GuiEventListener, LayoutElement, NarratableEntry {
-    public static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
-    public static final ResourceLocation ACCESSIBILITY_TEXTURE = new ResourceLocation("textures/gui/accessibility.png");
     private static final double PERIOD_PER_SCROLLED_PIXEL = 0.5;
     private static final double MIN_SCROLL_PERIOD = 3.0;
     protected int width;
@@ -125,20 +121,27 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener, La
     protected abstract void renderWidget(GuiGraphics var1, int var2, int var3, float var4);
 
     protected static void renderScrollingString(GuiGraphics param0, Font param1, Component param2, int param3, int param4, int param5, int param6, int param7) {
+        renderScrollingString(param0, param1, param2, (param3 + param5) / 2, param3, param4, param5, param6, param7);
+    }
+
+    protected static void renderScrollingString(
+        GuiGraphics param0, Font param1, Component param2, int param3, int param4, int param5, int param6, int param7, int param8
+    ) {
         int var0 = param1.width(param2);
-        int var1 = (param4 + param6 - 9) / 2 + 1;
-        int var2 = param5 - param3;
+        int var1 = (param5 + param7 - 9) / 2 + 1;
+        int var2 = param6 - param4;
         if (var0 > var2) {
             int var3 = var0 - var2;
             double var4 = (double)Util.getMillis() / 1000.0;
             double var5 = Math.max((double)var3 * 0.5, 3.0);
             double var6 = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * var4 / var5)) / 2.0 + 0.5;
             double var7 = Mth.lerp(var6, 0.0, (double)var3);
-            param0.enableScissor(param3, param4, param5, param6);
-            param0.drawString(param1, param2, param3 - (int)var7, var1, param7);
+            param0.enableScissor(param4, param5, param6, param7);
+            param0.drawString(param1, param2, param4 - (int)var7, var1, param8);
             param0.disableScissor();
         } else {
-            param0.drawCenteredString(param1, param2, (param3 + param5) / 2, var1, param7);
+            int var8 = Mth.clamp(param3, param4 + var0 / 2, param6 - var0 / 2);
+            param0.drawCenteredString(param1, param2, var8, var1, param8);
         }
 
     }
@@ -147,30 +150,6 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener, La
         int var0 = this.getX() + param2;
         int var1 = this.getX() + this.getWidth() - param2;
         renderScrollingString(param0, param1, this.getMessage(), var0, this.getY(), var1, this.getY() + this.getHeight(), param3);
-    }
-
-    public void renderTexture(
-        GuiGraphics param0,
-        ResourceLocation param1,
-        int param2,
-        int param3,
-        int param4,
-        int param5,
-        int param6,
-        int param7,
-        int param8,
-        int param9,
-        int param10
-    ) {
-        int var0 = param5;
-        if (!this.isActive()) {
-            var0 = param5 + param6 * 2;
-        } else if (this.isHoveredOrFocused()) {
-            var0 = param5 + param6;
-        }
-
-        RenderSystem.enableDepthTest();
-        param0.blit(param1, param2, param3, (float)param4, (float)var0, param7, param8, param9, param10);
     }
 
     public void onClick(double param0, double param1) {

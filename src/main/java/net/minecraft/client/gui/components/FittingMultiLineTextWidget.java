@@ -16,7 +16,7 @@ public class FittingMultiLineTextWidget extends AbstractScrollWidget {
     public FittingMultiLineTextWidget(int param0, int param1, int param2, int param3, Component param4, Font param5) {
         super(param0, param1, param2, param3, param4);
         this.font = param5;
-        this.multilineWidget = new MultiLineTextWidget(0, 0, param4, param5).setMaxWidth(this.getWidth() - this.totalInnerPadding());
+        this.multilineWidget = new MultiLineTextWidget(param4, param5).setMaxWidth(this.getWidth() - this.totalInnerPadding());
     }
 
     public FittingMultiLineTextWidget setColor(int param0) {

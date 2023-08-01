@@ -1,11 +1,10 @@
 package net.minecraft.client.gui.screens;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.FrameLayout;
-import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +17,7 @@ public class DisconnectedScreen extends Screen {
     private final Screen parent;
     private final Component reason;
     private final Component buttonText;
-    private final GridLayout layout = new GridLayout();
+    private final LinearLayout layout = LinearLayout.vertical();
 
     public DisconnectedScreen(Screen param0, Component param1, Component param2) {
         this(param0, param1, param2, TO_SERVER_LIST);
@@ -34,17 +33,16 @@ public class DisconnectedScreen extends Screen {
     @Override
     protected void init() {
         this.layout.defaultCellSetting().alignHorizontallyCenter().padding(10);
-        GridLayout.RowHelper var0 = this.layout.createRowHelper(1);
-        var0.addChild(new StringWidget(this.title, this.font));
-        var0.addChild(new MultiLineTextWidget(this.reason, this.font).setMaxWidth(this.width - 50).setCentered(true));
-        Button var1;
+        this.layout.addChild(new StringWidget(this.title, this.font));
+        this.layout.addChild(new MultiLineTextWidget(this.reason, this.font).setMaxWidth(this.width - 50).setCentered(true));
+        Button var0;
         if (this.minecraft.allowsMultiplayer()) {
-            var1 = Button.builder(this.buttonText, param0 -> this.minecraft.setScreen(this.parent)).build();
+            var0 = Button.builder(this.buttonText, param0 -> this.minecraft.setScreen(this.parent)).build();
         } else {
-            var1 = Button.builder(TO_TITLE, param0 -> this.minecraft.setScreen(new TitleScreen())).build();
+            var0 = Button.builder(TO_TITLE, param0 -> this.minecraft.setScreen(new TitleScreen())).build();
         }
 
-        var0.addChild(var1);
+        this.layout.addChild(var0);
         this.layout.arrangeElements();
         this.layout.visitWidgets(this::addRenderableWidget);
         this.repositionElements();
@@ -63,11 +61,5 @@ public class DisconnectedScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return false;
-    }
-
-    @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        super.render(param0, param1, param2, param3);
     }
 }

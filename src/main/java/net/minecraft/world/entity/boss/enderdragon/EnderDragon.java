@@ -21,6 +21,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -48,6 +49,7 @@ import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 public class EnderDragon extends Mob implements Enemy {
@@ -240,88 +242,81 @@ public class EnderDragon extends Mob implements Enemy {
                 this.positions[this.posPointer][1] = this.getY();
                 if (this.level().isClientSide) {
                     if (this.lerpSteps > 0) {
-                        double var8 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
-                        double var9 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
-                        double var10 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
-                        double var11 = Mth.wrapDegrees(this.lerpYRot - (double)this.getYRot());
-                        this.setYRot(this.getYRot() + (float)var11 / (float)this.lerpSteps);
-                        this.setXRot(this.getXRot() + (float)(this.lerpXRot - (double)this.getXRot()) / (float)this.lerpSteps);
+                        this.lerpPositionAndRotationStep(this.lerpSteps, this.lerpX, this.lerpY, this.lerpZ, this.lerpYRot, this.lerpXRot);
                         --this.lerpSteps;
-                        this.setPos(var8, var9, var10);
-                        this.setRot(this.getYRot(), this.getXRot());
                     }
 
                     this.phaseManager.getCurrentPhase().doClientTick();
                 } else {
-                    DragonPhaseInstance var12 = this.phaseManager.getCurrentPhase();
-                    var12.doServerTick();
-                    if (this.phaseManager.getCurrentPhase() != var12) {
-                        var12 = this.phaseManager.getCurrentPhase();
-                        var12.doServerTick();
+                    DragonPhaseInstance var8 = this.phaseManager.getCurrentPhase();
+                    var8.doServerTick();
+                    if (this.phaseManager.getCurrentPhase() != var8) {
+                        var8 = this.phaseManager.getCurrentPhase();
+                        var8.doServerTick();
                     }
 
-                    Vec3 var13 = var12.getFlyTargetLocation();
-                    if (var13 != null) {
-                        double var14 = var13.x - this.getX();
-                        double var15 = var13.y - this.getY();
-                        double var16 = var13.z - this.getZ();
-                        double var17 = var14 * var14 + var15 * var15 + var16 * var16;
-                        float var18 = var12.getFlySpeed();
-                        double var19 = Math.sqrt(var14 * var14 + var16 * var16);
-                        if (var19 > 0.0) {
-                            var15 = Mth.clamp(var15 / var19, (double)(-var18), (double)var18);
+                    Vec3 var9 = var8.getFlyTargetLocation();
+                    if (var9 != null) {
+                        double var10 = var9.x - this.getX();
+                        double var11 = var9.y - this.getY();
+                        double var12 = var9.z - this.getZ();
+                        double var13 = var10 * var10 + var11 * var11 + var12 * var12;
+                        float var14 = var8.getFlySpeed();
+                        double var15 = Math.sqrt(var10 * var10 + var12 * var12);
+                        if (var15 > 0.0) {
+                            var11 = Mth.clamp(var11 / var15, (double)(-var14), (double)var14);
                         }
 
-                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, var15 * 0.01, 0.0));
+                        this.setDeltaMovement(this.getDeltaMovement().add(0.0, var11 * 0.01, 0.0));
                         this.setYRot(Mth.wrapDegrees(this.getYRot()));
-                        Vec3 var20 = var13.subtract(this.getX(), this.getY(), this.getZ()).normalize();
-                        Vec3 var21 = new Vec3(
+                        Vec3 var16 = var9.subtract(this.getX(), this.getY(), this.getZ()).normalize();
+                        Vec3 var17 = new Vec3(
                                 (double)Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
                                 this.getDeltaMovement().y,
                                 (double)(-Mth.cos(this.getYRot() * (float) (Math.PI / 180.0)))
                             )
                             .normalize();
-                        float var22 = Math.max(((float)var21.dot(var20) + 0.5F) / 1.5F, 0.0F);
-                        if (Math.abs(var14) > 1.0E-5F || Math.abs(var16) > 1.0E-5F) {
-                            float var23 = Mth.clamp(
-                                Mth.wrapDegrees(180.0F - (float)Mth.atan2(var14, var16) * (180.0F / (float)Math.PI) - this.getYRot()), -50.0F, 50.0F
+                        float var18 = Math.max(((float)var17.dot(var16) + 0.5F) / 1.5F, 0.0F);
+                        if (Math.abs(var10) > 1.0E-5F || Math.abs(var12) > 1.0E-5F) {
+                            float var19 = Mth.clamp(
+                                Mth.wrapDegrees(180.0F - (float)Mth.atan2(var10, var12) * (180.0F / (float)Math.PI) - this.getYRot()), -50.0F, 50.0F
                             );
                             this.yRotA *= 0.8F;
-                            this.yRotA += var23 * var12.getTurnSpeed();
+                            this.yRotA += var19 * var8.getTurnSpeed();
                             this.setYRot(this.getYRot() + this.yRotA * 0.1F);
                         }
 
-                        float var24 = (float)(2.0 / (var17 + 1.0));
-                        float var25 = 0.06F;
-                        this.moveRelative(0.06F * (var22 * var24 + (1.0F - var24)), new Vec3(0.0, 0.0, -1.0));
+                        float var20 = (float)(2.0 / (var13 + 1.0));
+                        float var21 = 0.06F;
+                        this.moveRelative(0.06F * (var18 * var20 + (1.0F - var20)), new Vec3(0.0, 0.0, -1.0));
                         if (this.inWall) {
                             this.move(MoverType.SELF, this.getDeltaMovement().scale(0.8F));
                         } else {
                             this.move(MoverType.SELF, this.getDeltaMovement());
                         }
 
-                        Vec3 var26 = this.getDeltaMovement().normalize();
-                        double var27 = 0.8 + 0.15 * (var26.dot(var21) + 1.0) / 2.0;
-                        this.setDeltaMovement(this.getDeltaMovement().multiply(var27, 0.91F, var27));
+                        Vec3 var22 = this.getDeltaMovement().normalize();
+                        double var23 = 0.8 + 0.15 * (var22.dot(var17) + 1.0) / 2.0;
+                        this.setDeltaMovement(this.getDeltaMovement().multiply(var23, 0.91F, var23));
                     }
                 }
 
                 this.yBodyRot = this.getYRot();
-                Vec3[] var28 = new Vec3[this.subEntities.length];
+                Vec3[] var24 = new Vec3[this.subEntities.length];
 
-                for(int var29 = 0; var29 < this.subEntities.length; ++var29) {
-                    var28[var29] = new Vec3(this.subEntities[var29].getX(), this.subEntities[var29].getY(), this.subEntities[var29].getZ());
+                for(int var25 = 0; var25 < this.subEntities.length; ++var25) {
+                    var24[var25] = new Vec3(this.subEntities[var25].getX(), this.subEntities[var25].getY(), this.subEntities[var25].getZ());
                 }
 
-                float var30 = (float)(this.getLatencyPos(5, 1.0F)[1] - this.getLatencyPos(10, 1.0F)[1]) * 10.0F * (float) (Math.PI / 180.0);
-                float var31 = Mth.cos(var30);
-                float var32 = Mth.sin(var30);
-                float var33 = this.getYRot() * (float) (Math.PI / 180.0);
-                float var34 = Mth.sin(var33);
-                float var35 = Mth.cos(var33);
-                this.tickPart(this.body, (double)(var34 * 0.5F), 0.0, (double)(-var35 * 0.5F));
-                this.tickPart(this.wing1, (double)(var35 * 4.5F), 2.0, (double)(var34 * 4.5F));
-                this.tickPart(this.wing2, (double)(var35 * -4.5F), 2.0, (double)(var34 * -4.5F));
+                float var26 = (float)(this.getLatencyPos(5, 1.0F)[1] - this.getLatencyPos(10, 1.0F)[1]) * 10.0F * (float) (Math.PI / 180.0);
+                float var27 = Mth.cos(var26);
+                float var28 = Mth.sin(var26);
+                float var29 = this.getYRot() * (float) (Math.PI / 180.0);
+                float var30 = Mth.sin(var29);
+                float var31 = Mth.cos(var29);
+                this.tickPart(this.body, (double)(var30 * 0.5F), 0.0, (double)(-var31 * 0.5F));
+                this.tickPart(this.wing1, (double)(var31 * 4.5F), 2.0, (double)(var30 * 4.5F));
+                this.tickPart(this.wing2, (double)(var31 * -4.5F), 2.0, (double)(var30 * -4.5F));
                 if (!this.level().isClientSide && this.hurtTime == 0) {
                     this.knockBack(
                         this.level()
@@ -335,38 +330,38 @@ public class EnderDragon extends Mob implements Enemy {
                     this.hurt(this.level().getEntities(this, this.neck.getBoundingBox().inflate(1.0), EntitySelector.NO_CREATIVE_OR_SPECTATOR));
                 }
 
-                float var36 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
-                float var37 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
-                float var38 = this.getHeadYOffset();
-                this.tickPart(this.head, (double)(var36 * 6.5F * var31), (double)(var38 + var32 * 6.5F), (double)(-var37 * 6.5F * var31));
-                this.tickPart(this.neck, (double)(var36 * 5.5F * var31), (double)(var38 + var32 * 5.5F), (double)(-var37 * 5.5F * var31));
-                double[] var39 = this.getLatencyPos(5, 1.0F);
+                float var32 = Mth.sin(this.getYRot() * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
+                float var33 = Mth.cos(this.getYRot() * (float) (Math.PI / 180.0) - this.yRotA * 0.01F);
+                float var34 = this.getHeadYOffset();
+                this.tickPart(this.head, (double)(var32 * 6.5F * var27), (double)(var34 + var28 * 6.5F), (double)(-var33 * 6.5F * var27));
+                this.tickPart(this.neck, (double)(var32 * 5.5F * var27), (double)(var34 + var28 * 5.5F), (double)(-var33 * 5.5F * var27));
+                double[] var35 = this.getLatencyPos(5, 1.0F);
 
-                for(int var40 = 0; var40 < 3; ++var40) {
-                    EnderDragonPart var41 = null;
-                    if (var40 == 0) {
-                        var41 = this.tail1;
+                for(int var36 = 0; var36 < 3; ++var36) {
+                    EnderDragonPart var37 = null;
+                    if (var36 == 0) {
+                        var37 = this.tail1;
                     }
 
-                    if (var40 == 1) {
-                        var41 = this.tail2;
+                    if (var36 == 1) {
+                        var37 = this.tail2;
                     }
 
-                    if (var40 == 2) {
-                        var41 = this.tail3;
+                    if (var36 == 2) {
+                        var37 = this.tail3;
                     }
 
-                    double[] var42 = this.getLatencyPos(12 + var40 * 2, 1.0F);
-                    float var43 = this.getYRot() * (float) (Math.PI / 180.0) + this.rotWrap(var42[0] - var39[0]) * (float) (Math.PI / 180.0);
-                    float var44 = Mth.sin(var43);
-                    float var45 = Mth.cos(var43);
-                    float var46 = 1.5F;
-                    float var47 = (float)(var40 + 1) * 2.0F;
+                    double[] var38 = this.getLatencyPos(12 + var36 * 2, 1.0F);
+                    float var39 = this.getYRot() * (float) (Math.PI / 180.0) + this.rotWrap(var38[0] - var35[0]) * (float) (Math.PI / 180.0);
+                    float var40 = Mth.sin(var39);
+                    float var41 = Mth.cos(var39);
+                    float var42 = 1.5F;
+                    float var43 = (float)(var36 + 1) * 2.0F;
                     this.tickPart(
-                        var41,
-                        (double)(-(var34 * 1.5F + var44 * var47) * var31),
-                        var42[1] - var39[1] - (double)((var47 + 1.5F) * var32) + 1.5,
-                        (double)((var35 * 1.5F + var45 * var47) * var31)
+                        var37,
+                        (double)(-(var30 * 1.5F + var40 * var43) * var27),
+                        var38[1] - var35[1] - (double)((var43 + 1.5F) * var28) + 1.5,
+                        (double)((var31 * 1.5F + var41 * var43) * var27)
                     );
                 }
 
@@ -379,13 +374,13 @@ public class EnderDragon extends Mob implements Enemy {
                     }
                 }
 
-                for(int var48 = 0; var48 < this.subEntities.length; ++var48) {
-                    this.subEntities[var48].xo = var28[var48].x;
-                    this.subEntities[var48].yo = var28[var48].y;
-                    this.subEntities[var48].zo = var28[var48].z;
-                    this.subEntities[var48].xOld = var28[var48].x;
-                    this.subEntities[var48].yOld = var28[var48].y;
-                    this.subEntities[var48].zOld = var28[var48].z;
+                for(int var44 = 0; var44 < this.subEntities.length; ++var44) {
+                    this.subEntities[var44].xo = var24[var44].x;
+                    this.subEntities[var44].yo = var24[var44].y;
+                    this.subEntities[var44].zo = var24[var44].z;
+                    this.subEntities[var44].xOld = var24[var44].x;
+                    this.subEntities[var44].yOld = var24[var44].y;
+                    this.subEntities[var44].zOld = var24[var44].z;
                 }
 
             }
@@ -943,7 +938,7 @@ public class EnderDragon extends Mob implements Enemy {
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return (double)this.body.getBbHeight();
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, this.body.getBbHeight(), 0.0F);
     }
 }

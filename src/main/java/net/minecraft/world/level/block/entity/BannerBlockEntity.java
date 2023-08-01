@@ -151,9 +151,10 @@ public class BannerBlockEntity extends BlockEntity implements Nameable {
                 if (var1.isEmpty()) {
                     var0.remove("Patterns");
                 }
-
-                BlockItem.setBlockEntityData(param0, BlockEntityType.BANNER, var0);
             }
+
+            var0.remove("id");
+            BlockItem.setBlockEntityData(param0, BlockEntityType.BANNER, var0);
         }
     }
 

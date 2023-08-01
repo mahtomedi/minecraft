@@ -91,22 +91,21 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             LOGGER.warn("This method should only be called for matching effects!");
         }
 
-        int var0 = this.duration;
-        boolean var1 = false;
+        boolean var0 = false;
         if (param0.amplifier > this.amplifier) {
             if (param0.isShorterDurationThan(this)) {
-                MobEffectInstance var2 = this.hiddenEffect;
+                MobEffectInstance var1 = this.hiddenEffect;
                 this.hiddenEffect = new MobEffectInstance(this);
-                this.hiddenEffect.hiddenEffect = var2;
+                this.hiddenEffect.hiddenEffect = var1;
             }
 
             this.amplifier = param0.amplifier;
             this.duration = param0.duration;
-            var1 = true;
+            var0 = true;
         } else if (this.isShorterDurationThan(param0)) {
             if (param0.amplifier == this.amplifier) {
                 this.duration = param0.duration;
-                var1 = true;
+                var0 = true;
             } else if (this.hiddenEffect == null) {
                 this.hiddenEffect = new MobEffectInstance(param0);
             } else {
@@ -114,22 +113,22 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
             }
         }
 
-        if (!param0.ambient && this.ambient || var1) {
+        if (!param0.ambient && this.ambient || var0) {
             this.ambient = param0.ambient;
-            var1 = true;
+            var0 = true;
         }
 
         if (param0.visible != this.visible) {
             this.visible = param0.visible;
-            var1 = true;
+            var0 = true;
         }
 
         if (param0.showIcon != this.showIcon) {
             this.showIcon = param0.showIcon;
-            var1 = true;
+            var0 = true;
         }
 
-        return var1;
+        return var0;
     }
 
     private boolean isShorterDurationThan(MobEffectInstance param0) {
@@ -175,8 +174,8 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
     public boolean tick(LivingEntity param0, Runnable param1) {
         if (this.hasRemainingDuration()) {
             int var0 = this.isInfiniteDuration() ? param0.tickCount : this.duration;
-            if (this.effect.isDurationEffectTick(var0, this.amplifier)) {
-                this.applyEffect(param0);
+            if (this.effect.shouldApplyEffectTickThisTick(var0, this.amplifier)) {
+                this.effect.applyEffectTick(param0, this.amplifier);
             }
 
             this.tickDownDuration();
@@ -203,11 +202,8 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
         return this.duration = this.mapDuration(param0 -> param0 - 1);
     }
 
-    public void applyEffect(LivingEntity param0) {
-        if (this.hasRemainingDuration()) {
-            this.effect.applyEffectTick(param0, this.amplifier);
-        }
-
+    public void onEffectStarted(LivingEntity param0) {
+        this.effect.onEffectStarted(param0, this.amplifier);
     }
 
     public String getDescriptionId() {

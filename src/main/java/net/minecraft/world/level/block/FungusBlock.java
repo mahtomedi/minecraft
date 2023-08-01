@@ -44,7 +44,7 @@ public class FungusBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         BlockState var0 = param0.getBlockState(param1.below());
         return var0.is(this.requiredBlock);
     }

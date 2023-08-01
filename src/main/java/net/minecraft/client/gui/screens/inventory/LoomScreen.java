@@ -37,6 +37,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
+    private static final ResourceLocation BANNER_SLOT_SPRITE = new ResourceLocation("container/loom/banner_slot");
+    private static final ResourceLocation DYE_SLOT_SPRITE = new ResourceLocation("container/loom/dye_slot");
+    private static final ResourceLocation PATTERN_SLOT_SPRITE = new ResourceLocation("container/loom/pattern_slot");
+    private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/loom/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED_SPRITE = new ResourceLocation("container/loom/scroller_disabled");
+    private static final ResourceLocation PATTERN_SELECTED_SPRITE = new ResourceLocation("container/loom/pattern_selected");
+    private static final ResourceLocation PATTERN_HIGHLIGHTED_SPRITE = new ResourceLocation("container/loom/pattern_highlighted");
+    private static final ResourceLocation PATTERN_SPRITE = new ResourceLocation("container/loom/pattern");
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/loom.png");
     private static final int PATTERN_COLUMNS = 4;
     private static final int PATTERN_ROWS = 4;
@@ -82,28 +90,27 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
 
     @Override
     protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
-        this.renderBackground(param0);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         param0.blit(BG_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         Slot var2 = this.menu.getBannerSlot();
         Slot var3 = this.menu.getDyeSlot();
         Slot var4 = this.menu.getPatternSlot();
-        Slot var5 = this.menu.getResultSlot();
         if (!var2.hasItem()) {
-            param0.blit(BG_LOCATION, var0 + var2.x, var1 + var2.y, this.imageWidth, 0, 16, 16);
+            param0.blitSprite(BANNER_SLOT_SPRITE, var0 + var2.x, var1 + var2.y, 16, 16);
         }
 
         if (!var3.hasItem()) {
-            param0.blit(BG_LOCATION, var0 + var3.x, var1 + var3.y, this.imageWidth + 16, 0, 16, 16);
+            param0.blitSprite(DYE_SLOT_SPRITE, var0 + var3.x, var1 + var3.y, 16, 16);
         }
 
         if (!var4.hasItem()) {
-            param0.blit(BG_LOCATION, var0 + var4.x, var1 + var4.y, this.imageWidth + 32, 0, 16, 16);
+            param0.blitSprite(PATTERN_SLOT_SPRITE, var0 + var4.x, var1 + var4.y, 16, 16);
         }
 
-        int var6 = (int)(41.0F * this.scrollOffs);
-        param0.blit(BG_LOCATION, var0 + 119, var1 + 13 + var6, 232 + (this.displayPatterns ? 0 : 12), 0, 12, 15);
+        int var5 = (int)(41.0F * this.scrollOffs);
+        ResourceLocation var6 = this.displayPatterns ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+        param0.blitSprite(var6, var0 + 119, var1 + 13 + var5, 12, 15);
         Lighting.setupForFlatItems();
         if (this.resultBannerPatterns != null && !this.hasMaxPatterns) {
             param0.pose().pushPose();
@@ -119,8 +126,6 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             );
             param0.pose().popPose();
             param0.flush();
-        } else if (this.hasMaxPatterns) {
-            param0.blit(BG_LOCATION, var0 + var5.x - 2, var1 + var5.y - 2, this.imageWidth, 17, 17, 16);
         }
 
         if (this.displayPatterns) {
@@ -140,16 +145,16 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
                     int var15 = var8 + var12 * 14;
                     int var16 = var9 + var11 * 14;
                     boolean var17 = param2 >= var15 && param3 >= var16 && param2 < var15 + 14 && param3 < var16 + 14;
-                    int var18;
+                    ResourceLocation var18;
                     if (var14 == this.menu.getSelectedBannerPatternIndex()) {
-                        var18 = this.imageHeight + 14;
+                        var18 = PATTERN_SELECTED_SPRITE;
                     } else if (var17) {
-                        var18 = this.imageHeight + 28;
+                        var18 = PATTERN_HIGHLIGHTED_SPRITE;
                     } else {
-                        var18 = this.imageHeight;
+                        var18 = PATTERN_SPRITE;
                     }
 
-                    param0.blit(BG_LOCATION, var15, var16, 0, var18, 14, 14);
+                    param0.blitSprite(var18, var15, var16, 14, 14);
                     this.renderPattern(param0, var10.get(var14), var15, var16);
                 }
             }
@@ -227,10 +232,10 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     }
 
     @Override
-    public boolean mouseScrolled(double param0, double param1, double param2) {
+    public boolean mouseScrolled(double param0, double param1, double param2, double param3) {
         int var0 = this.totalRowCount() - 4;
         if (this.displayPatterns && var0 > 0) {
-            float var1 = (float)param2 / (float)var0;
+            float var1 = (float)param3 / (float)var0;
             this.scrollOffs = Mth.clamp(this.scrollOffs - var1, 0.0F, 1.0F);
             this.startRow = Math.max((int)(this.scrollOffs * (float)var0 + 0.5F), 0);
         }

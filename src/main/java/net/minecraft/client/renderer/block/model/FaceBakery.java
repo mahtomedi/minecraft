@@ -155,8 +155,8 @@ public class FaceBakery {
         param0[var0 + 1] = Float.floatToRawIntBits(param2.y());
         param0[var0 + 2] = Float.floatToRawIntBits(param2.z());
         param0[var0 + 3] = -1;
-        param0[var0 + 4] = Float.floatToRawIntBits(param3.getU((double)param4.getU(param1)));
-        param0[var0 + 4 + 1] = Float.floatToRawIntBits(param3.getV((double)param4.getV(param1)));
+        param0[var0 + 4] = Float.floatToRawIntBits(param3.getU(param4.getU(param1) / 16.0F));
+        param0[var0 + 4 + 1] = Float.floatToRawIntBits(param3.getV(param4.getV(param1) / 16.0F));
     }
 
     private void applyElementRotation(Vector3f param0, @Nullable BlockElementRotation param1) {

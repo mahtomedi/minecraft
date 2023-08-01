@@ -1,29 +1,22 @@
 package net.minecraft.network.protocol.handshake;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
-public class ClientIntentionPacket implements Packet<ServerHandshakePacketListener> {
+public record ClientIntentionPacket(int protocolVersion, String hostName, int port, ClientIntent intention) implements Packet<ServerHandshakePacketListener> {
     private static final int MAX_HOST_LENGTH = 255;
-    private final int protocolVersion;
-    private final String hostName;
-    private final int port;
-    private final ConnectionProtocol intention;
 
-    public ClientIntentionPacket(String param0, int param1, ConnectionProtocol param2) {
-        this.protocolVersion = SharedConstants.getCurrentVersion().getProtocolVersion();
-        this.hostName = param0;
-        this.port = param1;
-        this.intention = param2;
+    @Deprecated
+    public ClientIntentionPacket(int param0, String param1, int param2, ClientIntent param3) {
+        this.protocolVersion = param0;
+        this.hostName = param1;
+        this.port = param2;
+        this.intention = param3;
     }
 
     public ClientIntentionPacket(FriendlyByteBuf param0) {
-        this.protocolVersion = param0.readVarInt();
-        this.hostName = param0.readUtf(255);
-        this.port = param0.readUnsignedShort();
-        this.intention = ConnectionProtocol.getById(param0.readVarInt());
+        this(param0.readVarInt(), param0.readUtf(255), param0.readUnsignedShort(), ClientIntent.byId(param0.readVarInt()));
     }
 
     @Override
@@ -31,26 +24,15 @@ public class ClientIntentionPacket implements Packet<ServerHandshakePacketListen
         param0.writeVarInt(this.protocolVersion);
         param0.writeUtf(this.hostName);
         param0.writeShort(this.port);
-        param0.writeVarInt(this.intention.getId());
+        param0.writeVarInt(this.intention.id());
     }
 
     public void handle(ServerHandshakePacketListener param0) {
         param0.handleIntention(this);
     }
 
-    public ConnectionProtocol getIntention() {
-        return this.intention;
-    }
-
-    public int getProtocolVersion() {
-        return this.protocolVersion;
-    }
-
-    public String getHostName() {
-        return this.hostName;
-    }
-
-    public int getPort() {
-        return this.port;
+    @Override
+    public ConnectionProtocol nextProtocol() {
+        return this.intention.protocol();
     }
 }

@@ -157,7 +157,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
-public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
+public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements ServerInfo, CommandSource, AutoCloseable {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final String VANILLA_BRAND = "vanilla";
     private static final float AVERAGE_TICK_TIME_SMOOTHING = 0.8F;
@@ -300,7 +300,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     private void readScoreboard(DimensionDataStorage param0) {
-        param0.computeIfAbsent(this.getScoreboard()::createData, this.getScoreboard()::createData, "scoreboard");
+        param0.computeIfAbsent(this.getScoreboard().dataFactory(), "scoreboard");
     }
 
     protected abstract boolean initServer() throws IOException;
@@ -474,7 +474,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.waitUntilNextTick();
 
         for(ServerLevel var3 : this.levels.values()) {
-            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+            ForcedChunksSavedData var4 = var3.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
             if (var4 != null) {
                 LongIterator var5 = var4.getChunks().iterator();
 
@@ -558,10 +558,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         }
 
         LOGGER.info("Stopping server");
-        if (this.getConnection() != null) {
-            this.getConnection().stop();
-        }
-
+        this.getConnection().stop();
         this.isSaving = true;
         if (this.playerList != null) {
             LOGGER.info("Saving players");
@@ -957,14 +954,17 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         return this.levels.values();
     }
 
+    @Override
     public String getServerVersion() {
         return SharedConstants.getCurrentVersion().getName();
     }
 
+    @Override
     public int getPlayerCount() {
         return this.playerList.getPlayerCount();
     }
 
+    @Override
     public int getMaxPlayers() {
         return this.playerList.getMaxPlayers();
     }
@@ -1149,6 +1149,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public abstract boolean isCommandBlockEnabled();
 
+    @Override
     public String getMotd() {
         return this.motd;
     }
@@ -1175,7 +1176,6 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         this.worldData.setGameType(param0);
     }
 
-    @Nullable
     public ServerConnectionListener getConnection() {
         return this.connection;
     }
@@ -1758,6 +1758,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
     public ChatDecorator getChatDecorator() {
         return ChatDecorator.PLAIN;
+    }
+
+    public boolean logIPs() {
+        return true;
     }
 
     static record ReloadableResources(CloseableResourceManager resourceManager, ReloadableServerResources managers) implements AutoCloseable {

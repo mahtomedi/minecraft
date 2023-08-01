@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.item.TieredItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import org.joml.Vector3f;
 
 public abstract class AbstractPiglin extends Monster {
     protected static final EntityDataAccessor<Boolean> DATA_IMMUNE_TO_ZOMBIFICATION = SynchedEntityData.defineId(
@@ -50,6 +52,16 @@ public abstract class AbstractPiglin extends Monster {
         return 1.79F;
     }
 
+    @Override
+    protected float ridingOffset(Entity param0) {
+        return -0.7F;
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height + 0.0625F * param2, 0.0F);
+    }
+
     protected abstract boolean canHunt();
 
     public void setImmuneToZombification(boolean param0) {
@@ -74,11 +86,6 @@ public abstract class AbstractPiglin extends Monster {
         }
 
         param0.putInt("TimeInOverworld", this.timeInOverworld);
-    }
-
-    @Override
-    public double getMyRidingOffset() {
-        return this.isBaby() ? -0.05 : -0.45;
     }
 
     @Override

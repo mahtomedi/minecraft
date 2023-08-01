@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.api.distmarker.Dist;
@@ -11,6 +12,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RecipeToast implements Toast {
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/recipe");
     private static final long DISPLAY_TIME = 5000L;
     private static final Component TITLE_TEXT = Component.translatable("recipe.toast.title");
     private static final Component DESCRIPTION_TEXT = Component.translatable("recipe.toast.description");
@@ -32,7 +34,7 @@ public class RecipeToast implements Toast {
         if (this.recipes.isEmpty()) {
             return Toast.Visibility.HIDE;
         } else {
-            param0.blit(TEXTURE, 0, 0, 0, 32, this.width(), this.height());
+            param0.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
             param0.drawString(param1.getMinecraft().font, TITLE_TEXT, 30, 7, -11534256, false);
             param0.drawString(param1.getMinecraft().font, DESCRIPTION_TEXT, 30, 18, -16777216, false);
             Recipe<?> var0 = this.recipes

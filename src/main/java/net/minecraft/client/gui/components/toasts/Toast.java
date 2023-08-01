@@ -3,7 +3,6 @@ package net.minecraft.client.gui.components.toasts;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -12,7 +11,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public interface Toast {
-    ResourceLocation TEXTURE = new ResourceLocation("textures/gui/toasts.png");
     Object NO_TOKEN = new Object();
     int SLOT_HEIGHT = 32;
 

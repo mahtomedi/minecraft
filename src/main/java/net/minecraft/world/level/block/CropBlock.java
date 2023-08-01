@@ -149,7 +149,11 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public boolean canSurvive(BlockState param0, LevelReader param1, BlockPos param2) {
-        return (param1.getRawBrightness(param2, 0) >= 8 || param1.canSeeSky(param2)) && super.canSurvive(param0, param1, param2);
+        return hasSufficientLight(param1, param2) && super.canSurvive(param0, param1, param2);
+    }
+
+    protected static boolean hasSufficientLight(LevelReader param0, BlockPos param1) {
+        return param0.getRawBrightness(param1, 0) >= 8;
     }
 
     @Override
@@ -171,7 +175,7 @@ public class CropBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         return !this.isMaxAge(param2);
     }
 

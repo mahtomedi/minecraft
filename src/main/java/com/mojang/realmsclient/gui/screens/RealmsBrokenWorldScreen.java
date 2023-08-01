@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBrokenWorldScreen extends RealmsScreen {
+    private static final ResourceLocation SLOT_FRAME_SPRITE = new ResourceLocation("widget/slot_frame");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int DEFAULT_BUTTON_WIDTH = 80;
     private final Screen lastScreen;
@@ -89,7 +90,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                                     this.serverData,
                                     Component.translatable("mco.configure.world.switch.slot"),
                                     Component.translatable("mco.configure.world.switch.slot.subtitle"),
-                                    10526880,
+                                    -6250336,
                                     CommonComponents.GUI_CANCEL,
                                     this::doSwitchOrReset,
                                     () -> {
@@ -154,12 +155,11 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, -1);
 
         for(int var0 = 0; var0 < this.message.length; ++var0) {
-            param0.drawCenteredString(this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, 10526880);
+            param0.drawCenteredString(this.font, this.message[var0], this.width / 2, row(-1) + 3 + var0 * 12, -6250336);
         }
 
         if (this.serverData != null) {
@@ -224,8 +224,8 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                 this.serverData = var0.getOwnWorld(param0);
                 this.addButtons();
             } catch (RealmsServiceException var5) {
-                LOGGER.error("Couldn't get own world");
-                this.minecraft.setScreen(new RealmsGenericErrorScreen(Component.nullToEmpty(var5.getMessage()), this.lastScreen));
+                LOGGER.error("Couldn't get own world", (Throwable)var5);
+                this.minecraft.setScreen(new RealmsGenericErrorScreen(var5, this.lastScreen));
             }
 
         }).start();
@@ -250,7 +250,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                             RealmsServer var1 = var0.getOwnWorld(this.serverId);
                             this.minecraft.execute(() -> this.mainScreen.newScreen().play(var1, this));
                         } catch (RealmsServiceException var3) {
-                            LOGGER.error("Couldn't get own world");
+                            LOGGER.error("Couldn't get own world", (Throwable)var3);
                             this.minecraft.execute(() -> this.minecraft.setScreen(this.lastScreen));
                         }
                     }
@@ -277,7 +277,7 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
             });
             this.minecraft.setScreen(var2);
         } catch (RealmsServiceException var5) {
-            LOGGER.error("Couldn't download world data");
+            LOGGER.error("Couldn't download world data", (Throwable)var5);
             this.minecraft.setScreen(new RealmsGenericErrorScreen(var5, this));
         }
 
@@ -329,8 +329,8 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
             param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
         }
 
-        param0.blit(RealmsWorldSlotButton.SLOT_FRAME_LOCATION, param1, param2, 0.0F, 0.0F, 80, 80, 80, 80);
-        param0.drawCenteredString(this.font, param6, param1 + 40, param2 + 66, 16777215);
+        param0.blitSprite(SLOT_FRAME_SPRITE, param1, param2, 80, 80);
+        param0.drawCenteredString(this.font, param6, param1 + 40, param2 + 66, -1);
         param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

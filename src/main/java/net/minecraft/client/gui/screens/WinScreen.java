@@ -229,33 +229,10 @@ public class WinScreen extends Screen {
         this.lines.add(param0.getVisualOrderText());
     }
 
-    private void renderBg(GuiGraphics param0) {
-        int var0 = this.width;
-        float var1 = this.scroll * 0.5F;
-        int var2 = 64;
-        float var3 = this.scroll / this.unmodifiedScrollSpeed;
-        float var4 = var3 * 0.02F;
-        float var5 = (float)(this.totalScrollLength + this.height + this.height + 24) / this.unmodifiedScrollSpeed;
-        float var6 = (var5 - 20.0F - var3) * 0.005F;
-        if (var6 < var4) {
-            var4 = var6;
-        }
-
-        if (var4 > 1.0F) {
-            var4 = 1.0F;
-        }
-
-        var4 *= var4;
-        var4 = var4 * 96.0F / 255.0F;
-        param0.setColor(var4, var4, var4, 1.0F);
-        param0.blit(BACKGROUND_LOCATION, 0, 0, 0, 0.0F, var1, var0, this.height, 64, 64);
-        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-    }
-
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         this.scroll = Math.max(0.0F, this.scroll + param3 * this.scrollSpeed);
-        this.renderBg(param0);
+        super.render(param0, param1, param2, param3);
         int var0 = this.width / 2 - 128;
         int var1 = this.height + 50;
         float var2 = -this.scroll;
@@ -290,7 +267,30 @@ public class WinScreen extends Screen {
         param0.blit(VIGNETTE_LOCATION, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        int var0 = this.width;
+        float var1 = this.scroll * 0.5F;
+        int var2 = 64;
+        float var3 = this.scroll / this.unmodifiedScrollSpeed;
+        float var4 = var3 * 0.02F;
+        float var5 = (float)(this.totalScrollLength + this.height + this.height + 24) / this.unmodifiedScrollSpeed;
+        float var6 = (var5 - 20.0F - var3) * 0.005F;
+        if (var6 < var4) {
+            var4 = var6;
+        }
+
+        if (var4 > 1.0F) {
+            var4 = 1.0F;
+        }
+
+        var4 *= var4;
+        var4 = var4 * 96.0F / 255.0F;
+        param0.setColor(var4, var4, var4, 1.0F);
+        param0.blit(BACKGROUND_LOCATION, 0, 0, 0, 0.0F, var1, var0, this.height, 64, 64);
+        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
     }
 
     @Override

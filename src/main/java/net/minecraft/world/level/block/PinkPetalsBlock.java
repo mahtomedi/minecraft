@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import java.util.function.BiFunction;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -16,6 +18,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class PinkPetalsBlock extends BushBlock implements BonemealableBlock {
@@ -23,6 +26,24 @@ public class PinkPetalsBlock extends BushBlock implements BonemealableBlock {
     public static final int MAX_FLOWERS = 4;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty AMOUNT = BlockStateProperties.FLOWER_AMOUNT;
+    private static final BiFunction<Direction, Integer, VoxelShape> SHAPE_BY_PROPERTIES = Util.memoize(
+        (param0, param1) -> {
+            VoxelShape[] var0 = new VoxelShape[]{
+                Block.box(8.0, 0.0, 8.0, 16.0, 3.0, 16.0),
+                Block.box(8.0, 0.0, 0.0, 16.0, 3.0, 8.0),
+                Block.box(0.0, 0.0, 0.0, 8.0, 3.0, 8.0),
+                Block.box(0.0, 0.0, 8.0, 8.0, 3.0, 16.0)
+            };
+            VoxelShape var1 = Shapes.empty();
+    
+            for(int var2 = 0; var2 < param1; ++var2) {
+                int var3 = Math.floorMod(var2 - param0.get2DDataValue(), 4);
+                var1 = Shapes.or(var1, var0[var3]);
+            }
+    
+            return var1.singleEncompassing();
+        }
+    );
 
     protected PinkPetalsBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -48,7 +69,7 @@ public class PinkPetalsBlock extends BushBlock implements BonemealableBlock {
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {
-        return Block.box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0);
+        return SHAPE_BY_PROPERTIES.apply(param0.getValue(FACING), param0.getValue(AMOUNT));
     }
 
     @Override
@@ -65,7 +86,7 @@ public class PinkPetalsBlock extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         return true;
     }
 

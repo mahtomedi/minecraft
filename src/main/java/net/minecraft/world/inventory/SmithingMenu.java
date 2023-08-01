@@ -1,7 +1,7 @@
 package net.minecraft.world.inventory;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 import javax.annotation.Nullable;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -99,22 +99,16 @@ public class SmithingMenu extends ItemCombinerMenu {
 
     @Override
     public int getSlotToQuickMoveTo(ItemStack param0) {
-        return this.recipes
-            .stream()
-            .map(param1 -> findSlotMatchingIngredient(param1, param0))
-            .filter(Optional::isPresent)
-            .findFirst()
-            .orElse(Optional.of(0))
-            .get();
+        return this.findSlotToQuickMoveTo(param0).orElse(0);
     }
 
-    private static Optional<Integer> findSlotMatchingIngredient(SmithingRecipe param0, ItemStack param1) {
+    private static OptionalInt findSlotMatchingIngredient(SmithingRecipe param0, ItemStack param1) {
         if (param0.isTemplateIngredient(param1)) {
-            return Optional.of(0);
+            return OptionalInt.of(0);
         } else if (param0.isBaseIngredient(param1)) {
-            return Optional.of(1);
+            return OptionalInt.of(1);
         } else {
-            return param0.isAdditionIngredient(param1) ? Optional.of(2) : Optional.empty();
+            return param0.isAdditionIngredient(param1) ? OptionalInt.of(2) : OptionalInt.empty();
         }
     }
 
@@ -125,6 +119,14 @@ public class SmithingMenu extends ItemCombinerMenu {
 
     @Override
     public boolean canMoveIntoInputSlots(ItemStack param0) {
-        return this.recipes.stream().map(param1 -> findSlotMatchingIngredient(param1, param0)).anyMatch(Optional::isPresent);
+        return this.findSlotToQuickMoveTo(param0).isPresent();
+    }
+
+    private OptionalInt findSlotToQuickMoveTo(ItemStack param0) {
+        return this.recipes
+            .stream()
+            .flatMapToInt(param1 -> findSlotMatchingIngredient(param1, param0).stream())
+            .filter(param0x -> !this.getSlot(param0x).hasItem())
+            .findFirst();
     }
 }

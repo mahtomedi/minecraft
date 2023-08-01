@@ -1,7 +1,7 @@
 package net.minecraft.client;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.util.UUIDTypeAdapter;
+import com.mojang.util.UndashedUuid;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -16,13 +16,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class User {
     private final String name;
-    private final String uuid;
+    private final UUID uuid;
     private final String accessToken;
     private final Optional<String> xuid;
     private final Optional<String> clientId;
     private final User.Type type;
 
-    public User(String param0, String param1, String param2, Optional<String> param3, Optional<String> param4, User.Type param5) {
+    public User(String param0, UUID param1, String param2, Optional<String> param3, Optional<String> param4, User.Type param5) {
         this.name = param0;
         this.uuid = param1;
         this.accessToken = param2;
@@ -32,10 +32,10 @@ public class User {
     }
 
     public String getSessionId() {
-        return "token:" + this.accessToken + ":" + this.uuid;
+        return "token:" + this.accessToken + ":" + UndashedUuid.toString(this.uuid);
     }
 
-    public String getUuid() {
+    public UUID getProfileId() {
         return this.uuid;
     }
 
@@ -53,15 +53,6 @@ public class User {
 
     public Optional<String> getXuid() {
         return this.xuid;
-    }
-
-    @Nullable
-    public UUID getProfileId() {
-        try {
-            return UUIDTypeAdapter.fromString(this.getUuid());
-        } catch (IllegalArgumentException var2) {
-            return null;
-        }
     }
 
     public GameProfile getGameProfile() {

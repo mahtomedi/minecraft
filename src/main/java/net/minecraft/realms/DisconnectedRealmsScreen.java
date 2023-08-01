@@ -25,13 +25,11 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        Minecraft var0 = Minecraft.getInstance();
-        var0.setConnectedToRealms(false);
-        var0.getDownloadedPackSource().clearServerPack();
+        this.minecraft.getDownloadedPackSource().clearServerPack();
         this.message = MultiLineLabel.create(this.font, this.reason, this.width - 50);
         this.textHeight = this.message.getLineCount() * 9;
         this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_BACK, param1 -> var0.setScreen(this.parent))
+            Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.parent))
                 .bounds(this.width / 2 - 100, this.height / 2 + this.textHeight / 2 + 9, 200, 20)
                 .build()
         );
@@ -49,9 +47,8 @@ public class DisconnectedRealmsScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - this.textHeight / 2 - 9 * 2, 11184810);
         this.message.renderCentered(param0, this.width / 2, this.height / 2 - this.textHeight / 2);
-        super.render(param0, param1, param2, param3);
     }
 }

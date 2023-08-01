@@ -8,6 +8,7 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.worldgen.features.TreeFeatures;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.effect.MobEffects;
@@ -3465,7 +3466,7 @@ public class Blocks {
                 .noLootTable()
                 .noOcclusion()
                 .isValidSpawn(Blocks::never)
-                .noParticlesOnBreak()
+                .noTerrainParticles()
                 .pushReaction(PushReaction.BLOCK)
         )
     );
@@ -4992,7 +4993,7 @@ public class Blocks {
     public static final Block STRUCTURE_VOID = register(
         "structure_void",
         new StructureVoidBlock(
-            BlockBehaviour.Properties.of().replaceable().noCollission().noLootTable().noParticlesOnBreak().pushReaction(PushReaction.DESTROY)
+            BlockBehaviour.Properties.of().replaceable().noCollission().noLootTable().noTerrainParticles().pushReaction(PushReaction.DESTROY)
         )
     );
     public static final Block OBSERVER = register(
@@ -7532,14 +7533,7 @@ public class Blocks {
         };
         return new ShulkerBoxBlock(
             param0,
-            param1.forceSolidOn()
-                .strength(2.0F)
-                .dynamicShape()
-                .noOcclusion()
-                .isSuffocating(var0)
-                .isViewBlocking(var0)
-                .pushReaction(PushReaction.DESTROY)
-                .isRedstoneConductor(Blocks::always)
+            param1.forceSolidOn().strength(2.0F).dynamicShape().noOcclusion().isSuffocating(var0).isViewBlocking(var0).pushReaction(PushReaction.DESTROY)
         );
     }
 
@@ -7592,6 +7586,10 @@ public class Blocks {
     }
 
     public static Block register(String param0, Block param1) {
+        return Registry.register(BuiltInRegistries.BLOCK, param0, param1);
+    }
+
+    public static Block register(ResourceLocation param0, Block param1) {
         return Registry.register(BuiltInRegistries.BLOCK, param0, param1);
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPaddleBoatPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -49,6 +50,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector3f;
 
 public class Boat extends Entity implements VariantHolder<Boat.Type> {
     private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
@@ -148,8 +150,22 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return this.getVariant() == Boat.Type.BAMBOO ? 0.25 : -0.1;
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        float var0 = this.getSinglePassengerXOffset();
+        if (this.getPassengers().size() > 1) {
+            int var1 = this.getPassengers().indexOf(param0);
+            if (var1 == 0) {
+                var0 = 0.2F;
+            } else {
+                var0 = -0.6F;
+            }
+
+            if (param0 instanceof Animal) {
+                var0 += 0.2F;
+            }
+        }
+
+        return new Vector3f(0.0F, this.getVariant() == Boat.Type.BAMBOO ? param1.height * 0.8888889F : param1.height / 3.0F, var0);
     }
 
     @Override
@@ -250,7 +266,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
     }
 
     @Override
-    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
+    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5) {
         this.lerpX = param0;
         this.lerpY = param1;
         this.lerpZ = param2;
@@ -341,19 +357,18 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         if (!var5.isEmpty()) {
             boolean var6 = !this.level().isClientSide && !(this.getControllingPassenger() instanceof Player);
 
-            for(int var7 = 0; var7 < var5.size(); ++var7) {
-                Entity var8 = var5.get(var7);
-                if (!var8.hasPassenger(this)) {
+            for(Entity var7 : var5) {
+                if (!var7.hasPassenger(this)) {
                     if (var6
                         && this.getPassengers().size() < this.getMaxPassengers()
-                        && !var8.isPassenger()
-                        && this.hasEnoughSpaceFor(var8)
-                        && var8 instanceof LivingEntity
-                        && !(var8 instanceof WaterAnimal)
-                        && !(var8 instanceof Player)) {
-                        var8.startRiding(this);
+                        && !var7.isPassenger()
+                        && this.hasEnoughSpaceFor(var7)
+                        && var7 instanceof LivingEntity
+                        && !(var7 instanceof WaterAnimal)
+                        && !(var7 instanceof Player)) {
+                        var7.startRiding(this);
                     } else {
-                        this.push(var8);
+                        this.push(var7);
                     }
                 }
             }
@@ -421,15 +436,8 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         }
 
         if (this.lerpSteps > 0) {
-            double var0 = this.getX() + (this.lerpX - this.getX()) / (double)this.lerpSteps;
-            double var1 = this.getY() + (this.lerpY - this.getY()) / (double)this.lerpSteps;
-            double var2 = this.getZ() + (this.lerpZ - this.getZ()) / (double)this.lerpSteps;
-            double var3 = Mth.wrapDegrees(this.lerpYRot - (double)this.getYRot());
-            this.setYRot(this.getYRot() + (float)var3 / (float)this.lerpSteps);
-            this.setXRot(this.getXRot() + (float)(this.lerpXRot - (double)this.getXRot()) / (float)this.lerpSteps);
+            this.lerpPositionAndRotationStep(this.lerpSteps, this.lerpX, this.lerpY, this.lerpZ, this.lerpYRot, this.lerpXRot);
             --this.lerpSteps;
-            this.setPos(var0, var1, var2);
-            this.setRot(this.getYRot(), this.getXRot());
         }
     }
 
@@ -682,34 +690,16 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
 
     @Override
     protected void positionRider(Entity param0, Entity.MoveFunction param1) {
-        if (this.hasPassenger(param0)) {
-            float var0 = this.getSinglePassengerXOffset();
-            float var1 = (float)((this.isRemoved() ? 0.01F : this.getPassengersRidingOffset()) + param0.getMyRidingOffset());
-            if (this.getPassengers().size() > 1) {
-                int var2 = this.getPassengers().indexOf(param0);
-                if (var2 == 0) {
-                    var0 = 0.2F;
-                } else {
-                    var0 = -0.6F;
-                }
-
-                if (param0 instanceof Animal) {
-                    var0 += 0.2F;
-                }
-            }
-
-            Vec3 var3 = new Vec3((double)var0, 0.0, 0.0).yRot(-this.getYRot() * (float) (Math.PI / 180.0) - (float) (Math.PI / 2));
-            param1.accept(param0, this.getX() + var3.x, this.getY() + (double)var1, this.getZ() + var3.z);
-            param0.setYRot(param0.getYRot() + this.deltaRotation);
-            param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
-            this.clampRotation(param0);
-            if (param0 instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
-                int var4 = param0.getId() % 2 == 0 ? 90 : 270;
-                param0.setYBodyRot(((Animal)param0).yBodyRot + (float)var4);
-                param0.setYHeadRot(param0.getYHeadRot() + (float)var4);
-            }
-
+        super.positionRider(param0, param1);
+        param0.setYRot(param0.getYRot() + this.deltaRotation);
+        param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
+        this.clampRotation(param0);
+        if (param0 instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
+            int var0 = param0.getId() % 2 == 0 ? 90 : 270;
+            param0.setYBodyRot(((Animal)param0).yBodyRot + (float)var0);
+            param0.setYHeadRot(param0.getYHeadRot() + (float)var0);
         }
+
     }
 
     @Override
@@ -881,7 +871,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
     @Override
     public LivingEntity getControllingPassenger() {
         Entity var2 = this.getFirstPassenger();
-        return var2 instanceof LivingEntity var0 ? var0 : null;
+        return var2 instanceof LivingEntity var0 ? var0 : super.getControllingPassenger();
     }
 
     public void setInput(boolean param0, boolean param1, boolean param2, boolean param3) {
@@ -889,6 +879,11 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         this.inputRight = param1;
         this.inputUp = param2;
         this.inputDown = param3;
+    }
+
+    @Override
+    protected Component getTypeName() {
+        return Component.translatable(this.getDropItem().getDescriptionId());
     }
 
     @Override

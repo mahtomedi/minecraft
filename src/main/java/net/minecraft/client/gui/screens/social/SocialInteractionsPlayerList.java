@@ -1,7 +1,6 @@
 package net.minecraft.client.gui.screens.social;
 
 import com.google.common.base.Strings;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.mojang.authlib.GameProfile;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
@@ -37,7 +36,6 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         super(param1, param2, param3, param4, param5, param6);
         this.socialInteractionsScreen = param0;
         this.setRenderBackground(false);
-        this.setRenderTopAndBottom(false);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             PlayerInfo var2 = var0.getPlayerInfo(var1);
             if (var2 != null) {
                 boolean var3 = var2.hasVerifiableChat();
-                param1.put(var1, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var1, var2.getProfile().getName(), var2::getSkinLocation, var3));
+                param1.put(var1, new PlayerEntry(this.minecraft, this.socialInteractionsScreen, var1, var2.getProfile().getName(), var2::getSkin, var3));
             }
         }
 
@@ -86,7 +84,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
                                 this.socialInteractionsScreen,
                                 var1.getId(),
                                 var1.getName(),
-                                Suppliers.memoize(() -> this.minecraft.getSkinManager().getInsecureSkinLocation(var1)),
+                                this.minecraft.getSkinManager().lookupInsecure(var1),
                                 true
                             );
                             var0x.setRemoved(true);
@@ -118,7 +116,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
 
     private void sortPlayerEntries() {
         this.players.sort(Comparator.<PlayerEntry, Integer>comparing(param0 -> {
-            if (param0.getPlayerId().equals(this.minecraft.getUser().getProfileId())) {
+            if (this.minecraft.isLocalPlayer(param0.getPlayerId())) {
                 return 0;
             } else if (param0.getPlayerId().version() == 2) {
                 return 4;
@@ -178,7 +176,7 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
             && (Strings.isNullOrEmpty(this.filter) || param0.getProfile().getName().toLowerCase(Locale.ROOT).contains(this.filter))) {
             boolean var2 = param0.hasVerifiableChat();
             PlayerEntry var3 = new PlayerEntry(
-                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkinLocation, var2
+                this.minecraft, this.socialInteractionsScreen, param0.getProfile().getId(), param0.getProfile().getName(), param0::getSkin, var2
             );
             this.addEntry(var3);
             this.players.add(var3);

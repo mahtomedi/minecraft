@@ -6,12 +6,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.AccessibilityOnboardingTextWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CommonButtons;
+import net.minecraft.client.gui.components.FocusableTextWidget;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.gui.layouts.FrameLayout;
-import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -30,7 +30,7 @@ public class AccessibilityOnboardingScreen extends Screen {
     private boolean hasNarrated;
     private float timer;
     @Nullable
-    private AccessibilityOnboardingTextWidget textWidget;
+    private FocusableTextWidget textWidget;
 
     public AccessibilityOnboardingScreen(Options param0) {
         super(Component.translatable("accessibility.onboarding.screen.title"));
@@ -44,23 +44,21 @@ public class AccessibilityOnboardingScreen extends Screen {
         int var0 = this.initTitleYPos();
         FrameLayout var1 = new FrameLayout(this.width, this.height - var0);
         var1.defaultChildLayoutSetting().alignVerticallyTop().padding(4);
-        GridLayout var2 = var1.addChild(new GridLayout());
-        var2.defaultCellSetting().alignHorizontallyCenter().padding(4);
-        GridLayout.RowHelper var3 = var2.createRowHelper(1);
-        var3.defaultCellSetting().padding(2);
-        this.textWidget = new AccessibilityOnboardingTextWidget(this.font, this.title, this.width);
-        var3.addChild(this.textWidget, var3.newCellSettings().paddingBottom(16));
-        AbstractWidget var4 = this.options.narrator().createButton(this.options, 0, 0, 150);
-        var4.active = this.narratorAvailable;
-        var3.addChild(var4);
+        LinearLayout var2 = var1.addChild(LinearLayout.vertical());
+        var2.defaultCellSetting().alignHorizontallyCenter().padding(2);
+        this.textWidget = new FocusableTextWidget(this.width - 16, this.title, this.font);
+        var2.addChild(this.textWidget, param0 -> param0.paddingBottom(16));
+        AbstractWidget var3 = this.options.narrator().createButton(this.options, 0, 0, 150);
+        var3.active = this.narratorAvailable;
+        var2.addChild(var3);
         if (this.narratorAvailable) {
-            this.setInitialFocus(var4);
+            this.setInitialFocus(var3);
         }
 
-        var3.addChild(CommonButtons.accessibilityTextAndImage(param0 -> this.closeAndSetScreen(new AccessibilityOptionsScreen(this, this.minecraft.options))));
-        var3.addChild(
-            CommonButtons.languageTextAndImage(
-                param0 -> this.closeAndSetScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager()))
+        var2.addChild(CommonButtons.accessibility(150, param0 -> this.closeAndSetScreen(new AccessibilityOptionsScreen(this, this.minecraft.options)), false));
+        var2.addChild(
+            CommonButtons.language(
+                150, param0 -> this.closeAndSetScreen(new LanguageSelectScreen(this, this.minecraft.options, this.minecraft.getLanguageManager())), false
             )
         );
         var1.addChild(
@@ -89,15 +87,19 @@ public class AccessibilityOnboardingScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         this.handleInitialNarrationDelay();
-        this.panorama.render(0.0F, 1.0F);
-        param0.fill(0, 0, this.width, this.height, -1877995504);
         this.logoRenderer.renderLogo(param0, this.width, 1.0F);
         if (this.textWidget != null) {
             this.textWidget.render(param0, param1, param2, param3);
         }
 
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.panorama.render(0.0F, 1.0F);
+        param0.fill(0, 0, this.width, this.height, -1877995504);
     }
 
     private void handleInitialNarrationDelay() {

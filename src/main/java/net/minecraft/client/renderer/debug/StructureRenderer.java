@@ -3,17 +3,18 @@ package net.minecraft.client.renderer.debug;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.network.protocol.common.custom.StructuresDebugPayload;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -21,9 +22,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
     private final Minecraft minecraft;
-    private final Map<DimensionType, Map<String, BoundingBox>> postMainBoxes = Maps.newIdentityHashMap();
-    private final Map<DimensionType, Map<String, BoundingBox>> postPiecesBoxes = Maps.newIdentityHashMap();
-    private final Map<DimensionType, Map<String, Boolean>> startPiecesMap = Maps.newIdentityHashMap();
+    private final Map<ResourceKey<Level>, Map<String, BoundingBox>> postMainBoxes = Maps.newIdentityHashMap();
+    private final Map<ResourceKey<Level>, Map<String, StructuresDebugPayload.PieceInfo>> postPieces = Maps.newIdentityHashMap();
     private static final int MAX_RENDER_DIST = 500;
 
     public StructureRenderer(Minecraft param0) {
@@ -33,22 +33,21 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
     @Override
     public void render(PoseStack param0, MultiBufferSource param1, double param2, double param3, double param4) {
         Camera var0 = this.minecraft.gameRenderer.getMainCamera();
-        LevelAccessor var1 = this.minecraft.level;
-        DimensionType var2 = var1.dimensionType();
-        BlockPos var3 = BlockPos.containing(var0.getPosition().x, 0.0, var0.getPosition().z);
-        VertexConsumer var4 = param1.getBuffer(RenderType.lines());
-        if (this.postMainBoxes.containsKey(var2)) {
-            for(BoundingBox var5 : this.postMainBoxes.get(var2).values()) {
-                if (var3.closerThan(var5.getCenter(), 500.0)) {
+        ResourceKey<Level> var1 = this.minecraft.level.dimension();
+        BlockPos var2 = BlockPos.containing(var0.getPosition().x, 0.0, var0.getPosition().z);
+        VertexConsumer var3 = param1.getBuffer(RenderType.lines());
+        if (this.postMainBoxes.containsKey(var1)) {
+            for(BoundingBox var4 : this.postMainBoxes.get(var1).values()) {
+                if (var2.closerThan(var4.getCenter(), 500.0)) {
                     LevelRenderer.renderLineBox(
                         param0,
-                        var4,
-                        (double)var5.minX() - param2,
-                        (double)var5.minY() - param3,
-                        (double)var5.minZ() - param4,
-                        (double)(var5.maxX() + 1) - param2,
-                        (double)(var5.maxY() + 1) - param3,
-                        (double)(var5.maxZ() + 1) - param4,
+                        var3,
+                        (double)var4.minX() - param2,
+                        (double)var4.minY() - param3,
+                        (double)var4.minZ() - param4,
+                        (double)(var4.maxX() + 1) - param2,
+                        (double)(var4.maxY() + 1) - param3,
+                        (double)(var4.maxZ() + 1) - param4,
                         1.0F,
                         1.0F,
                         1.0F,
@@ -61,22 +60,21 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        if (this.postPiecesBoxes.containsKey(var2)) {
-            for(Entry<String, BoundingBox> var6 : this.postPiecesBoxes.get(var2).entrySet()) {
-                String var7 = var6.getKey();
-                BoundingBox var8 = var6.getValue();
-                Boolean var9 = this.startPiecesMap.get(var2).get(var7);
-                if (var3.closerThan(var8.getCenter(), 500.0)) {
-                    if (var9) {
+        Map<String, StructuresDebugPayload.PieceInfo> var5 = this.postPieces.get(var1);
+        if (var5 != null) {
+            for(StructuresDebugPayload.PieceInfo var6 : var5.values()) {
+                BoundingBox var7 = var6.boundingBox();
+                if (var2.closerThan(var7.getCenter(), 500.0)) {
+                    if (var6.isStart()) {
                         LevelRenderer.renderLineBox(
                             param0,
-                            var4,
-                            (double)var8.minX() - param2,
-                            (double)var8.minY() - param3,
-                            (double)var8.minZ() - param4,
-                            (double)(var8.maxX() + 1) - param2,
-                            (double)(var8.maxY() + 1) - param3,
-                            (double)(var8.maxZ() + 1) - param4,
+                            var3,
+                            (double)var7.minX() - param2,
+                            (double)var7.minY() - param3,
+                            (double)var7.minZ() - param4,
+                            (double)(var7.maxX() + 1) - param2,
+                            (double)(var7.maxY() + 1) - param3,
+                            (double)(var7.maxZ() + 1) - param4,
                             0.0F,
                             1.0F,
                             0.0F,
@@ -88,13 +86,13 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
                     } else {
                         LevelRenderer.renderLineBox(
                             param0,
-                            var4,
-                            (double)var8.minX() - param2,
-                            (double)var8.minY() - param3,
-                            (double)var8.minZ() - param4,
-                            (double)(var8.maxX() + 1) - param2,
-                            (double)(var8.maxY() + 1) - param3,
-                            (double)(var8.maxZ() + 1) - param4,
+                            var3,
+                            (double)var7.minX() - param2,
+                            (double)var7.minY() - param3,
+                            (double)var7.minZ() - param4,
+                            (double)(var7.maxX() + 1) - param2,
+                            (double)(var7.maxY() + 1) - param3,
+                            (double)(var7.maxZ() + 1) - param4,
                             0.0F,
                             0.0F,
                             1.0F,
@@ -110,23 +108,12 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
 
     }
 
-    public void addBoundingBox(BoundingBox param0, List<BoundingBox> param1, List<Boolean> param2, DimensionType param3) {
-        if (!this.postMainBoxes.containsKey(param3)) {
-            this.postMainBoxes.put(param3, Maps.newHashMap());
-        }
+    public void addBoundingBox(BoundingBox param0, List<StructuresDebugPayload.PieceInfo> param1, ResourceKey<Level> param2) {
+        this.postMainBoxes.computeIfAbsent(param2, param0x -> new HashMap()).put(param0.toString(), param0);
+        Map<String, StructuresDebugPayload.PieceInfo> var0 = this.postPieces.computeIfAbsent(param2, param0x -> new HashMap());
 
-        if (!this.postPiecesBoxes.containsKey(param3)) {
-            this.postPiecesBoxes.put(param3, Maps.newHashMap());
-            this.startPiecesMap.put(param3, Maps.newHashMap());
-        }
-
-        this.postMainBoxes.get(param3).put(param0.toString(), param0);
-
-        for(int var0 = 0; var0 < param1.size(); ++var0) {
-            BoundingBox var1 = param1.get(var0);
-            Boolean var2 = param2.get(var0);
-            this.postPiecesBoxes.get(param3).put(var1.toString(), var1);
-            this.startPiecesMap.get(param3).put(var1.toString(), var2);
+        for(StructuresDebugPayload.PieceInfo var1 : param1) {
+            var0.put(var1.boundingBox().toString(), var1);
         }
 
     }
@@ -134,7 +121,6 @@ public class StructureRenderer implements DebugRenderer.SimpleDebugRenderer {
     @Override
     public void clear() {
         this.postMainBoxes.clear();
-        this.postPiecesBoxes.clear();
-        this.startPiecesMap.clear();
+        this.postPieces.clear();
     }
 }

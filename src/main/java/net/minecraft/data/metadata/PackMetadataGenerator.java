@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import net.minecraft.DetectedVersion;
@@ -44,7 +45,7 @@ public class PackMetadataGenerator implements DataProvider {
 
     public static PackMetadataGenerator forFeaturePack(PackOutput param0, Component param1) {
         return new PackMetadataGenerator(param0)
-            .add(PackMetadataSection.TYPE, new PackMetadataSection(param1, DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA)));
+            .add(PackMetadataSection.TYPE, new PackMetadataSection(param1, DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA), Optional.empty()));
     }
 
     public static PackMetadataGenerator forFeaturePack(PackOutput param0, Component param1, FeatureFlagSet param2) {

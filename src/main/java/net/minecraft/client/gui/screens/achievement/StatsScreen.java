@@ -35,8 +35,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StatsScreen extends Screen implements StatsUpdateListener {
+    static final ResourceLocation SLOT_SPRITE = new ResourceLocation("container/slot");
+    static final ResourceLocation HEADER_SPRITE = new ResourceLocation("statistics/header");
+    static final ResourceLocation SORT_UP_SPRITE = new ResourceLocation("statistics/sort_up");
+    static final ResourceLocation SORT_DOWN_SPRITE = new ResourceLocation("statistics/sort_down");
     private static final Component PENDING_TEXT = Component.translatable("multiplayer.downloadingStats");
-    private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
     StatsScreen.ItemStatisticsList itemStatsList;
@@ -45,7 +48,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     @Nullable
     private ObjectSelectionList<?> activeList;
     private boolean isLoading = true;
-    private static final int SLOT_TEX_SIZE = 128;
     private static final int SLOT_BG_SIZE = 18;
     private static final int SLOT_STAT_HEIGHT = 20;
     private static final int SLOT_BG_X = 1;
@@ -110,17 +112,22 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.isLoading) {
-            this.renderBackground(param0);
+            this.renderBackground(param0, param1, param2, param3);
             param0.drawCenteredString(this.font, PENDING_TEXT, this.width / 2, this.height / 2, 16777215);
             param0.drawCenteredString(
                 this.font, LOADING_SYMBOLS[(int)(Util.getMillis() / 150L % (long)LOADING_SYMBOLS.length)], this.width / 2, this.height / 2 + 9 * 2, 16777215
             );
         } else {
+            super.render(param0, param1, param2, param3);
             this.getActiveList().render(param0, param1, param2, param3);
             param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
-            super.render(param0, param1, param2, param3);
         }
 
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     @Override
@@ -165,12 +172,12 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     }
 
     void blitSlot(GuiGraphics param0, int param1, int param2, Item param3) {
-        this.blitSlotIcon(param0, param1 + 1, param2 + 1, 0, 0);
+        this.blitSlotIcon(param0, param1 + 1, param2 + 1, SLOT_SPRITE);
         param0.renderFakeItem(param3.getDefaultInstance(), param1 + 2, param2 + 2);
     }
 
-    void blitSlotIcon(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        param0.blit(STATS_ICON_LOCATION, param1, param2, 0, (float)param3, (float)param4, 18, 18, 128, 128);
+    void blitSlotIcon(GuiGraphics param0, int param1, int param2, ResourceLocation param3) {
+        param0.blitSprite(param3, param1, param2, 0, 18, 18);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -184,11 +191,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 this.addEntry(new StatsScreen.GeneralStatisticsList.Entry(var0));
             }
 
-        }
-
-        @Override
-        protected void renderBackground(GuiGraphics param0) {
-            StatsScreen.this.renderBackground(param0);
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -229,7 +231,14 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     class ItemStatisticsList extends ObjectSelectionList<StatsScreen.ItemStatisticsList.ItemRow> {
         protected final List<StatType<Block>> blockColumns;
         protected final List<StatType<Item>> itemColumns;
-        private final int[] iconOffsets = new int[]{3, 4, 1, 2, 5, 6};
+        private final ResourceLocation[] iconSprites = new ResourceLocation[]{
+            new ResourceLocation("statistics/block_mined"),
+            new ResourceLocation("statistics/item_broken"),
+            new ResourceLocation("statistics/item_crafted"),
+            new ResourceLocation("statistics/item_used"),
+            new ResourceLocation("statistics/item_picked_up"),
+            new ResourceLocation("statistics/item_dropped")
+        };
         protected int headerPressed = -1;
         protected final Comparator<StatsScreen.ItemStatisticsList.ItemRow> itemStatSorter = new StatsScreen.ItemStatisticsList.ItemRowComparator();
         @Nullable
@@ -286,21 +295,20 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 this.headerPressed = -1;
             }
 
-            for(int var0 = 0; var0 < this.iconOffsets.length; ++var0) {
-                StatsScreen.this.blitSlotIcon(param0, param1 + StatsScreen.this.getColumnX(var0) - 18, param2 + 1, 0, this.headerPressed == var0 ? 0 : 18);
+            for(int var0 = 0; var0 < this.iconSprites.length; ++var0) {
+                ResourceLocation var1 = this.headerPressed == var0 ? StatsScreen.SLOT_SPRITE : StatsScreen.HEADER_SPRITE;
+                StatsScreen.this.blitSlotIcon(param0, param1 + StatsScreen.this.getColumnX(var0) - 18, param2 + 1, var1);
             }
 
             if (this.sortColumn != null) {
-                int var1 = StatsScreen.this.getColumnX(this.getColumnIndex(this.sortColumn)) - 36;
-                int var2 = this.sortOrder == 1 ? 2 : 1;
-                StatsScreen.this.blitSlotIcon(param0, param1 + var1, param2 + 1, 18 * var2, 0);
+                int var2 = StatsScreen.this.getColumnX(this.getColumnIndex(this.sortColumn)) - 36;
+                ResourceLocation var3 = this.sortOrder == 1 ? StatsScreen.SORT_UP_SPRITE : StatsScreen.SORT_DOWN_SPRITE;
+                StatsScreen.this.blitSlotIcon(param0, param1 + var2, param2 + 1, var3);
             }
 
-            for(int var3 = 0; var3 < this.iconOffsets.length; ++var3) {
-                int var4 = this.headerPressed == var3 ? 1 : 0;
-                StatsScreen.this.blitSlotIcon(
-                    param0, param1 + StatsScreen.this.getColumnX(var3) - 18 + var4, param2 + 1 + var4, 18 * this.iconOffsets[var3], 18
-                );
+            for(int var4 = 0; var4 < this.iconSprites.length; ++var4) {
+                int var5 = this.headerPressed == var4 ? 1 : 0;
+                StatsScreen.this.blitSlotIcon(param0, param1 + StatsScreen.this.getColumnX(var4) - 18 + var5, param2 + 1 + var5, this.iconSprites[var4]);
             }
 
         }
@@ -316,15 +324,10 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
         }
 
         @Override
-        protected void renderBackground(GuiGraphics param0) {
-            StatsScreen.this.renderBackground(param0);
-        }
-
-        @Override
         protected void clickedHeader(int param0, int param1) {
             this.headerPressed = -1;
 
-            for(int var0 = 0; var0 < this.iconOffsets.length; ++var0) {
+            for(int var0 = 0; var0 < this.iconSprites.length; ++var0) {
                 int var1 = param0 - StatsScreen.this.getColumnX(var0);
                 if (var1 >= -36 && var1 <= 0) {
                     this.headerPressed = var0;
@@ -364,12 +367,12 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                     }
 
                     Item var2 = var0.getItem();
-                    this.renderMousehoverTooltip(param0, this.getString(var2), param1, param2);
+                    param0.renderTooltip(StatsScreen.this.font, this.getString(var2), param1, param2);
                 } else {
                     Component var3 = null;
                     int var4 = param1 - var1;
 
-                    for(int var5 = 0; var5 < this.iconOffsets.length; ++var5) {
+                    for(int var5 = 0; var5 < this.iconSprites.length; ++var5) {
                         int var6 = StatsScreen.this.getColumnX(var5);
                         if (var4 >= var6 - 18 && var4 <= var6) {
                             var3 = this.getColumn(var5).getDisplayName();
@@ -377,22 +380,11 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                         }
                     }
 
-                    this.renderMousehoverTooltip(param0, var3, param1, param2);
+                    if (var3 != null) {
+                        param0.renderTooltip(StatsScreen.this.font, var3, param1, param2);
+                    }
                 }
 
-            }
-        }
-
-        protected void renderMousehoverTooltip(GuiGraphics param0, @Nullable Component param1, int param2, int param3) {
-            if (param1 != null) {
-                int var0 = param2 + 12;
-                int var1 = param3 - 12;
-                int var2 = StatsScreen.this.font.width(param1);
-                param0.fillGradient(var0 - 3, var1 - 3, var0 + var2 + 3, var1 + 8 + 3, -1073741824, -1073741824);
-                param0.pose().pushPose();
-                param0.pose().translate(0.0F, 0.0F, 400.0F);
-                param0.drawString(StatsScreen.this.font, param1, var0, var1, -1);
-                param0.pose().popPose();
             }
         }
 
@@ -505,11 +497,6 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
                 }
             }
 
-        }
-
-        @Override
-        protected void renderBackground(GuiGraphics param0) {
-            StatsScreen.this.renderBackground(param0);
         }
 
         @OnlyIn(Dist.CLIENT)

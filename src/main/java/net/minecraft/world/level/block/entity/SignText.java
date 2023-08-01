@@ -27,7 +27,7 @@ public class SignText {
     public static final Codec<SignText> DIRECT_CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
                     LINES_CODEC.fieldOf("messages").forGetter(param0x -> param0x.messages),
-                    LINES_CODEC.optionalFieldOf("filtered_messages").forGetter(SignText::getOnlyFilteredMessages),
+                    LINES_CODEC.optionalFieldOf("filtered_messages").forGetter(SignText::filteredMessages),
                     DyeColor.CODEC.fieldOf("color").orElse(DyeColor.BLACK).forGetter(param0x -> param0x.color),
                     Codec.BOOL.fieldOf("has_glowing_text").orElse(false).forGetter(param0x -> param0x.hasGlowingText)
                 )
@@ -58,18 +58,7 @@ public class SignText {
     }
 
     private static SignText load(Component[] param0, Optional<Component[]> param1, DyeColor param2, boolean param3) {
-        Component[] var0 = param1.orElseGet(SignText::emptyMessages);
-        populateFilteredMessagesWithRawMessages(param0, var0);
-        return new SignText(param0, var0, param2, param3);
-    }
-
-    private static void populateFilteredMessagesWithRawMessages(Component[] param0, Component[] param1) {
-        for(int var0 = 0; var0 < 4; ++var0) {
-            if (param1[var0].equals(CommonComponents.EMPTY)) {
-                param1[var0] = param0[var0];
-            }
-        }
-
+        return new SignText(param0, param1.orElse(Arrays.copyOf(param0, param0.length)), param2, param3);
     }
 
     public boolean hasGlowingText() {
@@ -125,21 +114,14 @@ public class SignText {
         return this.renderMessages;
     }
 
-    private Optional<Component[]> getOnlyFilteredMessages() {
-        Component[] var0 = new Component[4];
-        boolean var1 = false;
-
-        for(int var2 = 0; var2 < 4; ++var2) {
-            Component var3 = this.filteredMessages[var2];
-            if (!var3.equals(this.messages[var2])) {
-                var0[var2] = var3;
-                var1 = true;
-            } else {
-                var0[var2] = CommonComponents.EMPTY;
+    private Optional<Component[]> filteredMessages() {
+        for(int var0 = 0; var0 < 4; ++var0) {
+            if (!this.filteredMessages[var0].equals(this.messages[var0])) {
+                return Optional.of(this.filteredMessages);
             }
         }
 
-        return var1 ? Optional.of(var0) : Optional.empty();
+        return Optional.empty();
     }
 
     public boolean hasAnyClickCommands(Player param0) {

@@ -1,5 +1,7 @@
 package net.minecraft.world.level.pathfinder;
 
+import java.util.Arrays;
+
 public class BinaryHeap {
     private Node[] heap = new Node[128];
     private int size;
@@ -140,8 +142,6 @@ public class BinaryHeap {
     }
 
     public Node[] getHeap() {
-        Node[] var0 = new Node[this.size()];
-        System.arraycopy(this.heap, 0, var0, 0, this.size());
-        return var0;
+        return Arrays.copyOf(this.heap, this.size);
     }
 }

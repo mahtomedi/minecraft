@@ -42,11 +42,6 @@ public class EditWorldScreen extends Screen {
     }
 
     @Override
-    public void tick() {
-        this.nameEdit.tick();
-    }
-
-    @Override
     protected void init() {
         this.renameButton = Button.builder(Component.translatable("selectWorld.edit.save"), param0 -> this.onRename())
             .bounds(this.width / 2 - 100, this.height / 4 + 144 + 5, 98, 20)
@@ -55,7 +50,7 @@ public class EditWorldScreen extends Screen {
         LevelSummary var0 = this.levelAccess.getSummary();
         String var1 = var0 == null ? "" : var0.getLevelName();
         this.nameEdit.setValue(var1);
-        this.nameEdit.setResponder(param0 -> this.renameButton.active = !param0.trim().isEmpty());
+        this.nameEdit.setResponder(param0 -> this.renameButton.active = !Util.isBlank(param0));
         this.addWidget(this.nameEdit);
         Button var2 = this.addRenderableWidget(Button.builder(Component.translatable("selectWorld.edit.resetIcon"), param0 -> {
             this.levelAccess.getIconFile().ifPresent(param0x -> FileUtils.deleteQuietly(param0x.toFile()));
@@ -191,10 +186,9 @@ public class EditWorldScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         param0.drawString(this.font, NAME_LABEL, this.width / 2 - 100, 24, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
-        super.render(param0, param1, param2, param3);
     }
 }

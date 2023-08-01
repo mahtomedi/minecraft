@@ -67,11 +67,6 @@ public class ChatScreen extends Screen {
         this.minecraft.gui.getChat().resetChatScroll();
     }
 
-    @Override
-    public void tick() {
-        this.input.tick();
-    }
-
     private void onEdited(String param0) {
         String var0 = this.input.getValue();
         this.commandSuggestions.setAllowSuggestions(!var0.equals(this.initial));
@@ -111,16 +106,16 @@ public class ChatScreen extends Screen {
     }
 
     @Override
-    public boolean mouseScrolled(double param0, double param1, double param2) {
-        param2 = Mth.clamp(param2, -1.0, 1.0);
-        if (this.commandSuggestions.mouseScrolled(param2)) {
+    public boolean mouseScrolled(double param0, double param1, double param2, double param3) {
+        param3 = Mth.clamp(param3, -1.0, 1.0);
+        if (this.commandSuggestions.mouseScrolled(param3)) {
             return true;
         } else {
             if (!hasShiftDown()) {
-                param2 *= 7.0;
+                param3 *= 7.0;
             }
 
-            this.minecraft.gui.getChat().scrollChat((int)param2);
+            this.minecraft.gui.getChat().scrollChat((int)param3);
             return true;
         }
     }
@@ -193,6 +188,10 @@ public class ChatScreen extends Screen {
             }
         }
 
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
     }
 
     @Override

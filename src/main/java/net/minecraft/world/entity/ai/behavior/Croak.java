@@ -25,7 +25,7 @@ public class Croak extends Behavior<Frog> {
     }
 
     protected void start(ServerLevel param0, Frog param1, long param2) {
-        if (!param1.isInWaterOrBubble() && !param1.isInLava()) {
+        if (!param1.isInLiquid()) {
             param1.setPose(Pose.CROAKING);
             this.croakCounter = 0;
         }

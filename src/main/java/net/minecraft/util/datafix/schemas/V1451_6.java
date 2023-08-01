@@ -60,11 +60,6 @@ public class V1451_6 extends NamespacedSchema {
         }
     };
     protected static final HookFunction REPACK_OBJECTIVE_ID = new HookFunction() {
-        private String packWithDot(String param0) {
-            ResourceLocation var0 = ResourceLocation.tryParse(param0);
-            return var0 != null ? var0.getNamespace() + "." + var0.getPath() : param0;
-        }
-
         @Override
         public <T> T apply(DynamicOps<T> param0, T param1) {
             Dynamic<T> var0 = new Dynamic<>(param0, param1);
@@ -80,7 +75,7 @@ public class V1451_6 extends NamespacedSchema {
                             String var2x = var0x.get();
                             return var2x.equals("_special")
                                 ? Optional.of(var0.createString(var1x.get()))
-                                : Optional.of(param1x.createString(this.packWithDot(var2x) + ":" + this.packWithDot(var1x.get())));
+                                : Optional.of(param1x.createString(V1451_6.packNamespacedWithDot(var2x) + ":" + V1451_6.packNamespacedWithDot(var1x.get())));
                         } else {
                             return Optional.empty();
                         }
@@ -151,5 +146,10 @@ public class V1451_6 extends NamespacedSchema {
         var3.put("minecraft:custom", () -> DSL.optionalFields("id", DSL.constType(namespacedString())));
         var3.put("_special", () -> DSL.optionalFields("id", DSL.constType(DSL.string())));
         return var3;
+    }
+
+    public static String packNamespacedWithDot(String param0) {
+        ResourceLocation var0 = ResourceLocation.tryParse(param0);
+        return var0 != null ? var0.getNamespace() + "." + var0.getPath() : param0;
     }
 }

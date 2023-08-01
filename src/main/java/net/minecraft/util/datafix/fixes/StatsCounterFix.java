@@ -5,19 +5,65 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
+import com.mojang.datafixers.DataFixUtils;
 import com.mojang.datafixers.TypeRewriteRule;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.serialization.Dynamic;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import net.minecraft.util.datafix.schemas.V1451_6;
 import org.apache.commons.lang3.StringUtils;
 
 public class StatsCounterFix extends DataFix {
+    private static final Set<String> SPECIAL_OBJECTIVE_CRITERIA = Set.of(
+        "dummy",
+        "trigger",
+        "deathCount",
+        "playerKillCount",
+        "totalKillCount",
+        "health",
+        "food",
+        "air",
+        "armor",
+        "xp",
+        "level",
+        "killedByTeam.aqua",
+        "killedByTeam.black",
+        "killedByTeam.blue",
+        "killedByTeam.dark_aqua",
+        "killedByTeam.dark_blue",
+        "killedByTeam.dark_gray",
+        "killedByTeam.dark_green",
+        "killedByTeam.dark_purple",
+        "killedByTeam.dark_red",
+        "killedByTeam.gold",
+        "killedByTeam.gray",
+        "killedByTeam.green",
+        "killedByTeam.light_purple",
+        "killedByTeam.red",
+        "killedByTeam.white",
+        "killedByTeam.yellow",
+        "teamkill.aqua",
+        "teamkill.black",
+        "teamkill.blue",
+        "teamkill.dark_aqua",
+        "teamkill.dark_blue",
+        "teamkill.dark_gray",
+        "teamkill.dark_green",
+        "teamkill.dark_purple",
+        "teamkill.dark_red",
+        "teamkill.gold",
+        "teamkill.gray",
+        "teamkill.green",
+        "teamkill.light_purple",
+        "teamkill.red",
+        "teamkill.white",
+        "teamkill.yellow"
+    );
     private static final Set<String> SKIP = ImmutableSet.<String>builder()
         .add("stat.craftItem.minecraft.spawn_egg")
         .add("stat.useItem.minecraft.spawn_egg")
@@ -141,90 +187,110 @@ public class StatsCounterFix extends DataFix {
         super(param0, param1);
     }
 
+    @Nullable
+    private static StatsCounterFix.StatType unpackLegacyKey(String param0) {
+        if (SKIP.contains(param0)) {
+            return null;
+        } else {
+            String var0 = CUSTOM_MAP.get(param0);
+            if (var0 != null) {
+                return new StatsCounterFix.StatType("minecraft:custom", var0);
+            } else {
+                int var1 = StringUtils.ordinalIndexOf(param0, ".", 2);
+                if (var1 < 0) {
+                    return null;
+                } else {
+                    String var2 = param0.substring(0, var1);
+                    if ("stat.mineBlock".equals(var2)) {
+                        String var3 = upgradeBlock(param0.substring(var1 + 1).replace('.', ':'));
+                        return new StatsCounterFix.StatType("minecraft:mined", var3);
+                    } else {
+                        String var4 = ITEM_KEYS.get(var2);
+                        if (var4 != null) {
+                            String var5 = param0.substring(var1 + 1).replace('.', ':');
+                            String var6 = upgradeItem(var5);
+                            String var7 = var6 == null ? var5 : var6;
+                            return new StatsCounterFix.StatType(var4, var7);
+                        } else {
+                            String var8 = ENTITY_KEYS.get(var2);
+                            if (var8 != null) {
+                                String var9 = param0.substring(var1 + 1).replace('.', ':');
+                                String var10 = ENTITIES.getOrDefault(var9, var9);
+                                return new StatsCounterFix.StatType(var8, var10);
+                            } else {
+                                return null;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public TypeRewriteRule makeRule() {
-        Type<?> var0 = this.getOutputSchema().getType(References.STATS);
+        return TypeRewriteRule.seq(this.makeStatFixer(), this.makeObjectiveFixer());
+    }
+
+    private TypeRewriteRule makeStatFixer() {
+        Type<?> var0 = this.getInputSchema().getType(References.STATS);
+        Type<?> var1 = this.getOutputSchema().getType(References.STATS);
         return this.fixTypeEverywhereTyped(
             "StatsCounterFix",
-            this.getInputSchema().getType(References.STATS),
             var0,
+            var1,
             param1 -> {
                 Dynamic<?> var0x = param1.get(DSL.remainderFinder());
                 Map<Dynamic<?>, Dynamic<?>> var1x = Maps.newHashMap();
-                Optional<? extends Map<? extends Dynamic<?>, ? extends Dynamic<?>>> var2 = var0x.getMapValues().result();
-                if (var2.isPresent()) {
-                    Iterator var6 = var2.get().entrySet().iterator();
-    
-                    while(true) {
-                        Entry<? extends Dynamic<?>, ? extends Dynamic<?>> var3;
-                        String var5;
-                        String var6;
-                        while(true) {
-                            if (!var6.hasNext()) {
-                                return var0.readTyped(var0x.emptyMap().set("stats", var0x.createMap(var1x)))
-                                    .result()
-                                    .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."))
-                                    .getFirst();
-                            }
-    
-                            var3 = (Entry)var6.next();
-                            if (var3.getValue().asNumber().result().isPresent()) {
-                                String var4 = var3.getKey().asString("");
-                                if (!SKIP.contains(var4)) {
-                                    if (CUSTOM_MAP.containsKey(var4)) {
-                                        var5 = "minecraft:custom";
-                                        var6 = CUSTOM_MAP.get(var4);
-                                        break;
-                                    }
-    
-                                    int var7 = StringUtils.ordinalIndexOf(var4, ".", 2);
-                                    if (var7 >= 0) {
-                                        String var8 = var4.substring(0, var7);
-                                        if ("stat.mineBlock".equals(var8)) {
-                                            var5 = "minecraft:mined";
-                                            var6 = this.upgradeBlock(var4.substring(var7 + 1).replace('.', ':'));
-                                            break;
-                                        }
-    
-                                        if (ITEM_KEYS.containsKey(var8)) {
-                                            var5 = ITEM_KEYS.get(var8);
-                                            String var12 = var4.substring(var7 + 1).replace('.', ':');
-                                            String var13 = this.upgradeItem(var12);
-                                            var6 = var13 == null ? var12 : var13;
-                                            break;
-                                        }
-    
-                                        if (ENTITY_KEYS.containsKey(var8)) {
-                                            var5 = ENTITY_KEYS.get(var8);
-                                            String var16 = var4.substring(var7 + 1).replace('.', ':');
-                                            var6 = ENTITIES.getOrDefault(var16, var16);
-                                            break;
-                                        }
-                                    }
-                                }
+                Optional<? extends Map<? extends Dynamic<?>, ? extends Dynamic<?>>> var2x = var0x.getMapValues().result();
+                if (var2x.isPresent()) {
+                    for(Entry<? extends Dynamic<?>, ? extends Dynamic<?>> var3 : ((Map)var2x.get()).entrySet()) {
+                        if (var3.getValue().asNumber().result().isPresent()) {
+                            String var4 = var3.getKey().asString("");
+                            StatsCounterFix.StatType var5 = unpackLegacyKey(var4);
+                            if (var5 != null) {
+                                Dynamic<?> var6 = var0x.createString(var5.type());
+                                Dynamic<?> var7 = var1x.computeIfAbsent(var6, param1x -> var0x.emptyMap());
+                                var1x.put(var6, var7.set(var5.typeKey(), var3.getValue()));
                             }
                         }
-    
-                        Dynamic<?> var18 = var0x.createString(var5);
-                        Dynamic<?> var19 = var1x.computeIfAbsent(var18, param1x -> var0x.emptyMap());
-                        var1x.put(var18, var19.set(var6, var3.getValue()));
                     }
-                } else {
-                    return var0.readTyped(var0x.emptyMap().set("stats", var0x.createMap(var1x)))
-                        .result()
-                        .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."))
-                        .getFirst();
                 }
+    
+                return var1.readTyped(var0x.emptyMap().set("stats", var0x.createMap(var1x)))
+                    .result()
+                    .orElseThrow(() -> new IllegalStateException("Could not parse new stats object."))
+                    .getFirst();
             }
         );
     }
 
+    private TypeRewriteRule makeObjectiveFixer() {
+        Type<?> var0 = this.getInputSchema().getType(References.OBJECTIVE);
+        Type<?> var1 = this.getOutputSchema().getType(References.OBJECTIVE);
+        return this.fixTypeEverywhereTyped("ObjectiveStatFix", var0, var1, param1 -> {
+            Dynamic<?> var0x = param1.get(DSL.remainderFinder());
+            Dynamic<?> var1x = var0x.update("CriteriaName", param0x -> DataFixUtils.orElse(param0x.asString().result().map(param0xx -> {
+                    if (SPECIAL_OBJECTIVE_CRITERIA.contains(param0xx)) {
+                        return param0xx;
+                    } else {
+                        StatsCounterFix.StatType var0xx = unpackLegacyKey(param0xx);
+                        return var0xx == null ? "dummy" : V1451_6.packNamespacedWithDot(var0xx.type) + ":" + V1451_6.packNamespacedWithDot(var0xx.typeKey);
+                    }
+                }).map(param0x::createString), param0x));
+            return var1.readTyped(var1x).result().orElseThrow(() -> new IllegalStateException("Could not parse new objective object.")).getFirst();
+        });
+    }
+
     @Nullable
-    protected String upgradeItem(String param0) {
+    private static String upgradeItem(String param0) {
         return ItemStackTheFlatteningFix.updateItem(param0, 0);
     }
 
-    protected String upgradeBlock(String param0) {
+    private static String upgradeBlock(String param0) {
         return BlockStateData.upgradeBlock(param0);
+    }
+
+    static record StatType(String type, String typeKey) {
     }
 }

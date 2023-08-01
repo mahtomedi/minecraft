@@ -225,8 +225,8 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
     }
 
     @Override
-    public double getMyRidingOffset() {
-        return -0.6;
+    protected float ridingOffset(Entity param0) {
+        return -0.7F;
     }
 
     public boolean isShaking() {

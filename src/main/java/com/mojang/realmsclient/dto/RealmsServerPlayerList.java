@@ -7,7 +7,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.util.JsonUtils;
+import com.mojang.util.UndashedUuid;
 import java.util.List;
+import java.util.UUID;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -15,9 +17,8 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsServerPlayerList extends ValueObject {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final JsonParser JSON_PARSER = new JsonParser();
     public long serverId;
-    public List<String> players;
+    public List<UUID> players;
 
     public static RealmsServerPlayerList parse(JsonObject param0) {
         RealmsServerPlayerList var0 = new RealmsServerPlayerList();
@@ -26,7 +27,7 @@ public class RealmsServerPlayerList extends ValueObject {
             var0.serverId = JsonUtils.getLongOr("serverId", param0, -1L);
             String var1 = JsonUtils.getStringOr("playerList", param0, null);
             if (var1 != null) {
-                JsonElement var2 = JSON_PARSER.parse(var1);
+                JsonElement var2 = JsonParser.parseString(var1);
                 if (var2.isJsonArray()) {
                     var0.players = parsePlayers(var2.getAsJsonArray());
                 } else {
@@ -42,12 +43,12 @@ public class RealmsServerPlayerList extends ValueObject {
         return var0;
     }
 
-    private static List<String> parsePlayers(JsonArray param0) {
-        List<String> var0 = Lists.newArrayList();
+    private static List<UUID> parsePlayers(JsonArray param0) {
+        List<UUID> var0 = Lists.newArrayList();
 
         for(JsonElement var1 : param0) {
             try {
-                var0.add(var1.getAsString());
+                var0.add(UndashedUuid.fromStringLenient(var1.getAsString()));
             } catch (Exception var5) {
             }
         }

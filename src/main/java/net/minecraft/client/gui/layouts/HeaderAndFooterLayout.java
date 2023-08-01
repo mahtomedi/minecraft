@@ -8,7 +8,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class HeaderAndFooterLayout implements Layout {
     private static final int DEFAULT_HEADER_AND_FOOTER_HEIGHT = 36;
-    private static final int DEFAULT_CONTENT_MARGIN_TOP = 30;
+    private static final int CONTENT_MARGIN_TOP = 30;
     private final FrameLayout headerFrame = new FrameLayout();
     private final FrameLayout footerFrame = new FrameLayout();
     private final FrameLayout contentsFrame = new FrameLayout();
@@ -30,7 +30,6 @@ public class HeaderAndFooterLayout implements Layout {
         this.footerHeight = param2;
         this.headerFrame.defaultChildLayoutSetting().align(0.5F, 0.5F);
         this.footerFrame.defaultChildLayoutSetting().align(0.5F, 0.5F);
-        this.contentsFrame.defaultChildLayoutSetting().align(0.5F, 0.0F).paddingTop(30);
     }
 
     @Override
@@ -97,16 +96,17 @@ public class HeaderAndFooterLayout implements Layout {
         this.footerFrame.arrangeElements();
         this.footerFrame.setY(this.screen.height - var1);
         this.contentsFrame.setMinWidth(this.screen.width);
-        this.contentsFrame.setMinHeight(this.screen.height - var0 - var1);
-        this.contentsFrame.setPosition(0, var0);
         this.contentsFrame.arrangeElements();
+        int var2 = var0 + 30;
+        int var3 = this.screen.height - var1 - this.contentsFrame.getHeight();
+        this.contentsFrame.setPosition(0, Math.min(var2, var3));
     }
 
     public <T extends LayoutElement> T addToHeader(T param0) {
         return this.headerFrame.addChild(param0);
     }
 
-    public <T extends LayoutElement> T addToHeader(T param0, LayoutSettings param1) {
+    public <T extends LayoutElement> T addToHeader(T param0, Consumer<LayoutSettings> param1) {
         return this.headerFrame.addChild(param0, param1);
     }
 
@@ -114,7 +114,7 @@ public class HeaderAndFooterLayout implements Layout {
         return this.footerFrame.addChild(param0);
     }
 
-    public <T extends LayoutElement> T addToFooter(T param0, LayoutSettings param1) {
+    public <T extends LayoutElement> T addToFooter(T param0, Consumer<LayoutSettings> param1) {
         return this.footerFrame.addChild(param0, param1);
     }
 
@@ -122,19 +122,7 @@ public class HeaderAndFooterLayout implements Layout {
         return this.contentsFrame.addChild(param0);
     }
 
-    public <T extends LayoutElement> T addToContents(T param0, LayoutSettings param1) {
+    public <T extends LayoutElement> T addToContents(T param0, Consumer<LayoutSettings> param1) {
         return this.contentsFrame.addChild(param0, param1);
-    }
-
-    public LayoutSettings newHeaderLayoutSettings() {
-        return this.headerFrame.newChildLayoutSettings();
-    }
-
-    public LayoutSettings newContentLayoutSettings() {
-        return this.contentsFrame.newChildLayoutSettings();
-    }
-
-    public LayoutSettings newFooterLayoutSettings() {
-        return this.footerFrame.newChildLayoutSettings();
     }
 }

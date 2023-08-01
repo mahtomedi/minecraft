@@ -193,7 +193,7 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
             || param0 == '-';
     }
 
-    private static boolean isValidPath(String param0) {
+    public static boolean isValidPath(String param0) {
         for(int var0 = 0; var0 < param0.length(); ++var0) {
             if (!validPathChar(param0.charAt(var0))) {
                 return false;
@@ -203,7 +203,7 @@ public class ResourceLocation implements Comparable<ResourceLocation> {
         return true;
     }
 
-    private static boolean isValidNamespace(String param0) {
+    public static boolean isValidNamespace(String param0) {
         for(int var0 = 0; var0 < param0.length(); ++var0) {
             if (!validNamespaceChar(param0.charAt(var0))) {
                 return false;

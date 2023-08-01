@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderBuffers {
-    private final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
+    private final SectionBufferBuilderPack fixedBufferPack = new SectionBufferBuilderPack();
     private final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), param0 -> {
         param0.put(Sheets.solidBlockSheet(), this.fixedBufferPack.builder(RenderType.solid()));
         param0.put(Sheets.cutoutBlockSheet(), this.fixedBufferPack.builder(RenderType.cutout()));
@@ -41,7 +41,7 @@ public class RenderBuffers {
         param0.put(param1, new BufferBuilder(param1.bufferSize()));
     }
 
-    public ChunkBufferBuilderPack fixedBufferPack() {
+    public SectionBufferBuilderPack fixedBufferPack() {
         return this.fixedBufferPack;
     }
 

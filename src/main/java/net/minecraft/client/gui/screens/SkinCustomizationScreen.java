@@ -51,8 +51,7 @@ public class SkinCustomizationScreen extends OptionsSubScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
         super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
     }
 }

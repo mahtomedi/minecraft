@@ -11,8 +11,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractScrollWidget;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
-import net.minecraft.client.gui.layouts.GridLayout;
-import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -123,24 +123,20 @@ public class TelemetryEventWidget extends AbstractScrollWidget {
     }
 
     @OnlyIn(Dist.CLIENT)
-    static record Content(GridLayout container, Component narration) {
+    static record Content(Layout container, Component narration) {
     }
 
     @OnlyIn(Dist.CLIENT)
     static class ContentBuilder {
         private final int width;
-        private final GridLayout grid;
-        private final GridLayout.RowHelper helper;
-        private final LayoutSettings alignHeader;
+        private final LinearLayout layout;
         private final MutableComponent narration = Component.empty();
 
         public ContentBuilder(int param0) {
             this.width = param0;
-            this.grid = new GridLayout();
-            this.grid.defaultCellSetting().alignHorizontallyLeft();
-            this.helper = this.grid.createRowHelper(1);
-            this.helper.addChild(SpacerElement.width(param0));
-            this.alignHeader = this.helper.newCellSettings().alignHorizontallyCenter().paddingHorizontal(32);
+            this.layout = LinearLayout.vertical();
+            this.layout.defaultCellSetting().alignHorizontallyLeft();
+            this.layout.addChild(SpacerElement.width(param0));
         }
 
         public void addLine(Font param0, Component param1) {
@@ -148,22 +144,26 @@ public class TelemetryEventWidget extends AbstractScrollWidget {
         }
 
         public void addLine(Font param0, Component param1, int param2) {
-            this.helper.addChild(new MultiLineTextWidget(param1, param0).setMaxWidth(this.width), this.helper.newCellSettings().paddingBottom(param2));
+            this.layout.addChild(new MultiLineTextWidget(param1, param0).setMaxWidth(this.width), param1x -> param1x.paddingBottom(param2));
             this.narration.append(param1).append("\n");
         }
 
         public void addHeader(Font param0, Component param1) {
-            this.helper.addChild(new MultiLineTextWidget(param1, param0).setMaxWidth(this.width - 64).setCentered(true), this.alignHeader);
+            this.layout
+                .addChild(
+                    new MultiLineTextWidget(param1, param0).setMaxWidth(this.width - 64).setCentered(true),
+                    param0x -> param0x.alignHorizontallyCenter().paddingHorizontal(32)
+                );
             this.narration.append(param1).append("\n");
         }
 
         public void addSpacer(int param0) {
-            this.helper.addChild(SpacerElement.height(param0));
+            this.layout.addChild(SpacerElement.height(param0));
         }
 
         public TelemetryEventWidget.Content build() {
-            this.grid.arrangeElements();
-            return new TelemetryEventWidget.Content(this.grid, this.narration);
+            this.layout.arrangeElements();
+            return new TelemetryEventWidget.Content(this.layout, this.narration);
         }
     }
 }

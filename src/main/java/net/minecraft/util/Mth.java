@@ -544,6 +544,10 @@ public class Mth {
         return param1 + param0 * wrapDegrees(param2 - param1);
     }
 
+    public static double rotLerp(double param0, double param1, double param2) {
+        return param1 + param0 * wrapDegrees(param2 - param1);
+    }
+
     public static float triangleWave(float param0, float param1) {
         return (Math.abs(param0 % param1 - param1 * 0.5F) - param1 * 0.25F) / (param1 * 0.25F);
     }

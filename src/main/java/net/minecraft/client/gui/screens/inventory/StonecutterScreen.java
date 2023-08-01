@@ -16,6 +16,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> {
+    private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("container/stonecutter/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED_SPRITE = new ResourceLocation("container/stonecutter/scroller_disabled");
+    private static final ResourceLocation RECIPE_SELECTED_SPRITE = new ResourceLocation("container/stonecutter/recipe_selected");
+    private static final ResourceLocation RECIPE_HIGHLIGHTED_SPRITE = new ResourceLocation("container/stonecutter/recipe_highlighted");
+    private static final ResourceLocation RECIPE_SPRITE = new ResourceLocation("container/stonecutter/recipe");
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/stonecutter.png");
     private static final int SCROLLER_WIDTH = 12;
     private static final int SCROLLER_HEIGHT = 15;
@@ -45,17 +50,17 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
 
     @Override
     protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
-        this.renderBackground(param0);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         param0.blit(BG_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
         int var2 = (int)(41.0F * this.scrollOffs);
-        param0.blit(BG_LOCATION, var0 + 119, var1 + 15 + var2, 176 + (this.isScrollBarActive() ? 0 : 12), 0, 12, 15);
-        int var3 = this.leftPos + 52;
-        int var4 = this.topPos + 14;
-        int var5 = this.startIndex + 12;
-        this.renderButtons(param0, param2, param3, var3, var4, var5);
-        this.renderRecipes(param0, var3, var4, var5);
+        ResourceLocation var3 = this.isScrollBarActive() ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+        param0.blitSprite(var3, var0 + 119, var1 + 15 + var2, 12, 15);
+        int var4 = this.leftPos + 52;
+        int var5 = this.topPos + 14;
+        int var6 = this.startIndex + 12;
+        this.renderButtons(param0, param2, param3, var4, var5, var6);
+        this.renderRecipes(param0, var4, var5, var6);
     }
 
     @Override
@@ -85,14 +90,16 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
             int var2 = param3 + var1 % 4 * 16;
             int var3 = var1 / 4;
             int var4 = param4 + var3 * 18 + 2;
-            int var5 = this.imageHeight;
+            ResourceLocation var5;
             if (var0 == this.menu.getSelectedRecipeIndex()) {
-                var5 += 18;
+                var5 = RECIPE_SELECTED_SPRITE;
             } else if (param1 >= var2 && param2 >= var4 && param1 < var2 + 16 && param2 < var4 + 18) {
-                var5 += 36;
+                var5 = RECIPE_HIGHLIGHTED_SPRITE;
+            } else {
+                var5 = RECIPE_SPRITE;
             }
 
-            param0.blit(BG_LOCATION, var2, var4 - 1, 0, var5, 16, 18);
+            param0.blitSprite(var5, var2, var4 - 1, 16, 18);
         }
 
     }
@@ -154,10 +161,10 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     }
 
     @Override
-    public boolean mouseScrolled(double param0, double param1, double param2) {
+    public boolean mouseScrolled(double param0, double param1, double param2, double param3) {
         if (this.isScrollBarActive()) {
             int var0 = this.getOffscreenRows();
-            float var1 = (float)param2 / (float)var0;
+            float var1 = (float)param3 / (float)var0;
             this.scrollOffs = Mth.clamp(this.scrollOffs - var1, 0.0F, 1.0F);
             this.startIndex = (int)((double)(this.scrollOffs * (float)var0) + 0.5) * 4;
         }

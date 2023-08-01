@@ -91,9 +91,8 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.leftPos;
         int var1 = this.topPos;
-        this.renderBg(param0, param3, param1, param2);
-        RenderSystem.disableDepthTest();
         super.render(param0, param1, param2, param3);
+        RenderSystem.disableDepthTest();
         param0.pose().pushPose();
         param0.pose().translate((float)var0, (float)var1, 0.0F);
         this.hoveredSlot = null;
@@ -148,6 +147,12 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
 
         param0.pose().popPose();
         RenderSystem.enableDepthTest();
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        super.renderBackground(param0, param1, param2, param3);
+        this.renderBg(param0, param3, param1, param2);
     }
 
     public static void renderSlotHighlight(GuiGraphics param0, int param1, int param2, int param3) {

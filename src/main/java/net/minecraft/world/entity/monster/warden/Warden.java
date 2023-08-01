@@ -67,6 +67,7 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Contract;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 public class Warden extends Monster implements VibrationSystem {
@@ -580,6 +581,11 @@ public class Warden extends Monster implements VibrationSystem {
                 };
             }
         };
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height + 0.25F * param2, 0.0F);
     }
 
     @Override

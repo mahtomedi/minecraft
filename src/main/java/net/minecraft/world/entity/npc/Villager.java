@@ -79,6 +79,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.entity.schedule.Schedule;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -868,12 +869,19 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
     @Override
     protected void updateTrades() {
         VillagerData var0 = this.getVillagerData();
-        Int2ObjectMap<VillagerTrades.ItemListing[]> var1 = VillagerTrades.TRADES.get(var0.getProfession());
-        if (var1 != null && !var1.isEmpty()) {
-            VillagerTrades.ItemListing[] var2 = var1.get(var0.getLevel());
-            if (var2 != null) {
-                MerchantOffers var3 = this.getOffers();
-                this.addOffersFromItemListings(var3, var2, 2);
+        Int2ObjectMap<VillagerTrades.ItemListing[]> var2;
+        if (this.level().enabledFeatures().contains(FeatureFlags.TRADE_REBALANCE)) {
+            Int2ObjectMap<VillagerTrades.ItemListing[]> var1 = VillagerTrades.EXPERIMENTAL_TRADES.get(var0.getProfession());
+            var2 = var1 != null ? var1 : VillagerTrades.TRADES.get(var0.getProfession());
+        } else {
+            var2 = VillagerTrades.TRADES.get(var0.getProfession());
+        }
+
+        if (var2 != null && !var2.isEmpty()) {
+            VillagerTrades.ItemListing[] var4 = var2.get(var0.getLevel());
+            if (var4 != null) {
+                MerchantOffers var5 = this.getOffers();
+                this.addOffersFromItemListings(var5, var4, 2);
             }
         }
     }

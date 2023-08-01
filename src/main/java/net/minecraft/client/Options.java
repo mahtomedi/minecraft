@@ -16,7 +16,6 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
@@ -62,6 +61,7 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -77,7 +77,7 @@ import org.slf4j.Logger;
 public class Options {
     static final Logger LOGGER = LogUtils.getLogger();
     static final Gson GSON = new Gson();
-    private static final TypeToken<List<String>> RESOURCE_PACK_TYPE = new TypeToken<List<String>>() {
+    private static final TypeToken<List<String>> LIST_OF_STRINGS_TYPE = new TypeToken<List<String>>() {
     };
     public static final int RENDER_DISTANCE_TINY = 2;
     public static final int RENDER_DISTANCE_SHORT = 4;
@@ -135,19 +135,7 @@ public class Options {
         OptionInstance.forOptionEnum(),
         new OptionInstance.Enum<>(
             Arrays.asList(CloudStatus.values()),
-            Codec.either(Codec.BOOL, Codec.STRING).xmap(param0x -> param0x.map(param0xx -> param0xx ? CloudStatus.FANCY : CloudStatus.OFF, param0xx -> {
-                    return switch(param0xx) {
-                        case "true" -> CloudStatus.FANCY;
-                        case "fast" -> CloudStatus.FAST;
-                        default -> CloudStatus.OFF;
-                    };
-                }), param0x -> {
-                return Either.right(switch(param0x) {
-                    case FANCY -> "true";
-                    case FAST -> "fast";
-                    case OFF -> "false";
-                });
-            })
+            ExtraCodecs.withAlternative(CloudStatus.CODEC, Codec.BOOL, param0x -> param0x ? CloudStatus.FANCY : CloudStatus.OFF)
         ),
         CloudStatus.FANCY,
         param0x -> {
@@ -279,11 +267,7 @@ public class Options {
         "options.mainHand",
         OptionInstance.noTooltip(),
         OptionInstance.forOptionEnum(),
-        new OptionInstance.Enum<>(
-            Arrays.asList(HumanoidArm.values()),
-            Codec.STRING
-                .xmap(param0x -> "left".equals(param0x) ? HumanoidArm.LEFT : HumanoidArm.RIGHT, param0x -> param0x == HumanoidArm.LEFT ? "left" : "right")
-        ),
+        new OptionInstance.Enum<>(Arrays.asList(HumanoidArm.values()), HumanoidArm.CODEC),
         HumanoidArm.RIGHT,
         param0x -> this.broadcastOptions()
     );
@@ -1137,8 +1121,8 @@ public class Options {
         param0.process("prioritizeChunkUpdates", this.prioritizeChunkUpdates);
         param0.process("biomeBlendRadius", this.biomeBlendRadius);
         param0.process("renderClouds", this.cloudStatus);
-        this.resourcePacks = param0.process("resourcePacks", this.resourcePacks, Options::readPackList, GSON::toJson);
-        this.incompatibleResourcePacks = param0.process("incompatibleResourcePacks", this.incompatibleResourcePacks, Options::readPackList, GSON::toJson);
+        this.resourcePacks = param0.process("resourcePacks", this.resourcePacks, Options::readListOfStrings, GSON::toJson);
+        this.incompatibleResourcePacks = param0.process("incompatibleResourcePacks", this.incompatibleResourcePacks, Options::readListOfStrings, GSON::toJson);
         this.lastMpIp = param0.process("lastServer", this.lastMpIp);
         this.languageCode = param0.process("lang", this.languageCode);
         param0.process("soundDevice", this.soundDevice);
@@ -1492,8 +1476,8 @@ public class Options {
         this.cameraType = param0;
     }
 
-    private static List<String> readPackList(String param0x) {
-        List<String> var0x = GsonHelper.fromNullableJson(GSON, param0x, RESOURCE_PACK_TYPE);
+    private static List<String> readListOfStrings(String param0x) {
+        List<String> var0x = GsonHelper.fromNullableJson(GSON, param0x, LIST_OF_STRINGS_TYPE);
         return (List<String>)(var0x != null ? var0x : Lists.newArrayList());
     }
 

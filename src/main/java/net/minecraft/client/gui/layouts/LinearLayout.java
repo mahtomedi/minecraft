@@ -1,99 +1,96 @@
 package net.minecraft.client.gui.layouts;
 
-import com.mojang.math.Divisor;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.Util;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class LinearLayout extends AbstractLayout {
+public class LinearLayout implements Layout {
+    private final GridLayout wrapped;
     private final LinearLayout.Orientation orientation;
-    private final List<LinearLayout.ChildContainer> children = new ArrayList<>();
-    private final LayoutSettings defaultChildLayoutSettings = LayoutSettings.defaults();
+    private int nextChildIndex = 0;
+
+    public LinearLayout(LinearLayout.Orientation param0) {
+        this(0, 0, param0);
+    }
 
     public LinearLayout(int param0, int param1, LinearLayout.Orientation param2) {
-        this(0, 0, param0, param1, param2);
+        this.wrapped = new GridLayout(param0, param1);
+        this.orientation = param2;
     }
 
-    public LinearLayout(int param0, int param1, int param2, int param3, LinearLayout.Orientation param4) {
-        super(param0, param1, param2, param3);
-        this.orientation = param4;
+    public LinearLayout spacing(int param0) {
+        this.orientation.setSpacing(this.wrapped, param0);
+        return this;
     }
 
-    @Override
-    public void arrangeElements() {
-        super.arrangeElements();
-        if (!this.children.isEmpty()) {
-            int var0 = 0;
-            int var1 = this.orientation.getSecondaryLength(this);
+    public LayoutSettings newCellSettings() {
+        return this.wrapped.newCellSettings();
+    }
 
-            for(LinearLayout.ChildContainer var2 : this.children) {
-                var0 += this.orientation.getPrimaryLength(var2);
-                var1 = Math.max(var1, this.orientation.getSecondaryLength(var2));
-            }
+    public LayoutSettings defaultCellSetting() {
+        return this.wrapped.defaultCellSetting();
+    }
 
-            int var3 = this.orientation.getPrimaryLength(this) - var0;
-            int var4 = this.orientation.getPrimaryPosition(this);
-            Iterator<LinearLayout.ChildContainer> var5 = this.children.iterator();
-            LinearLayout.ChildContainer var6 = var5.next();
-            this.orientation.setPrimaryPosition(var6, var4);
-            var4 += this.orientation.getPrimaryLength(var6);
-            LinearLayout.ChildContainer var8;
-            if (this.children.size() >= 2) {
-                for(Divisor var7 = new Divisor(var3, this.children.size() - 1); var7.hasNext(); var4 += this.orientation.getPrimaryLength(var8)) {
-                    var4 += var7.nextInt();
-                    var8 = var5.next();
-                    this.orientation.setPrimaryPosition(var8, var4);
-                }
-            }
+    public <T extends LayoutElement> T addChild(T param0, LayoutSettings param1) {
+        return this.orientation.addChild(this.wrapped, param0, this.nextChildIndex++, param1);
+    }
 
-            int var9 = this.orientation.getSecondaryPosition(this);
+    public <T extends LayoutElement> T addChild(T param0) {
+        return this.addChild(param0, this.newCellSettings());
+    }
 
-            for(LinearLayout.ChildContainer var10 : this.children) {
-                this.orientation.setSecondaryPosition(var10, var9, var1);
-            }
-
-            switch(this.orientation) {
-                case HORIZONTAL:
-                    this.height = var1;
-                    break;
-                case VERTICAL:
-                    this.width = var1;
-            }
-
-        }
+    public <T extends LayoutElement> T addChild(T param0, Consumer<LayoutSettings> param1) {
+        return this.orientation.addChild(this.wrapped, param0, this.nextChildIndex++, Util.make(this.newCellSettings(), param1));
     }
 
     @Override
     public void visitChildren(Consumer<LayoutElement> param0) {
-        this.children.forEach(param1 -> param0.accept(param1.child));
+        this.wrapped.visitChildren(param0);
     }
 
-    public LayoutSettings newChildLayoutSettings() {
-        return this.defaultChildLayoutSettings.copy();
+    @Override
+    public void arrangeElements() {
+        this.wrapped.arrangeElements();
     }
 
-    public LayoutSettings defaultChildLayoutSetting() {
-        return this.defaultChildLayoutSettings;
+    @Override
+    public int getWidth() {
+        return this.wrapped.getWidth();
     }
 
-    public <T extends LayoutElement> T addChild(T param0) {
-        return this.addChild(param0, this.newChildLayoutSettings());
+    @Override
+    public int getHeight() {
+        return this.wrapped.getHeight();
     }
 
-    public <T extends LayoutElement> T addChild(T param0, LayoutSettings param1) {
-        this.children.add(new LinearLayout.ChildContainer(param0, param1));
-        return param0;
+    @Override
+    public void setX(int param0) {
+        this.wrapped.setX(param0);
     }
 
-    @OnlyIn(Dist.CLIENT)
-    static class ChildContainer extends AbstractLayout.AbstractChildWrapper {
-        protected ChildContainer(LayoutElement param0, LayoutSettings param1) {
-            super(param0, param1);
-        }
+    @Override
+    public void setY(int param0) {
+        this.wrapped.setY(param0);
+    }
+
+    @Override
+    public int getX() {
+        return this.wrapped.getX();
+    }
+
+    @Override
+    public int getY() {
+        return this.wrapped.getY();
+    }
+
+    public static LinearLayout vertical() {
+        return new LinearLayout(LinearLayout.Orientation.VERTICAL);
+    }
+
+    public static LinearLayout horizontal() {
+        return new LinearLayout(LinearLayout.Orientation.HORIZONTAL);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -101,68 +98,22 @@ public class LinearLayout extends AbstractLayout {
         HORIZONTAL,
         VERTICAL;
 
-        int getPrimaryLength(LayoutElement param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getWidth();
-                case VERTICAL -> param0.getHeight();
-            };
-        }
-
-        int getPrimaryLength(LinearLayout.ChildContainer param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getWidth();
-                case VERTICAL -> param0.getHeight();
-            };
-        }
-
-        int getSecondaryLength(LayoutElement param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getHeight();
-                case VERTICAL -> param0.getWidth();
-            };
-        }
-
-        int getSecondaryLength(LinearLayout.ChildContainer param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getHeight();
-                case VERTICAL -> param0.getWidth();
-            };
-        }
-
-        void setPrimaryPosition(LinearLayout.ChildContainer param0, int param1) {
+        void setSpacing(GridLayout param0, int param1) {
             switch(this) {
                 case HORIZONTAL:
-                    param0.setX(param1, param0.getWidth());
+                    param0.columnSpacing(param1);
                     break;
                 case VERTICAL:
-                    param0.setY(param1, param0.getHeight());
+                    param0.rowSpacing(param1);
             }
 
         }
 
-        void setSecondaryPosition(LinearLayout.ChildContainer param0, int param1, int param2) {
-            switch(this) {
-                case HORIZONTAL:
-                    param0.setY(param1, param2);
-                    break;
-                case VERTICAL:
-                    param0.setX(param1, param2);
-            }
-
-        }
-
-        int getPrimaryPosition(LayoutElement param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getX();
-                case VERTICAL -> param0.getY();
-            };
-        }
-
-        int getSecondaryPosition(LayoutElement param0) {
-            return switch(this) {
-                case HORIZONTAL -> param0.getY();
-                case VERTICAL -> param0.getX();
-            };
+        public <T extends LayoutElement> T addChild(GridLayout param0, T param1, int param2, LayoutSettings param3) {
+            return (T)(switch(this) {
+                case HORIZONTAL -> param0.addChild(param1, 0, param2, param3);
+                case VERTICAL -> param0.addChild(param1, param2, 0, param3);
+            });
         }
     }
 }

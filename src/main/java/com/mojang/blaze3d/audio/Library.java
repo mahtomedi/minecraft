@@ -80,20 +80,25 @@ public class Library {
             throw new IllegalStateException("OpenAL 1.1 not supported");
         } else {
             this.setHrtf(var0.ALC_SOFT_HRTF && param1);
-            this.context = ALC10.alcCreateContext(this.currentDevice, (IntBuffer)null);
+
+            try (MemoryStack var1 = MemoryStack.stackPush()) {
+                IntBuffer var2 = var1.callocInt(3).put(6554).put(1).put(0).flip();
+                this.context = ALC10.alcCreateContext(this.currentDevice, var2);
+            }
+
             ALC10.alcMakeContextCurrent(this.context);
-            int var1 = this.getChannelCount();
-            int var2 = Mth.clamp((int)Mth.sqrt((float)var1), 2, 8);
-            int var3 = Mth.clamp(var1 - var2, 8, 255);
-            this.staticChannels = new Library.CountingChannelPool(var3);
-            this.streamingChannels = new Library.CountingChannelPool(var2);
-            ALCapabilities var4 = AL.createCapabilities(var0);
+            int var3 = this.getChannelCount();
+            int var4 = Mth.clamp((int)Mth.sqrt((float)var3), 2, 8);
+            int var5 = Mth.clamp(var3 - var4, 8, 255);
+            this.staticChannels = new Library.CountingChannelPool(var5);
+            this.streamingChannels = new Library.CountingChannelPool(var4);
+            ALCapabilities var6 = AL.createCapabilities(var0);
             OpenAlUtil.checkALError("Initialization");
-            if (!var4.AL_EXT_source_distance_model) {
+            if (!var6.AL_EXT_source_distance_model) {
                 throw new IllegalStateException("AL_EXT_source_distance_model is not supported");
             } else {
                 AL10.alEnable(512);
-                if (!var4.AL_EXT_LINEAR_DISTANCE) {
+                if (!var6.AL_EXT_LINEAR_DISTANCE) {
                     throw new IllegalStateException("AL_EXT_LINEAR_DISTANCE is not supported");
                 } else {
                     OpenAlUtil.checkALError("Enable per-source distance models");

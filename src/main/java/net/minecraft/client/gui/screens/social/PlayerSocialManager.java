@@ -73,21 +73,18 @@ public class PlayerSocialManager {
 
     public void addPlayer(PlayerInfo param0) {
         GameProfile var0 = param0.getProfile();
-        if (var0.isComplete()) {
-            this.discoveredNamesToUUID.put(var0.getName(), var0.getId());
-        }
-
-        Screen var1 = this.minecraft.screen;
-        if (var1 instanceof SocialInteractionsScreen var2) {
-            var2.onAddPlayer(param0);
+        this.discoveredNamesToUUID.put(var0.getName(), var0.getId());
+        Screen var4 = this.minecraft.screen;
+        if (var4 instanceof SocialInteractionsScreen var1) {
+            var1.onAddPlayer(param0);
         }
 
     }
 
     public void removePlayer(UUID param0) {
-        Screen var0 = this.minecraft.screen;
-        if (var0 instanceof SocialInteractionsScreen var1) {
-            var1.onRemovePlayer(param0);
+        Screen var3 = this.minecraft.screen;
+        if (var3 instanceof SocialInteractionsScreen var0) {
+            var0.onRemovePlayer(param0);
         }
 
     }

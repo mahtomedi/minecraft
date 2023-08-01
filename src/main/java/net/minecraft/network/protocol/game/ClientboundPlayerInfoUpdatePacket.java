@@ -5,6 +5,7 @@ import com.mojang.authlib.GameProfile;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.Optionull;
@@ -94,8 +95,9 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
             var0.getProperties().putAll(param1.readGameProfileProperties());
             param0.profile = var0;
         }, (param0, param1) -> {
-            param0.writeUtf(param1.profile().getName(), 16);
-            param0.writeGameProfileProperties(param1.profile().getProperties());
+            GameProfile var0 = Objects.requireNonNull(param1.profile());
+            param0.writeUtf(var0.getName(), 16);
+            param0.writeGameProfileProperties(var0.getProperties());
         }),
         INITIALIZE_CHAT(
             (param0, param1) -> param0.chatSession = param1.readNullable(RemoteChatSession.Data::read),
@@ -130,7 +132,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
 
     public static record Entry(
         UUID profileId,
-        GameProfile profile,
+        @Nullable GameProfile profile,
         boolean listed,
         int latency,
         GameType gameMode,
@@ -142,7 +144,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
                 param0.getUUID(),
                 param0.getGameProfile(),
                 true,
-                param0.latency,
+                param0.connection.latency(),
                 param0.gameMode.getGameModeForPlayer(),
                 param0.getTabListDisplayName(),
                 Optionull.map(param0.getChatSession(), RemoteChatSession::asData)
@@ -152,6 +154,7 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
 
     static class EntryBuilder {
         final UUID profileId;
+        @Nullable
         GameProfile profile;
         boolean listed;
         int latency;
@@ -163,7 +166,6 @@ public class ClientboundPlayerInfoUpdatePacket implements Packet<ClientGamePacke
 
         EntryBuilder(UUID param0) {
             this.profileId = param0;
-            this.profile = new GameProfile(param0, null);
         }
 
         ClientboundPlayerInfoUpdatePacket.Entry build() {

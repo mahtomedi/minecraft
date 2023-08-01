@@ -89,6 +89,7 @@ import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class Fox extends Animal implements VariantHolder<Fox.Type> {
     private static final EntityDataAccessor<Integer> DATA_TYPE_ID = SynchedEntityData.defineId(Fox.class, EntityDataSerializers.INT);
@@ -702,6 +703,11 @@ public class Fox extends Animal implements VariantHolder<Fox.Type> {
         }
 
         super.dropAllDeathLoot(param0);
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height + -0.0625F * param2, -0.25F * param2);
     }
 
     public static boolean isPathClear(Fox param0, LivingEntity param1) {

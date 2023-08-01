@@ -5,11 +5,11 @@ import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -20,28 +20,12 @@ import org.slf4j.Logger;
 
 public class Scoreboard {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final int DISPLAY_SLOT_LIST = 0;
-    public static final int DISPLAY_SLOT_SIDEBAR = 1;
-    public static final int DISPLAY_SLOT_BELOW_NAME = 2;
-    public static final int DISPLAY_SLOT_TEAMS_SIDEBAR_START = 3;
-    public static final int DISPLAY_SLOT_TEAMS_SIDEBAR_END = 18;
-    public static final int DISPLAY_SLOTS = 19;
     private final Map<String, Objective> objectivesByName = Maps.newHashMap();
     private final Map<ObjectiveCriteria, List<Objective>> objectivesByCriteria = Maps.newHashMap();
     private final Map<String, Map<Objective, Score>> playerScores = Maps.newHashMap();
-    private final Objective[] displayObjectives = new Objective[19];
+    private final Map<DisplaySlot, Objective> displayObjectives = new EnumMap<>(DisplaySlot.class);
     private final Map<String, PlayerTeam> teamsByName = Maps.newHashMap();
     private final Map<String, PlayerTeam> teamsByPlayer = Maps.newHashMap();
-    @Nullable
-    private static String[] displaySlotNames;
-
-    public boolean hasObjective(String param0) {
-        return this.objectivesByName.containsKey(param0);
-    }
-
-    public Objective getOrCreateObjective(String param0) {
-        return this.objectivesByName.get(param0);
-    }
 
     @Nullable
     public Objective getObjective(@Nullable String param0) {
@@ -144,7 +128,7 @@ public class Scoreboard {
     public void removeObjective(Objective param0) {
         this.objectivesByName.remove(param0.getName());
 
-        for(int var0 = 0; var0 < 19; ++var0) {
+        for(DisplaySlot var0 : DisplaySlot.values()) {
             if (this.getDisplayObjective(var0) == param0) {
                 this.setDisplayObjective(var0, null);
             }
@@ -162,13 +146,13 @@ public class Scoreboard {
         this.onObjectiveRemoved(param0);
     }
 
-    public void setDisplayObjective(int param0, @Nullable Objective param1) {
-        this.displayObjectives[param0] = param1;
+    public void setDisplayObjective(DisplaySlot param0, @Nullable Objective param1) {
+        this.displayObjectives.put(param0, param1);
     }
 
     @Nullable
-    public Objective getDisplayObjective(int param0) {
-        return this.displayObjectives[param0];
+    public Objective getDisplayObjective(DisplaySlot param0) {
+        return this.displayObjectives.get(param0);
     }
 
     @Nullable
@@ -267,60 +251,8 @@ public class Scoreboard {
     public void onTeamRemoved(PlayerTeam param0) {
     }
 
-    public static String getDisplaySlotName(int param0) {
-        switch(param0) {
-            case 0:
-                return "list";
-            case 1:
-                return "sidebar";
-            case 2:
-                return "belowName";
-            default:
-                if (param0 >= 3 && param0 <= 18) {
-                    ChatFormatting var0 = ChatFormatting.getById(param0 - 3);
-                    if (var0 != null && var0 != ChatFormatting.RESET) {
-                        return "sidebar.team." + var0.getName();
-                    }
-                }
-
-                return null;
-        }
-    }
-
-    public static int getDisplaySlotByName(String param0) {
-        if ("list".equalsIgnoreCase(param0)) {
-            return 0;
-        } else if ("sidebar".equalsIgnoreCase(param0)) {
-            return 1;
-        } else if ("belowName".equalsIgnoreCase(param0)) {
-            return 2;
-        } else {
-            if (param0.startsWith("sidebar.team.")) {
-                String var0 = param0.substring("sidebar.team.".length());
-                ChatFormatting var1 = ChatFormatting.getByName(var0);
-                if (var1 != null && var1.getId() >= 0) {
-                    return var1.getId() + 3;
-                }
-            }
-
-            return -1;
-        }
-    }
-
-    public static String[] getDisplaySlotNames() {
-        if (displaySlotNames == null) {
-            displaySlotNames = new String[19];
-
-            for(int var0 = 0; var0 < 19; ++var0) {
-                displaySlotNames[var0] = getDisplaySlotName(var0);
-            }
-        }
-
-        return displaySlotNames;
-    }
-
     public void entityRemoved(Entity param0) {
-        if (param0 != null && !(param0 instanceof Player) && !param0.isAlive()) {
+        if (!(param0 instanceof Player) && !param0.isAlive()) {
             String var0 = param0.getStringUUID();
             this.resetPlayerScore(var0, null);
             this.removePlayerFromTeam(var0);
@@ -329,30 +261,31 @@ public class Scoreboard {
 
     protected ListTag savePlayerScores() {
         ListTag var0 = new ListTag();
-        this.playerScores
-            .values()
-            .stream()
-            .map(Map::values)
-            .forEach(param1 -> param1.stream().filter(param0x -> param0x.getObjective() != null).forEach(param1x -> {
-                    CompoundTag var0x = new CompoundTag();
-                    var0x.putString("Name", param1x.getOwner());
-                    var0x.putString("Objective", param1x.getObjective().getName());
-                    var0x.putInt("Score", param1x.getScore());
-                    var0x.putBoolean("Locked", param1x.isLocked());
-                    var0.add(var0x);
-                }));
+        this.playerScores.values().stream().map(Map::values).forEach(param1 -> param1.forEach(param1x -> {
+                CompoundTag var0x = new CompoundTag();
+                var0x.putString("Name", param1x.getOwner());
+                var0x.putString("Objective", param1x.getObjective().getName());
+                var0x.putInt("Score", param1x.getScore());
+                var0x.putBoolean("Locked", param1x.isLocked());
+                var0.add(var0x);
+            }));
         return var0;
     }
 
     protected void loadPlayerScores(ListTag param0) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             CompoundTag var1 = param0.getCompound(var0);
-            Objective var2 = this.getOrCreateObjective(var1.getString("Objective"));
-            String var3 = var1.getString("Name");
-            Score var4 = this.getOrCreatePlayerScore(var3, var2);
-            var4.setScore(var1.getInt("Score"));
-            if (var1.contains("Locked")) {
-                var4.setLocked(var1.getBoolean("Locked"));
+            String var2 = var1.getString("Name");
+            String var3 = var1.getString("Objective");
+            Objective var4 = this.getObjective(var3);
+            if (var4 == null) {
+                LOGGER.error("Unknown objective {} for name {}, ignoring", var3, var2);
+            } else {
+                Score var5 = this.getOrCreatePlayerScore(var2, var4);
+                var5.setScore(var1.getInt("Score"));
+                if (var1.contains("Locked")) {
+                    var5.setLocked(var1.getBoolean("Locked"));
+                }
             }
         }
 

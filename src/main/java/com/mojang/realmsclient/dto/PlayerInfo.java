@@ -1,6 +1,7 @@
 package com.mojang.realmsclient.dto;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.UUID;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -9,7 +10,7 @@ public class PlayerInfo extends ValueObject implements ReflectionBasedSerializat
     @SerializedName("name")
     private String name;
     @SerializedName("uuid")
-    private String uuid;
+    private UUID uuid;
     @SerializedName("operator")
     private boolean operator;
     @SerializedName("accepted")
@@ -25,11 +26,11 @@ public class PlayerInfo extends ValueObject implements ReflectionBasedSerializat
         this.name = param0;
     }
 
-    public String getUuid() {
+    public UUID getUuid() {
         return this.uuid;
     }
 
-    public void setUuid(String param0) {
+    public void setUuid(UUID param0) {
         this.uuid = param0;
     }
 

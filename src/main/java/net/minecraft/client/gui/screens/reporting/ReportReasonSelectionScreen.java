@@ -44,7 +44,6 @@ public class ReportReasonSelectionScreen extends Screen {
     @Override
     protected void init() {
         this.reasonSelectionList = new ReportReasonSelectionScreen.ReasonSelectionList(this.minecraft);
-        this.reasonSelectionList.setRenderBackground(false);
         this.addWidget(this.reasonSelectionList);
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Optionull.map(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
         this.reasonSelectionList.setSelected(var0);
@@ -70,10 +69,9 @@ public class ReportReasonSelectionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.reasonSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
-        super.render(param0, param1, param2, param3);
         param0.fill(this.contentLeft(), this.descriptionTop(), this.contentRight(), this.descriptionBottom(), 2130706432);
         param0.drawString(this.font, REASON_DESCRIPTION, this.contentLeft() + 4, this.descriptionTop() + 4, -8421505);
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = this.reasonSelectionList.getSelected();
@@ -88,6 +86,11 @@ public class ReportReasonSelectionScreen extends Screen {
             param0.drawWordWrap(this.font, var0.reason.description(), var1, var3 + (var6 - var7) / 2, var5, -1);
         }
 
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     private int buttonTop() {

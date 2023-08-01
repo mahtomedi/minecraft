@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -118,6 +119,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 public abstract class Entity implements CommandSource, Nameable, EntityAccess {
@@ -1027,7 +1029,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     protected void waterSwimSound() {
-        Entity var0 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
+        Entity var0 = Objects.requireNonNullElse(this.getControllingPassenger(), this);
         float var1 = var0 == this ? 0.35F : 0.4F;
         Vec3 var2 = var0.getDeltaMovement();
         float var3 = Math.min(1.0F, (float)Math.sqrt(var2.x * var2.x * 0.2F + var2.y * var2.y + var2.z * var2.z * 0.2F) * var1);
@@ -1181,6 +1183,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.isInWater() || this.isInBubbleColumn();
     }
 
+    public boolean isInLiquid() {
+        return this.isInWaterOrBubble() || this.isInLava();
+    }
+
     public boolean isUnderWater() {
         return this.wasEyeInWater && this.isInWater();
     }
@@ -1244,7 +1250,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     protected void doWaterSplashEffect() {
-        Entity var0 = (Entity)(this.isVehicle() && this.getControllingPassenger() != null ? this.getControllingPassenger() : this);
+        Entity var0 = Objects.requireNonNullElse(this.getControllingPassenger(), this);
         float var1 = var0 == this ? 0.2F : 0.9F;
         Vec3 var2 = var0.getDeltaMovement();
         float var3 = Math.min(1.0F, (float)Math.sqrt(var2.x * var2.x * 0.2F + var2.y * var2.y + var2.z * var2.z * 0.2F) * var1);
@@ -1865,25 +1871,33 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
     }
 
     public final void positionRider(Entity param0) {
-        this.positionRider(param0, Entity::setPos);
+        if (this.hasPassenger(param0)) {
+            this.positionRider(param0, Entity::setPos);
+        }
     }
 
     protected void positionRider(Entity param0, Entity.MoveFunction param1) {
-        if (this.hasPassenger(param0)) {
-            double var0 = this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset();
-            param1.accept(param0, this.getX(), var0, this.getZ());
-        }
+        Vec3 var0 = this.getPassengerRidingPosition(param0);
+        param1.accept(param0, var0.x, var0.y + (double)param0.getMyRidingOffset(this), var0.z);
     }
 
     public void onPassengerTurned(Entity param0) {
     }
 
-    public double getMyRidingOffset() {
-        return 0.0;
+    public float getMyRidingOffset(Entity param0) {
+        return this.ridingOffset(param0);
     }
 
-    public double getPassengersRidingOffset() {
-        return (double)this.dimensions.height * 0.75;
+    protected float ridingOffset(Entity param0) {
+        return 0.0F;
+    }
+
+    public Vec3 getPassengerRidingPosition(Entity param0) {
+        return new Vec3(this.getPassengerAttachmentPoint(param0, this.dimensions, 1.0F).rotateY(-this.yRot * (float) (Math.PI / 180.0))).add(this.position());
+    }
+
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height, 0.0F);
     }
 
     public boolean startRiding(Entity param0) {
@@ -1926,10 +1940,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     protected boolean canRide(Entity param0) {
         return !this.isShiftKeyDown() && this.boardingCooldown <= 0;
-    }
-
-    protected boolean canEnterPose(Pose param0) {
-        return this.level().noCollision(this, this.getBoundingBoxForPose(param0).deflate(1.0E-7));
     }
 
     public void ejectPassengers() {
@@ -1996,7 +2006,7 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return true;
     }
 
-    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
+    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5) {
         this.setPos(param0, param1, param2);
         this.setRot(param3, param4);
     }
@@ -2126,6 +2136,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public boolean dismountsUnderwater() {
         return this.getType().is(EntityTypeTags.DISMOUNTS_UNDERWATER);
+    }
+
+    public boolean canControlVehicle() {
+        return !this.getType().is(EntityTypeTags.NON_CONTROLLING_RIDER);
     }
 
     public void setShiftKeyDown(boolean param0) {
@@ -2780,14 +2794,6 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return this.getBoundingBox();
     }
 
-    protected AABB getBoundingBoxForPose(Pose param0) {
-        EntityDimensions var0 = this.getDimensions(param0);
-        float var1 = var0.width / 2.0F;
-        Vec3 var2 = new Vec3(this.getX() - (double)var1, this.getY(), this.getZ() - (double)var1);
-        Vec3 var3 = new Vec3(this.getX() + (double)var1, this.getY() + (double)var0.height, this.getZ() + (double)var1);
-        return new AABB(var2, var3);
-    }
-
     public final void setBoundingBox(AABB param0) {
         this.bb = param0;
     }
@@ -3406,6 +3412,17 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
 
     public DamageSources damageSources() {
         return this.level().damageSources();
+    }
+
+    protected void lerpPositionAndRotationStep(int param0, double param1, double param2, double param3, double param4, double param5) {
+        double var0 = 1.0 / (double)param0;
+        double var1 = Mth.lerp(var0, this.getX(), param1);
+        double var2 = Mth.lerp(var0, this.getY(), param2);
+        double var3 = Mth.lerp(var0, this.getZ(), param3);
+        float var4 = (float)Mth.rotLerp(var0, (double)this.getYRot(), param4);
+        float var5 = (float)Mth.lerp(var0, (double)this.getXRot(), param5);
+        this.setPos(var1, var2, var3);
+        this.setRot(var4, var5);
     }
 
     @FunctionalInterface

@@ -24,7 +24,7 @@ public interface Equipable extends Vanishable {
         ItemStack var0 = param2.getItemInHand(param3);
         EquipmentSlot var1 = Mob.getEquipmentSlotForItem(var0);
         ItemStack var2 = param2.getItemBySlot(var1);
-        if (!EnchantmentHelper.hasBindingCurse(var2) && !ItemStack.matches(var0, var2)) {
+        if ((!EnchantmentHelper.hasBindingCurse(var2) || param2.isCreative()) && !ItemStack.matches(var0, var2)) {
             if (!param1.isClientSide()) {
                 param2.awardStat(Stats.ITEM_USED.get(param0));
             }

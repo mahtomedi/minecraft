@@ -25,7 +25,7 @@ public interface ProfileKeyPairManager {
 
     static ProfileKeyPairManager create(UserApiService param0, User param1, Path param2) {
         return (ProfileKeyPairManager)(param1.getType() == User.Type.MSA
-            ? new AccountProfileKeyPairManager(param0, param1.getGameProfile().getId(), param2)
+            ? new AccountProfileKeyPairManager(param0, param1.getProfileId(), param2)
             : EMPTY_KEY_MANAGER);
     }
 

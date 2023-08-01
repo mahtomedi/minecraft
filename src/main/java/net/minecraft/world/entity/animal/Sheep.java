@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -60,6 +61,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import org.joml.Vector3f;
 
 public class Sheep extends Animal implements Shearable {
     private static final int EAT_ANIMATION_TICKS = 40;
@@ -380,5 +382,10 @@ public class Sheep extends Animal implements Shearable {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return 0.95F * param1.height;
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - 0.0625F * param2, 0.0F);
     }
 }

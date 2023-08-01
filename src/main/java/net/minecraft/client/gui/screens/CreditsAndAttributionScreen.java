@@ -1,10 +1,9 @@
 package net.minecraft.client.gui.screens;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
-import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,14 +28,13 @@ public class CreditsAndAttributionScreen extends Screen {
     @Override
     protected void init() {
         this.layout.addToHeader(new StringWidget(this.getTitle(), this.font));
-        GridLayout var0 = this.layout.addToContents(new GridLayout()).spacing(8);
+        LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical()).spacing(8);
         var0.defaultCellSetting().alignHorizontallyCenter();
-        GridLayout.RowHelper var1 = var0.createRowHelper(1);
-        var1.addChild(Button.builder(CREDITS_BUTTON, param0 -> this.openCreditsScreen()).width(210).build());
-        var1.addChild(
+        var0.addChild(Button.builder(CREDITS_BUTTON, param0 -> this.openCreditsScreen()).width(210).build());
+        var0.addChild(
             Button.builder(ATTRIBUTION_BUTTON, ConfirmLinkScreen.confirmLink("https://aka.ms/MinecraftJavaAttribution", this, true)).width(210).build()
         );
-        var1.addChild(Button.builder(LICENSES_BUTTON, ConfirmLinkScreen.confirmLink("https://aka.ms/MinecraftJavaLicenses", this, true)).width(210).build());
+        var0.addChild(Button.builder(LICENSES_BUTTON, ConfirmLinkScreen.confirmLink("https://aka.ms/MinecraftJavaLicenses", this, true)).width(210).build());
         this.layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, param0 -> this.onClose()).build());
         this.layout.arrangeElements();
         this.layout.visitWidgets(this::addRenderableWidget);
@@ -54,11 +52,5 @@ public class CreditsAndAttributionScreen extends Screen {
     @Override
     public void onClose() {
         this.minecraft.setScreen(this.lastScreen);
-    }
-
-    @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        super.render(param0, param1, param2, param3);
     }
 }

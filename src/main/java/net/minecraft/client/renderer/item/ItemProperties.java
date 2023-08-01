@@ -90,7 +90,7 @@ public class ItemProperties {
             } else {
                 return param1 == null
                     ? 0.0F
-                    : ArmorTrim.getTrim(param1.registryAccess(), param0)
+                    : ArmorTrim.getTrim(param1.registryAccess(), param0, true)
                         .map(ArmorTrim::material)
                         .map(Holder::value)
                         .map(TrimMaterial::itemModelIndex)

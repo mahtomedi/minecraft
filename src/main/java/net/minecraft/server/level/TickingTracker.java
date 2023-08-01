@@ -97,7 +97,7 @@ public class TickingTracker extends ChunkTracker {
 
     @Override
     protected void setLevel(long param0, int param1) {
-        if (param1 > 33) {
+        if (param1 >= 33) {
             this.chunks.remove(param0);
         } else {
             this.chunks.put(param0, (byte)param1);

@@ -6,6 +6,7 @@ import com.mojang.authlib.exceptions.MinecraftClientException;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.minecraft.InsecurePublicKeyException.MissingException;
 import com.mojang.authlib.yggdrasil.response.KeyPairResponse;
+import com.mojang.authlib.yggdrasil.response.KeyPairResponse.KeyPair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.JsonOps;
 import java.io.BufferedReader;
@@ -130,21 +131,24 @@ public class AccountProfileKeyPairManager implements ProfileKeyPairManager {
         KeyPairResponse var0 = param0.getKeyPair();
         if (var0 != null) {
             ProfilePublicKey.Data var1 = parsePublicKey(var0);
-            return new ProfileKeyPair(Crypt.stringToPemRsaPrivateKey(var0.getPrivateKey()), new ProfilePublicKey(var1), Instant.parse(var0.getRefreshedAfter()));
+            return new ProfileKeyPair(
+                Crypt.stringToPemRsaPrivateKey(var0.keyPair().privateKey()), new ProfilePublicKey(var1), Instant.parse(var0.refreshedAfter())
+            );
         } else {
             throw new IOException("Could not retrieve profile key pair");
         }
     }
 
     private static ProfilePublicKey.Data parsePublicKey(KeyPairResponse param0) throws CryptException {
-        if (!Strings.isNullOrEmpty(param0.getPublicKey()) && param0.getPublicKeySignature() != null && param0.getPublicKeySignature().array().length != 0) {
+        KeyPair var0 = param0.keyPair();
+        if (!Strings.isNullOrEmpty(var0.publicKey()) && param0.publicKeySignature() != null && param0.publicKeySignature().array().length != 0) {
             try {
-                Instant var0 = Instant.parse(param0.getExpiresAt());
-                PublicKey var1 = Crypt.stringToRsaPublicKey(param0.getPublicKey());
-                ByteBuffer var2 = param0.getPublicKeySignature();
-                return new ProfilePublicKey.Data(var0, var1, var2.array());
-            } catch (IllegalArgumentException | DateTimeException var4) {
-                throw new CryptException(var4);
+                Instant var1 = Instant.parse(param0.expiresAt());
+                PublicKey var2 = Crypt.stringToRsaPublicKey(var0.publicKey());
+                ByteBuffer var3 = param0.publicKeySignature();
+                return new ProfilePublicKey.Data(var1, var2, var3.array());
+            } catch (IllegalArgumentException | DateTimeException var5) {
+                throw new CryptException(var5);
             }
         } else {
             throw new CryptException(new MissingException());

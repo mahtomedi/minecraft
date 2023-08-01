@@ -107,30 +107,9 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
             }
         }
 
-        if (param4) {
-            for(Node var5 : param2.getClosedSet()) {
-                if (distanceToCamera(var5.asBlockPos(), param6, param7, param8) <= 80.0F) {
-                    DebugRenderer.renderFilledBox(
-                        param0,
-                        param1,
-                        new AABB(
-                                (double)((float)var5.x + 0.5F - param3 / 2.0F),
-                                (double)((float)var5.y + 0.01F),
-                                (double)((float)var5.z + 0.5F - param3 / 2.0F),
-                                (double)((float)var5.x + 0.5F + param3 / 2.0F),
-                                (double)var5.y + 0.1,
-                                (double)((float)var5.z + 0.5F + param3 / 2.0F)
-                            )
-                            .move(-param6, -param7, -param8),
-                        1.0F,
-                        0.8F,
-                        0.8F,
-                        0.5F
-                    );
-                }
-            }
-
-            for(Node var6 : param2.getOpenSet()) {
+        Path.DebugData var5 = param2.debugData();
+        if (param4 && var5 != null) {
+            for(Node var6 : var5.closedSet()) {
                 if (distanceToCamera(var6.asBlockPos(), param6, param7, param8) <= 80.0F) {
                     DebugRenderer.renderFilledBox(
                         param0,
@@ -144,6 +123,28 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
                                 (double)((float)var6.z + 0.5F + param3 / 2.0F)
                             )
                             .move(-param6, -param7, -param8),
+                        1.0F,
+                        0.8F,
+                        0.8F,
+                        0.5F
+                    );
+                }
+            }
+
+            for(Node var7 : var5.openSet()) {
+                if (distanceToCamera(var7.asBlockPos(), param6, param7, param8) <= 80.0F) {
+                    DebugRenderer.renderFilledBox(
+                        param0,
+                        param1,
+                        new AABB(
+                                (double)((float)var7.x + 0.5F - param3 / 2.0F),
+                                (double)((float)var7.y + 0.01F),
+                                (double)((float)var7.z + 0.5F - param3 / 2.0F),
+                                (double)((float)var7.x + 0.5F + param3 / 2.0F),
+                                (double)var7.y + 0.1,
+                                (double)((float)var7.z + 0.5F + param3 / 2.0F)
+                            )
+                            .move(-param6, -param7, -param8),
                         0.8F,
                         1.0F,
                         1.0F,
@@ -154,16 +155,16 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
         }
 
         if (param5) {
-            for(int var7 = 0; var7 < param2.getNodeCount(); ++var7) {
-                Node var8 = param2.getNode(var7);
-                if (distanceToCamera(var8.asBlockPos(), param6, param7, param8) <= 80.0F) {
+            for(int var8 = 0; var8 < param2.getNodeCount(); ++var8) {
+                Node var9 = param2.getNode(var8);
+                if (distanceToCamera(var9.asBlockPos(), param6, param7, param8) <= 80.0F) {
                     DebugRenderer.renderFloatingText(
                         param0,
                         param1,
-                        String.valueOf(var8.type),
-                        (double)var8.x + 0.5,
-                        (double)var8.y + 0.75,
-                        (double)var8.z + 0.5,
+                        String.valueOf(var9.type),
+                        (double)var9.x + 0.5,
+                        (double)var9.y + 0.75,
+                        (double)var9.z + 0.5,
                         -1,
                         0.02F,
                         true,
@@ -173,10 +174,10 @@ public class PathfindingRenderer implements DebugRenderer.SimpleDebugRenderer {
                     DebugRenderer.renderFloatingText(
                         param0,
                         param1,
-                        String.format(Locale.ROOT, "%.2f", var8.costMalus),
-                        (double)var8.x + 0.5,
-                        (double)var8.y + 0.25,
-                        (double)var8.z + 0.5,
+                        String.format(Locale.ROOT, "%.2f", var9.costMalus),
+                        (double)var9.x + 0.5,
+                        (double)var9.y + 0.25,
+                        (double)var9.z + 0.5,
                         -1,
                         0.02F,
                         true,

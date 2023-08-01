@@ -8,15 +8,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.util.JsonUtils;
-import com.mojang.realmsclient.util.RealmsUtil;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.Map.Entry;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.api.distmarker.Dist;
@@ -33,7 +36,7 @@ public class RealmsServer extends ValueObject {
     public String motd;
     public RealmsServer.State state;
     public String owner;
-    public String ownerUUID;
+    public UUID ownerUUID = Util.NIL_UUID;
     public List<PlayerInfo> players;
     public Map<Integer, RealmsWorldOptions> slots;
     public boolean expired;
@@ -69,20 +72,20 @@ public class RealmsServer extends ValueObject {
     public void updateServerPing(RealmsServerPlayerList param0) {
         List<String> var0 = Lists.newArrayList();
         int var1 = 0;
+        MinecraftSessionService var2 = Minecraft.getInstance().getMinecraftSessionService();
 
-        for(String var2 : param0.players) {
-            if (!var2.equals(Minecraft.getInstance().getUser().getUuid())) {
-                String var3 = "";
-
+        for(UUID var3 : param0.players) {
+            if (!Minecraft.getInstance().isLocalPlayer(var3)) {
                 try {
-                    var3 = RealmsUtil.uuidToName(var2);
-                } catch (Exception var8) {
-                    LOGGER.error("Could not get name for {}", var2, var8);
-                    continue;
-                }
+                    GameProfile var4 = var2.fetchProfile(var3, false);
+                    if (var4 != null) {
+                        var0.add(var4.getName());
+                    }
 
-                var0.add(var3);
-                ++var1;
+                    ++var1;
+                } catch (Exception var8) {
+                    LOGGER.error("Could not get name for {}", var3, var8);
+                }
             }
         }
 
@@ -111,7 +114,7 @@ public class RealmsServer extends ValueObject {
             var0.expired = JsonUtils.getBooleanOr("expired", param0, false);
             var0.expiredTrial = JsonUtils.getBooleanOr("expiredTrial", param0, false);
             var0.worldType = getWorldType(JsonUtils.getStringOr("worldType", param0, RealmsServer.WorldType.NORMAL.name()));
-            var0.ownerUUID = JsonUtils.getStringOr("ownerUUID", param0, "");
+            var0.ownerUUID = JsonUtils.getUuidOr("ownerUUID", param0, Util.NIL_UUID);
             if (param0.get("slots") != null && param0.get("slots").isJsonArray()) {
                 var0.slots = parseSlots(param0.get("slots").getAsJsonArray());
             } else {
@@ -147,7 +150,7 @@ public class RealmsServer extends ValueObject {
                 JsonObject var2 = var1.getAsJsonObject();
                 PlayerInfo var3 = new PlayerInfo();
                 var3.setName(JsonUtils.getStringOr("name", var2, null));
-                var3.setUuid(JsonUtils.getStringOr("uuid", var2, null));
+                var3.setUuid(JsonUtils.getUuidOr("uuid", var2, Util.NIL_UUID));
                 var3.setOperator(JsonUtils.getBooleanOr("operator", var2, false));
                 var3.setAccepted(JsonUtils.getBooleanOr("accepted", var2, false));
                 var3.setOnline(JsonUtils.getBooleanOr("online", var2, false));
@@ -289,7 +292,7 @@ public class RealmsServer extends ValueObject {
     }
 
     public ServerData toServerData(String param0) {
-        return new ServerData(this.name, param0, false);
+        return new ServerData(this.name, param0, ServerData.Type.REALM);
     }
 
     @OnlyIn(Dist.CLIENT)

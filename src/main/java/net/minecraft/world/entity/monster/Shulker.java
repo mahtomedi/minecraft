@@ -46,7 +46,6 @@ import net.minecraft.world.entity.animal.AbstractGolem;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.ShulkerBullet;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -266,14 +265,6 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
     }
 
     @Override
-    public double getMyRidingOffset() {
-        EntityType<?> var0 = this.getVehicle().getType();
-        return !(this.getVehicle() instanceof Boat) && var0 != EntityType.MINECART
-            ? super.getMyRidingOffset()
-            : 0.1875 - this.getVehicle().getPassengersRidingOffset();
-    }
-
-    @Override
     public boolean startRiding(Entity param0, boolean param1) {
         if (this.level().isClientSide()) {
             this.clientOldAttachPosition = null;
@@ -421,7 +412,7 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
     }
 
     @Override
-    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
+    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5) {
         this.lerpSteps = 0;
         this.setPos(param0, param1, param2);
         this.setRot(param3, param4);
@@ -502,7 +493,7 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
 
     void setRawPeekAmount(int param0) {
         if (!this.level().isClientSide) {
-            this.getAttribute(Attributes.ARMOR).removeModifier(COVERED_ARMOR_MODIFIER);
+            this.getAttribute(Attributes.ARMOR).removeModifier(COVERED_ARMOR_MODIFIER.getId());
             if (param0 == 0) {
                 this.getAttribute(Attributes.ARMOR).addPermanentModifier(COVERED_ARMOR_MODIFIER);
                 this.playSound(SoundEvents.SHULKER_CLOSE, 1.0F, 1.0F);

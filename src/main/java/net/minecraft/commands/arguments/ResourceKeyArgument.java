@@ -99,12 +99,11 @@ public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
 
     public static class Info<T> implements ArgumentTypeInfo<ResourceKeyArgument<T>, ResourceKeyArgument.Info<T>.Template> {
         public void serializeToNetwork(ResourceKeyArgument.Info<T>.Template param0, FriendlyByteBuf param1) {
-            param1.writeResourceLocation(param0.registryKey.location());
+            param1.writeResourceKey(param0.registryKey);
         }
 
         public ResourceKeyArgument.Info<T>.Template deserializeFromNetwork(FriendlyByteBuf param0) {
-            ResourceLocation var0 = param0.readResourceLocation();
-            return new ResourceKeyArgument.Info.Template(ResourceKey.createRegistryKey(var0));
+            return new ResourceKeyArgument.Info.Template(param0.readRegistryKey());
         }
 
         public void serializeToJson(ResourceKeyArgument.Info<T>.Template param0, JsonObject param1) {

@@ -21,11 +21,9 @@ import net.minecraft.client.multiplayer.resolver.ServerNameResolver;
 import net.minecraft.client.quickplay.QuickPlay;
 import net.minecraft.client.quickplay.QuickPlayLog;
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
-import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +34,7 @@ public class ConnectScreen extends Screen {
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
     static final Logger LOGGER = LogUtils.getLogger();
     private static final long NARRATION_DELAY_MS = 2000L;
-    static final Component ABORT_CONNECTION = Component.translatable("connect.aborted");
+    public static final Component ABORT_CONNECTION = Component.translatable("connect.aborted");
     public static final Component UNKNOWN_HOST_MESSAGE = Component.translatable("disconnect.genericReason", Component.translatable("disconnect.unknownHost"));
     @Nullable
     volatile Connection connection;
@@ -59,7 +57,7 @@ public class ConnectScreen extends Screen {
             LOGGER.error("Attempt to connect while already connecting");
         } else {
             ConnectScreen var0 = new ConnectScreen(param0, param4 ? QuickPlay.ERROR_TITLE : CommonComponents.CONNECT_FAILED);
-            param1.clearLevel();
+            param1.disconnect();
             param1.prepareForMultiplayer();
             param1.updateReportEnvironment(ReportEnvironment.thirdParty(param3 != null ? param3.ip : param2.getHost()));
             param1.quickPlayLog().setWorldData(QuickPlayLog.Type.MULTIPLAYER, param3.ip, param3.name);
@@ -116,14 +114,14 @@ public class ConnectScreen extends Screen {
                     }
 
                     ConnectScreen.this.connection
-                        .setListener(
+                        .initiateServerboundPlayConnection(
+                            var0.getHostName(),
+                            var0.getPort(),
                             new ClientHandshakePacketListenerImpl(
                                 ConnectScreen.this.connection, param0, param2, ConnectScreen.this.parent, false, null, ConnectScreen.this::updateStatus
                             )
                         );
-                    ConnectScreen.this.connection.send(new ClientIntentionPacket(var0.getHostName(), var0.getPort(), ConnectionProtocol.LOGIN));
-                    ConnectScreen.this.connection
-                        .send(new ServerboundHelloPacket(param0.getUser().getName(), Optional.ofNullable(param0.getUser().getProfileId())));
+                    ConnectScreen.this.connection.send(new ServerboundHelloPacket(param0.getUser().getName(), param0.getUser().getProfileId()));
                 } catch (Exception var9) {
                     if (ConnectScreen.this.aborted) {
                         return;
@@ -198,7 +196,7 @@ public class ConnectScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         long var0 = Util.getMillis();
         if (var0 - this.lastNarration > 2000L) {
             this.lastNarration = var0;
@@ -206,6 +204,5 @@ public class ConnectScreen extends Screen {
         }
 
         param0.drawCenteredString(this.font, this.status, this.width / 2, this.height / 2 - 50, 16777215);
-        super.render(param0, param1, param2, param3);
     }
 }

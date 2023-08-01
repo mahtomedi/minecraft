@@ -15,6 +15,10 @@ public record InclusiveRange<T extends Comparable<T>>(T minInclusive, T maxInclu
         }
     }
 
+    public InclusiveRange(T param0) {
+        this(param0, param0);
+    }
+
     public static <T extends Comparable<T>> Codec<InclusiveRange<T>> codec(Codec<T> param0) {
         return ExtraCodecs.intervalCodec(
             param0, "min_inclusive", "max_inclusive", InclusiveRange::create, InclusiveRange::minInclusive, InclusiveRange::maxInclusive

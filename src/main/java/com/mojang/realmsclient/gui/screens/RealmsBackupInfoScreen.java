@@ -54,10 +54,9 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.backupInfoList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
-        super.render(param0, param1, param2, param3);
     }
 
     Component checkForSpecificMetadata(String param0, String param1) {
@@ -122,9 +121,9 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
 
         @Override
         public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
-            param0.drawString(RealmsBackupInfoScreen.this.font, this.translateKey(this.key), param3, param2, 10526880);
+            param0.drawString(RealmsBackupInfoScreen.this.font, this.translateKey(this.key), param3, param2, -6250336);
             param0.drawString(
-                RealmsBackupInfoScreen.this.font, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, 16777215
+                RealmsBackupInfoScreen.this.font, RealmsBackupInfoScreen.this.checkForSpecificMetadata(this.key, this.value), param3, param2 + 12, -1
             );
         }
 

@@ -15,6 +15,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.AttributeModifierTemplate;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffectUtil;
@@ -164,14 +165,10 @@ public class PotionUtils {
             for(MobEffectInstance var1 : param0) {
                 MutableComponent var2 = Component.translatable(var1.getDescriptionId());
                 MobEffect var3 = var1.getEffect();
-                Map<Attribute, AttributeModifier> var4 = var3.getAttributeModifiers();
+                Map<Attribute, AttributeModifierTemplate> var4 = var3.getAttributeModifiers();
                 if (!var4.isEmpty()) {
-                    for(Entry<Attribute, AttributeModifier> var5 : var4.entrySet()) {
-                        AttributeModifier var6 = var5.getValue();
-                        AttributeModifier var7 = new AttributeModifier(
-                            var6.getName(), var3.getAttributeModifierValue(var1.getAmplifier(), var6), var6.getOperation()
-                        );
-                        var0.add(new Pair<>(var5.getKey(), var7));
+                    for(Entry<Attribute, AttributeModifierTemplate> var5 : var4.entrySet()) {
+                        var0.add(new Pair<>(var5.getKey(), var5.getValue().create(var1.getAmplifier())));
                     }
                 }
 
@@ -191,32 +188,32 @@ public class PotionUtils {
             param1.add(CommonComponents.EMPTY);
             param1.add(Component.translatable("potion.whenDrank").withStyle(ChatFormatting.DARK_PURPLE));
 
-            for(Pair<Attribute, AttributeModifier> var8 : var0) {
-                AttributeModifier var9 = var8.getSecond();
-                double var10 = var9.getAmount();
-                double var12;
-                if (var9.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var9.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
-                    var12 = var9.getAmount();
+            for(Pair<Attribute, AttributeModifier> var6 : var0) {
+                AttributeModifier var7 = var6.getSecond();
+                double var8 = var7.getAmount();
+                double var10;
+                if (var7.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && var7.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+                    var10 = var7.getAmount();
                 } else {
-                    var12 = var9.getAmount() * 100.0;
+                    var10 = var7.getAmount() * 100.0;
                 }
 
-                if (var10 > 0.0) {
+                if (var8 > 0.0) {
                     param1.add(
                         Component.translatable(
-                                "attribute.modifier.plus." + var9.getOperation().toValue(),
-                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var12),
-                                Component.translatable(var8.getFirst().getDescriptionId())
+                                "attribute.modifier.plus." + var7.getOperation().toValue(),
+                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var10),
+                                Component.translatable(var6.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.BLUE)
                     );
-                } else if (var10 < 0.0) {
-                    var12 *= -1.0;
+                } else if (var8 < 0.0) {
+                    var10 *= -1.0;
                     param1.add(
                         Component.translatable(
-                                "attribute.modifier.take." + var9.getOperation().toValue(),
-                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var12),
-                                Component.translatable(var8.getFirst().getDescriptionId())
+                                "attribute.modifier.take." + var7.getOperation().toValue(),
+                                ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(var10),
+                                Component.translatable(var6.getFirst().getDescriptionId())
                             )
                             .withStyle(ChatFormatting.RED)
                     );

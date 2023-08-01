@@ -68,10 +68,15 @@ public class LanguageSelectScreen extends OptionsSubScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         this.packSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
-        param0.drawCenteredString(this.font, WARNING_LABEL, this.width / 2, this.height - 56, 8421504);
-        super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, WARNING_LABEL, this.width / 2, this.height - 56, -8355712);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -101,11 +106,6 @@ public class LanguageSelectScreen extends OptionsSubScreen {
         @Override
         public int getRowWidth() {
             return super.getRowWidth() + 50;
-        }
-
-        @Override
-        protected void renderBackground(GuiGraphics param0) {
-            LanguageSelectScreen.this.renderBackground(param0);
         }
 
         @OnlyIn(Dist.CLIENT)

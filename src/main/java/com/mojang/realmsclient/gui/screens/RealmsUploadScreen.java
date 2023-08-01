@@ -135,7 +135,7 @@ public class RealmsUploadScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         if (!this.uploadFinished && this.uploadStatus.bytesWritten != 0L && this.uploadStatus.bytesWritten == this.uploadStatus.totalBytes) {
             this.status = VERIFYING_TEXT;
             this.cancelButton.active = false;
@@ -157,7 +157,6 @@ public class RealmsUploadScreen extends RealmsScreen {
             }
         }
 
-        super.render(param0, param1, param2, param3);
     }
 
     private void drawDots(GuiGraphics param0) {
@@ -355,7 +354,7 @@ public class RealmsUploadScreen extends RealmsScreen {
                             return;
                         } catch (RealmsServiceException var22) {
                             var3 = var22;
-                            this.setErrorMessage(Component.translatable("mco.upload.failed", var22.toString()));
+                            this.setErrorMessage(Component.translatable("mco.upload.failed", var22.realmsError.errorMessage()));
                             return;
                         } catch (InterruptedException var23) {
                             var3 = var23;

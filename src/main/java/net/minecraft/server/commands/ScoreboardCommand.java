@@ -26,6 +26,7 @@ import net.minecraft.commands.arguments.ScoreHolderArgument;
 import net.minecraft.commands.arguments.ScoreboardSlotArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -565,26 +566,25 @@ public class ScoreboardCommand {
         return var0.size();
     }
 
-    private static int clearDisplaySlot(CommandSourceStack param0, int param1) throws CommandSyntaxException {
+    private static int clearDisplaySlot(CommandSourceStack param0, DisplaySlot param1) throws CommandSyntaxException {
         Scoreboard var0 = param0.getServer().getScoreboard();
         if (var0.getDisplayObjective(param1) == null) {
             throw ERROR_DISPLAY_SLOT_ALREADY_EMPTY.create();
         } else {
             var0.setDisplayObjective(param1, null);
-            param0.sendSuccess(() -> Component.translatable("commands.scoreboard.objectives.display.cleared", Scoreboard.getDisplaySlotNames()[param1]), true);
+            param0.sendSuccess(() -> Component.translatable("commands.scoreboard.objectives.display.cleared", param1.getSerializedName()), true);
             return 0;
         }
     }
 
-    private static int setDisplaySlot(CommandSourceStack param0, int param1, Objective param2) throws CommandSyntaxException {
+    private static int setDisplaySlot(CommandSourceStack param0, DisplaySlot param1, Objective param2) throws CommandSyntaxException {
         Scoreboard var0 = param0.getServer().getScoreboard();
         if (var0.getDisplayObjective(param1) == param2) {
             throw ERROR_DISPLAY_SLOT_ALREADY_SET.create();
         } else {
             var0.setDisplayObjective(param1, param2);
             param0.sendSuccess(
-                () -> Component.translatable("commands.scoreboard.objectives.display.set", Scoreboard.getDisplaySlotNames()[param1], param2.getDisplayName()),
-                true
+                () -> Component.translatable("commands.scoreboard.objectives.display.set", param1.getSerializedName(), param2.getDisplayName()), true
             );
             return 0;
         }

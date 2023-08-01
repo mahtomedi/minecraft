@@ -237,8 +237,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.updateSkyBrightness();
         this.prepareWeather();
         this.getWorldBorder().setAbsoluteMaxSize(param0.getAbsoluteMaxWorldSize());
-        this.raids = this.getDataStorage()
-            .computeIfAbsent(param0x -> Raids.load(this, param0x), () -> new Raids(this), Raids.getFileId(this.dimensionTypeRegistration()));
+        this.raids = this.getDataStorage().computeIfAbsent(Raids.factory(this), Raids.getFileId(this.dimensionTypeRegistration()));
         if (!param0.isSingleplayer()) {
             param3.setGameType(param0.getDefaultGameType());
         }
@@ -266,8 +265,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         this.sleepStatus = new SleepStatus();
         this.gameEventDispatcher = new GameEventDispatcher(this);
         this.randomSequences = Objects.requireNonNullElseGet(
-            param11,
-            () -> this.getDataStorage().computeIfAbsent(param1x -> RandomSequences.load(var4, param1x), () -> new RandomSequences(var4), "random_sequences")
+            param11, () -> this.getDataStorage().computeIfAbsent(RandomSequences.factory(var4), "random_sequences")
         );
     }
 
@@ -456,59 +454,34 @@ public class ServerLevel extends Level implements WorldGenLevel {
         }
 
         var4.popPush("iceandsnow");
-        if (this.random.nextInt(16) == 0) {
-            BlockPos var10 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, this.getBlockRandomPos(var2, 0, var3, 15));
-            BlockPos var11 = var10.below();
-            Biome var12 = this.getBiome(var10).value();
-            if (var12.shouldFreeze(this, var11)) {
-                this.setBlockAndUpdate(var11, Blocks.ICE.defaultBlockState());
-            }
 
-            if (var1) {
-                int var13 = this.getGameRules().getInt(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT);
-                if (var13 > 0 && var12.shouldSnow(this, var10)) {
-                    BlockState var14 = this.getBlockState(var10);
-                    if (var14.is(Blocks.SNOW)) {
-                        int var15 = var14.getValue(SnowLayerBlock.LAYERS);
-                        if (var15 < Math.min(var13, 8)) {
-                            BlockState var16 = var14.setValue(SnowLayerBlock.LAYERS, Integer.valueOf(var15 + 1));
-                            Block.pushEntitiesUp(var14, var16, this, var10);
-                            this.setBlockAndUpdate(var10, var16);
-                        }
-                    } else {
-                        this.setBlockAndUpdate(var10, Blocks.SNOW.defaultBlockState());
-                    }
-                }
-
-                Biome.Precipitation var17 = var12.getPrecipitationAt(var11);
-                if (var17 != Biome.Precipitation.NONE) {
-                    BlockState var18 = this.getBlockState(var11);
-                    var18.getBlock().handlePrecipitation(var18, this, var11, var17);
-                }
+        for(int var10 = 0; var10 < param1; ++var10) {
+            if (this.random.nextInt(48) == 0) {
+                this.tickIceAndSnow(var1, this.getBlockRandomPos(var2, 0, var3, 15));
             }
         }
 
         var4.popPush("tickBlocks");
         if (param1 > 0) {
-            LevelChunkSection[] var19 = param0.getSections();
+            LevelChunkSection[] var11 = param0.getSections();
 
-            for(int var20 = 0; var20 < var19.length; ++var20) {
-                LevelChunkSection var21 = var19[var20];
-                if (var21.isRandomlyTicking()) {
-                    int var22 = param0.getSectionYFromSectionIndex(var20);
-                    int var23 = SectionPos.sectionToBlockCoord(var22);
+            for(int var12 = 0; var12 < var11.length; ++var12) {
+                LevelChunkSection var13 = var11[var12];
+                if (var13.isRandomlyTicking()) {
+                    int var14 = param0.getSectionYFromSectionIndex(var12);
+                    int var15 = SectionPos.sectionToBlockCoord(var14);
 
-                    for(int var24 = 0; var24 < param1; ++var24) {
-                        BlockPos var25 = this.getBlockRandomPos(var2, var23, var3, 15);
+                    for(int var16 = 0; var16 < param1; ++var16) {
+                        BlockPos var17 = this.getBlockRandomPos(var2, var15, var3, 15);
                         var4.push("randomTick");
-                        BlockState var26 = var21.getBlockState(var25.getX() - var2, var25.getY() - var23, var25.getZ() - var3);
-                        if (var26.isRandomlyTicking()) {
-                            var26.randomTick(this, var25, this.random);
+                        BlockState var18 = var13.getBlockState(var17.getX() - var2, var17.getY() - var15, var17.getZ() - var3);
+                        if (var18.isRandomlyTicking()) {
+                            var18.randomTick(this, var17, this.random);
                         }
 
-                        FluidState var27 = var26.getFluidState();
-                        if (var27.isRandomlyTicking()) {
-                            var27.randomTick(this, var25, this.random);
+                        FluidState var19 = var18.getFluidState();
+                        if (var19.isRandomlyTicking()) {
+                            var19.randomTick(this, var17, this.random);
                         }
 
                         var4.pop();
@@ -518,6 +491,39 @@ public class ServerLevel extends Level implements WorldGenLevel {
         }
 
         var4.pop();
+    }
+
+    private void tickIceAndSnow(boolean param0, BlockPos param1) {
+        BlockPos var0 = this.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, param1);
+        BlockPos var1 = var0.below();
+        Biome var2 = this.getBiome(var0).value();
+        if (var2.shouldFreeze(this, var1)) {
+            this.setBlockAndUpdate(var1, Blocks.ICE.defaultBlockState());
+        }
+
+        if (param0) {
+            int var3 = this.getGameRules().getInt(GameRules.RULE_SNOW_ACCUMULATION_HEIGHT);
+            if (var3 > 0 && var2.shouldSnow(this, var0)) {
+                BlockState var4 = this.getBlockState(var0);
+                if (var4.is(Blocks.SNOW)) {
+                    int var5 = var4.getValue(SnowLayerBlock.LAYERS);
+                    if (var5 < Math.min(var3, 8)) {
+                        BlockState var6 = var4.setValue(SnowLayerBlock.LAYERS, Integer.valueOf(var5 + 1));
+                        Block.pushEntitiesUp(var4, var6, this, var0);
+                        this.setBlockAndUpdate(var0, var6);
+                    }
+                } else {
+                    this.setBlockAndUpdate(var0, Blocks.SNOW.defaultBlockState());
+                }
+            }
+
+            Biome.Precipitation var7 = var2.getPrecipitationAt(var1);
+            if (var7 != Biome.Precipitation.NONE) {
+                BlockState var8 = this.getBlockState(var1);
+                var8.getBlock().handlePrecipitation(var8, this, var1, var7);
+            }
+        }
+
     }
 
     private Optional<BlockPos> findLightningRod(BlockPos param0) {
@@ -1244,7 +1250,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Nullable
     @Override
     public MapItemSavedData getMapData(String param0) {
-        return this.getServer().overworld().getDataStorage().get(MapItemSavedData::load, param0);
+        return this.getServer().overworld().getDataStorage().get(MapItemSavedData.factory(), param0);
     }
 
     @Override
@@ -1254,7 +1260,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     @Override
     public int getFreeMapId() {
-        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex::load, MapIndex::new, "idcounts").getFreeAuxValueForMap();
+        return this.getServer().overworld().getDataStorage().computeIfAbsent(MapIndex.factory(), "idcounts").getFreeAuxValueForMap();
     }
 
     public void setDefaultSpawnPos(BlockPos param0, float param1) {
@@ -1266,12 +1272,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public LongSet getForcedChunks() {
-        ForcedChunksSavedData var0 = this.getDataStorage().get(ForcedChunksSavedData::load, "chunks");
+        ForcedChunksSavedData var0 = this.getDataStorage().get(ForcedChunksSavedData.factory(), "chunks");
         return (LongSet)(var0 != null ? LongSets.unmodifiable(var0.getChunks()) : LongSets.EMPTY_SET);
     }
 
     public boolean setChunkForced(int param0, int param1, boolean param2) {
-        ForcedChunksSavedData var0 = this.getDataStorage().computeIfAbsent(ForcedChunksSavedData::load, ForcedChunksSavedData::new, "chunks");
+        ForcedChunksSavedData var0 = this.getDataStorage().computeIfAbsent(ForcedChunksSavedData.factory(), "chunks");
         ChunkPos var1 = new ChunkPos(param0, param1);
         long var2 = var1.toLong();
         boolean var3;

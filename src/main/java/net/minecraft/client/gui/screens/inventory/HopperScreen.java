@@ -20,7 +20,6 @@ public class HopperScreen extends AbstractContainerScreen<HopperMenu> {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
     }

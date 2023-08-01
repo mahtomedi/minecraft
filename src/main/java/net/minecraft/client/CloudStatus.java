@@ -1,21 +1,31 @@
 package net.minecraft.client;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.util.OptionEnum;
+import net.minecraft.util.StringRepresentable;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public enum CloudStatus implements OptionEnum {
-    OFF(0, "options.off"),
-    FAST(1, "options.clouds.fast"),
-    FANCY(2, "options.clouds.fancy");
+public enum CloudStatus implements OptionEnum, StringRepresentable {
+    OFF(0, "false", "options.off"),
+    FAST(1, "fast", "options.clouds.fast"),
+    FANCY(2, "true", "options.clouds.fancy");
 
+    public static final Codec<CloudStatus> CODEC = StringRepresentable.fromEnum(CloudStatus::values);
     private final int id;
+    private final String legacyName;
     private final String key;
 
-    private CloudStatus(int param0, String param1) {
+    private CloudStatus(int param0, String param1, String param2) {
         this.id = param0;
-        this.key = param1;
+        this.legacyName = param1;
+        this.key = param2;
+    }
+
+    @Override
+    public String getSerializedName() {
+        return this.legacyName;
     }
 
     @Override

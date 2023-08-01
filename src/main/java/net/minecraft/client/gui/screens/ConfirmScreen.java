@@ -60,10 +60,9 @@ public class ConfirmScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, this.titleTop(), 16777215);
         this.multilineMessage.renderCentered(param0, this.width / 2, this.messageTop());
-        super.render(param0, param1, param2, param3);
     }
 
     private int titleTop() {

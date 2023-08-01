@@ -68,6 +68,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class EnderMan extends Monster implements NeutralMob {
     private static final UUID SPEED_MODIFIER_ATTACKING_UUID = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
@@ -126,7 +127,7 @@ public class EnderMan extends Monster implements NeutralMob {
             this.targetChangeTime = 0;
             this.entityData.set(DATA_CREEPY, false);
             this.entityData.set(DATA_STARED_AT, false);
-            var0.removeModifier(SPEED_MODIFIER_ATTACKING);
+            var0.removeModifier(SPEED_MODIFIER_ATTACKING.getId());
         } else {
             this.targetChangeTime = this.tickCount;
             this.entityData.set(DATA_CREEPY, true);
@@ -233,6 +234,11 @@ public class EnderMan extends Monster implements NeutralMob {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return 2.55F;
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - 0.09375F * param2, 0.0F);
     }
 
     @Override

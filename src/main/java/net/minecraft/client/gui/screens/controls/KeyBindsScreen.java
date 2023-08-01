@@ -76,7 +76,7 @@ public class KeyBindsScreen extends OptionsSubScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.keyBindsList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         boolean var0 = false;
@@ -89,6 +89,10 @@ public class KeyBindsScreen extends OptionsSubScreen {
         }
 
         this.resetButton.active = var0;
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 }

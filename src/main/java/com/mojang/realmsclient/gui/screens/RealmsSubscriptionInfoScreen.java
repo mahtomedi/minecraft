@@ -54,7 +54,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     public void init() {
         this.getSubscription(this.serverData.id);
         this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.subscription.extend"), param0 -> {
-            String var0 = CommonLinks.extendRealms(this.serverData.remoteSubscriptionId, this.minecraft.getUser().getUuid());
+            String var0 = CommonLinks.extendRealms(this.serverData.remoteSubscriptionId, this.minecraft.getUser().getProfileId());
             this.minecraft.keyboardHandler.setClipboard(var0);
             Util.getPlatform().openUri(var0);
         }).bounds(this.width / 2 - 100, row(6), 200, 20).build());
@@ -65,7 +65,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
                 this.minecraft.setScreen(new RealmsLongConfirmationScreen(this::deleteRealm, RealmsLongConfirmationScreen.Type.WARNING, var0, var1, true));
             }).bounds(this.width / 2 - 100, row(10), 200, 20).build());
         } else {
-            this.addRenderableWidget(new FittingMultiLineTextWidget(this.width / 2 - 100, row(8), 200, 46, RECURRING_INFO, this.font).setColor(10526880));
+            this.addRenderableWidget(new FittingMultiLineTextWidget(this.width / 2 - 100, row(8), 200, 46, RECURRING_INFO, this.font).setColor(-6250336));
         }
 
         this.addRenderableWidget(
@@ -111,7 +111,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             this.startDate = localPresentation(var1.startDate);
             this.type = var1.type;
         } catch (RealmsServiceException var5) {
-            LOGGER.error("Couldn't get subscription");
+            LOGGER.error("Couldn't get subscription", (Throwable)var5);
             this.minecraft.setScreen(new RealmsGenericErrorScreen(var5, this.lastScreen));
         }
 
@@ -135,19 +135,18 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         int var0 = this.width / 2 - 100;
-        param0.drawCenteredString(this.font, SUBSCRIPTION_TITLE, this.width / 2, 17, 16777215);
-        param0.drawString(this.font, SUBSCRIPTION_START_LABEL, var0, row(0), 10526880, false);
-        param0.drawString(this.font, this.startDate, var0, row(1), 16777215, false);
+        param0.drawCenteredString(this.font, SUBSCRIPTION_TITLE, this.width / 2, 17, -1);
+        param0.drawString(this.font, SUBSCRIPTION_START_LABEL, var0, row(0), -6250336, false);
+        param0.drawString(this.font, this.startDate, var0, row(1), -1, false);
         if (this.type == Subscription.SubscriptionType.NORMAL) {
-            param0.drawString(this.font, TIME_LEFT_LABEL, var0, row(3), 10526880, false);
+            param0.drawString(this.font, TIME_LEFT_LABEL, var0, row(3), -6250336, false);
         } else if (this.type == Subscription.SubscriptionType.RECURRING) {
-            param0.drawString(this.font, DAYS_LEFT_LABEL, var0, row(3), 10526880, false);
+            param0.drawString(this.font, DAYS_LEFT_LABEL, var0, row(3), -6250336, false);
         }
 
-        param0.drawString(this.font, this.daysLeft, var0, row(4), 16777215, false);
-        super.render(param0, param1, param2, param3);
+        param0.drawString(this.font, this.daysLeft, var0, row(4), -1, false);
     }
 
     private Component daysLeftPresentation(int param0) {

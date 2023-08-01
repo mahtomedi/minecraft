@@ -7,12 +7,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SystemToast implements Toast {
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/system");
     private static final int MAX_LINE_SIZE = 200;
     private static final int LINE_SPACING = 12;
     private static final int MARGIN = 10;
@@ -69,18 +71,18 @@ public class SystemToast implements Toast {
 
         int var0 = this.width();
         if (var0 == 160 && this.messageLines.size() <= 1) {
-            param0.blit(TEXTURE, 0, 0, 0, 64, var0, this.height());
+            param0.blitSprite(BACKGROUND_SPRITE, 0, 0, var0, this.height());
         } else {
             int var1 = this.height();
             int var2 = 28;
             int var3 = Math.min(4, var1 - 28);
-            this.renderBackgroundRow(param0, param1, var0, 0, 0, 28);
+            this.renderBackgroundRow(param0, var0, 0, 0, 28);
 
             for(int var4 = 28; var4 < var1 - var3; var4 += 10) {
-                this.renderBackgroundRow(param0, param1, var0, 16, var4, Math.min(16, var1 - var4 - var3));
+                this.renderBackgroundRow(param0, var0, 16, var4, Math.min(16, var1 - var4 - var3));
             }
 
-            this.renderBackgroundRow(param0, param1, var0, 32 - var3, var1 - var3, var3);
+            this.renderBackgroundRow(param0, var0, 32 - var3, var1 - var3, var3);
         }
 
         if (this.messageLines == null) {
@@ -98,16 +100,17 @@ public class SystemToast implements Toast {
             : Toast.Visibility.HIDE;
     }
 
-    private void renderBackgroundRow(GuiGraphics param0, ToastComponent param1, int param2, int param3, int param4, int param5) {
-        int var0 = param3 == 0 ? 20 : 5;
-        int var1 = Math.min(60, param2 - var0);
-        param0.blit(TEXTURE, 0, param4, 0, 64 + param3, var0, param5);
+    private void renderBackgroundRow(GuiGraphics param0, int param1, int param2, int param3, int param4) {
+        int var0 = param2 == 0 ? 20 : 5;
+        int var1 = Math.min(60, param1 - var0);
+        ResourceLocation var2 = BACKGROUND_SPRITE;
+        param0.blitSprite(var2, 160, 32, 0, param2, 0, param3, var0, param4);
 
-        for(int var2 = var0; var2 < param2 - var1; var2 += 64) {
-            param0.blit(TEXTURE, var2, param4, 32, 64 + param3, Math.min(64, param2 - var2 - var1), param5);
+        for(int var3 = var0; var3 < param1 - var1; var3 += 64) {
+            param0.blitSprite(var2, 160, 32, 32, param2, var3, param3, Math.min(64, param1 - var3 - var1), param4);
         }
 
-        param0.blit(TEXTURE, param2 - var1, param4, 160 - var1, 64 + param3, var1, param5);
+        param0.blitSprite(var2, 160, 32, 160 - var1, param2, param1 - var1, param3, var1, param4);
     }
 
     public void reset(Component param0, @Nullable Component param1) {

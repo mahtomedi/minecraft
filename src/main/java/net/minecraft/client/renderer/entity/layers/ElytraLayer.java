@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,25 +37,26 @@ public class ElytraLayer<T extends LivingEntity, M extends EntityModel<T>> exten
     ) {
         ItemStack var0 = param3.getItemBySlot(EquipmentSlot.CHEST);
         if (var0.is(Items.ELYTRA)) {
-            ResourceLocation var2;
+            ResourceLocation var3;
             if (param3 instanceof AbstractClientPlayer var1) {
-                if (var1.isElytraLoaded() && var1.getElytraTextureLocation() != null) {
-                    var2 = var1.getElytraTextureLocation();
-                } else if (var1.isCapeLoaded() && var1.getCloakTextureLocation() != null && var1.isModelPartShown(PlayerModelPart.CAPE)) {
-                    var2 = var1.getCloakTextureLocation();
+                PlayerSkin var2 = var1.getSkin();
+                if (var2.elytraTexture() != null) {
+                    var3 = var2.elytraTexture();
+                } else if (var2.capeTexture() != null && var1.isModelPartShown(PlayerModelPart.CAPE)) {
+                    var3 = var2.capeTexture();
                 } else {
-                    var2 = WINGS_LOCATION;
+                    var3 = WINGS_LOCATION;
                 }
             } else {
-                var2 = WINGS_LOCATION;
+                var3 = WINGS_LOCATION;
             }
 
             param0.pushPose();
             param0.translate(0.0F, 0.0F, 0.125F);
             this.getParentModel().copyPropertiesTo(this.elytraModel);
             this.elytraModel.setupAnim(param3, param4, param5, param7, param8, param9);
-            VertexConsumer var6 = ItemRenderer.getArmorFoilBuffer(param1, RenderType.armorCutoutNoCull(var2), false, var0.hasFoil());
-            this.elytraModel.renderToBuffer(param0, var6, param2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
+            VertexConsumer var7 = ItemRenderer.getArmorFoilBuffer(param1, RenderType.armorCutoutNoCull(var3), false, var0.hasFoil());
+            this.elytraModel.renderToBuffer(param0, var7, param2, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             param0.popPose();
         }
     }

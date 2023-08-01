@@ -22,7 +22,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CreateFlatWorldScreen extends Screen {
-    private static final int SLOT_TEX_SIZE = 128;
+    static final ResourceLocation SLOT_SPRITE = new ResourceLocation("container/slot");
     private static final int SLOT_BG_SIZE = 18;
     private static final int SLOT_STAT_HEIGHT = 20;
     private static final int SLOT_BG_X = 1;
@@ -103,18 +103,17 @@ public class CreateFlatWorldScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.list.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         int var0 = this.width / 2 - 92 - 16;
         param0.drawString(this.font, this.columnType, var0, 32, 16777215);
         param0.drawString(this.font, this.columnHeight, var0 + 2 + 213 - this.font.width(this.columnHeight), 32, 16777215);
-        super.render(param0, param1, param2, param3);
     }
 
     @OnlyIn(Dist.CLIENT)
     class DetailsList extends ObjectSelectionList<CreateFlatWorldScreen.DetailsList.Entry> {
-        static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
+        private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
 
         public DetailsList() {
             super(
@@ -225,7 +224,7 @@ public class CreateFlatWorldScreen extends Screen {
             }
 
             private void blitSlotBg(GuiGraphics param0, int param1, int param2) {
-                param0.blit(CreateFlatWorldScreen.DetailsList.STATS_ICON_LOCATION, param1, param2, 0, 0.0F, 0.0F, 18, 18, 128, 128);
+                param0.blitSprite(CreateFlatWorldScreen.SLOT_SPRITE, param1, param2, 0, 18, 18);
             }
         }
     }

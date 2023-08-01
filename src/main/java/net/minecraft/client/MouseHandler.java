@@ -30,7 +30,8 @@ public class MouseHandler {
     private final SmoothDouble smoothTurnY = new SmoothDouble();
     private double accumulatedDX;
     private double accumulatedDY;
-    private double accumulatedScroll;
+    private double accumulatedScrollX;
+    private double accumulatedScrollY;
     private double lastMouseEventTime = Double.MIN_VALUE;
     private boolean mouseGrabbed;
 
@@ -120,35 +121,45 @@ public class MouseHandler {
 
     private void onScroll(long param0, double param1, double param2) {
         if (param0 == Minecraft.getInstance().getWindow().getWindow()) {
-            double var0 = (this.minecraft.options.discreteMouseScroll().get() ? Math.signum(param2) : param2)
-                * this.minecraft.options.mouseWheelSensitivity().get();
+            boolean var0 = this.minecraft.options.discreteMouseScroll().get();
+            double var1 = this.minecraft.options.mouseWheelSensitivity().get();
+            double var2 = (var0 ? Math.signum(param1) : param1) * var1;
+            double var3 = (var0 ? Math.signum(param2) : param2) * var1;
             if (this.minecraft.getOverlay() == null) {
                 if (this.minecraft.screen != null) {
-                    double var1 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
-                    double var2 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
-                    this.minecraft.screen.mouseScrolled(var1, var2, var0);
+                    double var4 = this.xpos * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+                    double var5 = this.ypos * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+                    this.minecraft.screen.mouseScrolled(var4, var5, var2, var3);
                     this.minecraft.screen.afterMouseAction();
                 } else if (this.minecraft.player != null) {
-                    if (this.accumulatedScroll != 0.0 && Math.signum(var0) != Math.signum(this.accumulatedScroll)) {
-                        this.accumulatedScroll = 0.0;
+                    if (this.accumulatedScrollX != 0.0 && Math.signum(var2) != Math.signum(this.accumulatedScrollX)) {
+                        this.accumulatedScrollX = 0.0;
                     }
 
-                    this.accumulatedScroll += var0;
-                    int var3 = (int)this.accumulatedScroll;
-                    if (var3 == 0) {
+                    if (this.accumulatedScrollY != 0.0 && Math.signum(var3) != Math.signum(this.accumulatedScrollY)) {
+                        this.accumulatedScrollY = 0.0;
+                    }
+
+                    this.accumulatedScrollX += var2;
+                    this.accumulatedScrollY += var3;
+                    int var6 = (int)this.accumulatedScrollX;
+                    int var7 = (int)this.accumulatedScrollY;
+                    if (var6 == 0 && var7 == 0) {
                         return;
                     }
 
-                    this.accumulatedScroll -= (double)var3;
+                    this.accumulatedScrollX -= (double)var6;
+                    this.accumulatedScrollY -= (double)var7;
+                    int var8 = var7 == 0 ? -var6 : var7;
                     if (this.minecraft.player.isSpectator()) {
                         if (this.minecraft.gui.getSpectatorGui().isMenuActive()) {
-                            this.minecraft.gui.getSpectatorGui().onMouseScrolled(-var3);
+                            this.minecraft.gui.getSpectatorGui().onMouseScrolled(-var8);
                         } else {
-                            float var4 = Mth.clamp(this.minecraft.player.getAbilities().getFlyingSpeed() + (float)var3 * 0.005F, 0.0F, 0.2F);
-                            this.minecraft.player.getAbilities().setFlyingSpeed(var4);
+                            float var9 = Mth.clamp(this.minecraft.player.getAbilities().getFlyingSpeed() + (float)var7 * 0.005F, 0.0F, 0.2F);
+                            this.minecraft.player.getAbilities().setFlyingSpeed(var9);
                         }
                     } else {
-                        this.minecraft.player.getInventory().swapPaint((double)var3);
+                        this.minecraft.player.getInventory().swapPaint((double)var8);
                     }
                 }
             }

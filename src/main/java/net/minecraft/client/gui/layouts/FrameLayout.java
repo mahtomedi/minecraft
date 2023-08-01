@@ -3,6 +3,7 @@ package net.minecraft.client.gui.layouts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.Util;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -77,6 +78,10 @@ public class FrameLayout extends AbstractLayout {
     public <T extends LayoutElement> T addChild(T param0, LayoutSettings param1) {
         this.children.add(new FrameLayout.ChildContainer(param0, param1));
         return param0;
+    }
+
+    public <T extends LayoutElement> T addChild(T param0, Consumer<LayoutSettings> param1) {
+        return this.addChild(param0, Util.make(this.newChildLayoutSettings(), param1));
     }
 
     @Override

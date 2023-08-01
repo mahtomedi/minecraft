@@ -15,6 +15,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -41,6 +42,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class Spider extends Monster {
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(Spider.class, EntityDataSerializers.BYTE);
@@ -64,8 +66,8 @@ public class Spider extends Monster {
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return (double)(this.getBbHeight() * 0.5F);
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height * 0.85F, 0.0F);
     }
 
     @Override
@@ -186,6 +188,11 @@ public class Spider extends Monster {
     @Override
     protected float getStandingEyeHeight(Pose param0, EntityDimensions param1) {
         return 0.65F;
+    }
+
+    @Override
+    protected float ridingOffset(Entity param0) {
+        return param0.getBbWidth() <= this.getBbWidth() ? -0.3125F : 0.0F;
     }
 
     static class SpiderAttackGoal extends MeleeAttackGoal {

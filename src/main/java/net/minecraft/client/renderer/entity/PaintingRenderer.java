@@ -60,15 +60,15 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
         float var10 = param6.getU0();
         float var11 = param6.getU1();
         float var12 = param6.getV0();
-        float var13 = param6.getV(1.0);
+        float var13 = param6.getV(0.0625F);
         float var14 = param6.getU0();
-        float var15 = param6.getU(1.0);
+        float var15 = param6.getU(0.0625F);
         float var16 = param6.getV0();
         float var17 = param6.getV1();
         int var18 = param3 / 16;
         int var19 = param4 / 16;
-        double var20 = 16.0 / (double)var18;
-        double var21 = 16.0 / (double)var19;
+        double var20 = 1.0 / (double)var18;
+        double var21 = 1.0 / (double)var19;
 
         for(int var22 = 0; var22 < var18; ++var22) {
             for(int var23 = 0; var23 < var19; ++var23) {
@@ -97,10 +97,10 @@ public class PaintingRenderer extends EntityRenderer<Painting> {
                 }
 
                 int var32 = LevelRenderer.getLightColor(param2.level(), new BlockPos(var28, var29, var30));
-                float var33 = param5.getU(var20 * (double)(var18 - var22));
-                float var34 = param5.getU(var20 * (double)(var18 - (var22 + 1)));
-                float var35 = param5.getV(var21 * (double)(var19 - var23));
-                float var36 = param5.getV(var21 * (double)(var19 - (var23 + 1)));
+                float var33 = param5.getU((float)(var20 * (double)(var18 - var22)));
+                float var34 = param5.getU((float)(var20 * (double)(var18 - (var22 + 1))));
+                float var35 = param5.getV((float)(var21 * (double)(var19 - var23)));
+                float var36 = param5.getV((float)(var21 * (double)(var19 - (var23 + 1))));
                 this.vertex(var1, var2, param1, var24, var27, var34, var35, -0.5F, 0, 0, -1, var32);
                 this.vertex(var1, var2, param1, var25, var27, var33, var35, -0.5F, 0, 0, -1, var32);
                 this.vertex(var1, var2, param1, var25, var26, var33, var36, -0.5F, 0, 0, -1, var32);

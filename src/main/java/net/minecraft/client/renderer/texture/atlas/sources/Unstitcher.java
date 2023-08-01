@@ -8,14 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
+import net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.client.renderer.texture.atlas.SpriteSourceType;
 import net.minecraft.client.renderer.texture.atlas.SpriteSources;
-import net.minecraft.client.resources.metadata.animation.AnimationMetadataSection;
 import net.minecraft.client.resources.metadata.animation.FrameSize;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceMetadata;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -95,7 +96,7 @@ public class Unstitcher implements SpriteSource {
             this.yDivisor = param3;
         }
 
-        public SpriteContents get() {
+        public SpriteContents apply(SpriteResourceLoader param0) {
             try {
                 NativeImage var0 = this.image.get();
                 double var1 = (double)var0.getWidth() / this.xDivisor;
@@ -106,9 +107,9 @@ public class Unstitcher implements SpriteSource {
                 int var6 = Mth.floor(this.region.height * var2);
                 NativeImage var7 = new NativeImage(NativeImage.Format.RGBA, var5, var6, false);
                 var0.copyRect(var7, var3, var4, 0, 0, var5, var6, false, false);
-                return new SpriteContents(this.region.sprite, new FrameSize(var5, var6), var7, AnimationMetadataSection.EMPTY);
-            } catch (Exception var15) {
-                Unstitcher.LOGGER.error("Failed to unstitch region {}", this.region.sprite, var15);
+                return new SpriteContents(this.region.sprite, new FrameSize(var5, var6), var7, ResourceMetadata.EMPTY);
+            } catch (Exception var16) {
+                Unstitcher.LOGGER.error("Failed to unstitch region {}", this.region.sprite, var16);
             } finally {
                 this.image.release();
             }

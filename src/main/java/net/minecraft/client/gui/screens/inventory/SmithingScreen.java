@@ -18,10 +18,11 @@ import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
 public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
-    private static final ResourceLocation SMITHING_LOCATION = new ResourceLocation("textures/gui/container/smithing.png");
+    private static final ResourceLocation ERROR_SPRITE = new ResourceLocation("container/smithing/error");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM = new ResourceLocation("item/empty_slot_smithing_template_armor_trim");
     private static final ResourceLocation EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE = new ResourceLocation(
         "item/empty_slot_smithing_template_netherite_upgrade"
@@ -38,12 +39,13 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     private static final int ERROR_ICON_X = 65;
     private static final int ERROR_ICON_Y = 46;
     private static final int TOOLTIP_WIDTH = 115;
-    public static final int ARMOR_STAND_Y_ROT = 210;
-    public static final int ARMOR_STAND_X_ROT = 25;
-    public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
-    public static final int ARMOR_STAND_SCALE = 25;
-    public static final int ARMOR_STAND_OFFSET_Y = 75;
-    public static final int ARMOR_STAND_OFFSET_X = 141;
+    private static final int ARMOR_STAND_Y_ROT = 210;
+    private static final int ARMOR_STAND_X_ROT = 25;
+    private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f();
+    private static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
+    private static final int ARMOR_STAND_SCALE = 25;
+    private static final int ARMOR_STAND_OFFSET_Y = 75;
+    private static final int ARMOR_STAND_OFFSET_X = 141;
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
     private final CyclingSlotBackground baseIcon = new CyclingSlotBackground(1);
     private final CyclingSlotBackground additionalIcon = new CyclingSlotBackground(2);
@@ -51,7 +53,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     private ArmorStand armorStandPreview;
 
     public SmithingScreen(SmithingMenu param0, Inventory param1, Component param2) {
-        super(param0, param1, param2, SMITHING_LOCATION);
+        super(param0, param1, param2, new ResourceLocation("textures/gui/container/smithing.png"));
         this.titleLabelX = 44;
         this.titleLabelY = 15;
     }
@@ -101,7 +103,9 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
         this.templateIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
         this.baseIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
         this.additionalIcon.render(this.menu, param0, param1, this.leftPos, this.topPos);
-        InventoryScreen.renderEntityInInventory(param0, this.leftPos + 141, this.topPos + 75, 25, ARMOR_STAND_ANGLE, null, this.armorStandPreview);
+        InventoryScreen.renderEntityInInventory(
+            param0, (float)(this.leftPos + 141), (float)(this.topPos + 75), 25, ARMOR_STAND_TRANSLATION, ARMOR_STAND_ANGLE, null, this.armorStandPreview
+        );
     }
 
     @Override
@@ -134,7 +138,7 @@ public class SmithingScreen extends ItemCombinerScreen<SmithingMenu> {
     @Override
     protected void renderErrorIcon(GuiGraphics param0, int param1, int param2) {
         if (this.hasRecipeError()) {
-            param0.blit(SMITHING_LOCATION, param1 + 65, param2 + 46, this.imageWidth, 0, 28, 21);
+            param0.blitSprite(ERROR_SPRITE, param1 + 65, param2 + 46, 28, 21);
         }
 
     }

@@ -137,33 +137,42 @@ public final class Window implements AutoCloseable {
 
     public void setIcon(PackResources param0, IconSet param1) throws IOException {
         RenderSystem.assertInInitPhase();
-        if (Minecraft.ON_OSX) {
-            MacosUtil.loadIcon(param1.getMacIcon(param0));
-        } else {
-            List<IoSupplier<InputStream>> var0 = param1.getStandardIcons(param0);
-            List<ByteBuffer> var1 = new ArrayList<>(var0.size());
+        int var0 = GLFW.glfwGetPlatform();
+        switch(var0) {
+            case 393217:
+            case 393220:
+                List<IoSupplier<InputStream>> var1 = param1.getStandardIcons(param0);
+                List<ByteBuffer> var2 = new ArrayList<>(var1.size());
 
-            try (MemoryStack var2 = MemoryStack.stackPush()) {
-                Buffer var3 = GLFWImage.malloc(var0.size(), var2);
+                try (MemoryStack var3 = MemoryStack.stackPush()) {
+                    Buffer var4 = GLFWImage.malloc(var1.size(), var3);
 
-                for(int var4 = 0; var4 < var0.size(); ++var4) {
-                    try (NativeImage var5 = NativeImage.read(var0.get(var4).get())) {
-                        ByteBuffer var6 = MemoryUtil.memAlloc(var5.getWidth() * var5.getHeight() * 4);
-                        var1.add(var6);
-                        var6.asIntBuffer().put(var5.getPixelsRGBA());
-                        var3.position(var4);
-                        var3.width(var5.getWidth());
-                        var3.height(var5.getHeight());
-                        var3.pixels(var6);
+                    for(int var5 = 0; var5 < var1.size(); ++var5) {
+                        try (NativeImage var6 = NativeImage.read(var1.get(var5).get())) {
+                            ByteBuffer var7 = MemoryUtil.memAlloc(var6.getWidth() * var6.getHeight() * 4);
+                            var2.add(var7);
+                            var7.asIntBuffer().put(var6.getPixelsRGBA());
+                            var4.position(var5);
+                            var4.width(var6.getWidth());
+                            var4.height(var6.getHeight());
+                            var4.pixels(var7);
+                        }
                     }
+
+                    GLFW.glfwSetWindowIcon(this.window, var4.position(0));
+                    break;
+                } finally {
+                    var2.forEach(MemoryUtil::memFree);
                 }
-
-                GLFW.glfwSetWindowIcon(this.window, var3.position(0));
-            } finally {
-                var1.forEach(MemoryUtil::memFree);
-            }
-
+            case 393218:
+                MacosUtil.loadIcon(param1.getMacIcon(param0));
+            case 393219:
+            case 393221:
+                break;
+            default:
+                LOGGER.warn("Not setting icon for unrecognized platform: {}", var0);
         }
+
     }
 
     public void setErrorSection(String param0) {

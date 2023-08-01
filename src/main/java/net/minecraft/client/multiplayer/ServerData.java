@@ -30,13 +30,13 @@ public class ServerData {
     private ServerData.ServerPackStatus packStatus = ServerData.ServerPackStatus.PROMPT;
     @Nullable
     private byte[] iconBytes;
-    private boolean lan;
+    private ServerData.Type type;
     private boolean enforcesSecureChat;
 
-    public ServerData(String param0, String param1, boolean param2) {
+    public ServerData(String param0, String param1, ServerData.Type param2) {
         this.name = param0;
         this.ip = param1;
-        this.lan = param2;
+        this.type = param2;
     }
 
     public CompoundTag write() {
@@ -65,7 +65,7 @@ public class ServerData {
     }
 
     public static ServerData read(CompoundTag param0) {
-        ServerData var0 = new ServerData(param0.getString("name"), param0.getString("ip"), false);
+        ServerData var0 = new ServerData(param0.getString("name"), param0.getString("ip"), ServerData.Type.OTHER);
         if (param0.contains("icon", 8)) {
             try {
                 var0.setIconBytes(Base64.getDecoder().decode(param0.getString("icon")));
@@ -97,7 +97,11 @@ public class ServerData {
     }
 
     public boolean isLan() {
-        return this.lan;
+        return this.type == ServerData.Type.LAN;
+    }
+
+    public boolean isRealm() {
+        return this.type == ServerData.Type.REALM;
     }
 
     public void setEnforcesSecureChat(boolean param0) {
@@ -117,7 +121,7 @@ public class ServerData {
     public void copyFrom(ServerData param0) {
         this.copyNameIconFrom(param0);
         this.setResourcePackStatus(param0.getResourcePackStatus());
-        this.lan = param0.lan;
+        this.type = param0.type;
         this.enforcesSecureChat = param0.enforcesSecureChat;
     }
 
@@ -136,5 +140,12 @@ public class ServerData {
         public Component getName() {
             return this.name;
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum Type {
+        LAN,
+        REALM,
+        OTHER;
     }
 }

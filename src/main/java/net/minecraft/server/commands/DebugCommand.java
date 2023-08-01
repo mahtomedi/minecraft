@@ -18,6 +18,7 @@ import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.FunctionInstantiationException;
 import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -96,19 +97,24 @@ public class DebugCommand {
                 for(CommandFunction var6 : param1) {
                     var5.println(var6.getId());
                     DebugCommand.Tracer var7 = new DebugCommand.Tracer(var5);
-                    var0 += param0.getServer().getFunctions().execute(var6, param0.withSource(var7).withMaximumPermission(2), var7);
+
+                    try {
+                        var0 += param0.getServer().getFunctions().execute(var6, param0.withSource(var7).withMaximumPermission(2), var7, null);
+                    } catch (FunctionInstantiationException var13) {
+                        param0.sendFailure(var13.messageComponent());
+                    }
                 }
             }
-        } catch (IOException | UncheckedIOException var13) {
-            LOGGER.warn("Tracing failed", (Throwable)var13);
+        } catch (IOException | UncheckedIOException var15) {
+            LOGGER.warn("Tracing failed", (Throwable)var15);
             param0.sendFailure(Component.translatable("commands.debug.function.traceFailed"));
         }
 
-        int var9 = var0;
+        int var10 = var0;
         if (param1.size() == 1) {
-            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.single", var9, param1.iterator().next().getId(), var2), true);
+            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.single", var10, param1.iterator().next().getId(), var2), true);
         } else {
-            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.multiple", var9, param1.size(), var2), true);
+            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.multiple", var10, param1.size(), var2), true);
         }
 
         return var0;

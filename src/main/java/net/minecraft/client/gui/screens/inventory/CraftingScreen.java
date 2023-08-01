@@ -16,7 +16,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implements RecipeUpdateListener {
     private static final ResourceLocation CRAFTING_TABLE_LOCATION = new ResourceLocation("textures/gui/container/crafting_table.png");
-    private static final ResourceLocation RECIPE_BUTTON_LOCATION = new ResourceLocation("textures/gui/recipe_button.png");
     private final RecipeBookComponent recipeBookComponent = new RecipeBookComponent();
     private boolean widthTooNarrow;
 
@@ -30,7 +29,7 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
         this.widthTooNarrow = this.width < 379;
         this.recipeBookComponent.init(this.width, this.height, this.minecraft, this.widthTooNarrow, this.menu);
         this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
-        this.addRenderableWidget(new ImageButton(this.leftPos + 5, this.height / 2 - 49, 20, 18, 0, 0, 19, RECIPE_BUTTON_LOCATION, param0 -> {
+        this.addRenderableWidget(new ImageButton(this.leftPos + 5, this.height / 2 - 49, 20, 18, RecipeBookComponent.RECIPE_BUTTON_SPRITES, param0 -> {
             this.recipeBookComponent.toggleVisibility();
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth);
             param0.setPosition(this.leftPos + 5, this.height / 2 - 49);
@@ -48,13 +47,12 @@ public class CraftingScreen extends AbstractContainerScreen<CraftingMenu> implem
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
-            this.renderBg(param0, param3, param1, param2);
+            this.renderBackground(param0, param1, param2, param3);
             this.recipeBookComponent.render(param0, param1, param2, param3);
         } else {
-            this.recipeBookComponent.render(param0, param1, param2, param3);
             super.render(param0, param1, param2, param3);
+            this.recipeBookComponent.render(param0, param1, param2, param3);
             this.recipeBookComponent.renderGhostRecipe(param0, this.leftPos, this.topPos, true, param3);
         }
 

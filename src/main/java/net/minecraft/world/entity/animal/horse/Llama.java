@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ByIdMap;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Container;
@@ -23,6 +22,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobSpawnType;
@@ -59,6 +59,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WoolCarpetBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.Variant>, RangedAttackMob {
     private static final int MAX_STRENGTH = 5;
@@ -156,32 +157,6 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
     @Override
     protected int getInventorySize() {
         return this.hasChest() ? 2 + 3 * this.getInventoryColumns() : super.getInventorySize();
-    }
-
-    @Override
-    protected void positionRider(Entity param0, Entity.MoveFunction param1) {
-        if (this.hasPassenger(param0)) {
-            float var0 = Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0));
-            float var1 = Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0));
-            float var2 = 0.3F;
-            param1.accept(
-                param0,
-                this.getX() + (double)(0.3F * var1),
-                this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset(),
-                this.getZ() - (double)(0.3F * var0)
-            );
-        }
-    }
-
-    @Override
-    public double getPassengersRidingOffset() {
-        return (double)this.getBbHeight() * 0.6;
-    }
-
-    @Nullable
-    @Override
-    public LivingEntity getControllingPassenger() {
-        return null;
     }
 
     @Override
@@ -509,6 +484,11 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, 0.75 * (double)this.getEyeHeight(), (double)this.getBbWidth() * 0.5);
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - (this.isBaby() ? 0.8125F : 0.5F) * param2, -0.3F * param2);
     }
 
     static class LlamaAttackWolfGoal extends NearestAttackableTargetGoal<Wolf> {

@@ -47,6 +47,7 @@ public class OrePlacements {
     public static final ResourceKey<PlacedFeature> ORE_REDSTONE = PlacementUtils.createKey("ore_redstone");
     public static final ResourceKey<PlacedFeature> ORE_REDSTONE_LOWER = PlacementUtils.createKey("ore_redstone_lower");
     public static final ResourceKey<PlacedFeature> ORE_DIAMOND = PlacementUtils.createKey("ore_diamond");
+    public static final ResourceKey<PlacedFeature> ORE_DIAMOND_MEDIUM = PlacementUtils.createKey("ore_diamond_medium");
     public static final ResourceKey<PlacedFeature> ORE_DIAMOND_LARGE = PlacementUtils.createKey("ore_diamond_large");
     public static final ResourceKey<PlacedFeature> ORE_DIAMOND_BURIED = PlacementUtils.createKey("ore_diamond_buried");
     public static final ResourceKey<PlacedFeature> ORE_LAPIS = PlacementUtils.createKey("ore_lapis");
@@ -93,17 +94,18 @@ public class OrePlacements {
         Holder<ConfiguredFeature<?, ?>> var18 = var0.getOrThrow(OreFeatures.ORE_GOLD_BURIED);
         Holder<ConfiguredFeature<?, ?>> var19 = var0.getOrThrow(OreFeatures.ORE_REDSTONE);
         Holder<ConfiguredFeature<?, ?>> var20 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_SMALL);
-        Holder<ConfiguredFeature<?, ?>> var21 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_LARGE);
-        Holder<ConfiguredFeature<?, ?>> var22 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_BURIED);
-        Holder<ConfiguredFeature<?, ?>> var23 = var0.getOrThrow(OreFeatures.ORE_LAPIS);
-        Holder<ConfiguredFeature<?, ?>> var24 = var0.getOrThrow(OreFeatures.ORE_LAPIS_BURIED);
-        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(OreFeatures.ORE_INFESTED);
-        Holder<ConfiguredFeature<?, ?>> var26 = var0.getOrThrow(OreFeatures.ORE_EMERALD);
-        Holder<ConfiguredFeature<?, ?>> var27 = var0.getOrThrow(OreFeatures.ORE_ANCIENT_DEBRIS_LARGE);
-        Holder<ConfiguredFeature<?, ?>> var28 = var0.getOrThrow(OreFeatures.ORE_ANCIENT_DEBRIS_SMALL);
-        Holder<ConfiguredFeature<?, ?>> var29 = var0.getOrThrow(OreFeatures.ORE_COPPPER_SMALL);
-        Holder<ConfiguredFeature<?, ?>> var30 = var0.getOrThrow(OreFeatures.ORE_COPPER_LARGE);
-        Holder<ConfiguredFeature<?, ?>> var31 = var0.getOrThrow(OreFeatures.ORE_CLAY);
+        Holder<ConfiguredFeature<?, ?>> var21 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_MEDIUM);
+        Holder<ConfiguredFeature<?, ?>> var22 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_LARGE);
+        Holder<ConfiguredFeature<?, ?>> var23 = var0.getOrThrow(OreFeatures.ORE_DIAMOND_BURIED);
+        Holder<ConfiguredFeature<?, ?>> var24 = var0.getOrThrow(OreFeatures.ORE_LAPIS);
+        Holder<ConfiguredFeature<?, ?>> var25 = var0.getOrThrow(OreFeatures.ORE_LAPIS_BURIED);
+        Holder<ConfiguredFeature<?, ?>> var26 = var0.getOrThrow(OreFeatures.ORE_INFESTED);
+        Holder<ConfiguredFeature<?, ?>> var27 = var0.getOrThrow(OreFeatures.ORE_EMERALD);
+        Holder<ConfiguredFeature<?, ?>> var28 = var0.getOrThrow(OreFeatures.ORE_ANCIENT_DEBRIS_LARGE);
+        Holder<ConfiguredFeature<?, ?>> var29 = var0.getOrThrow(OreFeatures.ORE_ANCIENT_DEBRIS_SMALL);
+        Holder<ConfiguredFeature<?, ?>> var30 = var0.getOrThrow(OreFeatures.ORE_COPPPER_SMALL);
+        Holder<ConfiguredFeature<?, ?>> var31 = var0.getOrThrow(OreFeatures.ORE_COPPER_LARGE);
+        Holder<ConfiguredFeature<?, ?>> var32 = var0.getOrThrow(OreFeatures.ORE_CLAY);
         PlacementUtils.register(
             param0, ORE_MAGMA, var1, commonOrePlacement(4, HeightRangePlacement.uniform(VerticalAnchor.absolute(27), VerticalAnchor.absolute(36)))
         );
@@ -185,44 +187,47 @@ public class OrePlacements {
             param0, ORE_DIAMOND, var20, commonOrePlacement(7, HeightRangePlacement.triangle(VerticalAnchor.aboveBottom(-80), VerticalAnchor.aboveBottom(80)))
         );
         PlacementUtils.register(
+            param0, ORE_DIAMOND_MEDIUM, var21, commonOrePlacement(2, HeightRangePlacement.uniform(VerticalAnchor.absolute(-64), VerticalAnchor.absolute(-4)))
+        );
+        PlacementUtils.register(
             param0,
             ORE_DIAMOND_LARGE,
-            var21,
+            var22,
             rareOrePlacement(9, HeightRangePlacement.triangle(VerticalAnchor.aboveBottom(-80), VerticalAnchor.aboveBottom(80)))
         );
         PlacementUtils.register(
             param0,
             ORE_DIAMOND_BURIED,
-            var22,
+            var23,
             commonOrePlacement(4, HeightRangePlacement.triangle(VerticalAnchor.aboveBottom(-80), VerticalAnchor.aboveBottom(80)))
         );
         PlacementUtils.register(
-            param0, ORE_LAPIS, var23, commonOrePlacement(2, HeightRangePlacement.triangle(VerticalAnchor.absolute(-32), VerticalAnchor.absolute(32)))
+            param0, ORE_LAPIS, var24, commonOrePlacement(2, HeightRangePlacement.triangle(VerticalAnchor.absolute(-32), VerticalAnchor.absolute(32)))
         );
         PlacementUtils.register(
-            param0, ORE_LAPIS_BURIED, var24, commonOrePlacement(4, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(64)))
+            param0, ORE_LAPIS_BURIED, var25, commonOrePlacement(4, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(64)))
         );
         PlacementUtils.register(
-            param0, ORE_INFESTED, var25, commonOrePlacement(14, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(63)))
+            param0, ORE_INFESTED, var26, commonOrePlacement(14, HeightRangePlacement.uniform(VerticalAnchor.bottom(), VerticalAnchor.absolute(63)))
         );
         PlacementUtils.register(
-            param0, ORE_EMERALD, var26, commonOrePlacement(100, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(480)))
+            param0, ORE_EMERALD, var27, commonOrePlacement(100, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(480)))
         );
         PlacementUtils.register(
             param0,
             ORE_ANCIENT_DEBRIS_LARGE,
-            var27,
+            var28,
             InSquarePlacement.spread(),
             HeightRangePlacement.triangle(VerticalAnchor.absolute(8), VerticalAnchor.absolute(24)),
             BiomeFilter.biome()
         );
-        PlacementUtils.register(param0, ORE_ANCIENT_DEBRIS_SMALL, var28, InSquarePlacement.spread(), PlacementUtils.RANGE_8_8, BiomeFilter.biome());
+        PlacementUtils.register(param0, ORE_ANCIENT_DEBRIS_SMALL, var29, InSquarePlacement.spread(), PlacementUtils.RANGE_8_8, BiomeFilter.biome());
         PlacementUtils.register(
-            param0, ORE_COPPER, var29, commonOrePlacement(16, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)))
+            param0, ORE_COPPER, var30, commonOrePlacement(16, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)))
         );
         PlacementUtils.register(
-            param0, ORE_COPPER_LARGE, var30, commonOrePlacement(16, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)))
+            param0, ORE_COPPER_LARGE, var31, commonOrePlacement(16, HeightRangePlacement.triangle(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(112)))
         );
-        PlacementUtils.register(param0, ORE_CLAY, var31, commonOrePlacement(46, PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT));
+        PlacementUtils.register(param0, ORE_CLAY, var32, commonOrePlacement(46, PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT));
     }
 }

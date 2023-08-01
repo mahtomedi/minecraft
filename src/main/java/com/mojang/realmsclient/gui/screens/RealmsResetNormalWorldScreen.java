@@ -3,10 +3,13 @@ package com.mojang.realmsclient.gui.screens;
 import com.mojang.realmsclient.util.LevelType;
 import com.mojang.realmsclient.util.WorldGenerationInfo;
 import java.util.function.Consumer;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LayoutSettings;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsScreen;
@@ -16,6 +19,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class RealmsResetNormalWorldScreen extends RealmsScreen {
     private static final Component SEED_LABEL = Component.translatable("mco.reset.world.seed");
+    private static final int BUTTON_SPACING = 10;
+    private static final int CONTENT_WIDTH = 210;
+    private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private final Consumer<WorldGenerationInfo> callback;
     private EditBox seedEdit;
     private LevelType levelType = LevelType.DEFAULT;
@@ -29,56 +35,45 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public void tick() {
-        this.seedEdit.tick();
-        super.tick();
-    }
-
-    @Override
     public void init() {
-        this.seedEdit = new EditBox(this.minecraft.font, this.width / 2 - 100, row(2), 200, 20, null, Component.translatable("mco.reset.world.seed"));
+        this.seedEdit = new EditBox(this.font, 208, 20, Component.translatable("mco.reset.world.seed"));
         this.seedEdit.setMaxLength(32);
-        this.addWidget(this.seedEdit);
         this.setInitialFocus(this.seedEdit);
-        this.addRenderableWidget(
+        this.layout.addToHeader(new StringWidget(this.title, this.font));
+        LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical()).spacing(10);
+        var0.defaultCellSetting().alignHorizontallyCenter();
+        LinearLayout var1 = var0.addChild(LinearLayout.vertical().spacing(4));
+        var1.addChild(new StringWidget(SEED_LABEL, this.font), LayoutSettings::alignHorizontallyLeft);
+        var1.addChild(this.seedEdit, param0 -> param0.padding(1));
+        var0.addChild(
             CycleButton.builder(LevelType::getName)
                 .withValues(LevelType.values())
                 .withInitialValue(this.levelType)
-                .create(this.width / 2 - 102, row(4), 205, 20, Component.translatable("selectWorld.mapType"), (param0, param1) -> this.levelType = param1)
+                .create(0, 0, 210, 20, Component.translatable("selectWorld.mapType"), (param0, param1) -> this.levelType = param1)
         );
-        this.addRenderableWidget(
+        var0.addChild(
             CycleButton.onOffBuilder(this.generateStructures)
-                .create(
-                    this.width / 2 - 102,
-                    row(6) - 2,
-                    205,
-                    20,
-                    Component.translatable("selectWorld.mapFeatures"),
-                    (param0, param1) -> this.generateStructures = param1
-                )
+                .create(0, 0, 210, 20, Component.translatable("selectWorld.mapFeatures"), (param0, param1) -> this.generateStructures = param1)
         );
-        this.addRenderableWidget(
-            Button.builder(
-                    this.buttonTitle,
-                    param0 -> this.callback.accept(new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures))
-                )
-                .bounds(this.width / 2 - 102, row(12), 97, 20)
-                .build()
-        );
-        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.width / 2 + 8, row(12), 97, 20).build());
+        LinearLayout var2 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
+        var2.addChild(Button.builder(this.buttonTitle, param0 -> this.callback.accept(this.createWorldGenerationInfo())).build());
+        var2.addChild(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).build());
+        this.layout.visitWidgets(param1 -> {
+        });
+        this.repositionElements();
+    }
+
+    private WorldGenerationInfo createWorldGenerationInfo() {
+        return new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures);
+    }
+
+    @Override
+    protected void repositionElements() {
+        this.layout.arrangeElements();
     }
 
     @Override
     public void onClose() {
         this.callback.accept(null);
-    }
-
-    @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
-        param0.drawString(this.font, SEED_LABEL, this.width / 2 - 100, row(1), 10526880, false);
-        this.seedEdit.render(param0, param1, param2, param3);
-        super.render(param0, param1, param2, param3);
     }
 }

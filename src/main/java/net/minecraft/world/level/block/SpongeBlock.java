@@ -2,6 +2,8 @@ package net.minecraft.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -34,7 +36,7 @@ public class SpongeBlock extends Block {
     protected void tryAbsorbWater(Level param0, BlockPos param1) {
         if (this.removeWaterBreadthFirstSearch(param0, param1)) {
             param0.setBlock(param1, Blocks.WET_SPONGE.defaultBlockState(), 2);
-            param0.levelEvent(2001, param1, Block.getId(Blocks.WATER.defaultBlockState()));
+            param0.playSound(null, param1, SoundEvents.SPONGE_ABSORB, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
 
     }
@@ -55,7 +57,7 @@ public class SpongeBlock extends Block {
                     return false;
                 } else {
                     Block var2x = var0.getBlock();
-                    if (var2x instanceof BucketPickup var3 && !var3.pickupBlock(param0, param2, var0).isEmpty()) {
+                    if (var2x instanceof BucketPickup var3 && !var3.pickupBlock(null, param0, param2, var0).isEmpty()) {
                         return true;
                     }
 

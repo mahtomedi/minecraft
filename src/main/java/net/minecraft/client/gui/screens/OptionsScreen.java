@@ -7,10 +7,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.LockIconButton;
+import net.minecraft.client.gui.layouts.EqualSpacingLayout;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
-import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.screens.controls.ControlsScreen;
 import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
@@ -111,7 +111,7 @@ public class OptionsScreen extends Screen {
                 this.lockButton.setLocked(this.minecraft.level.getLevelData().isDifficultyLocked());
                 this.lockButton.active = !this.lockButton.isLocked();
                 this.difficultyButton.active = !this.lockButton.isLocked();
-                LinearLayout var0 = new LinearLayout(150, 0, LinearLayout.Orientation.HORIZONTAL);
+                EqualSpacingLayout var0 = new EqualSpacingLayout(150, 0, EqualSpacingLayout.Orientation.HORIZONTAL);
                 var0.addChild(this.difficultyButton);
                 var0.addChild(this.lockButton);
                 return var0;
@@ -161,9 +161,8 @@ public class OptionsScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
     }
 
     private Button openScreenButton(Component param0, Supplier<Screen> param1) {

@@ -95,7 +95,7 @@ public class GlowSquid extends Squid {
         return this.entityData.get(DATA_DARK_TICKS_REMAINING);
     }
 
-    public static boolean checkGlowSquideSpawnRules(
+    public static boolean checkGlowSquidSpawnRules(
         EntityType<? extends LivingEntity> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
         return param3.getY() <= param1.getSeaLevel() - 33 && param1.getRawBrightness(param3, 0) == 0 && param1.getBlockState(param3).is(Blocks.WATER);

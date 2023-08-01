@@ -68,7 +68,7 @@ public class ProgressScreen extends Screen implements ProgressListener {
             }
 
         } else {
-            this.renderBackground(param0);
+            super.render(param0, param1, param2, param3);
             if (this.header != null) {
                 param0.drawCenteredString(this.font, this.header, this.width / 2, 70, 16777215);
             }
@@ -77,7 +77,6 @@ public class ProgressScreen extends Screen implements ProgressListener {
                 param0.drawCenteredString(this.font, Component.empty().append(this.stage).append(" " + this.progress + "%"), this.width / 2, 90, 16777215);
             }
 
-            super.render(param0, param1, param2, param3);
         }
     }
 }

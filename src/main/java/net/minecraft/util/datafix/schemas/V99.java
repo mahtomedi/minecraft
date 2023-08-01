@@ -285,20 +285,23 @@ public class V99 extends Schema {
         param0.registerType(false, References.BLOCK_NAME, () -> DSL.or(DSL.constType(DSL.intType()), DSL.constType(NamespacedSchema.namespacedString())));
         param0.registerType(false, References.ITEM_NAME, () -> DSL.constType(NamespacedSchema.namespacedString()));
         param0.registerType(false, References.STATS, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_COMMAND_STORAGE, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_FORCED_CHUNKS, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_MAP_DATA, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_MAP_INDEX, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_RAIDS, DSL::remainder);
+        param0.registerType(false, References.SAVED_DATA_RANDOM_SEQUENCES, DSL::remainder);
         param0.registerType(
             false,
-            References.SAVED_DATA,
+            References.SAVED_DATA_SCOREBOARD,
             () -> DSL.optionalFields(
-                    "data",
-                    DSL.optionalFields(
-                        "Features",
-                        DSL.compoundList(References.STRUCTURE_FEATURE.in(param0)),
-                        "Objectives",
-                        DSL.list(References.OBJECTIVE.in(param0)),
-                        "Teams",
-                        DSL.list(References.TEAM.in(param0))
-                    )
+                    "data", DSL.optionalFields("Objectives", DSL.list(References.OBJECTIVE.in(param0)), "Teams", DSL.list(References.TEAM.in(param0)))
                 )
+        );
+        param0.registerType(
+            false,
+            References.SAVED_DATA_STRUCTURE_FEATURE_INDICES,
+            () -> DSL.optionalFields("data", DSL.optionalFields("Features", DSL.compoundList(References.STRUCTURE_FEATURE.in(param0))))
         );
         param0.registerType(false, References.STRUCTURE_FEATURE, DSL::remainder);
         param0.registerType(false, References.OBJECTIVE, DSL::remainder);

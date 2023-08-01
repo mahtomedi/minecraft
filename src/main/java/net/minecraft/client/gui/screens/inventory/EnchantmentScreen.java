@@ -26,6 +26,19 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> {
+    private static final ResourceLocation[] ENABLED_LEVEL_SPRITES = new ResourceLocation[]{
+        new ResourceLocation("container/enchanting_table/level_1"),
+        new ResourceLocation("container/enchanting_table/level_2"),
+        new ResourceLocation("container/enchanting_table/level_3")
+    };
+    private static final ResourceLocation[] DISABLED_LEVEL_SPRITES = new ResourceLocation[]{
+        new ResourceLocation("container/enchanting_table/level_1_disabled"),
+        new ResourceLocation("container/enchanting_table/level_2_disabled"),
+        new ResourceLocation("container/enchanting_table/level_3_disabled")
+    };
+    private static final ResourceLocation ENCHANTMENT_SLOT_DISABLED_SPRITE = new ResourceLocation("container/enchanting_table/enchantment_slot_disabled");
+    private static final ResourceLocation ENCHANTMENT_SLOT_HIGHLIGHTED_SPRITE = new ResourceLocation("container/enchanting_table/enchantment_slot_highlighted");
+    private static final ResourceLocation ENCHANTMENT_SLOT_SPRITE = new ResourceLocation("container/enchanting_table/enchantment_slot");
     private static final ResourceLocation ENCHANTING_TABLE_LOCATION = new ResourceLocation("textures/gui/container/enchanting_table.png");
     private static final ResourceLocation ENCHANTING_BOOK_LOCATION = new ResourceLocation("textures/entity/enchanting_table_book.png");
     private final RandomSource random = RandomSource.create();
@@ -86,28 +99,28 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
             int var5 = var4 + 20;
             int var6 = this.menu.costs[var3];
             if (var6 == 0) {
-                param0.blit(ENCHANTING_TABLE_LOCATION, var4, var1 + 14 + 19 * var3, 0, 185, 108, 19);
+                param0.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, var4, var1 + 14 + 19 * var3, 108, 19);
             } else {
                 String var7 = var6 + "";
                 int var8 = 86 - this.font.width(var7);
                 FormattedText var9 = EnchantmentNames.getInstance().getRandomName(this.font, var8);
                 int var10 = 6839882;
                 if ((var2 < var3 + 1 || this.minecraft.player.experienceLevel < var6) && !this.minecraft.player.getAbilities().instabuild) {
-                    param0.blit(ENCHANTING_TABLE_LOCATION, var4, var1 + 14 + 19 * var3, 0, 185, 108, 19);
-                    param0.blit(ENCHANTING_TABLE_LOCATION, var4 + 1, var1 + 15 + 19 * var3, 16 * var3, 239, 16, 16);
+                    param0.blitSprite(ENCHANTMENT_SLOT_DISABLED_SPRITE, var4, var1 + 14 + 19 * var3, 108, 19);
+                    param0.blitSprite(DISABLED_LEVEL_SPRITES[var3], var4 + 1, var1 + 15 + 19 * var3, 16, 16);
                     param0.drawWordWrap(this.font, var9, var5, var1 + 16 + 19 * var3, var8, (var10 & 16711422) >> 1);
                     var10 = 4226832;
                 } else {
                     int var11 = param2 - (var0 + 60);
                     int var12 = param3 - (var1 + 14 + 19 * var3);
                     if (var11 >= 0 && var12 >= 0 && var11 < 108 && var12 < 19) {
-                        param0.blit(ENCHANTING_TABLE_LOCATION, var4, var1 + 14 + 19 * var3, 0, 204, 108, 19);
+                        param0.blitSprite(ENCHANTMENT_SLOT_HIGHLIGHTED_SPRITE, var4, var1 + 14 + 19 * var3, 108, 19);
                         var10 = 16777088;
                     } else {
-                        param0.blit(ENCHANTING_TABLE_LOCATION, var4, var1 + 14 + 19 * var3, 0, 166, 108, 19);
+                        param0.blitSprite(ENCHANTMENT_SLOT_SPRITE, var4, var1 + 14 + 19 * var3, 108, 19);
                     }
 
-                    param0.blit(ENCHANTING_TABLE_LOCATION, var4 + 1, var1 + 15 + 19 * var3, 16 * var3, 223, 16, 16);
+                    param0.blitSprite(ENABLED_LEVEL_SPRITES[var3], var4 + 1, var1 + 15 + 19 * var3, 16, 16);
                     param0.drawWordWrap(this.font, var9, var5, var1 + 16 + 19 * var3, var8, var10);
                     var10 = 8453920;
                 }
@@ -144,7 +157,6 @@ public class EnchantmentScreen extends AbstractContainerScreen<EnchantmentMenu> 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         param3 = this.minecraft.getFrameTime();
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);
         boolean var0 = this.minecraft.player.getAbilities().instabuild;

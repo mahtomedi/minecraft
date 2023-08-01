@@ -179,7 +179,7 @@ public class BookEditScreen extends Screen {
         this.signButton.visible = !this.isSigning;
         this.cancelButton.visible = this.isSigning;
         this.finalizeButton.visible = this.isSigning;
-        this.finalizeButton.active = !this.title.trim().isEmpty();
+        this.finalizeButton.active = !Util.isBlank(this.title);
     }
 
     private void eraseEmptyTrailingPages() {
@@ -388,11 +388,10 @@ public class BookEditScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.setFocused(null);
         int var0 = (this.width - 192) / 2;
         int var1 = 2;
-        param0.blit(BookViewScreen.BOOK_LOCATION, var0, 2, 0, 0, 192, 192);
         if (this.isSigning) {
             boolean var2 = this.frameTick / 6 % 2 == 0;
             FormattedCharSequence var3 = FormattedCharSequence.composite(
@@ -418,7 +417,12 @@ public class BookEditScreen extends Screen {
             this.renderCursor(param0, var8.cursor, var8.cursorAtEnd);
         }
 
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        super.renderBackground(param0, param1, param2, param3);
+        param0.blit(BookViewScreen.BOOK_LOCATION, (this.width - 192) / 2, 2, 0, 0, 192, 192);
     }
 
     private void renderCursor(GuiGraphics param0, BookEditScreen.Pos2i param1, boolean param2) {

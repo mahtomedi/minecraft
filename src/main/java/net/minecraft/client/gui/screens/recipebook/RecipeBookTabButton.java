@@ -7,7 +7,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.StateSwitchingButton;
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -16,6 +18,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RecipeBookTabButton extends StateSwitchingButton {
+    private static final WidgetSprites SPRITES = new WidgetSprites(new ResourceLocation("recipe_book/tab"), new ResourceLocation("recipe_book/tab_selected"));
     private final RecipeBookCategories category;
     private static final float ANIMATION_TIME = 15.0F;
     private float animationTime;
@@ -23,7 +26,7 @@ public class RecipeBookTabButton extends StateSwitchingButton {
     public RecipeBookTabButton(RecipeBookCategories param0) {
         super(0, 0, 35, 27, false);
         this.category = param0;
-        this.initTextureValues(153, 2, 35, 0, RecipeBookComponent.RECIPE_BOOK_LOCATION);
+        this.initTextureValues(SPRITES);
     }
 
     public void startAnimation(Minecraft param0) {
@@ -44,39 +47,32 @@ public class RecipeBookTabButton extends StateSwitchingButton {
 
     @Override
     public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
-        if (this.animationTime > 0.0F) {
-            float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
-            param0.pose().pushPose();
-            param0.pose().translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
-            param0.pose().scale(1.0F, var0, 1.0F);
-            param0.pose().translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
-        }
+        if (this.sprites != null) {
+            if (this.animationTime > 0.0F) {
+                float var0 = 1.0F + 0.1F * (float)Math.sin((double)(this.animationTime / 15.0F * (float) Math.PI));
+                param0.pose().pushPose();
+                param0.pose().translate((float)(this.getX() + 8), (float)(this.getY() + 12), 0.0F);
+                param0.pose().scale(1.0F, var0, 1.0F);
+                param0.pose().translate((float)(-(this.getX() + 8)), (float)(-(this.getY() + 12)), 0.0F);
+            }
 
-        Minecraft var1 = Minecraft.getInstance();
-        RenderSystem.disableDepthTest();
-        int var2 = this.xTexStart;
-        int var3 = this.yTexStart;
-        if (this.isStateTriggered) {
-            var2 += this.xDiffTex;
-        }
+            Minecraft var1 = Minecraft.getInstance();
+            RenderSystem.disableDepthTest();
+            ResourceLocation var2 = this.sprites.get(true, this.isStateTriggered);
+            int var3 = this.getX();
+            if (this.isStateTriggered) {
+                var3 -= 2;
+            }
 
-        if (this.isHoveredOrFocused()) {
-            var3 += this.yDiffTex;
-        }
+            param0.blitSprite(var2, var3, this.getY(), this.width, this.height);
+            RenderSystem.enableDepthTest();
+            this.renderIcon(param0, var1.getItemRenderer());
+            if (this.animationTime > 0.0F) {
+                param0.pose().popPose();
+                this.animationTime -= param3;
+            }
 
-        int var4 = this.getX();
-        if (this.isStateTriggered) {
-            var4 -= 2;
         }
-
-        param0.blit(this.resourceLocation, var4, this.getY(), var2, var3, this.width, this.height);
-        RenderSystem.enableDepthTest();
-        this.renderIcon(param0, var1.getItemRenderer());
-        if (this.animationTime > 0.0F) {
-            param0.pose().popPose();
-            this.animationTime -= param3;
-        }
-
     }
 
     private void renderIcon(GuiGraphics param0, ItemRenderer param1) {

@@ -38,7 +38,6 @@ public abstract class ItemCombinerScreen<T extends ItemCombinerMenu> extends Abs
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         super.render(param0, param1, param2, param3);
         this.renderFg(param0, param1, param2, param3);
         this.renderTooltip(param0, param1, param2);

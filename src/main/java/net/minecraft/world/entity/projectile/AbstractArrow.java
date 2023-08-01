@@ -112,7 +112,7 @@ public abstract class AbstractArrow extends Projectile {
     }
 
     @Override
-    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
+    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5) {
         this.setPos(param0, param1, param2);
         this.setRot(param3, param4);
     }

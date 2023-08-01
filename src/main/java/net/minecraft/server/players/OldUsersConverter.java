@@ -3,7 +3,6 @@ package net.minecraft.server.players;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import com.mojang.authlib.Agent;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.ProfileLookupCallback;
 import com.mojang.authlib.yggdrasil.ProfileNotFoundException;
@@ -51,10 +50,10 @@ public class OldUsersConverter {
     private static void lookupPlayers(MinecraftServer param0, Collection<String> param1, ProfileLookupCallback param2) {
         String[] var0 = param1.stream().filter(param0x -> !StringUtil.isNullOrEmpty(param0x)).toArray(param0x -> new String[param0x]);
         if (param0.usesAuthentication()) {
-            param0.getProfileRepository().findProfilesByNames(var0, Agent.MINECRAFT, param2);
+            param0.getProfileRepository().findProfilesByNames(var0, param2);
         } else {
             for(String var1 : var0) {
-                UUID var2 = UUIDUtil.getOrCreatePlayerUUID(new GameProfile(null, var1));
+                UUID var2 = UUIDUtil.createOfflinePlayerUUID(var1);
                 GameProfile var3 = new GameProfile(var2, var1);
                 param2.onProfileLookupSucceeded(var3);
             }
@@ -94,10 +93,10 @@ public class OldUsersConverter {
                     }
 
                     @Override
-                    public void onProfileLookupFailed(GameProfile param0x, Exception param1) {
-                        OldUsersConverter.LOGGER.warn("Could not lookup user banlist entry for {}", param0.getName(), param1);
+                    public void onProfileLookupFailed(String param0x, Exception param1) {
+                        OldUsersConverter.LOGGER.warn("Could not lookup user banlist entry for {}", param0, param1);
                         if (!(param1 instanceof ProfileNotFoundException)) {
-                            throw new OldUsersConverter.ConversionError("Could not request user " + param0.getName() + " from backend systems", param1);
+                            throw new OldUsersConverter.ConversionError("Could not request user " + param0 + " from backend systems", param1);
                         }
                     }
                 };
@@ -174,10 +173,10 @@ public class OldUsersConverter {
                     }
 
                     @Override
-                    public void onProfileLookupFailed(GameProfile param0x, Exception param1) {
-                        OldUsersConverter.LOGGER.warn("Could not lookup oplist entry for {}", param0.getName(), param1);
+                    public void onProfileLookupFailed(String param0x, Exception param1) {
+                        OldUsersConverter.LOGGER.warn("Could not lookup oplist entry for {}", param0, param1);
                         if (!(param1 instanceof ProfileNotFoundException)) {
-                            throw new OldUsersConverter.ConversionError("Could not request user " + param0.getName() + " from backend systems", param1);
+                            throw new OldUsersConverter.ConversionError("Could not request user " + param0 + " from backend systems", param1);
                         }
                     }
                 };
@@ -218,10 +217,10 @@ public class OldUsersConverter {
                     }
 
                     @Override
-                    public void onProfileLookupFailed(GameProfile param0x, Exception param1) {
-                        OldUsersConverter.LOGGER.warn("Could not lookup user whitelist entry for {}", param0.getName(), param1);
+                    public void onProfileLookupFailed(String param0x, Exception param1) {
+                        OldUsersConverter.LOGGER.warn("Could not lookup user whitelist entry for {}", param0, param1);
                         if (!(param1 instanceof ProfileNotFoundException)) {
-                            throw new OldUsersConverter.ConversionError("Could not request user " + param0.getName() + " from backend systems", param1);
+                            throw new OldUsersConverter.ConversionError("Could not request user " + param0 + " from backend systems", param1);
                         }
                     }
                 };
@@ -257,14 +256,14 @@ public class OldUsersConverter {
                     }
 
                     @Override
-                    public void onProfileLookupFailed(GameProfile param0x, Exception param1) {
-                        OldUsersConverter.LOGGER.warn("Could not lookup user whitelist entry for {}", param0.getName(), param1);
+                    public void onProfileLookupFailed(String param0x, Exception param1) {
+                        OldUsersConverter.LOGGER.warn("Could not lookup user whitelist entry for {}", param0, param1);
                     }
                 };
                 lookupPlayers(param0, Lists.newArrayList(param1), var3);
-                return !var2.isEmpty() && var2.get(0).getId() != null ? var2.get(0).getId() : null;
+                return !var2.isEmpty() ? var2.get(0).getId() : null;
             } else {
-                return UUIDUtil.getOrCreatePlayerUUID(new GameProfile(null, param1));
+                return UUIDUtil.createOfflinePlayerUUID(param1);
             }
         } else {
             try {
@@ -300,21 +299,17 @@ public class OldUsersConverter {
                     public void onProfileLookupSucceeded(GameProfile param0x) {
                         param0.getProfileCache().add(param0);
                         UUID var0 = param0.getId();
-                        if (var0 == null) {
-                            throw new OldUsersConverter.ConversionError("Missing UUID for user profile " + param0.getName());
-                        } else {
-                            this.movePlayerFile(var1, this.getFileNameForProfile(param0), var0.toString());
-                        }
+                        this.movePlayerFile(var1, this.getFileNameForProfile(param0.getName()), var0.toString());
                     }
 
                     @Override
-                    public void onProfileLookupFailed(GameProfile param0x, Exception param1) {
-                        OldUsersConverter.LOGGER.warn("Could not lookup user uuid for {}", param0.getName(), param1);
+                    public void onProfileLookupFailed(String param0x, Exception param1) {
+                        OldUsersConverter.LOGGER.warn("Could not lookup user uuid for {}", param0, param1);
                         if (param1 instanceof ProfileNotFoundException) {
                             String var0 = this.getFileNameForProfile(param0);
                             this.movePlayerFile(var2, var0, var0);
                         } else {
-                            throw new OldUsersConverter.ConversionError("Could not request user " + param0.getName() + " from backend systems", param1);
+                            throw new OldUsersConverter.ConversionError("Could not request user " + param0 + " from backend systems", param1);
                         }
                     }
 
@@ -327,18 +322,18 @@ public class OldUsersConverter {
                         }
                     }
 
-                    private String getFileNameForProfile(GameProfile param0x) {
+                    private String getFileNameForProfile(String param0x) {
                         String var0 = null;
 
                         for(String var1 : var8) {
-                            if (var1 != null && var1.equalsIgnoreCase(param0.getName())) {
+                            if (var1 != null && var1.equalsIgnoreCase(param0)) {
                                 var0 = var1;
                                 break;
                             }
                         }
 
                         if (var0 == null) {
-                            throw new OldUsersConverter.ConversionError("Could not find the filename for " + param0.getName() + " anymore");
+                            throw new OldUsersConverter.ConversionError("Could not find the filename for " + param0 + " anymore");
                         } else {
                             return var0;
                         }

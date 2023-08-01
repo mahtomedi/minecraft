@@ -44,7 +44,7 @@ public class SmithingTrimRecipe implements SmithingRecipe {
             Optional<Holder.Reference<TrimMaterial>> var1 = TrimMaterials.getFromIngredient(param1, param0.getItem(2));
             Optional<Holder.Reference<TrimPattern>> var2 = TrimPatterns.getFromTemplate(param1, param0.getItem(0));
             if (var1.isPresent() && var2.isPresent()) {
-                Optional<ArmorTrim> var3 = ArmorTrim.getTrim(param1, var0);
+                Optional<ArmorTrim> var3 = ArmorTrim.getTrim(param1, var0, false);
                 if (var3.isPresent() && var3.get().hasPatternAndMaterial(var2.get(), var1.get())) {
                     return ItemStack.EMPTY;
                 }

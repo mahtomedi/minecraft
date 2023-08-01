@@ -1,15 +1,12 @@
 package net.minecraft.world.item.crafting;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
 
 public class DecoratedPotRecipe extends CustomRecipe {
@@ -50,14 +47,7 @@ public class DecoratedPotRecipe extends CustomRecipe {
         DecoratedPotBlockEntity.Decorations var0 = new DecoratedPotBlockEntity.Decorations(
             param0.getItem(1).getItem(), param0.getItem(3).getItem(), param0.getItem(5).getItem(), param0.getItem(7).getItem()
         );
-        return createDecoratedPotItem(var0);
-    }
-
-    public static ItemStack createDecoratedPotItem(DecoratedPotBlockEntity.Decorations param0) {
-        ItemStack var0 = Items.DECORATED_POT.getDefaultInstance();
-        CompoundTag var1 = param0.save(new CompoundTag());
-        BlockItem.setBlockEntityData(var0, BlockEntityType.DECORATED_POT, var1);
-        return var0;
+        return DecoratedPotBlockEntity.createDecoratedPotItem(var0);
     }
 
     @Override

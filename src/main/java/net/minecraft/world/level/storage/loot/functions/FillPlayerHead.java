@@ -9,7 +9,6 @@ import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -38,10 +37,10 @@ public class FillPlayerHead extends LootItemConditionalFunction {
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
         if (param0.is(Items.PLAYER_HEAD)) {
-            Entity var0 = param1.getParamOrNull(this.entityTarget.getParam());
-            if (var0 instanceof Player) {
-                GameProfile var1 = ((Player)var0).getGameProfile();
-                param0.getOrCreateTag().put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var1));
+            Object var1 = param1.getParamOrNull(this.entityTarget.getParam());
+            if (var1 instanceof Player var0) {
+                GameProfile var1x = var0.getGameProfile();
+                param0.getOrCreateTag().put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), var1x));
             }
         }
 

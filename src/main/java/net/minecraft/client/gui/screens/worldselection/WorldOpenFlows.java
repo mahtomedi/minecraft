@@ -17,8 +17,8 @@ import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.DatapackLoadFailureScreen;
+import net.minecraft.client.gui.screens.NoticeWithLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.SymlinkWarningScreen;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.MappedRegistry;
@@ -104,7 +104,7 @@ public class WorldOpenFlows {
             return null;
         } catch (ContentValidationException var4) {
             LOGGER.warn("{}", var4.getMessage());
-            this.minecraft.setScreen(new SymlinkWarningScreen(null));
+            this.minecraft.setScreen(NoticeWithLinkScreen.createWorldSymlinkWarningScreen(null));
             return null;
         }
     }

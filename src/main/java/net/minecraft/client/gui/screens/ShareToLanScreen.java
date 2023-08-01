@@ -90,15 +90,6 @@ public class ShareToLanScreen extends Screen {
         );
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (this.portEdit != null) {
-            this.portEdit.tick();
-        }
-
-    }
-
     @Nullable
     private Component tryParsePort(String param0) {
         if (param0.isBlank()) {
@@ -121,10 +112,9 @@ public class ShareToLanScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 50, 16777215);
         param0.drawCenteredString(this.font, INFO_TEXT, this.width / 2, 82, 16777215);
         param0.drawCenteredString(this.font, PORT_INFO_TEXT, this.width / 2, 142, 16777215);
-        super.render(param0, param1, param2, param3);
     }
 }

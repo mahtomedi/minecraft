@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
@@ -52,8 +53,9 @@ public class FollowBoatGoal extends Goal {
     @Override
     public void start() {
         for(Boat var1 : this.mob.level().getEntitiesOfClass(Boat.class, this.mob.getBoundingBox().inflate(5.0))) {
-            if (var1.getControllingPassenger() != null && var1.getControllingPassenger() instanceof Player) {
-                this.following = (Player)var1.getControllingPassenger();
+            LivingEntity var5 = var1.getControllingPassenger();
+            if (var5 instanceof Player var2) {
+                this.following = var2;
                 break;
             }
         }

@@ -31,9 +31,13 @@ public class ReceivingLevelScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderDirtBackground(param0);
-        param0.drawCenteredString(this.font, DOWNLOADING_TERRAIN_TEXT, this.width / 2, this.height / 2 - 50, 16777215);
         super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, DOWNLOADING_TERRAIN_TEXT, this.width / 2, this.height / 2 - 50, 16777215);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     @Override
@@ -48,7 +52,7 @@ public class ReceivingLevelScreen extends Screen {
 
                 BlockPos var0 = this.minecraft.player.blockPosition();
                 boolean var1 = this.minecraft.level != null && this.minecraft.level.isOutsideBuildHeight(var0.getY());
-                if (var1 || this.minecraft.levelRenderer.isChunkCompiled(var0) || this.minecraft.player.isSpectator() || !this.minecraft.player.isAlive()) {
+                if (var1 || this.minecraft.levelRenderer.isSectionCompiled(var0) || this.minecraft.player.isSpectator() || !this.minecraft.player.isAlive()) {
                     this.onClose();
                 }
             } else {

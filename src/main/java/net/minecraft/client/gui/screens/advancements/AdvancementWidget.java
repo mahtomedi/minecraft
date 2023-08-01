@@ -23,7 +23,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class AdvancementWidget {
-    private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/advancements/widgets.png");
+    private static final ResourceLocation TITLE_BOX_SPRITE = new ResourceLocation("advancements/title_box");
     private static final int HEIGHT = 26;
     private static final int BOX_X = 0;
     private static final int BOX_WIDTH = 200;
@@ -150,7 +150,7 @@ public class AdvancementWidget {
                 var1 = AdvancementWidgetType.UNOBTAINED;
             }
 
-            param0.blit(WIDGETS_LOCATION, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var1.getIndex() * 26, 26, 26);
+            param0.blitSprite(var1.frameSprite(this.display.getFrame()), param1 + this.x + 3, param2 + this.y, 26, 26);
             param0.renderFakeItem(this.display.getIcon(), param1 + this.x + 8, param2 + this.y + 5);
         }
 
@@ -216,15 +216,15 @@ public class AdvancementWidget {
         int var22 = 32 + this.description.size() * 9;
         if (!this.description.isEmpty()) {
             if (var3) {
-                param0.blitNineSliced(WIDGETS_LOCATION, var20, var19 + 26 - var22, this.width, var22, 10, 200, 26, 0, 52);
+                param0.blitSprite(TITLE_BOX_SPRITE, var20, var19 + 26 - var22, this.width, var22);
             } else {
-                param0.blitNineSliced(WIDGETS_LOCATION, var20, var19, this.width, var22, 10, 200, 26, 0, 52);
+                param0.blitSprite(TITLE_BOX_SPRITE, var20, var19, this.width, var22);
             }
         }
 
-        param0.blit(WIDGETS_LOCATION, var20, var19, 0, var6.getIndex() * 26, var5, 26);
-        param0.blit(WIDGETS_LOCATION, var20 + var5, var19, 200 - var18, var7.getIndex() * 26, var18, 26);
-        param0.blit(WIDGETS_LOCATION, param1 + this.x + 3, param2 + this.y, this.display.getFrame().getTexture(), 128 + var8.getIndex() * 26, 26, 26);
+        param0.blitSprite(var6.boxSprite(), 200, 26, 0, 0, var20, var19, var5, 26);
+        param0.blitSprite(var7.boxSprite(), 200, 26, 200 - var18, 0, var20 + var5, var19, var18, 26);
+        param0.blitSprite(var8.frameSprite(this.display.getFrame()), param1 + this.x + 3, param2 + this.y, 26, 26);
         if (var0) {
             param0.drawString(this.minecraft.font, this.title, var20 + 5, param2 + this.y + 9, -1);
             if (var1 != null) {

@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.packs.FeatureFlagsMetadataSection;
+import net.minecraft.server.packs.OverlayMetadataSection;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.util.InclusiveRange;
 import net.minecraft.world.flag.FeatureFlagSet;
 import org.slf4j.Logger;
 
@@ -21,9 +24,7 @@ public class Pack {
     private final String id;
     private final Pack.ResourcesSupplier resources;
     private final Component title;
-    private final Component description;
-    private final PackCompatibility compatibility;
-    private final FeatureFlagSet requestedFeatures;
+    private final Pack.Info info;
     private final Pack.Position defaultPosition;
     private final boolean required;
     private final boolean fixedPosition;
@@ -33,8 +34,9 @@ public class Pack {
     public static Pack readMetaAndCreate(
         String param0, Component param1, boolean param2, Pack.ResourcesSupplier param3, PackType param4, Pack.Position param5, PackSource param6
     ) {
-        Pack.Info var0 = readPackInfo(param0, param3);
-        return var0 != null ? create(param0, param1, param2, param3, var0, param4, param5, false, param6) : null;
+        int var0 = SharedConstants.getCurrentVersion().getPackVersion(param4);
+        Pack.Info var1 = readPackInfo(param0, param3, var0);
+        return var1 != null ? create(param0, param1, param2, param3, var1, param5, false, param6) : null;
     }
 
     public static Pack create(
@@ -43,12 +45,11 @@ public class Pack {
         boolean param2,
         Pack.ResourcesSupplier param3,
         Pack.Info param4,
-        PackType param5,
-        Pack.Position param6,
-        boolean param7,
-        PackSource param8
+        Pack.Position param5,
+        boolean param6,
+        PackSource param7
     ) {
-        return new Pack(param0, param2, param3, param1, param4, param4.compatibility(param5), param6, param7, param8);
+        return new Pack(param0, param2, param3, param1, param4, param5, param6, param7);
     }
 
     private Pack(
@@ -57,28 +58,25 @@ public class Pack {
         Pack.ResourcesSupplier param2,
         Component param3,
         Pack.Info param4,
-        PackCompatibility param5,
-        Pack.Position param6,
-        boolean param7,
-        PackSource param8
+        Pack.Position param5,
+        boolean param6,
+        PackSource param7
     ) {
         this.id = param0;
         this.resources = param2;
         this.title = param3;
-        this.description = param4.description();
-        this.compatibility = param5;
-        this.requestedFeatures = param4.requestedFeatures();
+        this.info = param4;
         this.required = param1;
-        this.defaultPosition = param6;
-        this.fixedPosition = param7;
-        this.packSource = param8;
+        this.defaultPosition = param5;
+        this.fixedPosition = param6;
+        this.packSource = param7;
     }
 
     @Nullable
-    public static Pack.Info readPackInfo(String param0, Pack.ResourcesSupplier param1) {
+    public static Pack.Info readPackInfo(String param0, Pack.ResourcesSupplier param1, int param2) {
         try {
-            Pack.Info var6;
-            try (PackResources var0 = param1.open(param0)) {
+            Pack.Info var11;
+            try (PackResources var0 = param1.openPrimary(param0)) {
                 PackMetadataSection var1 = var0.getMetadataSection(PackMetadataSection.TYPE);
                 if (var1 == null) {
                     LOGGER.warn("Missing metadata in pack {}", param0);
@@ -87,13 +85,32 @@ public class Pack {
 
                 FeatureFlagsMetadataSection var2 = var0.getMetadataSection(FeatureFlagsMetadataSection.TYPE);
                 FeatureFlagSet var3 = var2 != null ? var2.flags() : FeatureFlagSet.of();
-                var6 = new Pack.Info(var1.getDescription(), var1.getPackFormat(), var3);
+                InclusiveRange<Integer> var4 = getDeclaredPackVersions(param0, var1);
+                PackCompatibility var5 = PackCompatibility.forVersion(var4, param2);
+                OverlayMetadataSection var6 = var0.getMetadataSection(OverlayMetadataSection.TYPE);
+                List<String> var7 = var6 != null ? var6.overlaysForVersion(param2) : List.of();
+                var11 = new Pack.Info(var1.description(), var5, var3, var7);
             }
 
-            return var6;
-        } catch (Exception var9) {
-            LOGGER.warn("Failed to read pack metadata", (Throwable)var9);
+            return var11;
+        } catch (Exception var14) {
+            LOGGER.warn("Failed to read pack {} metadata", param0, var14);
             return null;
+        }
+    }
+
+    private static InclusiveRange<Integer> getDeclaredPackVersions(String param0, PackMetadataSection param1) {
+        int var0 = param1.packFormat();
+        if (param1.supportedFormats().isEmpty()) {
+            return new InclusiveRange<>(var0);
+        } else {
+            InclusiveRange<Integer> var1 = param1.supportedFormats().get();
+            if (!var1.isValueInRange(var0)) {
+                LOGGER.warn("Pack {} declared support for versions {} but declared main format is {}, defaulting to {}", param0, var1, var0, var0);
+                return new InclusiveRange<>(var0);
+            } else {
+                return var1;
+            }
         }
     }
 
@@ -102,7 +119,7 @@ public class Pack {
     }
 
     public Component getDescription() {
-        return this.description;
+        return this.info.description();
     }
 
     public Component getChatLink(boolean param0) {
@@ -110,20 +127,22 @@ public class Pack {
             .withStyle(
                 param1 -> param1.withColor(param0 ? ChatFormatting.GREEN : ChatFormatting.RED)
                         .withInsertion(StringArgumentType.escapeIfRequired(this.id))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.empty().append(this.title).append("\n").append(this.description)))
+                        .withHoverEvent(
+                            new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.empty().append(this.title).append("\n").append(this.info.description))
+                        )
             );
     }
 
     public PackCompatibility getCompatibility() {
-        return this.compatibility;
+        return this.info.compatibility();
     }
 
     public FeatureFlagSet getRequestedFeatures() {
-        return this.requestedFeatures;
+        return this.info.requestedFeatures();
     }
 
     public PackResources open() {
-        return this.resources.open(this.id);
+        return this.resources.openFull(this.id, this.info);
     }
 
     public String getId() {
@@ -163,10 +182,7 @@ public class Pack {
         return this.id.hashCode();
     }
 
-    public static record Info(Component description, int format, FeatureFlagSet requestedFeatures) {
-        public PackCompatibility compatibility(PackType param0) {
-            return PackCompatibility.forFormat(this.format, param0);
-        }
+    public static record Info(Component description, PackCompatibility compatibility, FeatureFlagSet requestedFeatures, List<String> overlays) {
     }
 
     public static enum Position {
@@ -205,8 +221,9 @@ public class Pack {
         }
     }
 
-    @FunctionalInterface
     public interface ResourcesSupplier {
-        PackResources open(String var1);
+        PackResources openPrimary(String var1);
+
+        PackResources openFull(String var1, Pack.Info var2);
     }
 }

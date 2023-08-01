@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
-import com.mojang.realmsclient.RealmsMainScreen;
+import com.mojang.realmsclient.gui.screens.RealmsPopupScreen;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,7 +19,6 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -185,26 +184,24 @@ public class TextureManager implements PreparableReloadListener, Tickable, AutoC
         Executor param5
     ) {
         CompletableFuture<Void> var0 = new CompletableFuture<>();
-        CompletableFuture.allOf(TitleScreen.preloadResources(this, param4), this.preload(AbstractWidget.WIDGETS_LOCATION, param4))
-            .thenCompose(param0::wait)
-            .thenAcceptAsync(param3x -> {
-                MissingTextureAtlasSprite.getTexture();
-                RealmsMainScreen.updateTeaserImages(this.resourceManager);
-                Iterator<Entry<ResourceLocation, AbstractTexture>> var0x = this.byPath.entrySet().iterator();
-    
-                while(var0x.hasNext()) {
-                    Entry<ResourceLocation, AbstractTexture> var1x = var0x.next();
-                    ResourceLocation var2x = (ResourceLocation)var1x.getKey();
-                    AbstractTexture var3x = (AbstractTexture)var1x.getValue();
-                    if (var3x == MissingTextureAtlasSprite.getTexture() && !var2x.equals(MissingTextureAtlasSprite.getLocation())) {
-                        var0x.remove();
-                    } else {
-                        var3x.reset(this, param1, var2x, param5);
-                    }
+        TitleScreen.preloadResources(this, param4).thenCompose(param0::wait).thenAcceptAsync(param3x -> {
+            MissingTextureAtlasSprite.getTexture();
+            RealmsPopupScreen.updateCarouselImages(this.resourceManager);
+            Iterator<Entry<ResourceLocation, AbstractTexture>> var0x = this.byPath.entrySet().iterator();
+
+            while(var0x.hasNext()) {
+                Entry<ResourceLocation, AbstractTexture> var1x = var0x.next();
+                ResourceLocation var2x = (ResourceLocation)var1x.getKey();
+                AbstractTexture var3x = (AbstractTexture)var1x.getValue();
+                if (var3x == MissingTextureAtlasSprite.getTexture() && !var2x.equals(MissingTextureAtlasSprite.getLocation())) {
+                    var0x.remove();
+                } else {
+                    var3x.reset(this, param1, var2x, param5);
                 }
-    
-                Minecraft.getInstance().tell(() -> var0.complete(null));
-            }, param0x -> RenderSystem.recordRenderCall(param0x::run));
+            }
+
+            Minecraft.getInstance().tell(() -> var0.complete(null));
+        }, param0x -> RenderSystem.recordRenderCall(param0x::run));
         return var0;
     }
 

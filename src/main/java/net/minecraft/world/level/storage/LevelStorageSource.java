@@ -17,6 +17,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -91,7 +92,7 @@ public class LevelStorageSource {
         "RandomSeed", "generatorName", "generatorOptions", "generatorVersion", "legacy_custom_options", "MapFeatures", "BonusChest"
     );
     private static final String TAG_DATA = "Data";
-    private static final PathAllowList NO_SYMLINKS_ALLOWED = new PathAllowList(List.of());
+    private static final PathMatcher NO_SYMLINKS_ALLOWED = param0 -> false;
     public static final String ALLOWED_SYMLINKS_CONFIG_NAME = "allowed_symlinks.txt";
     private final Path baseDir;
     private final Path backupDir;
@@ -287,10 +288,9 @@ public class LevelStorageSource {
         return (param2, param3) -> {
             try {
                 if (Files.isSymbolicLink(param2)) {
-                    List<ForbiddenSymlinkInfo> var0 = new ArrayList<>();
-                    this.worldDirValidator.validateSymlink(param2, var0);
+                    List<ForbiddenSymlinkInfo> var0 = this.worldDirValidator.validateSymlink(param2);
                     if (!var0.isEmpty()) {
-                        LOGGER.warn(ContentValidationException.getMessage(param2, var0));
+                        LOGGER.warn("{}", ContentValidationException.getMessage(param2, var0));
                         return new LevelSummary.SymlinkLevelSummary(param0.directoryName(), param0.iconFile());
                     }
                 }
@@ -368,7 +368,7 @@ public class LevelStorageSource {
 
     public LevelStorageSource.LevelStorageAccess validateAndCreateAccess(String param0) throws IOException, ContentValidationException {
         Path var0 = this.getLevelPath(param0);
-        List<ForbiddenSymlinkInfo> var1 = this.worldDirValidator.validateSave(var0, true);
+        List<ForbiddenSymlinkInfo> var1 = this.worldDirValidator.validateDirectory(var0, true);
         if (!var1.isEmpty()) {
             throw new ContentValidationException(var0, var1);
         } else {
@@ -436,6 +436,10 @@ public class LevelStorageSource {
             this.levelId = param1;
             this.levelDirectory = new LevelStorageSource.LevelDirectory(param2);
             this.lock = DirectoryLock.create(param2);
+        }
+
+        public LevelStorageSource parent() {
+            return LevelStorageSource.this;
         }
 
         public String getLevelId() {

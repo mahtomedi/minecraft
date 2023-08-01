@@ -49,8 +49,8 @@ public class DemoIntroScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics param0) {
-        super.renderBackground(param0);
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        super.renderBackground(param0, param1, param2, param3);
         int var0 = (this.width - 248) / 2;
         int var1 = (this.height - 166) / 2;
         param0.blit(DEMO_BACKGROUND_LOCATION, var0, var1, 0, 0, 248, 166);
@@ -58,12 +58,11 @@ public class DemoIntroScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         int var0 = (this.width - 248) / 2 + 10;
         int var1 = (this.height - 166) / 2 + 8;
         param0.drawString(this.font, this.title, var0, var1, 2039583, false);
         var1 = this.movementMessage.renderLeftAlignedNoShadow(param0, var0, var1 + 12, 12, 5197647);
         this.durationMessage.renderLeftAlignedNoShadow(param0, var0, var1 + 20, 9, 2039583);
-        super.render(param0, param1, param2, param3);
     }
 }

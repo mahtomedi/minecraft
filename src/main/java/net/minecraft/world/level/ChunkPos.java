@@ -159,6 +159,20 @@ public class ChunkPos {
         return Math.max(Math.abs(this.x - param0.x), Math.abs(this.z - param0.z));
     }
 
+    public int distanceSquared(ChunkPos param0) {
+        return this.distanceSquared(param0.x, param0.z);
+    }
+
+    public int distanceSquared(long param0) {
+        return this.distanceSquared(getX(param0), getZ(param0));
+    }
+
+    private int distanceSquared(int param0, int param1) {
+        int var0 = param0 - this.x;
+        int var1 = param1 - this.z;
+        return var0 * var0 + var1 * var1;
+    }
+
     public static Stream<ChunkPos> rangeClosed(ChunkPos param0, int param1) {
         return rangeClosed(new ChunkPos(param0.x - param1, param0.z - param1), new ChunkPos(param0.x + param1, param0.z + param1));
     }

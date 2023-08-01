@@ -101,6 +101,8 @@ public class ChiseledBookShelfBlockEntity extends BlockEntity implements Contain
         if (param1.is(ItemTags.BOOKSHELF_BOOKS)) {
             this.items.set(param0, param1);
             this.updateState(param0);
+        } else if (param1.isEmpty()) {
+            this.removeItem(param0, 1);
         }
 
     }

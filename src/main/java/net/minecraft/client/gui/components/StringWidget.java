@@ -2,7 +2,11 @@ package net.minecraft.client.gui.components;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -49,8 +53,17 @@ public class StringWidget extends AbstractStringWidget {
     public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         Component var0 = this.getMessage();
         Font var1 = this.getFont();
-        int var2 = this.getX() + Math.round(this.alignX * (float)(this.getWidth() - var1.width(var0)));
-        int var3 = this.getY() + (this.getHeight() - 9) / 2;
-        param0.drawString(var1, var0, var2, var3, this.getColor());
+        int var2 = this.getWidth();
+        int var3 = var1.width(var0);
+        int var4 = this.getX() + Math.round(this.alignX * (float)(var2 - var3));
+        int var5 = this.getY() + (this.getHeight() - 9) / 2;
+        FormattedCharSequence var6 = var3 > var2 ? this.clipText(var0, var2) : var0.getVisualOrderText();
+        param0.drawString(var1, var6, var4, var5, this.getColor());
+    }
+
+    private FormattedCharSequence clipText(Component param0, int param1) {
+        Font var0 = this.getFont();
+        FormattedText var1 = var0.substrByWidth(param0, param1 - var0.width(CommonComponents.ELLIPSIS));
+        return Language.getInstance().getVisualOrder(FormattedText.composite(var1, CommonComponents.ELLIPSIS));
     }
 }

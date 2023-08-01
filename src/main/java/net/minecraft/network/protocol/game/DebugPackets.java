@@ -2,47 +2,35 @@ package net.minecraft.network.protocol.game;
 
 import com.google.common.collect.Lists;
 import com.mojang.logging.LogUtils;
-import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.protocol.common.custom.GameTestAddMarkerDebugPayload;
+import net.minecraft.network.protocol.common.custom.GameTestClearMarkersDebugPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.StringUtil;
-import net.minecraft.world.Container;
 import net.minecraft.world.Nameable;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.behavior.BehaviorControl;
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
-import net.minecraft.world.entity.ai.gossip.GossipType;
 import net.minecraft.world.entity.ai.memory.ExpirableValue;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.animal.Bee;
-import net.minecraft.world.entity.monster.warden.Warden;
-import net.minecraft.world.entity.npc.InventoryCarrier;
-import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -60,17 +48,11 @@ public class DebugPackets {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void sendGameTestAddMarker(ServerLevel param0, BlockPos param1, String param2, int param3, int param4) {
-        FriendlyByteBuf var0 = new FriendlyByteBuf(Unpooled.buffer());
-        var0.writeBlockPos(param1);
-        var0.writeInt(param3);
-        var0.writeUtf(param2);
-        var0.writeInt(param4);
-        sendPacketToAllPlayers(param0, var0, ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_ADD_MARKER);
+        sendPacketToAllPlayers(param0, new GameTestAddMarkerDebugPayload(param1, param3, param2, param4));
     }
 
     public static void sendGameTestClearPacket(ServerLevel param0) {
-        FriendlyByteBuf var0 = new FriendlyByteBuf(Unpooled.buffer());
-        sendPacketToAllPlayers(param0, var0, ClientboundCustomPayloadPacket.DEBUG_GAME_TEST_CLEAR);
+        sendPacketToAllPlayers(param0, new GameTestClearMarkersDebugPayload());
     }
 
     public static void sendPoiPacketsForChunk(ServerLevel param0, ChunkPos param1) {
@@ -101,9 +83,6 @@ public class DebugPackets {
     }
 
     public static void sendGoalSelector(Level param0, Mob param1, GoalSelector param2) {
-        if (param0 instanceof ServerLevel) {
-            ;
-        }
     }
 
     public static void sendRaids(ServerLevel param0, Collection<Raid> param1) {
@@ -122,77 +101,6 @@ public class DebugPackets {
     }
 
     public static void sendHiveInfo(Level param0, BlockPos param1, BlockState param2, BeehiveBlockEntity param3) {
-    }
-
-    private static void writeBrain(LivingEntity param0, FriendlyByteBuf param1) {
-        Brain<?> var0 = param0.getBrain();
-        long var1 = param0.level().getGameTime();
-        if (param0 instanceof InventoryCarrier) {
-            Container var2 = ((InventoryCarrier)param0).getInventory();
-            param1.writeUtf(var2.isEmpty() ? "" : var2.toString());
-        } else {
-            param1.writeUtf("");
-        }
-
-        param1.writeOptional(
-            var0.hasMemoryValue(MemoryModuleType.PATH) ? var0.getMemory(MemoryModuleType.PATH) : Optional.empty(),
-            (param0x, param1x) -> param1x.writeToStream(param0x)
-        );
-        if (param0 instanceof Villager var3) {
-            boolean var4 = var3.wantsToSpawnGolem(var1);
-            param1.writeBoolean(var4);
-        } else {
-            param1.writeBoolean(false);
-        }
-
-        if (param0.getType() == EntityType.WARDEN) {
-            Warden var5 = (Warden)param0;
-            param1.writeInt(var5.getClientAngerLevel());
-        } else {
-            param1.writeInt(-1);
-        }
-
-        param1.writeCollection(var0.getActiveActivities(), (param0x, param1x) -> param0x.writeUtf(param1x.getName()));
-        Set<String> var6 = var0.getRunningBehaviors().stream().map(BehaviorControl::debugString).collect(Collectors.toSet());
-        param1.writeCollection(var6, FriendlyByteBuf::writeUtf);
-        param1.writeCollection(getMemoryDescriptions(param0, var1), (param0x, param1x) -> {
-            String var0x = StringUtil.truncateStringIfNecessary(param1x, 255, true);
-            param0x.writeUtf(var0x);
-        });
-        if (param0 instanceof Villager) {
-            Set<BlockPos> var7 = Stream.of(MemoryModuleType.JOB_SITE, MemoryModuleType.HOME, MemoryModuleType.MEETING_POINT)
-                .map(var0::getMemory)
-                .flatMap(Optional::stream)
-                .map(GlobalPos::pos)
-                .collect(Collectors.toSet());
-            param1.writeCollection(var7, FriendlyByteBuf::writeBlockPos);
-        } else {
-            param1.writeVarInt(0);
-        }
-
-        if (param0 instanceof Villager) {
-            Set<BlockPos> var8 = Stream.of(MemoryModuleType.POTENTIAL_JOB_SITE)
-                .map(var0::getMemory)
-                .flatMap(Optional::stream)
-                .map(GlobalPos::pos)
-                .collect(Collectors.toSet());
-            param1.writeCollection(var8, FriendlyByteBuf::writeBlockPos);
-        } else {
-            param1.writeVarInt(0);
-        }
-
-        if (param0 instanceof Villager) {
-            Map<UUID, Object2IntMap<GossipType>> var9 = ((Villager)param0).getGossips().getGossipEntries();
-            List<String> var10 = Lists.newArrayList();
-            var9.forEach((param1x, param2) -> {
-                String var0x = DebugEntityNameGenerator.getEntityName(param1x);
-                param2.forEach((param2x, param3) -> var10.add(var0x + ": " + param2x + ": " + param3));
-            });
-            param1.writeCollection(var10, FriendlyByteBuf::writeUtf);
-        } else {
-            param1.writeVarInt(0);
-        }
-
     }
 
     private static List<String> getMemoryDescriptions(LivingEntity param0, long param1) {
@@ -259,8 +167,8 @@ public class DebugPackets {
         }
     }
 
-    private static void sendPacketToAllPlayers(ServerLevel param0, FriendlyByteBuf param1, ResourceLocation param2) {
-        Packet<?> var0 = new ClientboundCustomPayloadPacket(param2, param1);
+    private static void sendPacketToAllPlayers(ServerLevel param0, CustomPacketPayload param1) {
+        Packet<?> var0 = new ClientboundCustomPayloadPacket(param1);
 
         for(ServerPlayer var1 : param0.players()) {
             var1.connection.send(var0);

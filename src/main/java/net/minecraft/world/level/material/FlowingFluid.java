@@ -384,8 +384,8 @@ public abstract class FlowingFluid extends Fluid {
 
     private boolean canHoldFluid(BlockGetter param0, BlockPos param1, BlockState param2, Fluid param3) {
         Block var0 = param2.getBlock();
-        if (var0 instanceof LiquidBlockContainer) {
-            return ((LiquidBlockContainer)var0).canPlaceLiquid(param0, param1, param2, param3);
+        if (var0 instanceof LiquidBlockContainer var1) {
+            return var1.canPlaceLiquid(null, param0, param1, param2, param3);
         } else if (var0 instanceof DoorBlock
             || param2.is(BlockTags.SIGNS)
             || param2.is(Blocks.LADDER)

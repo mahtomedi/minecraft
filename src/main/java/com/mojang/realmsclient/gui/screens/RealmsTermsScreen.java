@@ -73,7 +73,7 @@ public class RealmsTermsScreen extends RealmsScreen {
                     )
                 );
         } catch (RealmsServiceException var3) {
-            LOGGER.error("Couldn't agree to TOS");
+            LOGGER.error("Couldn't agree to TOS", (Throwable)var3);
         }
 
     }
@@ -96,9 +96,9 @@ public class RealmsTermsScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, 16777215);
-        param0.drawString(this.font, TERMS_STATIC_TEXT, this.width / 2 - 120, row(5), 16777215, false);
+        super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 17, -1);
+        param0.drawString(this.font, TERMS_STATIC_TEXT, this.width / 2 - 120, row(5), -1, false);
         int var0 = this.font.width(TERMS_STATIC_TEXT);
         int var1 = this.width / 2 - 121 + var0;
         int var2 = row(5);
@@ -106,6 +106,5 @@ public class RealmsTermsScreen extends RealmsScreen {
         int var4 = var2 + 1 + 9;
         this.onLink = var1 <= param1 && param1 <= var3 && var2 <= param2 && param2 <= var4;
         param0.drawString(this.font, TERMS_LINK_TEXT, this.width / 2 - 120 + var0, row(5), this.onLink ? 7107012 : 3368635, false);
-        super.render(param0, param1, param2, param3);
     }
 }

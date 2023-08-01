@@ -68,6 +68,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class Wolf extends TamableAnimal implements NeutralMob {
     private static final EntityDataAccessor<Boolean> DATA_INTERESTED_ID = SynchedEntityData.defineId(Wolf.class, EntityDataSerializers.BOOLEAN);
@@ -216,7 +217,7 @@ public class Wolf extends TamableAnimal implements NeutralMob {
             } else if ((this.isWet || this.isShaking) && this.isShaking) {
                 if (this.shakeAnim == 0.0F) {
                     this.playSound(SoundEvents.WOLF_SHAKE, this.getSoundVolume(), (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
-                    this.gameEvent(GameEvent.ENTITY_SHAKE);
+                    this.gameEvent(GameEvent.ENTITY_ACTION);
                 }
 
                 this.shakeAnimO = this.shakeAnim;
@@ -530,6 +531,11 @@ public class Wolf extends TamableAnimal implements NeutralMob {
     @Override
     public Vec3 getLeashOffset() {
         return new Vec3(0.0, (double)(0.6F * this.getEyeHeight()), (double)(this.getBbWidth() * 0.4F));
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - 0.03125F * param2, -0.0625F * param2);
     }
 
     public static boolean checkWolfSpawnRules(EntityType<Wolf> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {

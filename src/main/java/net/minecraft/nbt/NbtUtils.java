@@ -22,6 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -31,7 +32,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -64,18 +64,11 @@ public final class NbtUtils {
 
     @Nullable
     public static GameProfile readGameProfile(CompoundTag param0) {
-        String var0 = null;
-        UUID var1 = null;
-        if (param0.contains("Name", 8)) {
-            var0 = param0.getString("Name");
-        }
-
-        if (param0.hasUUID("Id")) {
-            var1 = param0.getUUID("Id");
-        }
+        UUID var0 = param0.hasUUID("Id") ? param0.getUUID("Id") : Util.NIL_UUID;
+        String var1 = param0.getString("Name");
 
         try {
-            GameProfile var2 = new GameProfile(var1, var0);
+            GameProfile var2 = new GameProfile(var0, var1);
             if (param0.contains("Properties", 10)) {
                 CompoundTag var3 = param0.getCompound("Properties");
 
@@ -101,11 +94,11 @@ public final class NbtUtils {
     }
 
     public static CompoundTag writeGameProfile(CompoundTag param0, GameProfile param1) {
-        if (!StringUtil.isNullOrEmpty(param1.getName())) {
+        if (!param1.getName().isEmpty()) {
             param0.putString("Name", param1.getName());
         }
 
-        if (param1.getId() != null) {
+        if (!param1.getId().equals(Util.NIL_UUID)) {
             param0.putUUID("Id", param1.getId());
         }
 
@@ -117,9 +110,10 @@ public final class NbtUtils {
 
                 for(com.mojang.authlib.properties.Property var3 : param1.getProperties().get(var1)) {
                     CompoundTag var4 = new CompoundTag();
-                    var4.putString("Value", var3.getValue());
-                    if (var3.hasSignature()) {
-                        var4.putString("Signature", var3.getSignature());
+                    var4.putString("Value", var3.value());
+                    String var5 = var3.signature();
+                    if (var5 != null) {
+                        var4.putString("Signature", var5);
                     }
 
                     var2.add(var4);

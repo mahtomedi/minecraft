@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import net.minecraft.Util;
 import net.minecraft.client.model.ShieldModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.TridentModel;
@@ -23,7 +22,6 @@ import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.item.BlockItem;
@@ -91,22 +89,11 @@ public class BlockEntityWithoutLevelRenderer implements ResourceManagerReloadLis
         Item var0 = param0.getItem();
         if (var0 instanceof BlockItem) {
             Block var1 = ((BlockItem)var0).getBlock();
-            if (var1 instanceof AbstractSkullBlock) {
-                GameProfile var2 = null;
-                if (param0.hasTag()) {
-                    CompoundTag var3 = param0.getTag();
-                    if (var3.contains("SkullOwner", 10)) {
-                        var2 = NbtUtils.readGameProfile(var3.getCompound("SkullOwner"));
-                    } else if (var3.contains("SkullOwner", 8) && !Util.isBlank(var3.getString("SkullOwner"))) {
-                        var2 = new GameProfile(null, var3.getString("SkullOwner"));
-                        var3.remove("SkullOwner");
-                        SkullBlockEntity.updateGameprofile(var2, param1x -> var3.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param1x)));
-                    }
-                }
-
-                SkullBlock.Type var4 = ((AbstractSkullBlock)var1).getType();
-                SkullModelBase var5 = this.skullModels.get(var4);
-                RenderType var6 = SkullBlockRenderer.getRenderType(var4, var2);
+            if (var1 instanceof AbstractSkullBlock var2) {
+                CompoundTag var3 = param0.getTag();
+                GameProfile var4 = var3 != null ? SkullBlockEntity.getOrResolveGameProfile(var3) : null;
+                SkullModelBase var5 = this.skullModels.get(var2.getType());
+                RenderType var6 = SkullBlockRenderer.getRenderType(var2.getType(), var4);
                 SkullBlockRenderer.renderSkull(null, 180.0F, 0.0F, param2, param3, param4, var5, var6);
             } else {
                 BlockState var7 = var1.defaultBlockState();

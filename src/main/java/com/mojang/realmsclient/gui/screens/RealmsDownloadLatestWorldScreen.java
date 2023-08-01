@@ -149,7 +149,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.downloadTitle, this.width / 2, 20, 16777215);
         param0.drawCenteredString(this.font, this.status, this.width / 2, 50, 16777215);
         if (this.showDots) {
@@ -165,7 +165,6 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
             param0.drawCenteredString(this.font, this.errorMessage, this.width / 2, 110, 16711680);
         }
 
-        super.render(param0, param1, param2, param3);
     }
 
     private void drawDots(GuiGraphics param0) {
@@ -272,7 +271,7 @@ public class RealmsDownloadLatestWorldScreen extends RealmsScreen {
                 return;
             } catch (Exception var10) {
                 this.errorMessage = Component.translatable("mco.download.failed");
-                var10.printStackTrace();
+                LOGGER.info("Exception while downloading world", (Throwable)var10);
                 return;
             } finally {
                 if (!DOWNLOAD_LOCK.isHeldByCurrentThread()) {

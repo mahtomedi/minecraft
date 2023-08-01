@@ -149,6 +149,12 @@ public class Main {
                     param0x, Component.translatable("dataPack.bundle.description"), FeatureFlagSet.of(FeatureFlags.BUNDLE)
                 )
         );
+        var4 = var0.getBuiltinDatapack(param3, "trade_rebalance");
+        var4.addProvider(
+            param0x -> PackMetadataGenerator.forFeaturePack(
+                    param0x, Component.translatable("dataPack.trade_rebalance.description"), FeatureFlagSet.of(FeatureFlags.TRADE_REBALANCE)
+                )
+        );
         return var0;
     }
 }

@@ -33,6 +33,7 @@ public class OreFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_GOLD_BURIED = FeatureUtils.createKey("ore_gold_buried");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_REDSTONE = FeatureUtils.createKey("ore_redstone");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_DIAMOND_SMALL = FeatureUtils.createKey("ore_diamond_small");
+    public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_DIAMOND_MEDIUM = FeatureUtils.createKey("ore_diamond_medium");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_DIAMOND_LARGE = FeatureUtils.createKey("ore_diamond_large");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_DIAMOND_BURIED = FeatureUtils.createKey("ore_diamond_buried");
     public static final ResourceKey<ConfiguredFeature<?, ?>> ORE_LAPIS = FeatureUtils.createKey("ore_lapis");
@@ -104,6 +105,7 @@ public class OreFeatures {
         FeatureUtils.register(param0, ORE_DIAMOND_SMALL, Feature.ORE, new OreConfiguration(var7, 4, 0.5F));
         FeatureUtils.register(param0, ORE_DIAMOND_LARGE, Feature.ORE, new OreConfiguration(var7, 12, 0.7F));
         FeatureUtils.register(param0, ORE_DIAMOND_BURIED, Feature.ORE, new OreConfiguration(var7, 8, 1.0F));
+        FeatureUtils.register(param0, ORE_DIAMOND_MEDIUM, Feature.ORE, new OreConfiguration(var7, 8, 0.5F));
         FeatureUtils.register(param0, ORE_LAPIS, Feature.ORE, new OreConfiguration(var8, 7));
         FeatureUtils.register(param0, ORE_LAPIS_BURIED, Feature.ORE, new OreConfiguration(var8, 7, 1.0F));
         FeatureUtils.register(

@@ -40,15 +40,6 @@ public class WoodlandMansionPieces {
         var1.createMansion(param1, param2, param3, var0);
     }
 
-    public static void main(String[] param0) {
-        RandomSource var0 = RandomSource.create();
-        long var1 = var0.nextLong();
-        System.out.println("Seed: " + var1);
-        var0.setSeed(var1);
-        WoodlandMansionPieces.MansionGrid var2 = new WoodlandMansionPieces.MansionGrid(var0);
-        var2.print();
-    }
-
     static class FirstFloorRoomCollection extends WoodlandMansionPieces.FloorRoomCollection {
         @Override
         public String get1x1(RandomSource param0) {
@@ -401,36 +392,6 @@ public class WoodlandMansionPieces {
 
                     ++var3;
                 }
-            }
-
-        }
-
-        public void print() {
-            for(int var0 = 0; var0 < 2; ++var0) {
-                WoodlandMansionPieces.SimpleGrid var1 = var0 == 0 ? this.baseGrid : this.thirdFloorGrid;
-
-                for(int var2 = 0; var2 < var1.height; ++var2) {
-                    for(int var3 = 0; var3 < var1.width; ++var3) {
-                        int var4 = var1.get(var3, var2);
-                        if (var4 == 1) {
-                            System.out.print("+");
-                        } else if (var4 == 4) {
-                            System.out.print("x");
-                        } else if (var4 == 2) {
-                            System.out.print("X");
-                        } else if (var4 == 3) {
-                            System.out.print("O");
-                        } else if (var4 == 5) {
-                            System.out.print("#");
-                        } else {
-                            System.out.print(" ");
-                        }
-                    }
-
-                    System.out.println("");
-                }
-
-                System.out.println("");
             }
 
         }

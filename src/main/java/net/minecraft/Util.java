@@ -354,7 +354,7 @@ public class Util {
         return param0.get();
     }
 
-    public static <T> T make(T param0, Consumer<T> param1) {
+    public static <T> T make(T param0, Consumer<? super T> param1) {
         param1.accept(param0);
         return param0;
     }

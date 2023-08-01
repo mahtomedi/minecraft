@@ -26,10 +26,14 @@ public class ErrorScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        param0.fillGradient(0, 0, this.width, this.height, -12574688, -11530224);
+        super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 90, 16777215);
         param0.drawCenteredString(this.font, this.message, this.width / 2, 110, 16777215);
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        param0.fillGradient(0, 0, this.width, this.height, -12574688, -11530224);
     }
 
     @Override

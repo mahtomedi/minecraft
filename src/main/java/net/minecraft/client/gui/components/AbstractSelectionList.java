@@ -48,7 +48,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     @Nullable
     private E selected;
     private boolean renderBackground = true;
-    private boolean renderTopAndBottom = true;
     @Nullable
     private E hovered;
 
@@ -95,10 +94,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     public void setRenderBackground(boolean param0) {
         this.renderBackground = param0;
-    }
-
-    public void setRenderTopAndBottom(boolean param0) {
-        this.renderTopAndBottom = param0;
     }
 
     @Nullable
@@ -193,15 +188,11 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected void renderHeader(GuiGraphics param0, int param1, int param2) {
     }
 
-    protected void renderBackground(GuiGraphics param0) {
-    }
-
     protected void renderDecorations(GuiGraphics param0, int param1, int param2) {
     }
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
         int var0 = this.getScrollbarPosition();
         int var1 = var0 + 6;
         this.hovered = this.isMouseOver((double)param1, (double)param2) ? this.getEntryAtPosition((double)param1, (double)param2) : null;
@@ -220,40 +211,32 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 32
             );
             param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        }
-
-        int var3 = this.getRowLeft();
-        int var4 = this.y0 + 4 - (int)this.getScrollAmount();
-        this.enableScissor(param0);
-        if (this.renderHeader) {
-            this.renderHeader(param0, var3, var4);
-        }
-
-        this.renderList(param0, param1, param2, param3);
-        param0.disableScissor();
-        if (this.renderTopAndBottom) {
-            int var5 = 32;
-            param0.setColor(0.25F, 0.25F, 0.25F, 1.0F);
-            param0.blit(Screen.BACKGROUND_LOCATION, this.x0, 0, 0.0F, 0.0F, this.width, this.y0, 32, 32);
-            param0.blit(Screen.BACKGROUND_LOCATION, this.x0, this.y1, 0.0F, (float)this.y1, this.width, this.height - this.y1, 32, 32);
-            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-            int var6 = 4;
+            int var3 = 4;
             param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
             param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
         }
 
-        int var7 = this.getMaxScroll();
-        if (var7 > 0) {
-            int var8 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            var8 = Mth.clamp(var8, 32, this.y1 - this.y0 - 8);
-            int var9 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var8) / var7 + this.y0;
-            if (var9 < this.y0) {
-                var9 = this.y0;
+        int var4 = this.getRowLeft();
+        int var5 = this.y0 + 4 - (int)this.getScrollAmount();
+        this.enableScissor(param0);
+        if (this.renderHeader) {
+            this.renderHeader(param0, var4, var5);
+        }
+
+        this.renderList(param0, param1, param2, param3);
+        param0.disableScissor();
+        int var6 = this.getMaxScroll();
+        if (var6 > 0) {
+            int var7 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            var7 = Mth.clamp(var7, 32, this.y1 - this.y0 - 8);
+            int var8 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var7) / var6 + this.y0;
+            if (var8 < this.y0) {
+                var8 = this.y0;
             }
 
             param0.fill(var0, this.y0, var1, this.y1, -16777216);
-            param0.fill(var0, var9, var1, var9 + var8, -8355712);
-            param0.fill(var0, var9, var1 - 1, var9 + var8 - 1, -4144960);
+            param0.fill(var0, var8, var1, var8 + var7, -8355712);
+            param0.fill(var0, var8, var1 - 1, var8 + var7 - 1, -4144960);
         }
 
         this.renderDecorations(param0, param1, param2);
@@ -373,8 +356,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     @Override
-    public boolean mouseScrolled(double param0, double param1, double param2) {
-        this.setScrollAmount(this.getScrollAmount() - param2 * (double)this.itemHeight / 2.0);
+    public boolean mouseScrolled(double param0, double param1, double param2, double param3) {
+        this.setScrollAmount(this.getScrollAmount() - param3 * (double)this.itemHeight / 2.0);
         return true;
     }
 

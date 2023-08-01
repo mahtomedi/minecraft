@@ -4,6 +4,7 @@ import com.mojang.math.Divisor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -99,6 +100,10 @@ public class GridLayout extends AbstractLayout {
         return this.addChild(param0, param1, param2, 1, 1, param3);
     }
 
+    public <T extends LayoutElement> T addChild(T param0, int param1, int param2, Consumer<LayoutSettings> param3) {
+        return this.addChild(param0, param1, param2, 1, 1, Util.make(this.newCellSettings(), param3));
+    }
+
     public <T extends LayoutElement> T addChild(T param0, int param1, int param2, int param3, int param4) {
         return this.addChild(param0, param1, param2, param3, param4, this.newCellSettings());
     }
@@ -113,6 +118,10 @@ public class GridLayout extends AbstractLayout {
             this.children.add(param0);
             return param0;
         }
+    }
+
+    public <T extends LayoutElement> T addChild(T param0, int param1, int param2, int param3, int param4, Consumer<LayoutSettings> param5) {
+        return this.addChild(param0, param1, param2, param3, param4, Util.make(this.newCellSettings(), param5));
     }
 
     public GridLayout columnSpacing(int param0) {

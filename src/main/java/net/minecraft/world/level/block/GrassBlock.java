@@ -22,7 +22,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         return param0.getBlockState(param1.above()).isAir();
     }
 

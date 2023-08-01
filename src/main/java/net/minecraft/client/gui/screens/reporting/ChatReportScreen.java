@@ -203,8 +203,8 @@ public class ChatReportScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         int var0 = this.width / 2;
-        this.renderBackground(param0);
         param0.drawCenteredString(this.font, this.title, var0, 10, 16777215);
         param0.drawCenteredString(this.font, OBSERVED_WHAT_LABEL, var0, this.selectChatTop() - 9 - 6, 16777215);
         if (this.reasonDescriptionLabel != null) {
@@ -212,13 +212,6 @@ public class ChatReportScreen extends Screen {
         }
 
         param0.drawString(this.font, MORE_COMMENTS_LABEL, this.contentLeft(), this.commentBoxTop() - 9 - 6, 16777215);
-        super.render(param0, param1, param2, param3);
-    }
-
-    @Override
-    public void tick() {
-        this.commentBox.tick();
-        super.tick();
     }
 
     @Override

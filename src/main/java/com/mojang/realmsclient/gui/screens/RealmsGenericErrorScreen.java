@@ -7,7 +7,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsScreen;
@@ -40,16 +39,7 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     private static RealmsGenericErrorScreen.ErrorMessage errorMessage(RealmsServiceException param0) {
         RealmsError var0 = param0.realmsError;
-        if (var0 == null) {
-            return errorMessage(Component.translatable("mco.errorMessage.realmsService", param0.httpResultCode), Component.literal(param0.rawResponse));
-        } else {
-            int var1 = var0.getErrorCode();
-            String var2 = "mco.errorMessage." + var1;
-            return errorMessage(
-                Component.translatable("mco.errorMessage.realmsService.realmsError", var1),
-                (Component)(I18n.exists(var2) ? Component.translatable(var2) : Component.nullToEmpty(var0.getErrorMessage()))
-            );
-        }
+        return errorMessage(Component.translatable("mco.errorMessage.realmsService.realmsError", var0.errorCode()), var0.errorMessage());
     }
 
     private static RealmsGenericErrorScreen.ErrorMessage errorMessage(Component param0) {
@@ -77,10 +67,9 @@ public class RealmsGenericErrorScreen extends RealmsScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.drawCenteredString(this.font, this.lines.title, this.width / 2, 80, 16777215);
-        this.line2Split.renderCentered(param0, this.width / 2, 100, 9, 16711680);
         super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.lines.title, this.width / 2, 80, -1);
+        this.line2Split.renderCentered(param0, this.width / 2, 100, 9, -65536);
     }
 
     @OnlyIn(Dist.CLIENT)

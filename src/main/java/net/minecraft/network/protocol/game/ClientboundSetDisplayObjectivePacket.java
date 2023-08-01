@@ -4,13 +4,14 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 
 public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePacketListener> {
-    private final int slot;
+    private final DisplaySlot slot;
     private final String objectiveName;
 
-    public ClientboundSetDisplayObjectivePacket(int param0, @Nullable Objective param1) {
+    public ClientboundSetDisplayObjectivePacket(DisplaySlot param0, @Nullable Objective param1) {
         this.slot = param0;
         if (param1 == null) {
             this.objectiveName = "";
@@ -21,13 +22,13 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
     }
 
     public ClientboundSetDisplayObjectivePacket(FriendlyByteBuf param0) {
-        this.slot = param0.readByte();
+        this.slot = param0.readById(DisplaySlot.BY_ID);
         this.objectiveName = param0.readUtf();
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeByte(this.slot);
+        param0.writeById(DisplaySlot::id, this.slot);
         param0.writeUtf(this.objectiveName);
     }
 
@@ -35,7 +36,7 @@ public class ClientboundSetDisplayObjectivePacket implements Packet<ClientGamePa
         param0.handleSetDisplayObjective(this);
     }
 
-    public int getSlot() {
+    public DisplaySlot getSlot() {
         return this.slot;
     }
 

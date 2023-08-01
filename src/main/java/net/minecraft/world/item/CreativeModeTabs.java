@@ -1277,9 +1277,9 @@ public class CreativeModeTabs {
                         param1.accept(Items.MUSIC_DISC_11);
                         param1.accept(Items.MUSIC_DISC_WAIT);
                         param1.accept(Items.MUSIC_DISC_OTHERSIDE);
+                        param1.accept(Items.MUSIC_DISC_RELIC);
                         param1.accept(Items.MUSIC_DISC_5);
                         param1.accept(Items.MUSIC_DISC_PIGSTEP);
-                        param1.accept(Items.MUSIC_DISC_RELIC);
                     }
                 )
                 .build()

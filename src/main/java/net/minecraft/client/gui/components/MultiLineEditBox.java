@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import java.util.function.Consumer;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarratedElementType;
@@ -19,10 +20,11 @@ public class MultiLineEditBox extends AbstractScrollWidget {
     private static final String CURSOR_APPEND_CHARACTER = "_";
     private static final int TEXT_COLOR = -2039584;
     private static final int PLACEHOLDER_TEXT_COLOR = -857677600;
+    private static final int CURSOR_BLINK_INTERVAL_MS = 300;
     private final Font font;
     private final Component placeholder;
     private final MultilineTextField textField;
-    private int frame;
+    private long focusedTime = Util.getMillis();
 
     public MultiLineEditBox(Font param0, int param1, int param2, int param3, int param4, Component param5, Component param6) {
         super(param1, param2, param3, param4, param6);
@@ -46,10 +48,6 @@ public class MultiLineEditBox extends AbstractScrollWidget {
 
     public String getValue() {
         return this.textField.value();
-    }
-
-    public void tick() {
-        ++this.frame;
     }
 
     @Override
@@ -113,7 +111,7 @@ public class MultiLineEditBox extends AbstractScrollWidget {
             );
         } else {
             int var1 = this.textField.cursor();
-            boolean var2 = this.isFocused() && this.frame / 6 % 2 == 0;
+            boolean var2 = this.isFocused() && (Util.getMillis() - this.focusedTime) / 300L % 2L == 0L;
             boolean var3 = var1 < var0.length();
             int var4 = 0;
             int var5 = 0;
@@ -231,5 +229,14 @@ public class MultiLineEditBox extends AbstractScrollWidget {
         double var0 = param0 - (double)this.getX() - (double)this.innerPadding();
         double var1 = param1 - (double)this.getY() - (double)this.innerPadding() + this.scrollAmount();
         this.textField.seekCursorToPoint(var0, var1);
+    }
+
+    @Override
+    public void setFocused(boolean param0) {
+        super.setFocused(param0);
+        if (param0) {
+            this.focusedTime = Util.getMillis();
+        }
+
     }
 }

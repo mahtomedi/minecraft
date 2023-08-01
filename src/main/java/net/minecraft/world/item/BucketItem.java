@@ -52,15 +52,16 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                 return InteractionResultHolder.fail(var0);
             } else if (this.content == Fluids.EMPTY) {
                 BlockState var5 = param0.getBlockState(var2);
-                if (var5.getBlock() instanceof BucketPickup var6) {
-                    ItemStack var7 = var6.pickupBlock(param0, var2, var5);
-                    if (!var7.isEmpty()) {
+                Block var7 = var5.getBlock();
+                if (var7 instanceof BucketPickup var6) {
+                    ItemStack var7x = var6.pickupBlock(param1, param0, var2, var5);
+                    if (!var7x.isEmpty()) {
                         param1.awardStat(Stats.ITEM_USED.get(this));
                         var6.getPickupSound().ifPresent(param1x -> param1.playSound(param1x, 1.0F, 1.0F));
                         param0.gameEvent(param1, GameEvent.FLUID_PICKUP, var2);
-                        ItemStack var8 = ItemUtils.createFilledResult(var0, param1, var7);
+                        ItemStack var8 = ItemUtils.createFilledResult(var0, param1, var7x);
                         if (!param0.isClientSide) {
-                            CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, var7);
+                            CriteriaTriggers.FILLED_BUCKET.trigger((ServerPlayer)param1, var7x);
                         }
 
                         return InteractionResultHolder.sidedSuccess(var8, param0.isClientSide());
@@ -96,21 +97,39 @@ public class BucketItem extends Item implements DispensibleContainerItem {
 
     @Override
     public boolean emptyContents(@Nullable Player param0, Level param1, BlockPos param2, @Nullable BlockHitResult param3) {
-        if (!(this.content instanceof FlowingFluid)) {
+        Fluid var2 = this.content;
+        if (!(var2 instanceof FlowingFluid)) {
             return false;
         } else {
-            BlockState var0 = param1.getBlockState(param2);
-            Block var1 = var0.getBlock();
-            boolean var2 = var0.canBeReplaced(this.content);
-            boolean var3 = var0.isAir()
-                || var2
-                || var1 instanceof LiquidBlockContainer && ((LiquidBlockContainer)var1).canPlaceLiquid(param1, param2, var0, this.content);
-            if (!var3) {
+            FlowingFluid var0;
+            Block var3;
+            boolean var4;
+            boolean var10000;
+            label82: {
+                var0 = (FlowingFluid)var2;
+                var2 = param1.getBlockState(param2);
+                var3 = var2.getBlock();
+                var4 = var2.canBeReplaced(this.content);
+                label70:
+                if (!var2.isAir() && !var4) {
+                    if (var3 instanceof LiquidBlockContainer var5 && var5.canPlaceLiquid(param0, param1, param2, var2, this.content)) {
+                        break label70;
+                    }
+
+                    var10000 = false;
+                    break label82;
+                }
+
+                var10000 = true;
+            }
+
+            boolean var6 = var10000;
+            if (!var6) {
                 return param3 != null && this.emptyContents(param0, param1, param3.getBlockPos().relative(param3.getDirection()), null);
             } else if (param1.dimensionType().ultraWarm() && this.content.is(FluidTags.WATER)) {
-                int var4 = param2.getX();
-                int var5 = param2.getY();
-                int var6 = param2.getZ();
+                int var7 = param2.getX();
+                int var8 = param2.getY();
+                int var9 = param2.getZ();
                 param1.playSound(
                     param0,
                     param2,
@@ -120,23 +139,25 @@ public class BucketItem extends Item implements DispensibleContainerItem {
                     2.6F + (param1.random.nextFloat() - param1.random.nextFloat()) * 0.8F
                 );
 
-                for(int var7 = 0; var7 < 8; ++var7) {
+                for(int var10 = 0; var10 < 8; ++var10) {
                     param1.addParticle(
-                        ParticleTypes.LARGE_SMOKE, (double)var4 + Math.random(), (double)var5 + Math.random(), (double)var6 + Math.random(), 0.0, 0.0, 0.0
+                        ParticleTypes.LARGE_SMOKE, (double)var7 + Math.random(), (double)var8 + Math.random(), (double)var9 + Math.random(), 0.0, 0.0, 0.0
                     );
                 }
 
                 return true;
-            } else if (var1 instanceof LiquidBlockContainer && this.content == Fluids.WATER) {
-                ((LiquidBlockContainer)var1).placeLiquid(param1, param2, var0, ((FlowingFluid)this.content).getSource(false));
-                this.playEmptySound(param0, param1, param2);
-                return true;
             } else {
-                if (!param1.isClientSide && var2 && !var0.liquid()) {
+                if (var3 instanceof LiquidBlockContainer var11 && this.content == Fluids.WATER) {
+                    var11.placeLiquid(param1, param2, var2, var0.getSource(false));
+                    this.playEmptySound(param0, param1, param2);
+                    return true;
+                }
+
+                if (!param1.isClientSide && var4 && !var2.liquid()) {
                     param1.destroyBlock(param2, true);
                 }
 
-                if (!param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11) && !var0.getFluidState().isSource()) {
+                if (!param1.setBlock(param2, this.content.defaultFluidState().createLegacyBlock(), 11) && !var2.getFluidState().isSource()) {
                     return false;
                 } else {
                     this.playEmptySound(param0, param1, param2);

@@ -2,6 +2,7 @@ package net.minecraft.server.network;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.handshake.ClientIntent;
 import net.minecraft.network.protocol.handshake.ClientIntentionPacket;
 import net.minecraft.network.protocol.handshake.ServerHandshakePacketListener;
 import net.minecraft.server.MinecraftServer;
@@ -17,8 +18,12 @@ public class MemoryServerHandshakePacketListenerImpl implements ServerHandshakeP
 
     @Override
     public void handleIntention(ClientIntentionPacket param0) {
-        this.connection.setProtocol(param0.getIntention());
-        this.connection.setListener(new ServerLoginPacketListenerImpl(this.server, this.connection));
+        if (param0.intention() != ClientIntent.LOGIN) {
+            throw new UnsupportedOperationException("Invalid intention " + param0.intention());
+        } else {
+            this.connection.setClientboundProtocolAfterHandshake(ClientIntent.LOGIN);
+            this.connection.setListener(new ServerLoginPacketListenerImpl(this.server, this.connection));
+        }
     }
 
     @Override

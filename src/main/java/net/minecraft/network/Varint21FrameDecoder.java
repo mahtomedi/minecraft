@@ -8,37 +8,43 @@ import io.netty.handler.codec.CorruptedFrameException;
 import java.util.List;
 
 public class Varint21FrameDecoder extends ByteToMessageDecoder {
-    @Override
-    protected void decode(ChannelHandlerContext param0, ByteBuf param1, List<Object> param2) {
-        param1.markReaderIndex();
-        byte[] var0 = new byte[3];
+    private static final int MAX_VARINT21_BYTES = 3;
+    private final ByteBuf helperBuf = Unpooled.directBuffer(3);
 
-        for(int var1 = 0; var1 < var0.length; ++var1) {
-            if (!param1.isReadable()) {
-                param1.resetReaderIndex();
-                return;
+    @Override
+    protected void handlerRemoved0(ChannelHandlerContext param0) {
+        this.helperBuf.release();
+    }
+
+    private static boolean copyVarint(ByteBuf param0, ByteBuf param1) {
+        for(int var0 = 0; var0 < 3; ++var0) {
+            if (!param0.isReadable()) {
+                return false;
             }
 
-            var0[var1] = param1.readByte();
-            if (var0[var1] >= 0) {
-                FriendlyByteBuf var2 = new FriendlyByteBuf(Unpooled.wrappedBuffer(var0));
-
-                try {
-                    int var3 = var2.readVarInt();
-                    if (param1.readableBytes() >= var3) {
-                        param2.add(param1.readBytes(var3));
-                        return;
-                    }
-
-                    param1.resetReaderIndex();
-                } finally {
-                    var2.release();
-                }
-
-                return;
+            byte var1 = param0.readByte();
+            param1.writeByte(var1);
+            if (!VarInt.hasContinuationBit(var1)) {
+                return true;
             }
         }
 
         throw new CorruptedFrameException("length wider than 21-bit");
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext param0, ByteBuf param1, List<Object> param2) {
+        param1.markReaderIndex();
+        this.helperBuf.clear();
+        if (!copyVarint(param1, this.helperBuf)) {
+            param1.resetReaderIndex();
+        } else {
+            int var0 = VarInt.read(this.helperBuf);
+            if (param1.readableBytes() < var0) {
+                param1.resetReaderIndex();
+            } else {
+                param2.add(param1.readBytes(var0));
+            }
+        }
     }
 }

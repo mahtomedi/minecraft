@@ -1,5 +1,6 @@
 package net.minecraft.world.scores;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -7,8 +8,10 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
+import org.slf4j.Logger;
 
 public class ScoreboardSaveData extends SavedData {
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final String FILE_ID = "scoreboard";
     private final Scoreboard scoreboard;
 
@@ -100,11 +103,12 @@ public class ScoreboardSaveData extends SavedData {
     }
 
     private void loadDisplaySlots(CompoundTag param0) {
-        for(int var0 = 0; var0 < 19; ++var0) {
-            if (param0.contains("slot_" + var0, 8)) {
-                String var1 = param0.getString("slot_" + var0);
-                Objective var2 = this.scoreboard.getObjective(var1);
-                this.scoreboard.setDisplayObjective(var0, var2);
+        for(String var0 : param0.getAllKeys()) {
+            DisplaySlot var1 = DisplaySlot.CODEC.byName(var0);
+            if (var1 != null) {
+                String var2 = param0.getString(var0);
+                Objective var3 = this.scoreboard.getObjective(var2);
+                this.scoreboard.setDisplayObjective(var1, var3);
             }
         }
 
@@ -113,12 +117,15 @@ public class ScoreboardSaveData extends SavedData {
     private void loadObjectives(ListTag param0) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             CompoundTag var1 = param0.getCompound(var0);
-            ObjectiveCriteria.byName(var1.getString("CriteriaName")).ifPresent(param1 -> {
-                String var0x = var1.getString("Name");
-                Component var1x = Component.Serializer.fromJson(var1.getString("DisplayName"));
-                ObjectiveCriteria.RenderType var2x = ObjectiveCriteria.RenderType.byId(var1.getString("RenderType"));
-                this.scoreboard.addObjective(var0x, param1, var1x, var2x);
+            String var2 = var1.getString("CriteriaName");
+            ObjectiveCriteria var3 = ObjectiveCriteria.byName(var2).orElseGet(() -> {
+                LOGGER.warn("Unknown scoreboard criteria {}, replacing with {}", var2, ObjectiveCriteria.DUMMY.getName());
+                return ObjectiveCriteria.DUMMY;
             });
+            String var4 = var1.getString("Name");
+            Component var5 = Component.Serializer.fromJson(var1.getString("DisplayName"));
+            ObjectiveCriteria.RenderType var6 = ObjectiveCriteria.RenderType.byId(var1.getString("RenderType"));
+            this.scoreboard.addObjective(var4, var3, var5, var6);
         }
 
     }
@@ -165,17 +172,15 @@ public class ScoreboardSaveData extends SavedData {
 
     private void saveDisplaySlots(CompoundTag param0) {
         CompoundTag var0 = new CompoundTag();
-        boolean var1 = false;
 
-        for(int var2 = 0; var2 < 19; ++var2) {
-            Objective var3 = this.scoreboard.getDisplayObjective(var2);
-            if (var3 != null) {
-                var0.putString("slot_" + var2, var3.getName());
-                var1 = true;
+        for(DisplaySlot var1 : DisplaySlot.values()) {
+            Objective var2 = this.scoreboard.getDisplayObjective(var1);
+            if (var2 != null) {
+                var0.putString(var1.getSerializedName(), var2.getName());
             }
         }
 
-        if (var1) {
+        if (!var0.isEmpty()) {
             param0.put("DisplaySlots", var0);
         }
 
@@ -185,14 +190,12 @@ public class ScoreboardSaveData extends SavedData {
         ListTag var0 = new ListTag();
 
         for(Objective var2 : this.scoreboard.getObjectives()) {
-            if (var2.getCriteria() != null) {
-                CompoundTag var3 = new CompoundTag();
-                var3.putString("Name", var2.getName());
-                var3.putString("CriteriaName", var2.getCriteria().getName());
-                var3.putString("DisplayName", Component.Serializer.toJson(var2.getDisplayName()));
-                var3.putString("RenderType", var2.getRenderType().getId());
-                var0.add(var3);
-            }
+            CompoundTag var3 = new CompoundTag();
+            var3.putString("Name", var2.getName());
+            var3.putString("CriteriaName", var2.getCriteria().getName());
+            var3.putString("DisplayName", Component.Serializer.toJson(var2.getDisplayName()));
+            var3.putString("RenderType", var2.getRenderType().getId());
+            var0.add(var3);
         }
 
         return var0;

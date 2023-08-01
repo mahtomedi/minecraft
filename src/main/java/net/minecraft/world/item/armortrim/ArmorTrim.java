@@ -98,10 +98,15 @@ public class ArmorTrim {
         }
     }
 
-    public static Optional<ArmorTrim> getTrim(RegistryAccess param0, ItemStack param1) {
+    public static Optional<ArmorTrim> getTrim(RegistryAccess param0, ItemStack param1, boolean param2) {
         if (param1.is(ItemTags.TRIMMABLE_ARMOR) && param1.getTag() != null && param1.getTag().contains("Trim")) {
             CompoundTag var0 = param1.getTagElement("Trim");
-            ArmorTrim var1 = CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, param0), var0).resultOrPartial(LOGGER::error).orElse(null);
+            ArmorTrim var1 = CODEC.parse(RegistryOps.create(NbtOps.INSTANCE, param0), var0).resultOrPartial(param1x -> {
+                if (!param2) {
+                    LOGGER.warn(param1x);
+                }
+
+            }).orElse(null);
             return Optional.ofNullable(var1);
         } else {
             return Optional.empty();
@@ -109,7 +114,7 @@ public class ArmorTrim {
     }
 
     public static void appendUpgradeHoverText(ItemStack param0, RegistryAccess param1, List<Component> param2) {
-        Optional<ArmorTrim> var0 = getTrim(param1, param0);
+        Optional<ArmorTrim> var0 = getTrim(param1, param0, true);
         if (var0.isPresent()) {
             ArmorTrim var1 = var0.get();
             param2.add(UPGRADE_TITLE);

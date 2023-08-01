@@ -4,12 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class TutorialToast implements Toast {
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("toast/tutorial");
     public static final int PROGRESS_BAR_WIDTH = 154;
     public static final int PROGRESS_BAR_HEIGHT = 1;
     public static final int PROGRESS_BAR_X = 3;
@@ -33,7 +35,7 @@ public class TutorialToast implements Toast {
 
     @Override
     public Toast.Visibility render(GuiGraphics param0, ToastComponent param1, long param2) {
-        param0.blit(TEXTURE, 0, 0, 0, 96, this.width(), this.height());
+        param0.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
         this.icon.render(param0, 6, 6);
         if (this.message == null) {
             param0.drawString(param1.getMinecraft().font, this.title, 30, 12, -11534256, false);
@@ -70,25 +72,23 @@ public class TutorialToast implements Toast {
 
     @OnlyIn(Dist.CLIENT)
     public static enum Icons {
-        MOVEMENT_KEYS(0, 0),
-        MOUSE(1, 0),
-        TREE(2, 0),
-        RECIPE_BOOK(0, 1),
-        WOODEN_PLANKS(1, 1),
-        SOCIAL_INTERACTIONS(2, 1),
-        RIGHT_CLICK(3, 1);
+        MOVEMENT_KEYS(new ResourceLocation("toast/movement_keys")),
+        MOUSE(new ResourceLocation("toast/mouse")),
+        TREE(new ResourceLocation("toast/tree")),
+        RECIPE_BOOK(new ResourceLocation("toast/recipe_book")),
+        WOODEN_PLANKS(new ResourceLocation("toast/wooden_planks")),
+        SOCIAL_INTERACTIONS(new ResourceLocation("toast/social_interactions")),
+        RIGHT_CLICK(new ResourceLocation("toast/right_click"));
 
-        private final int x;
-        private final int y;
+        private final ResourceLocation sprite;
 
-        private Icons(int param0, int param1) {
-            this.x = param0;
-            this.y = param1;
+        private Icons(ResourceLocation param0) {
+            this.sprite = param0;
         }
 
         public void render(GuiGraphics param0, int param1, int param2) {
             RenderSystem.enableBlend();
-            param0.blit(Toast.TEXTURE, param1, param2, 176 + this.x * 20, this.y * 20, 20, 20);
+            param0.blitSprite(this.sprite, param1, param2, 20, 20);
         }
     }
 }

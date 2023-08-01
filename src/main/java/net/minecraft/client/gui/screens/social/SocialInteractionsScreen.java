@@ -26,7 +26,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class SocialInteractionsScreen extends Screen {
-    protected static final ResourceLocation SOCIAL_INTERACTIONS_LOCATION = new ResourceLocation("textures/gui/social_interactions.png");
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("social_interactions/background");
+    private static final ResourceLocation SEARCH_SPRITE = new ResourceLocation("icon/search");
     private static final Component TAB_ALL = Component.translatable("gui.socialInteractions.tab_all");
     private static final Component TAB_HIDDEN = Component.translatable("gui.socialInteractions.tab_hidden");
     private static final Component TAB_BLOCKED = Component.translatable("gui.socialInteractions.tab_blocked");
@@ -84,12 +85,6 @@ public class SocialInteractionsScreen extends Screen {
         return (Component)(this.serverLabel != null
             ? CommonComponents.joinForNarration(super.getNarrationMessage(), this.serverLabel)
             : super.getNarrationMessage());
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        this.searchBox.tick();
     }
 
     @Override
@@ -185,17 +180,17 @@ public class SocialInteractionsScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics param0) {
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
         int var0 = this.marginX() + 3;
-        super.renderBackground(param0);
-        param0.blitNineSliced(SOCIAL_INTERACTIONS_LOCATION, var0, 64, 236, this.windowHeight() + 16, 8, 236, 34, 1, 1);
-        param0.blit(SOCIAL_INTERACTIONS_LOCATION, var0 + 10, 76, 243, 1, 12, 12);
+        super.renderBackground(param0, param1, param2, param3);
+        param0.blitSprite(BACKGROUND_SPRITE, var0, 64, 236, this.windowHeight() + 16);
+        param0.blitSprite(SEARCH_SPRITE, var0 + 10, 76, 12, 12);
     }
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
+        super.render(param0, param1, param2, param3);
         this.updateServerLabel(this.minecraft);
-        this.renderBackground(param0);
         if (this.serverLabel != null) {
             param0.drawString(this.minecraft.font, this.serverLabel, this.marginX() + 8, 35, -1);
         }
@@ -212,7 +207,6 @@ public class SocialInteractionsScreen extends Screen {
 
         this.searchBox.render(param0, param1, param2, param3);
         this.blockingHintButton.visible = this.page == SocialInteractionsScreen.Page.BLOCKED;
-        super.render(param0, param1, param2, param3);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package net.minecraft.world.level.block.entity;
 
-import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.properties.Property;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -28,6 +29,13 @@ public class SkullBlockEntity extends BlockEntity {
     private static MinecraftSessionService sessionService;
     @Nullable
     private static Executor mainThreadExecutor;
+    private static final Executor CHECKED_MAIN_THREAD_EXECUTOR = param0 -> {
+        Executor var0 = mainThreadExecutor;
+        if (var0 != null) {
+            var0.execute(param0);
+        }
+
+    };
     @Nullable
     private GameProfile owner;
     @Nullable
@@ -74,7 +82,7 @@ public class SkullBlockEntity extends BlockEntity {
         } else if (param0.contains("ExtraType", 8)) {
             String var0 = param0.getString("ExtraType");
             if (!StringUtil.isNullOrEmpty(var0)) {
-                this.setOwner(new GameProfile(null, var0));
+                this.setOwner(new GameProfile(Util.NIL_UUID, var0));
             }
         }
 
@@ -126,51 +134,76 @@ public class SkullBlockEntity extends BlockEntity {
     }
 
     private void updateOwnerProfile() {
-        updateGameprofile(this.owner, param0 -> {
-            this.owner = param0;
+        if (this.owner != null && !Util.isBlank(this.owner.getName()) && !hasTextures(this.owner)) {
+            fetchGameProfile(this.owner.getName()).thenAcceptAsync(param0 -> {
+                this.owner = param0.orElse(this.owner);
+                this.setChanged();
+            }, this.level.getServer());
+        } else {
             this.setChanged();
-        });
+        }
     }
 
-    public static void updateGameprofile(@Nullable GameProfile param0, Consumer<GameProfile> param1) {
-        if (param0 != null
-            && !StringUtil.isNullOrEmpty(param0.getName())
-            && (!param0.isComplete() || !param0.getProperties().containsKey("textures"))
-            && profileCache != null
-            && sessionService != null) {
-            profileCache.getAsync(param0.getName(), param2 -> Util.backgroundExecutor().execute(() -> Util.ifElse(param2, param1x -> {
-                        Property var0x = Iterables.getFirst(param1x.getProperties().get("textures"), null);
-                        if (var0x == null) {
-                            MinecraftSessionService var2x = sessionService;
-                            if (var2x == null) {
-                                return;
-                            }
-
-                            param1x = var2x.fillProfileProperties(param1x, true);
-                        }
-
-                        GameProfile var2 = param1x;
-                        Executor var3 = mainThreadExecutor;
-                        if (var3 != null) {
-                            var3.execute(() -> {
-                                GameProfileCache var0xx = profileCache;
-                                if (var0xx != null) {
-                                    var0xx.add(var2);
-                                    param1.accept(var2);
-                                }
-
-                            });
-                        }
-
-                    }, () -> {
-                        Executor var0x = mainThreadExecutor;
-                        if (var0x != null) {
-                            var0x.execute(() -> param1.accept(param0));
-                        }
-
-                    })));
+    @Nullable
+    public static GameProfile getOrResolveGameProfile(CompoundTag param0) {
+        if (param0.contains("SkullOwner", 10)) {
+            return NbtUtils.readGameProfile(param0.getCompound("SkullOwner"));
         } else {
-            param1.accept(param0);
+            if (param0.contains("SkullOwner", 8)) {
+                String var0 = param0.getString("SkullOwner");
+                if (!Util.isBlank(var0)) {
+                    param0.remove("SkullOwner");
+                    resolveGameProfile(param0, var0);
+                }
+            }
+
+            return null;
         }
+    }
+
+    public static void resolveGameProfile(CompoundTag param0) {
+        String var0 = param0.getString("SkullOwner");
+        if (!Util.isBlank(var0)) {
+            resolveGameProfile(param0, var0);
+        }
+
+    }
+
+    private static void resolveGameProfile(CompoundTag param0, String param1) {
+        fetchGameProfile(param1)
+            .thenAccept(param2 -> param0.put("SkullOwner", NbtUtils.writeGameProfile(new CompoundTag(), param2.orElse(new GameProfile(Util.NIL_UUID, param1)))));
+    }
+
+    private static CompletableFuture<Optional<GameProfile>> fetchGameProfile(String param0) {
+        GameProfileCache var0 = profileCache;
+        return var0 == null
+            ? CompletableFuture.completedFuture(Optional.empty())
+            : var0.getAsync(param0)
+                .thenCompose(param0x -> param0x.isPresent() ? fillProfileTextures(param0x.get()) : CompletableFuture.completedFuture(Optional.empty()))
+                .thenApplyAsync((Function<? super Optional, ? extends Optional<GameProfile>>)(param0x -> {
+                    GameProfileCache var0x = profileCache;
+                    if (var0x != null) {
+                        param0x.ifPresent(var0x::add);
+                        return param0x;
+                    } else {
+                        return Optional.empty();
+                    }
+                }), CHECKED_MAIN_THREAD_EXECUTOR);
+    }
+
+    private static CompletableFuture<Optional<GameProfile>> fillProfileTextures(GameProfile param0) {
+        return hasTextures(param0) ? CompletableFuture.completedFuture(Optional.of(param0)) : CompletableFuture.supplyAsync(() -> {
+            MinecraftSessionService var0x = sessionService;
+            if (var0x != null) {
+                GameProfile var1 = var0x.fetchProfile(param0.getId(), true);
+                return Optional.of(Objects.requireNonNullElse(var1, param0));
+            } else {
+                return Optional.empty();
+            }
+        }, Util.backgroundExecutor());
+    }
+
+    private static boolean hasTextures(GameProfile param0) {
+        return param0.getProperties().containsKey("textures");
     }
 }

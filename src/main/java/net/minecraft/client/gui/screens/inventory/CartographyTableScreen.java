@@ -15,6 +15,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class CartographyTableScreen extends AbstractContainerScreen<CartographyTableMenu> {
+    private static final ResourceLocation ERROR_SPRITE = new ResourceLocation("container/cartography_table/error");
+    private static final ResourceLocation SCALED_MAP_SPRITE = new ResourceLocation("container/cartography_table/scaled_map");
+    private static final ResourceLocation DUPLICATED_MAP_SPRITE = new ResourceLocation("container/cartography_table/duplicated_map");
+    private static final ResourceLocation MAP_SPRITE = new ResourceLocation("container/cartography_table/map");
+    private static final ResourceLocation LOCKED_SPRITE = new ResourceLocation("container/cartography_table/locked");
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/cartography_table.png");
 
     public CartographyTableScreen(CartographyTableMenu param0, Inventory param1, Component param2) {
@@ -30,7 +35,6 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
 
     @Override
     protected void renderBg(GuiGraphics param0, float param1, int param2, int param3) {
-        this.renderBackground(param0);
         int var0 = this.leftPos;
         int var1 = this.topPos;
         param0.blit(BG_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
@@ -49,13 +53,13 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
                 if (var9.locked) {
                     var7 = true;
                     if (var4 || var5) {
-                        param0.blit(BG_LOCATION, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
+                        param0.blitSprite(ERROR_SPRITE, var0 + 35, var1 + 31, 28, 21);
                     }
                 }
 
                 if (var4 && var9.scale >= 4) {
                     var7 = true;
-                    param0.blit(BG_LOCATION, var0 + 35, var1 + 31, this.imageWidth + 50, 132, 28, 21);
+                    param0.blitSprite(ERROR_SPRITE, var0 + 35, var1 + 31, 28, 21);
                 }
             }
         } else {
@@ -72,25 +76,25 @@ public class CartographyTableScreen extends AbstractContainerScreen<CartographyT
         int var0 = this.leftPos;
         int var1 = this.topPos;
         if (param4 && !param6) {
-            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 66, 66, 66);
+            param0.blitSprite(SCALED_MAP_SPRITE, var0 + 67, var1 + 13, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 85, var1 + 31, 0.226F);
         } else if (param3) {
-            param0.blit(BG_LOCATION, var0 + 67 + 16, var1 + 13, this.imageWidth, 132, 50, 66);
+            param0.blitSprite(DUPLICATED_MAP_SPRITE, var0 + 67 + 16, var1 + 13, 50, 66);
             this.renderMap(param0, param1, param2, var0 + 86, var1 + 16, 0.34F);
             param0.pose().pushPose();
             param0.pose().translate(0.0F, 0.0F, 1.0F);
-            param0.blit(BG_LOCATION, var0 + 67, var1 + 13 + 16, this.imageWidth, 132, 50, 66);
+            param0.blitSprite(DUPLICATED_MAP_SPRITE, var0 + 67, var1 + 13 + 16, 50, 66);
             this.renderMap(param0, param1, param2, var0 + 70, var1 + 32, 0.34F);
             param0.pose().popPose();
         } else if (param5) {
-            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
+            param0.blitSprite(MAP_SPRITE, var0 + 67, var1 + 13, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
             param0.pose().pushPose();
             param0.pose().translate(0.0F, 0.0F, 1.0F);
-            param0.blit(BG_LOCATION, var0 + 66, var1 + 12, 0, this.imageHeight, 66, 66);
+            param0.blitSprite(LOCKED_SPRITE, var0 + 118, var1 + 60, 10, 14);
             param0.pose().popPose();
         } else {
-            param0.blit(BG_LOCATION, var0 + 67, var1 + 13, this.imageWidth, 0, 66, 66);
+            param0.blitSprite(MAP_SPRITE, var0 + 67, var1 + 13, 66, 66);
             this.renderMap(param0, param1, param2, var0 + 71, var1 + 17, 0.45F);
         }
 

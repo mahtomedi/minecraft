@@ -11,14 +11,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.math.Divisor;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -35,6 +34,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -51,7 +51,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector2ic;
 
@@ -64,12 +63,14 @@ public class GuiGraphics {
     private final PoseStack pose;
     private final MultiBufferSource.BufferSource bufferSource;
     private final GuiGraphics.ScissorStack scissorStack = new GuiGraphics.ScissorStack();
+    private final GuiSpriteManager sprites;
     private boolean managed;
 
     private GuiGraphics(Minecraft param0, PoseStack param1, MultiBufferSource.BufferSource param2) {
         this.minecraft = param0;
         this.pose = param1;
         this.bufferSource = param2;
+        this.sprites = param0.getGuiSprites();
     }
 
     public GuiGraphics(Minecraft param0, MultiBufferSource.BufferSource param1) {
@@ -317,9 +318,7 @@ public class GuiGraphics {
     }
 
     public void blit(int param0, int param1, int param2, int param3, int param4, TextureAtlasSprite param5) {
-        this.innerBlit(
-            param5.atlasLocation(), param0, param0 + param3, param1, param1 + param4, param2, param5.getU0(), param5.getU1(), param5.getV0(), param5.getV1()
-        );
+        this.blitSprite(param5, param0, param1, param2, param3, param4);
     }
 
     public void blit(
@@ -348,6 +347,61 @@ public class GuiGraphics {
         this.fill(param0, param1 + param3 - 1, param0 + param2, param1 + param3, param4);
         this.fill(param0, param1 + 1, param0 + 1, param1 + param3 - 1, param4);
         this.fill(param0 + param2 - 1, param1 + 1, param0 + param2, param1 + param3 - 1, param4);
+    }
+
+    public void blitSprite(ResourceLocation param0, int param1, int param2, int param3, int param4) {
+        this.blitSprite(param0, param1, param2, 0, param3, param4);
+    }
+
+    public void blitSprite(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5) {
+        TextureAtlasSprite var0 = this.sprites.getSprite(param0);
+        GuiSpriteScaling var1 = this.sprites.getSpriteScaling(var0);
+        if (var1 instanceof GuiSpriteScaling.Stretch) {
+            this.blitSprite(var0, param1, param2, param3, param4, param5);
+        } else if (var1 instanceof GuiSpriteScaling.Tile var2) {
+            this.blitTiledSprite(var0, param1, param2, param3, param4, param5, 0, 0, var2.width(), var2.height(), var2.width(), var2.height());
+        } else if (var1 instanceof GuiSpriteScaling.NineSlice var3) {
+            this.blitNineSlicedSprite(var0, var3, param1, param2, param3, param4, param5);
+        }
+
+    }
+
+    public void blitSprite(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
+        this.blitSprite(param0, param1, param2, param3, param4, param5, param6, 0, param7, param8);
+    }
+
+    public void blitSprite(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9) {
+        TextureAtlasSprite var0 = this.sprites.getSprite(param0);
+        GuiSpriteScaling var1 = this.sprites.getSpriteScaling(var0);
+        if (var1 instanceof GuiSpriteScaling.Stretch) {
+            this.blitSprite(var0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
+        } else {
+            this.blitSprite(param0, param5, param6, param7, param8, param9);
+        }
+
+    }
+
+    private void blitSprite(
+        TextureAtlasSprite param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
+    ) {
+        this.innerBlit(
+            param0.atlasLocation(),
+            param5,
+            param5 + param8,
+            param6,
+            param6 + param9,
+            param7,
+            param0.getU((float)param3 / (float)param1),
+            param0.getU((float)(param3 + param8) / (float)param1),
+            param0.getV((float)param4 / (float)param2),
+            param0.getV((float)(param4 + param9) / (float)param2)
+        );
+    }
+
+    private void blitSprite(TextureAtlasSprite param0, int param1, int param2, int param3, int param4, int param5) {
+        this.innerBlit(
+            param0.atlasLocation(), param1, param1 + param4, param2, param2 + param5, param3, param0.getU0(), param0.getU1(), param0.getV0(), param0.getV1()
+        );
     }
 
     public void blit(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6) {
@@ -439,20 +493,128 @@ public class GuiGraphics {
         RenderSystem.disableBlend();
     }
 
-    public void blitNineSliced(
-        ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
-    ) {
-        this.blitNineSliced(param0, param1, param2, param3, param4, param5, param5, param5, param5, param6, param7, param8, param9);
+    private void blitNineSlicedSprite(TextureAtlasSprite param0, GuiSpriteScaling.NineSlice param1, int param2, int param3, int param4, int param5, int param6) {
+        GuiSpriteScaling.NineSlice.Border var0 = param1.border();
+        int var1 = Math.min(var0.left(), param5 / 2);
+        int var2 = Math.min(var0.right(), param5 / 2);
+        int var3 = Math.min(var0.top(), param6 / 2);
+        int var4 = Math.min(var0.bottom(), param6 / 2);
+        if (param5 == param1.width() && param6 == param1.height()) {
+            this.blitSprite(param0, param1.width(), param1.height(), 0, 0, param2, param3, param4, param5, param6);
+        } else if (param6 == param1.height()) {
+            this.blitSprite(param0, param1.width(), param1.height(), 0, 0, param2, param3, param4, var1, param6);
+            this.blitTiledSprite(
+                param0,
+                param2 + var1,
+                param3,
+                param4,
+                param5 - var2 - var1,
+                param6,
+                var1,
+                0,
+                param1.width() - var2 - var1,
+                param1.height(),
+                param1.width(),
+                param1.height()
+            );
+            this.blitSprite(param0, param1.width(), param1.height(), param1.width() - var2, 0, param2 + param5 - var2, param3, param4, var2, param6);
+        } else if (param5 == param1.width()) {
+            this.blitSprite(param0, param1.width(), param1.height(), 0, 0, param2, param3, param4, param5, var3);
+            this.blitTiledSprite(
+                param0,
+                param2,
+                param3 + var3,
+                param4,
+                param5,
+                param6 - var4 - var3,
+                0,
+                var3,
+                param1.width(),
+                param1.height() - var4 - var3,
+                param1.width(),
+                param1.height()
+            );
+            this.blitSprite(param0, param1.width(), param1.height(), 0, param1.height() - var4, param2, param3 + param6 - var4, param4, param5, var4);
+        } else {
+            this.blitSprite(param0, param1.width(), param1.height(), 0, 0, param2, param3, param4, var1, var3);
+            this.blitTiledSprite(
+                param0, param2 + var1, param3, param4, param5 - var2 - var1, var3, var1, 0, param1.width() - var2 - var1, var3, param1.width(), param1.height()
+            );
+            this.blitSprite(param0, param1.width(), param1.height(), param1.width() - var2, 0, param2 + param5 - var2, param3, param4, var2, var3);
+            this.blitSprite(param0, param1.width(), param1.height(), 0, param1.height() - var4, param2, param3 + param6 - var4, param4, var1, var4);
+            this.blitTiledSprite(
+                param0,
+                param2 + var1,
+                param3 + param6 - var4,
+                param4,
+                param5 - var2 - var1,
+                var4,
+                var1,
+                param1.height() - var4,
+                param1.width() - var2 - var1,
+                var4,
+                param1.width(),
+                param1.height()
+            );
+            this.blitSprite(
+                param0,
+                param1.width(),
+                param1.height(),
+                param1.width() - var2,
+                param1.height() - var4,
+                param2 + param5 - var2,
+                param3 + param6 - var4,
+                param4,
+                var2,
+                var4
+            );
+            this.blitTiledSprite(
+                param0,
+                param2,
+                param3 + var3,
+                param4,
+                var1,
+                param6 - var4 - var3,
+                0,
+                var3,
+                var1,
+                param1.height() - var4 - var3,
+                param1.width(),
+                param1.height()
+            );
+            this.blitTiledSprite(
+                param0,
+                param2 + var1,
+                param3 + var3,
+                param4,
+                param5 - var2 - var1,
+                param6 - var4 - var3,
+                var1,
+                var3,
+                param1.width() - var2 - var1,
+                param1.height() - var4 - var3,
+                param1.width(),
+                param1.height()
+            );
+            this.blitTiledSprite(
+                param0,
+                param2 + param5 - var2,
+                param3 + var3,
+                param4,
+                var1,
+                param6 - var4 - var3,
+                param1.width() - var2,
+                var3,
+                var2,
+                param1.height() - var4 - var3,
+                param1.width(),
+                param1.height()
+            );
+        }
     }
 
-    public void blitNineSliced(
-        ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9, int param10
-    ) {
-        this.blitNineSliced(param0, param1, param2, param3, param4, param5, param6, param5, param6, param7, param8, param9, param10);
-    }
-
-    public void blitNineSliced(
-        ResourceLocation param0,
+    private void blitTiledSprite(
+        TextureAtlasSprite param0,
         int param1,
         int param2,
         int param3,
@@ -463,88 +625,17 @@ public class GuiGraphics {
         int param8,
         int param9,
         int param10,
-        int param11,
-        int param12
+        int param11
     ) {
-        param5 = Math.min(param5, param3 / 2);
-        param7 = Math.min(param7, param3 / 2);
-        param6 = Math.min(param6, param4 / 2);
-        param8 = Math.min(param8, param4 / 2);
-        if (param3 == param9 && param4 == param10) {
-            this.blit(param0, param1, param2, param11, param12, param3, param4);
-        } else if (param4 == param10) {
-            this.blit(param0, param1, param2, param11, param12, param5, param4);
-            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param4, param11 + param5, param12, param9 - param7 - param5, param10);
-            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param4);
-        } else if (param3 == param9) {
-            this.blit(param0, param1, param2, param11, param12, param3, param6);
-            this.blitRepeating(param0, param1, param2 + param6, param3, param4 - param8 - param6, param11, param12 + param6, param9, param10 - param8 - param6);
-            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param3, param8);
-        } else {
-            this.blit(param0, param1, param2, param11, param12, param5, param6);
-            this.blitRepeating(param0, param1 + param5, param2, param3 - param7 - param5, param6, param11 + param5, param12, param9 - param7 - param5, param6);
-            this.blit(param0, param1 + param3 - param7, param2, param11 + param9 - param7, param12, param7, param6);
-            this.blit(param0, param1, param2 + param4 - param8, param11, param12 + param10 - param8, param5, param8);
-            this.blitRepeating(
-                param0,
-                param1 + param5,
-                param2 + param4 - param8,
-                param3 - param7 - param5,
-                param8,
-                param11 + param5,
-                param12 + param10 - param8,
-                param9 - param7 - param5,
-                param8
-            );
-            this.blit(param0, param1 + param3 - param7, param2 + param4 - param8, param11 + param9 - param7, param12 + param10 - param8, param7, param8);
-            this.blitRepeating(param0, param1, param2 + param6, param5, param4 - param8 - param6, param11, param12 + param6, param5, param10 - param8 - param6);
-            this.blitRepeating(
-                param0,
-                param1 + param5,
-                param2 + param6,
-                param3 - param7 - param5,
-                param4 - param8 - param6,
-                param11 + param5,
-                param12 + param6,
-                param9 - param7 - param5,
-                param10 - param8 - param6
-            );
-            this.blitRepeating(
-                param0,
-                param1 + param3 - param7,
-                param2 + param6,
-                param5,
-                param4 - param8 - param6,
-                param11 + param9 - param7,
-                param12 + param6,
-                param7,
-                param10 - param8 - param6
-            );
-        }
-    }
+        for(int var0 = 0; var0 < param4; var0 += param8) {
+            int var1 = Math.min(param8, param4 - var0);
 
-    public void blitRepeating(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8) {
-        int var0 = param1;
-
-        int var2;
-        for(IntIterator var1 = slices(param3, param7); var1.hasNext(); var0 += var2) {
-            var2 = var1.nextInt();
-            int var3 = (param7 - var2) / 2;
-            int var4 = param2;
-
-            int var6;
-            for(IntIterator var5 = slices(param4, param8); var5.hasNext(); var4 += var6) {
-                var6 = var5.nextInt();
-                int var7 = (param8 - var6) / 2;
-                this.blit(param0, var0, var4, param5 + var3, param6 + var7, var2, var6);
+            for(int var2 = 0; var2 < param5; var2 += param9) {
+                int var3 = Math.min(param9, param5 - var2);
+                this.blitSprite(param0, param10, param11, param6, param7, param1 + var0, param2 + var2, param3, var1, var3);
             }
         }
 
-    }
-
-    private static IntIterator slices(int param0, int param1) {
-        int var0 = Mth.positiveCeilDiv(param0, param1);
-        return new Divisor(param0, var0);
     }
 
     public void renderItem(ItemStack param0, int param1, int param2) {

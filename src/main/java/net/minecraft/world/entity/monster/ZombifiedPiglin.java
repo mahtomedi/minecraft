@@ -13,6 +13,7 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -39,6 +40,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 
 public class ZombifiedPiglin extends Zombie implements NeutralMob {
     private static final UUID SPEED_MODIFIER_ATTACKING_UUID = UUID.fromString("49455A49-7EC5-45BA-B886-3B90B23A1718");
@@ -65,11 +67,6 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     @Override
     public void setPersistentAngerTarget(@Nullable UUID param0) {
         this.persistentAngerTarget = param0;
-    }
-
-    @Override
-    public double getMyRidingOffset() {
-        return this.isBaby() ? -0.05 : -0.45;
     }
 
     @Override
@@ -108,7 +105,7 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
 
             this.maybePlayFirstAngerSound();
         } else if (var0.hasModifier(SPEED_MODIFIER_ATTACKING)) {
-            var0.removeModifier(SPEED_MODIFIER_ATTACKING);
+            var0.removeModifier(SPEED_MODIFIER_ATTACKING.getId());
         }
 
         this.updatePersistentAnger((ServerLevel)this.level(), true);
@@ -257,5 +254,10 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {
     @Override
     public boolean wantsToPickUp(ItemStack param0) {
         return this.canHoldItem(param0);
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height + 0.05F * param2, 0.0F);
     }
 }

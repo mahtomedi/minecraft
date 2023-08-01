@@ -9,6 +9,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -17,6 +18,7 @@ import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.resources.IoSupplier;
 import org.slf4j.Logger;
 
@@ -101,10 +103,10 @@ public class PathPackResources extends AbstractPackResources {
         try (DirectoryStream<Path> var2 = Files.newDirectoryStream(var1)) {
             for(Path var3 : var2) {
                 String var4 = var3.getFileName().toString();
-                if (var4.equals(var4.toLowerCase(Locale.ROOT))) {
+                if (ResourceLocation.isValidNamespace(var4)) {
                     var0.add(var4);
                 } else {
-                    LOGGER.warn("Ignored non-lowercase namespace: {} in {}", var4, this.root);
+                    LOGGER.warn("Non [a-z0-9_.-] character in namespace {} in pack {}, ignoring", var4, this.root);
                 }
             }
         } catch (NoSuchFileException var10) {
@@ -117,5 +119,38 @@ public class PathPackResources extends AbstractPackResources {
 
     @Override
     public void close() {
+    }
+
+    public static class PathResourcesSupplier implements Pack.ResourcesSupplier {
+        private final Path content;
+        private final boolean isBuiltin;
+
+        public PathResourcesSupplier(Path param0, boolean param1) {
+            this.content = param0;
+            this.isBuiltin = param1;
+        }
+
+        @Override
+        public PackResources openPrimary(String param0) {
+            return new PathPackResources(param0, this.content, this.isBuiltin);
+        }
+
+        @Override
+        public PackResources openFull(String param0, Pack.Info param1) {
+            PackResources var0 = this.openPrimary(param0);
+            List<String> var1 = param1.overlays();
+            if (var1.isEmpty()) {
+                return var0;
+            } else {
+                List<PackResources> var2 = new ArrayList<>(var1.size());
+
+                for(String var3 : var1) {
+                    Path var4 = this.content.resolve(var3);
+                    var2.add(new PathPackResources(param0, var4, this.isBuiltin));
+                }
+
+                return new CompositePackResources(var0, var2);
+            }
+        }
     }
 }

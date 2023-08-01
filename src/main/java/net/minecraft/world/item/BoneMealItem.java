@@ -57,7 +57,7 @@ public class BoneMealItem extends Item {
 
     public static boolean growCrop(ItemStack param0, Level param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2);
-        if (var0.getBlock() instanceof BonemealableBlock var1 && var1.isValidBonemealTarget(param1, param2, var0, param1.isClientSide)) {
+        if (var0.getBlock() instanceof BonemealableBlock var1 && var1.isValidBonemealTarget(param1, param2, var0)) {
             if (param1 instanceof ServerLevel) {
                 if (var1.isBonemealSuccess(param1, param1.random, param2, var0)) {
                     var1.performBonemeal((ServerLevel)param1, param1.random, param2, var0);

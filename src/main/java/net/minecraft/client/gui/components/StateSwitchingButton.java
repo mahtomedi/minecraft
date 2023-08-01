@@ -1,33 +1,26 @@
 package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class StateSwitchingButton extends AbstractWidget {
-    protected ResourceLocation resourceLocation;
+    @Nullable
+    protected WidgetSprites sprites;
     protected boolean isStateTriggered;
-    protected int xTexStart;
-    protected int yTexStart;
-    protected int xDiffTex;
-    protected int yDiffTex;
 
     public StateSwitchingButton(int param0, int param1, int param2, int param3, boolean param4) {
         super(param0, param1, param2, param3, CommonComponents.EMPTY);
         this.isStateTriggered = param4;
     }
 
-    public void initTextureValues(int param0, int param1, int param2, int param3, ResourceLocation param4) {
-        this.xTexStart = param0;
-        this.yTexStart = param1;
-        this.xDiffTex = param2;
-        this.yDiffTex = param3;
-        this.resourceLocation = param4;
+    public void initTextureValues(WidgetSprites param0) {
+        this.sprites = param0;
     }
 
     public void setStateTriggered(boolean param0) {
@@ -45,18 +38,10 @@ public class StateSwitchingButton extends AbstractWidget {
 
     @Override
     public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
-        RenderSystem.disableDepthTest();
-        int var0 = this.xTexStart;
-        int var1 = this.yTexStart;
-        if (this.isStateTriggered) {
-            var0 += this.xDiffTex;
+        if (this.sprites != null) {
+            RenderSystem.disableDepthTest();
+            param0.blitSprite(this.sprites.get(this.isStateTriggered, this.isHoveredOrFocused()), this.getX(), this.getY(), this.width, this.height);
+            RenderSystem.enableDepthTest();
         }
-
-        if (this.isHoveredOrFocused()) {
-            var1 += this.yDiffTex;
-        }
-
-        param0.blit(this.resourceLocation, this.getX(), this.getY(), var0, var1, this.width, this.height);
-        RenderSystem.enableDepthTest();
     }
 }

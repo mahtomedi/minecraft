@@ -59,16 +59,31 @@ public class DecoratedPotBlockEntity extends BlockEntity {
         this.decorations = DecoratedPotBlockEntity.Decorations.load(BlockItem.getBlockEntityData(param0));
     }
 
+    public ItemStack getItem() {
+        return createDecoratedPotItem(this.decorations);
+    }
+
+    public static ItemStack createDecoratedPotItem(DecoratedPotBlockEntity.Decorations param0) {
+        ItemStack var0 = Items.DECORATED_POT.getDefaultInstance();
+        CompoundTag var1 = param0.save(new CompoundTag());
+        BlockItem.setBlockEntityData(var0, BlockEntityType.DECORATED_POT, var1);
+        return var0;
+    }
+
     public static record Decorations(Item back, Item left, Item right, Item front) {
         public static final DecoratedPotBlockEntity.Decorations EMPTY = new DecoratedPotBlockEntity.Decorations(
             Items.BRICK, Items.BRICK, Items.BRICK, Items.BRICK
         );
 
         public CompoundTag save(CompoundTag param0) {
-            ListTag var0 = new ListTag();
-            this.sorted().forEach(param1 -> var0.add(StringTag.valueOf(BuiltInRegistries.ITEM.getKey(param1).toString())));
-            param0.put("sherds", var0);
-            return param0;
+            if (this.equals(EMPTY)) {
+                return param0;
+            } else {
+                ListTag var0 = new ListTag();
+                this.sorted().forEach(param1 -> var0.add(StringTag.valueOf(BuiltInRegistries.ITEM.getKey(param1).toString())));
+                param0.put("sherds", var0);
+                return param0;
+            }
         }
 
         public Stream<Item> sorted() {
@@ -89,7 +104,7 @@ public class DecoratedPotBlockEntity extends BlockEntity {
                 return Items.BRICK;
             } else {
                 Tag var0 = param0.get(param1);
-                return BuiltInRegistries.ITEM.get(new ResourceLocation(var0.getAsString()));
+                return BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(var0.getAsString()));
             }
         }
     }

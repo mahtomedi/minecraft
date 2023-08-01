@@ -71,12 +71,6 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        super.render(param0, param1, param2, param3);
-    }
-
-    @Override
     public void onClose() {
         this.callback.accept(false);
     }
@@ -106,10 +100,9 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
 
         @Override
         public void render(GuiGraphics param0, int param1, int param2, float param3) {
-            this.renderBackground(param0);
+            super.render(param0, param1, param2, param3);
             this.packList.render(param0, param1, param2, param3);
             param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
-            super.render(param0, param1, param2, param3);
         }
 
         @OnlyIn(Dist.CLIENT)

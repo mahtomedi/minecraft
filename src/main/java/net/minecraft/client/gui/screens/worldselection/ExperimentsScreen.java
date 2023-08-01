@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;
@@ -49,10 +50,10 @@ public class ExperimentsScreen extends Screen {
     @Override
     protected void init() {
         this.layout.addToHeader(new StringWidget(Component.translatable("selectWorld.experiments"), this.font));
-        GridLayout.RowHelper var0 = this.layout.addToContents(new GridLayout()).createRowHelper(1);
+        LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical());
         var0.addChild(
             new MultiLineTextWidget(Component.translatable("selectWorld.experiments.info").withStyle(ChatFormatting.RED), this.font).setMaxWidth(310),
-            var0.newCellSettings().paddingBottom(15)
+            param0 -> param0.paddingBottom(15)
         );
         SwitchGrid.Builder var1 = SwitchGrid.builder(310).withInfoUnderneath(2, true).withRowSpacing(4);
         this.packs
@@ -102,8 +103,8 @@ public class ExperimentsScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        super.renderBackground(param0, param1, param2, param3);
         param0.setColor(0.125F, 0.125F, 0.125F, 1.0F);
         int var0 = 32;
         param0.blit(
@@ -118,6 +119,5 @@ public class ExperimentsScreen extends Screen {
             32
         );
         param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        super.render(param0, param1, param2, param3);
     }
 }

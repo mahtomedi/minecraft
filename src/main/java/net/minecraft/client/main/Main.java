@@ -10,6 +10,7 @@ import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.logging.LogUtils;
+import com.mojang.util.UndashedUuid;
 import java.io.File;
 import java.net.Authenticator;
 import java.net.InetSocketAddress;
@@ -19,6 +20,7 @@ import java.net.Proxy.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.UUID;
 import javax.annotation.Nullable;
 import joptsimple.ArgumentAcceptingOptionSpec;
 import joptsimple.OptionParser;
@@ -95,7 +97,7 @@ public class Main {
         OptionSet var31 = var2.parse(param0);
         List<String> var32 = var31.valuesOf(var30);
         if (!var32.isEmpty()) {
-            System.out.println("Completely ignored arguments: " + var32);
+            LOGGER.info("Completely ignored arguments: " + var32);
         }
 
         String var33 = parseArgument(var31, var11);
@@ -134,7 +136,7 @@ public class Main {
         File var50 = parseArgument(var31, var8);
         File var51 = var31.has(var9) ? parseArgument(var31, var9) : new File(var50, "assets/");
         File var52 = var31.has(var10) ? parseArgument(var31, var10) : new File(var50, "resourcepacks/");
-        String var53 = var31.has(var16) ? var16.value(var31) : UUIDUtil.createOfflinePlayerUUID(var15.value(var31)).toString();
+        UUID var53 = var31.has(var16) ? UndashedUuid.fromStringLenient(var16.value(var31)) : UUIDUtil.createOfflinePlayerUUID(var15.value(var31));
         String var54 = var31.has(var27) ? var27.value(var31) : null;
         String var55 = var31.valueOf(var17);
         String var56 = var31.valueOf(var18);

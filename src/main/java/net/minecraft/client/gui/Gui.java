@@ -26,7 +26,6 @@ import net.minecraft.client.gui.components.PlayerTabOverlay;
 import net.minecraft.client.gui.components.SubtitleOverlay;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
@@ -62,6 +61,7 @@ import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Score;
@@ -71,12 +71,41 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class Gui {
+    private static final ResourceLocation CROSSHAIR_SPRITE = new ResourceLocation("hud/crosshair");
+    private static final ResourceLocation CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE = new ResourceLocation("hud/crosshair_attack_indicator_full");
+    private static final ResourceLocation CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE = new ResourceLocation("hud/crosshair_attack_indicator_background");
+    private static final ResourceLocation CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE = new ResourceLocation("hud/crosshair_attack_indicator_progress");
+    private static final ResourceLocation EFFECT_BACKGROUND_AMBIENT_SPRITE = new ResourceLocation("hud/effect_background_ambient");
+    private static final ResourceLocation EFFECT_BACKGROUND_SPRITE = new ResourceLocation("hud/effect_background");
+    private static final ResourceLocation HOTBAR_SPRITE = new ResourceLocation("hud/hotbar");
+    private static final ResourceLocation HOTBAR_SELECTION_SPRITE = new ResourceLocation("hud/hotbar_selection");
+    private static final ResourceLocation HOTBAR_OFFHAND_LEFT_SPRITE = new ResourceLocation("hud/hotbar_offhand_left");
+    private static final ResourceLocation HOTBAR_OFFHAND_RIGHT_SPRITE = new ResourceLocation("hud/hotbar_offhand_right");
+    private static final ResourceLocation HOTBAR_ATTACK_INDICATOR_BACKGROUND_SPRITE = new ResourceLocation("hud/hotbar_attack_indicator_background");
+    private static final ResourceLocation HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE = new ResourceLocation("hud/hotbar_attack_indicator_progress");
+    private static final ResourceLocation JUMP_BAR_BACKGROUND_SPRITE = new ResourceLocation("hud/jump_bar_background");
+    private static final ResourceLocation JUMP_BAR_COOLDOWN_SPRITE = new ResourceLocation("hud/jump_bar_cooldown");
+    private static final ResourceLocation JUMP_BAR_PROGRESS_SPRITE = new ResourceLocation("hud/jump_bar_progress");
+    private static final ResourceLocation EXPERIENCE_BAR_BACKGROUND_SPRITE = new ResourceLocation("hud/experience_bar_background");
+    private static final ResourceLocation EXPERIENCE_BAR_PROGRESS_SPRITE = new ResourceLocation("hud/experience_bar_progress");
+    private static final ResourceLocation ARMOR_EMPTY_SPRITE = new ResourceLocation("hud/armor_empty");
+    private static final ResourceLocation ARMOR_HALF_SPRITE = new ResourceLocation("hud/armor_half");
+    private static final ResourceLocation ARMOR_FULL_SPRITE = new ResourceLocation("hud/armor_full");
+    private static final ResourceLocation FOOD_EMPTY_HUNGER_SPRITE = new ResourceLocation("hud/food_empty_hunger");
+    private static final ResourceLocation FOOD_HALF_HUNGER_SPRITE = new ResourceLocation("hud/food_half_hunger");
+    private static final ResourceLocation FOOD_FULL_HUNGER_SPRITE = new ResourceLocation("hud/food_full_hunger");
+    private static final ResourceLocation FOOD_EMPTY_SPRITE = new ResourceLocation("hud/food_empty");
+    private static final ResourceLocation FOOD_HALF_SPRITE = new ResourceLocation("hud/food_half");
+    private static final ResourceLocation FOOD_FULL_SPRITE = new ResourceLocation("hud/food_full");
+    private static final ResourceLocation AIR_SPRITE = new ResourceLocation("hud/air");
+    private static final ResourceLocation AIR_BURSTING_SPRITE = new ResourceLocation("hud/air_bursting");
+    private static final ResourceLocation HEART_VEHICLE_CONTAINER_SPRITE = new ResourceLocation("hud/heart/vehicle_container");
+    private static final ResourceLocation HEART_VEHICLE_FULL_SPRITE = new ResourceLocation("hud/heart/vehicle_full");
+    private static final ResourceLocation HEART_VEHICLE_HALF_SPRITE = new ResourceLocation("hud/heart/vehicle_half");
     private static final ResourceLocation VIGNETTE_LOCATION = new ResourceLocation("textures/misc/vignette.png");
-    private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/widgets.png");
     private static final ResourceLocation PUMPKIN_BLUR_LOCATION = new ResourceLocation("textures/misc/pumpkinblur.png");
     private static final ResourceLocation SPYGLASS_SCOPE_LOCATION = new ResourceLocation("textures/misc/spyglass_scope.png");
     private static final ResourceLocation POWDER_SNOW_OUTLINE_LOCATION = new ResourceLocation("textures/misc/powder_snow_outline.png");
-    private static final ResourceLocation GUI_ICONS_LOCATION = new ResourceLocation("textures/gui/icons.png");
     private static final Component DEMO_EXPIRED_TEXT = Component.translatable("demo.demoExpired");
     private static final Component SAVING_TEXT = Component.translatable("menu.savingLevel");
     private static final int COLOR_WHITE = 16777215;
@@ -305,13 +334,13 @@ public class Gui {
             Objective var22 = null;
             PlayerTeam var23 = var21.getPlayersTeam(this.minecraft.player.getScoreboardName());
             if (var23 != null) {
-                int var24 = var23.getColor().getId();
-                if (var24 >= 0) {
-                    var22 = var21.getDisplayObjective(3 + var24);
+                DisplaySlot var24 = DisplaySlot.teamColorToSlot(var23.getColor());
+                if (var24 != null) {
+                    var22 = var21.getDisplayObjective(var24);
                 }
             }
 
-            Objective var25 = var22 != null ? var22 : var21.getDisplayObjective(1);
+            Objective var25 = var22 != null ? var22 : var21.getDisplayObjective(DisplaySlot.SIDEBAR);
             if (var25 != null) {
                 this.displayScoreboardSidebar(param0, var25);
             }
@@ -322,7 +351,7 @@ public class Gui {
             this.minecraft.getProfiler().push("chat");
             this.chat.render(param0, this.tickCount, var26, var27);
             this.minecraft.getProfiler().pop();
-            var25 = var21.getDisplayObjective(0);
+            var25 = var21.getDisplayObjective(DisplaySlot.LIST);
             if (!this.minecraft.options.keyPlayerList.isDown()
                 || this.minecraft.isLocalServer() && this.minecraft.player.connection.getListedOnlinePlayers().size() <= 1 && var25 == null) {
                 this.tabList.setVisible(false);
@@ -370,7 +399,7 @@ public class Gui {
                         GlStateManager.DestFactor.ZERO
                     );
                     int var3 = 15;
-                    param0.blit(GUI_ICONS_LOCATION, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 0, 0, 15, 15);
+                    param0.blitSprite(CROSSHAIR_SPRITE, (this.screenWidth - 15) / 2, (this.screenHeight - 15) / 2, 15, 15);
                     if (this.minecraft.options.attackIndicator().get() == AttackIndicatorStatus.CROSSHAIR) {
                         float var4 = this.minecraft.player.getAttackStrengthScale(0.0F);
                         boolean var5 = false;
@@ -382,11 +411,11 @@ public class Gui {
                         int var6 = this.screenHeight / 2 - 7 + 16;
                         int var7 = this.screenWidth / 2 - 8;
                         if (var5) {
-                            param0.blit(GUI_ICONS_LOCATION, var7, var6, 68, 94, 16, 16);
+                            param0.blitSprite(CROSSHAIR_ATTACK_INDICATOR_FULL_SPRITE, var7, var6, 16, 16);
                         } else if (var4 < 1.0F) {
                             int var8 = (int)(var4 * 17.0F);
-                            param0.blit(GUI_ICONS_LOCATION, var7, var6, 36, 94, 16, 4);
-                            param0.blit(GUI_ICONS_LOCATION, var7, var6, 52, 94, var8, 4);
+                            param0.blitSprite(CROSSHAIR_ATTACK_INDICATOR_BACKGROUND_SPRITE, var7, var6, 16, 4);
+                            param0.blitSprite(CROSSHAIR_ATTACK_INDICATOR_PROGRESS_SPRITE, 16, 4, 0, 0, var7, var6, var8, 4);
                         }
                     }
 
@@ -445,9 +474,9 @@ public class Gui {
 
                     float var10 = 1.0F;
                     if (var6.isAmbient()) {
-                        param0.blit(AbstractContainerScreen.INVENTORY_LOCATION, var8, var9, 165, 166, 24, 24);
+                        param0.blitSprite(EFFECT_BACKGROUND_AMBIENT_SPRITE, var8, var9, 24, 24);
                     } else {
-                        param0.blit(AbstractContainerScreen.INVENTORY_LOCATION, var8, var9, 141, 166, 24, 24);
+                        param0.blitSprite(EFFECT_BACKGROUND_SPRITE, var8, var9, 24, 24);
                         if (var6.endsWithin(200)) {
                             int var11 = var6.getDuration();
                             int var12 = 10 - var11 / 20;
@@ -481,13 +510,13 @@ public class Gui {
             int var5 = 91;
             param1.pose().pushPose();
             param1.pose().translate(0.0F, 0.0F, -90.0F);
-            param1.blit(WIDGETS_LOCATION, var3 - 91, this.screenHeight - 22, 0, 0, 182, 22);
-            param1.blit(WIDGETS_LOCATION, var3 - 91 - 1 + var0.getInventory().selected * 20, this.screenHeight - 22 - 1, 0, 22, 24, 22);
+            param1.blitSprite(HOTBAR_SPRITE, var3 - 91, this.screenHeight - 22, 182, 22);
+            param1.blitSprite(HOTBAR_SELECTION_SPRITE, var3 - 91 - 1 + var0.getInventory().selected * 20, this.screenHeight - 22 - 1, 24, 23);
             if (!var1.isEmpty()) {
                 if (var2 == HumanoidArm.LEFT) {
-                    param1.blit(WIDGETS_LOCATION, var3 - 91 - 29, this.screenHeight - 23, 24, 22, 29, 24);
+                    param1.blitSprite(HOTBAR_OFFHAND_LEFT_SPRITE, var3 - 91 - 29, this.screenHeight - 23, 29, 24);
                 } else {
-                    param1.blit(WIDGETS_LOCATION, var3 + 91, this.screenHeight - 23, 53, 22, 29, 24);
+                    param1.blitSprite(HOTBAR_OFFHAND_RIGHT_SPRITE, var3 + 91, this.screenHeight - 23, 29, 24);
                 }
             }
 
@@ -520,8 +549,8 @@ public class Gui {
                     }
 
                     int var14 = (int)(var11 * 19.0F);
-                    param1.blit(GUI_ICONS_LOCATION, var13, var12, 0, 94, 18, 18);
-                    param1.blit(GUI_ICONS_LOCATION, var13, var12 + 18 - var14, 18, 112 - var14, 18, var14);
+                    param1.blitSprite(HOTBAR_ATTACK_INDICATOR_BACKGROUND_SPRITE, var13, var12, 18, 18);
+                    param1.blitSprite(HOTBAR_ATTACK_INDICATOR_PROGRESS_SPRITE, 18, 18, 0, 18 - var14, var13, var12 + 18 - var14, 18, var14);
                 }
             }
 
@@ -535,11 +564,11 @@ public class Gui {
         int var1 = 182;
         int var2 = (int)(var0 * 183.0F);
         int var3 = this.screenHeight - 32 + 3;
-        param1.blit(GUI_ICONS_LOCATION, param2, var3, 0, 84, 182, 5);
+        param1.blitSprite(JUMP_BAR_BACKGROUND_SPRITE, param2, var3, 182, 5);
         if (param0.getJumpCooldown() > 0) {
-            param1.blit(GUI_ICONS_LOCATION, param2, var3, 0, 74, 182, 5);
+            param1.blitSprite(JUMP_BAR_COOLDOWN_SPRITE, param2, var3, 182, 5);
         } else if (var2 > 0) {
-            param1.blit(GUI_ICONS_LOCATION, param2, var3, 0, 89, var2, 5);
+            param1.blitSprite(JUMP_BAR_PROGRESS_SPRITE, 182, 5, 0, 0, param2, var3, var2, 5);
         }
 
         this.minecraft.getProfiler().pop();
@@ -552,9 +581,9 @@ public class Gui {
             int var1 = 182;
             int var2 = (int)(this.minecraft.player.experienceProgress * 183.0F);
             int var3 = this.screenHeight - 32 + 3;
-            param0.blit(GUI_ICONS_LOCATION, param1, var3, 0, 64, 182, 5);
+            param0.blitSprite(EXPERIENCE_BAR_BACKGROUND_SPRITE, param1, var3, 182, 5);
             if (var2 > 0) {
-                param0.blit(GUI_ICONS_LOCATION, param1, var3, 0, 69, var2, 5);
+                param0.blitSprite(EXPERIENCE_BAR_PROGRESS_SPRITE, 182, 5, 0, 0, param1, var3, var2, 5);
             }
         }
 
@@ -751,15 +780,15 @@ public class Gui {
                 if (var16 > 0) {
                     int var19 = var7 + var18 * 8;
                     if (var18 * 2 + 1 < var16) {
-                        param0.blit(GUI_ICONS_LOCATION, var19, var14, 34, 9, 9, 9);
+                        param0.blitSprite(ARMOR_FULL_SPRITE, var19, var14, 9, 9);
                     }
 
                     if (var18 * 2 + 1 == var16) {
-                        param0.blit(GUI_ICONS_LOCATION, var19, var14, 25, 9, 9, 9);
+                        param0.blitSprite(ARMOR_HALF_SPRITE, var19, var14, 9, 9);
                     }
 
                     if (var18 * 2 + 1 > var16) {
-                        param0.blit(GUI_ICONS_LOCATION, var19, var14, 16, 9, 9, 9);
+                        param0.blitSprite(ARMOR_EMPTY_SPRITE, var19, var14, 9, 9);
                     }
                 }
             }
@@ -773,25 +802,31 @@ public class Gui {
 
                 for(int var22 = 0; var22 < 10; ++var22) {
                     int var23 = var9;
-                    int var24 = 16;
-                    int var25 = 0;
+                    ResourceLocation var24;
+                    ResourceLocation var25;
+                    ResourceLocation var26;
                     if (var0.hasEffect(MobEffects.HUNGER)) {
-                        var24 += 36;
-                        var25 = 13;
+                        var24 = FOOD_EMPTY_HUNGER_SPRITE;
+                        var25 = FOOD_HALF_HUNGER_SPRITE;
+                        var26 = FOOD_FULL_HUNGER_SPRITE;
+                    } else {
+                        var24 = FOOD_EMPTY_SPRITE;
+                        var25 = FOOD_HALF_SPRITE;
+                        var26 = FOOD_FULL_SPRITE;
                     }
 
                     if (var0.getFoodData().getSaturationLevel() <= 0.0F && this.tickCount % (var6 * 3 + 1) == 0) {
                         var23 = var9 + (this.random.nextInt(3) - 1);
                     }
 
-                    int var26 = var8 - var22 * 8 - 9;
-                    param0.blit(GUI_ICONS_LOCATION, var26, var23, 16 + var25 * 9, 27, 9, 9);
+                    int var30 = var8 - var22 * 8 - 9;
+                    param0.blitSprite(var24, var30, var23, 9, 9);
                     if (var22 * 2 + 1 < var6) {
-                        param0.blit(GUI_ICONS_LOCATION, var26, var23, var24 + 36, 27, 9, 9);
+                        param0.blitSprite(var25, var30, var23, 9, 9);
                     }
 
                     if (var22 * 2 + 1 == var6) {
-                        param0.blit(GUI_ICONS_LOCATION, var26, var23, var24 + 45, 27, 9, 9);
+                        param0.blitSprite(var26, var30, var23, 9, 9);
                     }
                 }
 
@@ -799,19 +834,19 @@ public class Gui {
             }
 
             this.minecraft.getProfiler().popPush("air");
-            int var27 = var0.getMaxAirSupply();
-            int var28 = Math.min(var0.getAirSupply(), var27);
-            if (var0.isEyeInFluid(FluidTags.WATER) || var28 < var27) {
-                int var29 = this.getVisibleVehicleHeartRows(var21) - 1;
-                var15 -= var29 * 10;
-                int var30 = Mth.ceil((double)(var28 - 2) * 10.0 / (double)var27);
-                int var31 = Mth.ceil((double)var28 * 10.0 / (double)var27) - var30;
+            int var31 = var0.getMaxAirSupply();
+            int var32 = Math.min(var0.getAirSupply(), var31);
+            if (var0.isEyeInFluid(FluidTags.WATER) || var32 < var31) {
+                int var33 = this.getVisibleVehicleHeartRows(var21) - 1;
+                var15 -= var33 * 10;
+                int var34 = Mth.ceil((double)(var32 - 2) * 10.0 / (double)var31);
+                int var35 = Mth.ceil((double)var32 * 10.0 / (double)var31) - var34;
 
-                for(int var32 = 0; var32 < var30 + var31; ++var32) {
-                    if (var32 < var30) {
-                        param0.blit(GUI_ICONS_LOCATION, var8 - var32 * 8 - 9, var15, 16, 18, 9, 9);
+                for(int var36 = 0; var36 < var34 + var35; ++var36) {
+                    if (var36 < var34) {
+                        param0.blitSprite(AIR_SPRITE, var8 - var36 * 8 - 9, var15, 9, 9);
                     } else {
-                        param0.blit(GUI_ICONS_LOCATION, var8 - var32 * 8 - 9, var15, 25, 18, 9, 9);
+                        param0.blitSprite(AIR_BURSTING_SPRITE, var8 - var36 * 8 - 9, var15, 9, 9);
                     }
                 }
             }
@@ -824,7 +859,7 @@ public class Gui {
         GuiGraphics param0, Player param1, int param2, int param3, int param4, int param5, float param6, int param7, int param8, int param9, boolean param10
     ) {
         Gui.HeartType var0 = Gui.HeartType.forPlayer(param1);
-        int var1 = 9 * (param1.level().getLevelData().isHardcore() ? 5 : 0);
+        boolean var1 = param1.level().getLevelData().isHardcore();
         int var2 = Mth.ceil((double)param6 / 2.0);
         int var3 = Mth.ceil((double)param9 / 2.0);
         int var4 = var2 * 2;
@@ -866,8 +901,8 @@ public class Gui {
 
     }
 
-    private void renderHeart(GuiGraphics param0, Gui.HeartType param1, int param2, int param3, int param4, boolean param5, boolean param6) {
-        param0.blit(GUI_ICONS_LOCATION, param2, param3, param1.getX(param6, param5), param4, 9, 9);
+    private void renderHeart(GuiGraphics param0, Gui.HeartType param1, int param2, int param3, boolean param4, boolean param5, boolean param6) {
+        param0.blitSprite(param1.getSprite(param4, param6, param5), param2, param3, 9, 9);
     }
 
     private void renderVehicleHealth(GuiGraphics param0) {
@@ -880,23 +915,20 @@ public class Gui {
                 int var3 = this.screenHeight - 39;
                 int var4 = this.screenWidth / 2 + 91;
                 int var5 = var3;
-                int var6 = 0;
 
-                for(boolean var7 = false; var1 > 0; var6 += 20) {
-                    int var8 = Math.min(var1, 10);
-                    var1 -= var8;
+                for(int var6 = 0; var1 > 0; var6 += 20) {
+                    int var7 = Math.min(var1, 10);
+                    var1 -= var7;
 
-                    for(int var9 = 0; var9 < var8; ++var9) {
-                        int var10 = 52;
-                        int var11 = 0;
-                        int var12 = var4 - var9 * 8 - 9;
-                        param0.blit(GUI_ICONS_LOCATION, var12, var5, 52 + var11 * 9, 9, 9, 9);
-                        if (var9 * 2 + 1 + var6 < var2) {
-                            param0.blit(GUI_ICONS_LOCATION, var12, var5, 88, 9, 9, 9);
+                    for(int var8 = 0; var8 < var7; ++var8) {
+                        int var9 = var4 - var8 * 8 - 9;
+                        param0.blitSprite(HEART_VEHICLE_CONTAINER_SPRITE, var9, var5, 9, 9);
+                        if (var8 * 2 + 1 + var6 < var2) {
+                            param0.blitSprite(HEART_VEHICLE_FULL_SPRITE, var9, var5, 9, 9);
                         }
 
-                        if (var9 * 2 + 1 + var6 == var2) {
-                            param0.blit(GUI_ICONS_LOCATION, var12, var5, 97, 9, 9, 9);
+                        if (var8 * 2 + 1 + var6 == var2) {
+                            param0.blitSprite(HEART_VEHICLE_HALF_SPRITE, var9, var5, 9, 9);
                         }
                     }
 
@@ -1171,32 +1203,108 @@ public class Gui {
 
     @OnlyIn(Dist.CLIENT)
     static enum HeartType {
-        CONTAINER(0, false),
-        NORMAL(2, true),
-        POISIONED(4, true),
-        WITHERED(6, true),
-        ABSORBING(8, false),
-        FROZEN(9, false);
+        CONTAINER(
+            new ResourceLocation("hud/heart/container"),
+            new ResourceLocation("hud/heart/container_blinking"),
+            new ResourceLocation("hud/heart/container"),
+            new ResourceLocation("hud/heart/container_blinking"),
+            new ResourceLocation("hud/heart/container_hardcore"),
+            new ResourceLocation("hud/heart/container_hardcore_blinking"),
+            new ResourceLocation("hud/heart/container_hardcore"),
+            new ResourceLocation("hud/heart/container_hardcore_blinking")
+        ),
+        NORMAL(
+            new ResourceLocation("hud/heart/full"),
+            new ResourceLocation("hud/heart/full_blinking"),
+            new ResourceLocation("hud/heart/half"),
+            new ResourceLocation("hud/heart/half_blinking"),
+            new ResourceLocation("hud/heart/hardcore_full"),
+            new ResourceLocation("hud/heart/hardcore_full_blinking"),
+            new ResourceLocation("hud/heart/hardcore_half"),
+            new ResourceLocation("hud/heart/hardcore_half_blinking")
+        ),
+        POISIONED(
+            new ResourceLocation("hud/heart/poisoned_full"),
+            new ResourceLocation("hud/heart/poisoned_full_blinking"),
+            new ResourceLocation("hud/heart/poisoned_half"),
+            new ResourceLocation("hud/heart/poisoned_half_blinking"),
+            new ResourceLocation("hud/heart/poisoned_hardcore_full"),
+            new ResourceLocation("hud/heart/poisoned_hardcore_full_blinking"),
+            new ResourceLocation("hud/heart/poisoned_hardcore_half"),
+            new ResourceLocation("hud/heart/poisoned_hardcore_half_blinking")
+        ),
+        WITHERED(
+            new ResourceLocation("hud/heart/withered_full"),
+            new ResourceLocation("hud/heart/withered_full_blinking"),
+            new ResourceLocation("hud/heart/withered_half"),
+            new ResourceLocation("hud/heart/withered_half_blinking"),
+            new ResourceLocation("hud/heart/withered_hardcore_full"),
+            new ResourceLocation("hud/heart/withered_hardcore_full_blinking"),
+            new ResourceLocation("hud/heart/withered_hardcore_half"),
+            new ResourceLocation("hud/heart/withered_hardcore_half_blinking")
+        ),
+        ABSORBING(
+            new ResourceLocation("hud/heart/absorbing_full"),
+            new ResourceLocation("hud/heart/absorbing_full_blinking"),
+            new ResourceLocation("hud/heart/absorbing_half"),
+            new ResourceLocation("hud/heart/absorbing_half_blinking"),
+            new ResourceLocation("hud/heart/absorbing_hardcore_full"),
+            new ResourceLocation("hud/heart/absorbing_hardcore_full_blinking"),
+            new ResourceLocation("hud/heart/absorbing_hardcore_half"),
+            new ResourceLocation("hud/heart/absorbing_hardcore_half_blinking")
+        ),
+        FROZEN(
+            new ResourceLocation("hud/heart/frozen_full"),
+            new ResourceLocation("hud/heart/frozen_full_blinking"),
+            new ResourceLocation("hud/heart/frozen_half"),
+            new ResourceLocation("hud/heart/frozen_half_blinking"),
+            new ResourceLocation("hud/heart/frozen_hardcore_full"),
+            new ResourceLocation("hud/heart/frozen_hardcore_full_blinking"),
+            new ResourceLocation("hud/heart/frozen_hardcore_half"),
+            new ResourceLocation("hud/heart/frozen_hardcore_half_blinking")
+        );
 
-        private final int index;
-        private final boolean canBlink;
+        private final ResourceLocation full;
+        private final ResourceLocation fullBlinking;
+        private final ResourceLocation half;
+        private final ResourceLocation halfBlinking;
+        private final ResourceLocation hardcoreFull;
+        private final ResourceLocation hardcoreFullBlinking;
+        private final ResourceLocation hardcoreHalf;
+        private final ResourceLocation hardcoreHalfBlinking;
 
-        private HeartType(int param0, boolean param1) {
-            this.index = param0;
-            this.canBlink = param1;
+        private HeartType(
+            ResourceLocation param0,
+            ResourceLocation param1,
+            ResourceLocation param2,
+            ResourceLocation param3,
+            ResourceLocation param4,
+            ResourceLocation param5,
+            ResourceLocation param6,
+            ResourceLocation param7
+        ) {
+            this.full = param0;
+            this.fullBlinking = param1;
+            this.half = param2;
+            this.halfBlinking = param3;
+            this.hardcoreFull = param4;
+            this.hardcoreFullBlinking = param5;
+            this.hardcoreHalf = param6;
+            this.hardcoreHalfBlinking = param7;
         }
 
-        public int getX(boolean param0, boolean param1) {
-            int var0;
-            if (this == CONTAINER) {
-                var0 = param1 ? 1 : 0;
+        public ResourceLocation getSprite(boolean param0, boolean param1, boolean param2) {
+            if (!param0) {
+                if (param1) {
+                    return param2 ? this.halfBlinking : this.half;
+                } else {
+                    return param2 ? this.fullBlinking : this.full;
+                }
+            } else if (param1) {
+                return param2 ? this.hardcoreHalfBlinking : this.hardcoreHalf;
             } else {
-                int var1 = param0 ? 1 : 0;
-                int var2 = this.canBlink && param1 ? 2 : 0;
-                var0 = var1 + var2;
+                return param2 ? this.hardcoreFullBlinking : this.hardcoreFull;
             }
-
-            return 16 + (this.index * 2 + var0) * 9;
         }
 
         static Gui.HeartType forPlayer(Player param0) {

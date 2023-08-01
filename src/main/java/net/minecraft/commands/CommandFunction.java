@@ -1,15 +1,23 @@
 package net.minecraft.commands;
 
-import com.google.common.collect.Lists;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerFunctionManager;
 
@@ -30,44 +38,132 @@ public class CommandFunction {
         return this.entries;
     }
 
+    public CommandFunction instantiate(@Nullable CompoundTag param0, CommandDispatcher<CommandSourceStack> param1, CommandSourceStack param2) throws FunctionInstantiationException {
+        return this;
+    }
+
+    private static boolean shouldConcatenateNextLine(CharSequence param0) {
+        int var0 = param0.length();
+        return var0 > 0 && param0.charAt(var0 - 1) == '\\';
+    }
+
     public static CommandFunction fromLines(
         ResourceLocation param0, CommandDispatcher<CommandSourceStack> param1, CommandSourceStack param2, List<String> param3
     ) {
-        List<CommandFunction.Entry> var0 = Lists.newArrayListWithCapacity(param3.size());
+        List<CommandFunction.Entry> var0 = new ArrayList<>(param3.size());
+        Set<String> var1 = new ObjectArraySet<>();
 
-        for(int var1 = 0; var1 < param3.size(); ++var1) {
-            int var2 = var1 + 1;
-            String var3 = param3.get(var1).trim();
-            StringReader var4 = new StringReader(var3);
-            if (var4.canRead() && var4.peek() != '#') {
-                if (var4.peek() == '/') {
-                    var4.skip();
-                    if (var4.peek() == '/') {
+        for(int var2 = 0; var2 < param3.size(); ++var2) {
+            int var3 = var2 + 1;
+            String var4 = param3.get(var2).trim();
+            String var7;
+            if (shouldConcatenateNextLine(var4)) {
+                StringBuilder var5 = new StringBuilder(var4);
+
+                do {
+                    if (++var2 == param3.size()) {
+                        throw new IllegalArgumentException("Line continuation at end of file");
+                    }
+
+                    var5.deleteCharAt(var5.length() - 1);
+                    String var6 = param3.get(var2).trim();
+                    var5.append(var6);
+                } while(shouldConcatenateNextLine(var5));
+
+                var7 = var5.toString();
+            } else {
+                var7 = var4;
+            }
+
+            StringReader var9 = new StringReader(var7);
+            if (var9.canRead() && var9.peek() != '#') {
+                if (var9.peek() == '/') {
+                    var9.skip();
+                    if (var9.peek() == '/') {
                         throw new IllegalArgumentException(
-                            "Unknown or invalid command '" + var3 + "' on line " + var2 + " (if you intended to make a comment, use '#' not '//')"
+                            "Unknown or invalid command '" + var7 + "' on line " + var3 + " (if you intended to make a comment, use '#' not '//')"
                         );
                     }
 
-                    String var5 = var4.readUnquotedString();
+                    String var10 = var9.readUnquotedString();
                     throw new IllegalArgumentException(
-                        "Unknown or invalid command '" + var3 + "' on line " + var2 + " (did you mean '" + var5 + "'? Do not use a preceding forwards slash.)"
+                        "Unknown or invalid command '" + var7 + "' on line " + var3 + " (did you mean '" + var10 + "'? Do not use a preceding forwards slash.)"
                     );
                 }
 
-                try {
-                    ParseResults<CommandSourceStack> var6 = param1.parse(var4, param2);
-                    if (var6.getReader().canRead()) {
-                        throw Commands.getParseException(var6);
-                    }
+                if (var9.peek() == '$') {
+                    CommandFunction.MacroEntry var11 = decomposeMacro(var7.substring(1), var3);
+                    var0.add(var11);
+                    var1.addAll(var11.parameters());
+                } else {
+                    try {
+                        ParseResults<CommandSourceStack> var12 = param1.parse(var9, param2);
+                        if (var12.getReader().canRead()) {
+                            throw Commands.getParseException(var12);
+                        }
 
-                    var0.add(new CommandFunction.CommandEntry(var6));
-                } catch (CommandSyntaxException var10) {
-                    throw new IllegalArgumentException("Whilst parsing command on line " + var2 + ": " + var10.getMessage());
+                        var0.add(new CommandFunction.CommandEntry(var12));
+                    } catch (CommandSyntaxException var12) {
+                        throw new IllegalArgumentException("Whilst parsing command on line " + var3 + ": " + var12.getMessage());
+                    }
                 }
             }
         }
 
-        return new CommandFunction(param0, var0.toArray(new CommandFunction.Entry[0]));
+        return (CommandFunction)(var1.isEmpty()
+            ? new CommandFunction(param0, var0.toArray(param0x -> new CommandFunction.Entry[param0x]))
+            : new CommandFunction.CommandMacro(param0, var0.toArray(param0x -> new CommandFunction.Entry[param0x]), List.copyOf(var1)));
+    }
+
+    @VisibleForTesting
+    public static CommandFunction.MacroEntry decomposeMacro(String param0, int param1) {
+        Builder<String> var0 = ImmutableList.builder();
+        Builder<String> var1 = ImmutableList.builder();
+        int var2 = param0.length();
+        int var3 = 0;
+        int var4 = param0.indexOf(36);
+
+        while(var4 != -1) {
+            if (var4 != var2 - 1 && param0.charAt(var4 + 1) == '(') {
+                var0.add(param0.substring(var3, var4));
+                int var5 = param0.indexOf(41, var4 + 1);
+                if (var5 == -1) {
+                    throw new IllegalArgumentException("Unterminated macro variable in macro '" + param0 + "' on line " + param1);
+                }
+
+                String var6 = param0.substring(var4 + 2, var5);
+                if (!isValidVariableName(var6)) {
+                    throw new IllegalArgumentException("Invalid macro variable name '" + var6 + "' on line " + param1);
+                }
+
+                var1.add(var6);
+                var3 = var5 + 1;
+                var4 = param0.indexOf(36, var3);
+            } else {
+                var4 = param0.indexOf(36, var4 + 1);
+            }
+        }
+
+        if (var3 == 0) {
+            throw new IllegalArgumentException("Macro without variables on line " + param1);
+        } else {
+            if (var3 != var2) {
+                var0.add(param0.substring(var3));
+            }
+
+            return new CommandFunction.MacroEntry(var0.build(), var1.build());
+        }
+    }
+
+    private static boolean isValidVariableName(String param0) {
+        for(int var0 = 0; var0 < param0.length(); ++var0) {
+            char var1 = param0.charAt(var0);
+            if (!Character.isLetterOrDigit(var1) && var1 != '_') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public static class CacheableFunction {
@@ -142,6 +238,88 @@ public class CommandFunction {
         }
     }
 
+    static class CommandMacro extends CommandFunction {
+        private final List<String> parameters;
+        private static final int MAX_CACHE_ENTRIES = 8;
+        private final Object2ObjectLinkedOpenHashMap<List<String>, CommandFunction> cache = new Object2ObjectLinkedOpenHashMap<>(8, 0.25F);
+
+        public CommandMacro(ResourceLocation param0, CommandFunction.Entry[] param1, List<String> param2) {
+            super(param0, param1);
+            this.parameters = param2;
+        }
+
+        @Override
+        public CommandFunction instantiate(@Nullable CompoundTag param0, CommandDispatcher<CommandSourceStack> param1, CommandSourceStack param2) throws FunctionInstantiationException {
+            if (param0 == null) {
+                throw new FunctionInstantiationException(Component.translatable("commands.function.error.missing_arguments", this.getId()));
+            } else {
+                List<String> var0 = new ArrayList<>(this.parameters.size());
+
+                for(String var1 : this.parameters) {
+                    if (!param0.contains(var1)) {
+                        throw new FunctionInstantiationException(Component.translatable("commands.function.error.missing_argument", this.getId(), var1));
+                    }
+
+                    var0.add(param0.get(var1).getAsString());
+                }
+
+                CommandFunction var2 = this.cache.getAndMoveToLast(var0);
+                if (var2 != null) {
+                    return var2;
+                } else {
+                    if (this.cache.size() >= 8) {
+                        this.cache.removeFirst();
+                    }
+
+                    CommandFunction var3 = this.substituteAndParse(var0, param1, param2);
+                    if (var3 != null) {
+                        this.cache.put(var0, var3);
+                    }
+
+                    return var3;
+                }
+            }
+        }
+
+        private CommandFunction substituteAndParse(List<String> param0, CommandDispatcher<CommandSourceStack> param1, CommandSourceStack param2) throws FunctionInstantiationException {
+            CommandFunction.Entry[] var0 = this.getEntries();
+            CommandFunction.Entry[] var1 = new CommandFunction.Entry[var0.length];
+
+            for(int var2 = 0; var2 < var0.length; ++var2) {
+                CommandFunction.Entry var3 = var0[var2];
+                if (!(var3 instanceof CommandFunction.MacroEntry)) {
+                    var1[var2] = var3;
+                } else {
+                    CommandFunction.MacroEntry var4 = (CommandFunction.MacroEntry)var3;
+                    List<String> var5 = var4.parameters();
+                    List<String> var6 = new ArrayList<>(var5.size());
+
+                    for(String var7 : var5) {
+                        var6.add(param0.get(this.parameters.indexOf(var7)));
+                    }
+
+                    String var8 = var4.substitute(var6);
+
+                    try {
+                        ParseResults<CommandSourceStack> var9 = param1.parse(var8, param2);
+                        if (var9.getReader().canRead()) {
+                            throw Commands.getParseException(var9);
+                        }
+
+                        var1[var2] = new CommandFunction.CommandEntry(var9);
+                    } catch (CommandSyntaxException var13) {
+                        throw new FunctionInstantiationException(
+                            Component.translatable("commands.function.error.parse", this.getId(), var8, var13.getMessage())
+                        );
+                    }
+                }
+            }
+
+            ResourceLocation var11 = this.getId();
+            return new CommandFunction(new ResourceLocation(var11.getNamespace(), var11.getPath() + "/" + param0.hashCode()), var1);
+        }
+    }
+
     @FunctionalInterface
     public interface Entry {
         void execute(
@@ -194,6 +372,46 @@ public class CommandFunction {
         @Override
         public String toString() {
             return "function " + this.function.getId();
+        }
+    }
+
+    public static class MacroEntry implements CommandFunction.Entry {
+        private final List<String> segments;
+        private final List<String> parameters;
+
+        public MacroEntry(List<String> param0, List<String> param1) {
+            this.segments = param0;
+            this.parameters = param1;
+        }
+
+        public List<String> parameters() {
+            return this.parameters;
+        }
+
+        public String substitute(List<String> param0) {
+            StringBuilder var0 = new StringBuilder();
+
+            for(int var1 = 0; var1 < this.parameters.size(); ++var1) {
+                var0.append(this.segments.get(var1)).append(param0.get(var1));
+            }
+
+            if (this.segments.size() > this.parameters.size()) {
+                var0.append(this.segments.get(this.segments.size() - 1));
+            }
+
+            return var0.toString();
+        }
+
+        @Override
+        public void execute(
+            ServerFunctionManager param0,
+            CommandSourceStack param1,
+            Deque<ServerFunctionManager.QueuedCommand> param2,
+            int param3,
+            int param4,
+            @Nullable ServerFunctionManager.TraceCallbacks param5
+        ) throws CommandSyntaxException {
+            throw new IllegalStateException("Tried to execute an uninstantiated macro");
         }
     }
 }

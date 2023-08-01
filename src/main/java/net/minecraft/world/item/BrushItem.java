@@ -19,6 +19,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BrushableBlock;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BrushableBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -66,7 +67,10 @@ public class BrushItem extends Item {
                     BlockPos var7 = var3.getBlockPos();
                     BlockState var8 = param0.getBlockState(var7);
                     HumanoidArm var9 = param1.getUsedItemHand() == InteractionHand.MAIN_HAND ? var0.getMainArm() : var0.getMainArm().getOpposite();
-                    this.spawnDustParticles(param0, var3, var8, param1.getViewVector(0.0F), var9);
+                    if (var8.shouldSpawnTerrainParticles() && var8.getRenderShape() != RenderShape.INVISIBLE) {
+                        this.spawnDustParticles(param0, var3, var8, param1.getViewVector(0.0F), var9);
+                    }
+
                     Block var14 = var8.getBlock();
                     SoundEvent var11;
                     if (var14 instanceof BrushableBlock var10) {
@@ -101,7 +105,7 @@ public class BrushItem extends Item {
         return ProjectileUtil.getHitResultOnViewVector(param0, param0x -> !param0x.isSpectator() && param0x.isPickable(), MAX_BRUSH_DISTANCE);
     }
 
-    public void spawnDustParticles(Level param0, BlockHitResult param1, BlockState param2, Vec3 param3, HumanoidArm param4) {
+    private void spawnDustParticles(Level param0, BlockHitResult param1, BlockState param2, Vec3 param3, HumanoidArm param4) {
         double var0 = 3.0;
         int var1 = param4 == HumanoidArm.RIGHT ? 1 : -1;
         int var2 = param0.getRandom().nextInt(7, 12);

@@ -75,6 +75,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public abstract class AbstractHorse extends Animal implements ContainerListener, HasCustomInventoryScreen, OwnableEntity, PlayerRideableJumping, Saddleable {
     public static final int EQUIPMENT_SLOT_OFFSET = 400;
@@ -1000,20 +1001,8 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Override
     protected void positionRider(Entity param0, Entity.MoveFunction param1) {
         super.positionRider(param0, param1);
-        if (this.standAnimO > 0.0F) {
-            float var0 = Mth.sin(this.yBodyRot * (float) (Math.PI / 180.0));
-            float var1 = Mth.cos(this.yBodyRot * (float) (Math.PI / 180.0));
-            float var2 = 0.7F * this.standAnimO;
-            float var3 = 0.15F * this.standAnimO;
-            param1.accept(
-                param0,
-                this.getX() + (double)(var2 * var0),
-                this.getY() + this.getPassengersRidingOffset() + param0.getMyRidingOffset() + (double)var3,
-                this.getZ() - (double)(var2 * var1)
-            );
-            if (param0 instanceof LivingEntity) {
-                ((LivingEntity)param0).yBodyRot = this.yBodyRot;
-            }
+        if (param0 instanceof LivingEntity) {
+            ((LivingEntity)param0).yBodyRot = this.yBodyRot;
         }
 
     }
@@ -1096,19 +1085,14 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
     @Nullable
     @Override
     public LivingEntity getControllingPassenger() {
-        Entity var3 = this.getFirstPassenger();
-        if (var3 instanceof Mob) {
-            return (Mob)var3;
-        } else {
-            if (this.isSaddled()) {
-                var3 = this.getFirstPassenger();
-                if (var3 instanceof Player) {
-                    return (Player)var3;
-                }
+        if (this.isSaddled()) {
+            Entity var2 = this.getFirstPassenger();
+            if (var2 instanceof Player) {
+                return (Player)var2;
             }
-
-            return null;
         }
+
+        return super.getControllingPassenger();
     }
 
     @Nullable
@@ -1183,5 +1167,14 @@ public abstract class AbstractHorse extends Animal implements ContainerListener,
 
     public int getAmbientStandInterval() {
         return this.getAmbientSoundInterval();
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, this.getPassengersRidingOffsetY(param1, param2) + 0.15F * this.standAnimO * param2, -0.7F * this.standAnimO * param2);
+    }
+
+    protected float getPassengersRidingOffsetY(EntityDimensions param0, float param1) {
+        return param0.height + (this.isBaby() ? 0.125F : -0.15625F) * param1;
     }
 }

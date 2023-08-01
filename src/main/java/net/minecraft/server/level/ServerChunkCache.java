@@ -487,7 +487,7 @@ public class ServerChunkCache extends ChunkSource {
     }
 
     public void setViewDistance(int param0) {
-        this.chunkMap.setViewDistance(param0);
+        this.chunkMap.setServerViewDistance(param0);
     }
 
     public void setSimulationDistance(int param0) {

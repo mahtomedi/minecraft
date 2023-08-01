@@ -142,11 +142,11 @@ public class LiquidBlockRenderer {
                 float var56;
                 if (var47.x == 0.0 && var47.z == 0.0) {
                     TextureAtlasSprite var48 = var1[0];
-                    var49 = var48.getU(0.0);
-                    var50 = var48.getV(0.0);
+                    var49 = var48.getU(0.0F);
+                    var50 = var48.getV(0.0F);
                     var51 = var49;
-                    var52 = var48.getV(16.0);
-                    var53 = var48.getU(16.0);
+                    var52 = var48.getV(1.0F);
+                    var53 = var48.getU(1.0F);
                     var54 = var52;
                     var55 = var53;
                     var56 = var50;
@@ -155,15 +155,15 @@ public class LiquidBlockRenderer {
                     float var58 = (float)Mth.atan2(var47.z, var47.x) - (float) (Math.PI / 2);
                     float var59 = Mth.sin(var58) * 0.25F;
                     float var60 = Mth.cos(var58) * 0.25F;
-                    float var61 = 8.0F;
-                    var49 = var57.getU((double)(8.0F + (-var60 - var59) * 16.0F));
-                    var50 = var57.getV((double)(8.0F + (-var60 + var59) * 16.0F));
-                    var51 = var57.getU((double)(8.0F + (-var60 + var59) * 16.0F));
-                    var52 = var57.getV((double)(8.0F + (var60 + var59) * 16.0F));
-                    var53 = var57.getU((double)(8.0F + (var60 + var59) * 16.0F));
-                    var54 = var57.getV((double)(8.0F + (var60 - var59) * 16.0F));
-                    var55 = var57.getU((double)(8.0F + (var60 - var59) * 16.0F));
-                    var56 = var57.getV((double)(8.0F + (-var60 - var59) * 16.0F));
+                    float var61 = 0.5F;
+                    var49 = var57.getU(0.5F + (-var60 - var59));
+                    var50 = var57.getV(0.5F + -var60 + var59);
+                    var51 = var57.getU(0.5F + -var60 + var59);
+                    var52 = var57.getV(0.5F + var60 + var59);
+                    var53 = var57.getU(0.5F + var60 + var59);
+                    var54 = var57.getV(0.5F + (var60 - var59));
+                    var55 = var57.getU(0.5F + (var60 - var59));
+                    var56 = var57.getV(0.5F + (-var60 - var59));
                 }
 
                 float var70 = (var49 + var51 + var53 + var55) / 4.0F;
@@ -266,11 +266,11 @@ public class LiquidBlockRenderer {
                         }
                     }
 
-                    float var118 = var116.getU(0.0);
-                    float var119 = var116.getU(8.0);
-                    float var120 = var116.getV((double)((1.0F - var87) * 16.0F * 0.5F));
-                    float var121 = var116.getV((double)((1.0F - var88) * 16.0F * 0.5F));
-                    float var122 = var116.getV(8.0);
+                    float var118 = var116.getU(0.0F);
+                    float var119 = var116.getU(0.5F);
+                    float var120 = var116.getV((1.0F - var87) * 0.5F);
+                    float var121 = var116.getV((1.0F - var88) * 0.5F);
+                    float var122 = var116.getV(0.5F);
                     float var123 = var86.getAxis() == Direction.Axis.Z ? var26 : var27;
                     float var124 = var25 * var123 * var3;
                     float var125 = var25 * var123 * var4;

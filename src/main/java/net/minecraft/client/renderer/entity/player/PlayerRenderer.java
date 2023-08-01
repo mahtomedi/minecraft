@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.DisplaySlot;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
@@ -148,7 +149,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
     }
 
     public ResourceLocation getTextureLocation(AbstractClientPlayer param0) {
-        return param0.getSkinTextureLocation();
+        return param0.getSkin().texture();
     }
 
     protected void scale(AbstractClientPlayer param0, PoseStack param1, float param2) {
@@ -161,7 +162,7 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         param2.pushPose();
         if (var0 < 100.0) {
             Scoreboard var1 = param0.getScoreboard();
-            Objective var2 = var1.getDisplayObjective(2);
+            Objective var2 = var1.getDisplayObjective(DisplaySlot.BELOW_NAME);
             if (var2 != null) {
                 Score var3 = var1.getOrCreatePlayerScore(param0.getScoreboardName(), var2);
                 super.renderNameTag(
@@ -195,35 +196,37 @@ public class PlayerRenderer extends LivingEntityRenderer<AbstractClientPlayer, P
         var0.swimAmount = 0.0F;
         var0.setupAnim(param3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         param4.xRot = 0.0F;
-        param4.render(param0, param1.getBuffer(RenderType.entitySolid(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY);
+        ResourceLocation var1 = param3.getSkin().texture();
+        param4.render(param0, param1.getBuffer(RenderType.entitySolid(var1)), param2, OverlayTexture.NO_OVERLAY);
         param5.xRot = 0.0F;
-        param5.render(param0, param1.getBuffer(RenderType.entityTranslucent(param3.getSkinTextureLocation())), param2, OverlayTexture.NO_OVERLAY);
+        param5.render(param0, param1.getBuffer(RenderType.entityTranslucent(var1)), param2, OverlayTexture.NO_OVERLAY);
     }
 
     protected void setupRotations(AbstractClientPlayer param0, PoseStack param1, float param2, float param3, float param4) {
         float var0 = param0.getSwimAmount(param4);
+        float var1 = param0.getViewXRot(param4);
         if (param0.isFallFlying()) {
             super.setupRotations(param0, param1, param2, param3, param4);
-            float var1 = (float)param0.getFallFlyingTicks() + param4;
-            float var2 = Mth.clamp(var1 * var1 / 100.0F, 0.0F, 1.0F);
+            float var2 = (float)param0.getFallFlyingTicks() + param4;
+            float var3 = Mth.clamp(var2 * var2 / 100.0F, 0.0F, 1.0F);
             if (!param0.isAutoSpinAttack()) {
-                param1.mulPose(Axis.XP.rotationDegrees(var2 * (-90.0F - param0.getXRot())));
+                param1.mulPose(Axis.XP.rotationDegrees(var3 * (-90.0F - var1)));
             }
 
-            Vec3 var3 = param0.getViewVector(param4);
-            Vec3 var4 = param0.getDeltaMovementLerped(param4);
-            double var5 = var4.horizontalDistanceSqr();
-            double var6 = var3.horizontalDistanceSqr();
-            if (var5 > 0.0 && var6 > 0.0) {
-                double var7 = (var4.x * var3.x + var4.z * var3.z) / Math.sqrt(var5 * var6);
-                double var8 = var4.x * var3.z - var4.z * var3.x;
-                param1.mulPose(Axis.YP.rotation((float)(Math.signum(var8) * Math.acos(var7))));
+            Vec3 var4 = param0.getViewVector(param4);
+            Vec3 var5 = param0.getDeltaMovementLerped(param4);
+            double var6 = var5.horizontalDistanceSqr();
+            double var7 = var4.horizontalDistanceSqr();
+            if (var6 > 0.0 && var7 > 0.0) {
+                double var8 = (var5.x * var4.x + var5.z * var4.z) / Math.sqrt(var6 * var7);
+                double var9 = var5.x * var4.z - var5.z * var4.x;
+                param1.mulPose(Axis.YP.rotation((float)(Math.signum(var9) * Math.acos(var8))));
             }
         } else if (var0 > 0.0F) {
             super.setupRotations(param0, param1, param2, param3, param4);
-            float var9 = param0.isInWater() ? -90.0F - param0.getXRot() : -90.0F;
-            float var10 = Mth.lerp(var0, 0.0F, var9);
-            param1.mulPose(Axis.XP.rotationDegrees(var10));
+            float var10 = param0.isInWater() ? -90.0F - var1 : -90.0F;
+            float var11 = Mth.lerp(var0, 0.0F, var10);
+            param1.mulPose(Axis.XP.rotationDegrees(var11));
             if (param0.isVisuallySwimming()) {
                 param1.translate(0.0F, -1.0F, 0.3F);
             }

@@ -1,17 +1,19 @@
 package net.minecraft.client.multiplayer;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.collect.Maps;
+import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import java.util.Map;
+import com.mojang.authlib.minecraft.MinecraftSessionService;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.resources.SkinManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.RemoteChatSession;
 import net.minecraft.network.chat.SignedMessageValidator;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,12 +22,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class PlayerInfo {
     private final GameProfile profile;
-    private final Map<Type, ResourceLocation> textureLocations = Maps.newEnumMap(Type.class);
+    private final Supplier<PlayerSkin> skinLookup;
     private GameType gameMode = GameType.DEFAULT_MODE;
     private int latency;
-    private boolean pendingTextures;
-    @Nullable
-    private String skinModel;
     @Nullable
     private Component tabListDisplayName;
     @Nullable
@@ -35,6 +34,45 @@ public class PlayerInfo {
     public PlayerInfo(GameProfile param0, boolean param1) {
         this.profile = param0;
         this.messageValidator = fallbackMessageValidator(param1);
+        Supplier<Supplier<PlayerSkin>> var0 = Suppliers.memoize(() -> createSkinLookup(param0));
+        this.skinLookup = () -> var0.get().get();
+    }
+
+    private static Supplier<PlayerSkin> createSkinLookup(GameProfile param0) {
+        Minecraft var0 = Minecraft.getInstance();
+        CompletableFuture<PlayerSkin> var1 = loadSkin(param0, var0.getSkinManager(), var0.getMinecraftSessionService());
+        boolean var2 = !var0.isLocalPlayer(param0.getId());
+        PlayerSkin var3 = DefaultPlayerSkin.get(param0);
+        return () -> {
+            PlayerSkin var0x = var1.getNow(var3);
+            return var2 && !var0x.secure() ? var3 : var0x;
+        };
+    }
+
+    private static CompletableFuture<PlayerSkin> loadSkin(GameProfile param0, SkinManager param1, MinecraftSessionService param2) {
+        CompletableFuture<GameProfile> var0;
+        if (param1.hasSecureTextureData(param0)) {
+            var0 = CompletableFuture.completedFuture(param0);
+        } else {
+            var0 = CompletableFuture.supplyAsync(() -> fillProfileProperties(param0, param2), Util.ioPool());
+        }
+
+        return var0.thenCompose(param1::getOrLoad);
+    }
+
+    private static GameProfile fillProfileProperties(GameProfile param0, MinecraftSessionService param1) {
+        Minecraft var0 = Minecraft.getInstance();
+        param0.getProperties().clear();
+        if (var0.isLocalPlayer(param0.getId())) {
+            param0.getProperties().putAll(var0.getProfileProperties());
+        } else {
+            GameProfile var1 = param1.fetchProfile(param0.getId(), true);
+            if (var1 != null) {
+                var1.getProperties().putAll(var1.getProperties());
+            }
+        }
+
+        return param0;
     }
 
     public GameProfile getProfile() {
@@ -84,57 +122,13 @@ public class PlayerInfo {
         this.latency = param0;
     }
 
-    public boolean isCapeLoaded() {
-        return this.getCapeLocation() != null;
-    }
-
-    public boolean isSkinLoaded() {
-        return this.getSkinLocation() != null;
-    }
-
-    public String getModelName() {
-        return this.skinModel == null ? DefaultPlayerSkin.getSkinModelName(this.profile.getId()) : this.skinModel;
-    }
-
-    public ResourceLocation getSkinLocation() {
-        this.registerTextures();
-        return MoreObjects.firstNonNull(this.textureLocations.get(Type.SKIN), DefaultPlayerSkin.getDefaultSkin(this.profile.getId()));
-    }
-
-    @Nullable
-    public ResourceLocation getCapeLocation() {
-        this.registerTextures();
-        return this.textureLocations.get(Type.CAPE);
-    }
-
-    @Nullable
-    public ResourceLocation getElytraLocation() {
-        this.registerTextures();
-        return this.textureLocations.get(Type.ELYTRA);
+    public PlayerSkin getSkin() {
+        return this.skinLookup.get();
     }
 
     @Nullable
     public PlayerTeam getTeam() {
         return Minecraft.getInstance().level.getScoreboard().getPlayersTeam(this.getProfile().getName());
-    }
-
-    protected void registerTextures() {
-        synchronized(this) {
-            if (!this.pendingTextures) {
-                this.pendingTextures = true;
-                Minecraft.getInstance().getSkinManager().registerSkins(this.profile, (param0, param1, param2) -> {
-                    this.textureLocations.put(param0, param1);
-                    if (param0 == Type.SKIN) {
-                        this.skinModel = param2.getMetadata("model");
-                        if (this.skinModel == null) {
-                            this.skinModel = "default";
-                        }
-                    }
-
-                }, true);
-            }
-
-        }
     }
 
     public void setTabListDisplayName(@Nullable Component param0) {

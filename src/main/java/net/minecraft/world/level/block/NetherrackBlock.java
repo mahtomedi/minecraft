@@ -15,7 +15,7 @@ public class NetherrackBlock extends Block implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2, boolean param3) {
+    public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         if (!param0.getBlockState(param1.above()).propagatesSkylightDown(param0, param1)) {
             return false;
         } else {

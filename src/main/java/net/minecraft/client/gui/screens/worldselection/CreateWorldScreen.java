@@ -77,6 +77,7 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.WorldData;
+import net.minecraft.world.level.validation.DirectoryValidator;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -103,6 +104,7 @@ public class CreateWorldScreen extends Screen {
     final WorldCreationUiState uiState;
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, param1x -> this.removeWidget(param1x));
     private boolean recreated;
+    private final DirectoryValidator packValidator;
     @Nullable
     private final Screen lastScreen;
     @Nullable
@@ -116,7 +118,7 @@ public class CreateWorldScreen extends Screen {
 
     public static void openFresh(Minecraft param0, @Nullable Screen param1) {
         queueLoadScreen(param0, PREPARING_WORLD_DATA);
-        PackRepository var0 = new PackRepository(new ServerPacksSource());
+        PackRepository var0 = new PackRepository(new ServerPacksSource(param0.directoryValidator()));
         WorldLoader.InitConfig var1 = createDefaultLoadConfig(var0, WorldDataConfiguration.DEFAULT);
         CompletableFuture<WorldCreationContext> var2 = WorldLoader.load(
             var1,
@@ -166,16 +168,12 @@ public class CreateWorldScreen extends Screen {
     ) {
         super(Component.translatable("selectWorld.create"));
         this.lastScreen = param1;
+        this.packValidator = param0.directoryValidator();
         this.uiState = new WorldCreationUiState(param0.getLevelSource().getBaseDir(), param2, param3, param4);
     }
 
     public WorldCreationUiState getUiState() {
         return this.uiState;
-    }
-
-    @Override
-    public void tick() {
-        this.tabManager.tickCurrent();
     }
 
     @Override
@@ -283,9 +281,8 @@ public class CreateWorldScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderBackground(param0);
-        param0.blit(FOOTER_SEPERATOR, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
         super.render(param0, param1, param2, param3);
+        param0.blit(FOOTER_SEPERATOR, 0, Mth.roundToward(this.height - 36 - 2, 2), 0.0F, 0.0F, this.width, 2, 32, 2);
     }
 
     @Override
@@ -531,7 +528,7 @@ public class CreateWorldScreen extends Screen {
         Path var0 = this.getTempDataPackDir();
         if (var0 != null) {
             if (this.tempDataPackRepository == null) {
-                this.tempDataPackRepository = ServerPacksSource.createPackRepository(var0);
+                this.tempDataPackRepository = ServerPacksSource.createPackRepository(var0, this.packValidator);
                 this.tempDataPackRepository.reload();
             }
 
@@ -559,7 +556,7 @@ public class CreateWorldScreen extends Screen {
             GridLayout.RowHelper var1 = new GridLayout().rowSpacing(4).createRowHelper(1);
             var1.addChild(new StringWidget(CreateWorldScreen.NAME_LABEL, CreateWorldScreen.this.minecraft.font), var1.newCellSettings().paddingLeft(1));
             this.nameEdit = var1.addChild(
-                new EditBox(CreateWorldScreen.this.font, 0, 0, 208, 20, Component.translatable("selectWorld.enterName")), var1.newCellSettings().padding(1)
+                new EditBox(CreateWorldScreen.this.font, 208, 20, Component.translatable("selectWorld.enterName")), var1.newCellSettings().padding(1)
             );
             this.nameEdit.setValue(CreateWorldScreen.this.uiState.getName());
             this.nameEdit.setResponder(CreateWorldScreen.this.uiState::setName);
@@ -624,11 +621,6 @@ public class CreateWorldScreen extends Screen {
                 );
             }
 
-        }
-
-        @Override
-        public void tick() {
-            this.nameEdit.tick();
         }
     }
 
@@ -710,7 +702,7 @@ public class CreateWorldScreen extends Screen {
             CreateWorldScreen.this.uiState.addListener(param0x -> this.customizeTypeButton.active = !param0x.isDebug() && param0x.getPresetEditor() != null);
             GridLayout.RowHelper var1 = new GridLayout().rowSpacing(4).createRowHelper(1);
             var1.addChild(new StringWidget(SEED_LABEL, CreateWorldScreen.this.font).alignLeft());
-            this.seedEdit = var1.addChild(new EditBox(CreateWorldScreen.this.font, 0, 0, 308, 20, Component.translatable("selectWorld.enterSeed")) {
+            this.seedEdit = var1.addChild(new EditBox(CreateWorldScreen.this.font, 308, 20, Component.translatable("selectWorld.enterSeed")) {
                 @Override
                 protected MutableComponent createNarrationMessage() {
                     return super.createNarrationMessage().append(CommonComponents.NARRATION_SEPARATOR).append(CreateWorldScreen.WorldTab.SEED_EMPTY_HINT);
@@ -758,11 +750,6 @@ public class CreateWorldScreen extends Screen {
             return param0x.getValue().isAmplified()
                 ? CommonComponents.joinForNarration(param0x.createDefaultNarrationMessage(), AMPLIFIED_HELP_TEXT)
                 : param0x.createDefaultNarrationMessage();
-        }
-
-        @Override
-        public void tick() {
-            this.seedEdit.tick();
         }
     }
 }

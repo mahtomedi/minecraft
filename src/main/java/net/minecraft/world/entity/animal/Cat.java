@@ -68,6 +68,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 
 public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     public static final double TEMPT_SPEED_MOD = 0.6;
@@ -458,6 +459,11 @@ public class Cat extends TamableAnimal implements VariantHolder<CatVariant> {
     @Override
     public boolean isSteppingCarefully() {
         return this.isCrouching() || super.isSteppingCarefully();
+    }
+
+    @Override
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, param1.height - 0.1875F * param2, 0.0F);
     }
 
     static class CatAvoidEntityGoal<T extends LivingEntity> extends AvoidEntityGoal<T> {

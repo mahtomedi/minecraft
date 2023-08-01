@@ -340,7 +340,7 @@ public class FileDownload {
                 var1.remove("Player");
                 NbtIo.writeCompressed(var0, param0);
             } catch (Exception var3) {
-                var3.printStackTrace();
+                LOGGER.info("Exception while removing player tag", (Throwable)var3);
             }
         }
 

@@ -387,19 +387,19 @@ public interface DispenseItemBehavior {
                 BlockPos var1 = param0.getPos().relative(param0.getBlockState().getValue(DispenserBlock.FACING));
                 BlockState var2 = var0.getBlockState(var1);
                 Block var3 = var2.getBlock();
-                if (var3 instanceof BucketPickup) {
-                    ItemStack var4 = ((BucketPickup)var3).pickupBlock(var0, var1, var2);
-                    if (var4.isEmpty()) {
+                if (var3 instanceof BucketPickup var4) {
+                    ItemStack var5 = var4.pickupBlock(null, var0, var1, var2);
+                    if (var5.isEmpty()) {
                         return super.execute(param0, param1);
                     } else {
                         var0.gameEvent(null, GameEvent.FLUID_PICKUP, var1);
-                        Item var5 = var4.getItem();
+                        Item var6 = var5.getItem();
                         param1.shrink(1);
                         if (param1.isEmpty()) {
-                            return new ItemStack(var5);
+                            return new ItemStack(var6);
                         } else {
-                            if (param0.<DispenserBlockEntity>getEntity().addItem(new ItemStack(var5)) < 0) {
-                                this.defaultDispenseItemBehavior.dispense(param0, new ItemStack(var5));
+                            if (param0.<DispenserBlockEntity>getEntity().addItem(new ItemStack(var6)) < 0) {
+                                this.defaultDispenseItemBehavior.dispense(param0, new ItemStack(var6));
                             }
 
                             return param1;

@@ -14,8 +14,12 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,7 +32,9 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.ConfirmScreen;
+import net.minecraft.client.gui.screens.NoticeWithLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -37,8 +43,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackDetector;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.resources.IoSupplier;
+import net.minecraft.world.level.validation.ForbiddenSymlinkInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -165,12 +173,16 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.renderDirtBackground(param0);
+        super.render(param0, param1, param2, param3);
         this.availablePackList.render(param0, param1, param2, param3);
         this.selectedPackList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         param0.drawCenteredString(this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
-        super.render(param0, param1, param2, param3);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics param0, int param1, int param2, float param3) {
+        this.renderDirtBackground(param0);
     }
 
     protected static void copyPacks(Minecraft param0, List<Path> param1, Path param2) {
@@ -200,15 +212,73 @@ public class PackSelectionScreen extends Screen {
 
     @Override
     public void onFilesDrop(List<Path> param0) {
-        String var0 = param0.stream().map(Path::getFileName).map(Path::toString).collect(Collectors.joining(", "));
-        this.minecraft.setScreen(new ConfirmScreen(param1 -> {
-            if (param1) {
-                copyPacks(this.minecraft, param0, this.packDir);
-                this.reload();
-            }
+        String var0 = extractPackNames(param0).collect(Collectors.joining(", "));
+        this.minecraft
+            .setScreen(
+                new ConfirmScreen(
+                    param1 -> {
+                        if (param1) {
+                            List<Path> var0x = new ArrayList<>(param0.size());
+                            Set<Path> var1x = new HashSet<>(param0);
+                            PackDetector<Path> var2x = new PackDetector<Path>(this.minecraft.directoryValidator()) {
+                                protected Path createZipPack(Path param0) {
+                                    return param0;
+                                }
+            
+                                protected Path createDirectoryPack(Path param0) {
+                                    return param0;
+                                }
+                            };
+                            List<ForbiddenSymlinkInfo> var3 = new ArrayList<>();
+            
+                            for(Path var4 : param0) {
+                                try {
+                                    Path var5 = (Path)var2x.detectPackResources(var4, var3);
+                                    if (var5 == null) {
+                                        LOGGER.warn("Path {} does not seem like pack", var4);
+                                    } else {
+                                        var0x.add(var5);
+                                        var1x.remove(var5);
+                                    }
+                                } catch (IOException var10) {
+                                    LOGGER.warn("Failed to check {} for packs", var4, var10);
+                                }
+                            }
+            
+                            if (!var3.isEmpty()) {
+                                this.minecraft.setScreen(NoticeWithLinkScreen.createPackSymlinkWarningScreen(this));
+                                return;
+                            }
+            
+                            if (!var0x.isEmpty()) {
+                                copyPacks(this.minecraft, var0x, this.packDir);
+                                this.reload();
+                            }
+            
+                            if (!var1x.isEmpty()) {
+                                String var7 = extractPackNames(var1x).collect(Collectors.joining(", "));
+                                this.minecraft
+                                    .setScreen(
+                                        new AlertScreen(
+                                            () -> this.minecraft.setScreen(this),
+                                            Component.translatable("pack.dropRejected.title"),
+                                            Component.translatable("pack.dropRejected.message", var7)
+                                        )
+                                    );
+                                return;
+                            }
+                        }
+            
+                        this.minecraft.setScreen(this);
+                    },
+                    Component.translatable("pack.dropConfirm"),
+                    Component.literal(var0)
+                )
+            );
+    }
 
-            this.minecraft.setScreen(this);
-        }, Component.translatable("pack.dropConfirm"), Component.literal(var0)));
+    private static Stream<String> extractPackNames(Collection<Path> param0) {
+        return param0.stream().map(Path::getFileName).map(Path::toString);
     }
 
     private ResourceLocation loadPackIcon(TextureManager param0, Pack param1) {

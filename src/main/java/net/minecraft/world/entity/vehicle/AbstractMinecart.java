@@ -44,6 +44,7 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public abstract class AbstractMinecart extends Entity {
     private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(AbstractMinecart.class, EntityDataSerializers.INT);
@@ -58,6 +59,13 @@ public abstract class AbstractMinecart extends Entity {
     protected static final float WATER_SLOWDOWN_FACTOR = 0.95F;
     private boolean flipped;
     private boolean onRails;
+    private int lerpSteps;
+    private double lerpX;
+    private double lerpY;
+    private double lerpZ;
+    private double lerpYRot;
+    private double lerpXRot;
+    private Vec3 targetDeltaMovement = Vec3.ZERO;
     private static final Map<RailShape, Pair<Vec3i, Vec3i>> EXITS = Util.make(Maps.newEnumMap(RailShape.class), param0 -> {
         Vec3i var0 = Direction.WEST.getNormal();
         Vec3i var1 = Direction.EAST.getNormal();
@@ -78,15 +86,6 @@ public abstract class AbstractMinecart extends Entity {
         param0.put(RailShape.NORTH_WEST, Pair.of(var2, var0));
         param0.put(RailShape.NORTH_EAST, Pair.of(var2, var1));
     });
-    private int lSteps;
-    private double lx;
-    private double ly;
-    private double lz;
-    private double lyr;
-    private double lxr;
-    private double lxd;
-    private double lyd;
-    private double lzd;
 
     protected AbstractMinecart(EntityType<?> param0, Level param1) {
         super(param0, param1);
@@ -150,8 +149,8 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     @Override
-    public double getPassengersRidingOffset() {
-        return 0.0;
+    protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
+        return new Vector3f(0.0F, 0.0F, 0.0F);
     }
 
     @Override
@@ -288,16 +287,9 @@ public abstract class AbstractMinecart extends Entity {
         this.checkBelowWorld();
         this.handleNetherPortal();
         if (this.level().isClientSide) {
-            if (this.lSteps > 0) {
-                double var0 = this.getX() + (this.lx - this.getX()) / (double)this.lSteps;
-                double var1 = this.getY() + (this.ly - this.getY()) / (double)this.lSteps;
-                double var2 = this.getZ() + (this.lz - this.getZ()) / (double)this.lSteps;
-                double var3 = Mth.wrapDegrees(this.lyr - (double)this.getYRot());
-                this.setYRot(this.getYRot() + (float)var3 / (float)this.lSteps);
-                this.setXRot(this.getXRot() + (float)(this.lxr - (double)this.getXRot()) / (float)this.lSteps);
-                --this.lSteps;
-                this.setPos(var0, var1, var2);
-                this.setRot(this.getYRot(), this.getXRot());
+            if (this.lerpSteps > 0) {
+                this.lerpPositionAndRotationStep(this.lerpSteps, this.lerpX, this.lerpY, this.lerpZ, this.lerpYRot, this.lerpXRot);
+                --this.lerpSteps;
             } else {
                 this.reapplyPosition();
                 this.setRot(this.getYRot(), this.getXRot());
@@ -305,24 +297,24 @@ public abstract class AbstractMinecart extends Entity {
 
         } else {
             if (!this.isNoGravity()) {
-                double var4 = this.isInWater() ? -0.005 : -0.04;
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, var4, 0.0));
+                double var0 = this.isInWater() ? -0.005 : -0.04;
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, var0, 0.0));
             }
 
-            int var5 = Mth.floor(this.getX());
-            int var6 = Mth.floor(this.getY());
-            int var7 = Mth.floor(this.getZ());
-            if (this.level().getBlockState(new BlockPos(var5, var6 - 1, var7)).is(BlockTags.RAILS)) {
-                --var6;
+            int var1 = Mth.floor(this.getX());
+            int var2 = Mth.floor(this.getY());
+            int var3 = Mth.floor(this.getZ());
+            if (this.level().getBlockState(new BlockPos(var1, var2 - 1, var3)).is(BlockTags.RAILS)) {
+                --var2;
             }
 
-            BlockPos var8 = new BlockPos(var5, var6, var7);
-            BlockState var9 = this.level().getBlockState(var8);
-            this.onRails = BaseRailBlock.isRail(var9);
+            BlockPos var4 = new BlockPos(var1, var2, var3);
+            BlockState var5 = this.level().getBlockState(var4);
+            this.onRails = BaseRailBlock.isRail(var5);
             if (this.onRails) {
-                this.moveAlongTrack(var8, var9);
-                if (var9.is(Blocks.ACTIVATOR_RAIL)) {
-                    this.activateMinecart(var5, var6, var7, var9.getValue(PoweredRailBlock.POWERED));
+                this.moveAlongTrack(var4, var5);
+                if (var5.is(Blocks.ACTIVATOR_RAIL)) {
+                    this.activateMinecart(var1, var2, var3, var5.getValue(PoweredRailBlock.POWERED));
                 }
             } else {
                 this.comeOffTrack();
@@ -330,42 +322,42 @@ public abstract class AbstractMinecart extends Entity {
 
             this.checkInsideBlocks();
             this.setXRot(0.0F);
-            double var10 = this.xo - this.getX();
-            double var11 = this.zo - this.getZ();
-            if (var10 * var10 + var11 * var11 > 0.001) {
-                this.setYRot((float)(Mth.atan2(var11, var10) * 180.0 / Math.PI));
+            double var6 = this.xo - this.getX();
+            double var7 = this.zo - this.getZ();
+            if (var6 * var6 + var7 * var7 > 0.001) {
+                this.setYRot((float)(Mth.atan2(var7, var6) * 180.0 / Math.PI));
                 if (this.flipped) {
                     this.setYRot(this.getYRot() + 180.0F);
                 }
             }
 
-            double var12 = (double)Mth.wrapDegrees(this.getYRot() - this.yRotO);
-            if (var12 < -170.0 || var12 >= 170.0) {
+            double var8 = (double)Mth.wrapDegrees(this.getYRot() - this.yRotO);
+            if (var8 < -170.0 || var8 >= 170.0) {
                 this.setYRot(this.getYRot() + 180.0F);
                 this.flipped = !this.flipped;
             }
 
             this.setRot(this.getYRot(), this.getXRot());
             if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
-                List<Entity> var13 = this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
-                if (!var13.isEmpty()) {
-                    for(int var14 = 0; var14 < var13.size(); ++var14) {
-                        Entity var15 = var13.get(var14);
-                        if (!(var15 instanceof Player)
-                            && !(var15 instanceof IronGolem)
-                            && !(var15 instanceof AbstractMinecart)
+                List<Entity> var9 = this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
+                if (!var9.isEmpty()) {
+                    for(int var10 = 0; var10 < var9.size(); ++var10) {
+                        Entity var11 = var9.get(var10);
+                        if (!(var11 instanceof Player)
+                            && !(var11 instanceof IronGolem)
+                            && !(var11 instanceof AbstractMinecart)
                             && !this.isVehicle()
-                            && !var15.isPassenger()) {
-                            var15.startRiding(this);
+                            && !var11.isPassenger()) {
+                            var11.startRiding(this);
                         } else {
-                            var15.push(this);
+                            var11.push(this);
                         }
                     }
                 }
             } else {
-                for(Entity var16 : this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
-                    if (!this.hasPassenger(var16) && var16.isPushable() && var16 instanceof AbstractMinecart) {
-                        var16.push(this);
+                for(Entity var12 : this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
+                    if (!this.hasPassenger(var12) && var12.isPushable() && var12 instanceof AbstractMinecart) {
+                        var12.push(this);
                     }
                 }
             }
@@ -766,22 +758,20 @@ public abstract class AbstractMinecart extends Entity {
     }
 
     @Override
-    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5, boolean param6) {
-        this.lx = param0;
-        this.ly = param1;
-        this.lz = param2;
-        this.lyr = (double)param3;
-        this.lxr = (double)param4;
-        this.lSteps = param5 + 2;
-        this.setDeltaMovement(this.lxd, this.lyd, this.lzd);
+    public void lerpTo(double param0, double param1, double param2, float param3, float param4, int param5) {
+        this.lerpX = param0;
+        this.lerpY = param1;
+        this.lerpZ = param2;
+        this.lerpYRot = (double)param3;
+        this.lerpXRot = (double)param4;
+        this.lerpSteps = param5 + 2;
+        this.setDeltaMovement(this.targetDeltaMovement);
     }
 
     @Override
     public void lerpMotion(double param0, double param1, double param2) {
-        this.lxd = param0;
-        this.lyd = param1;
-        this.lzd = param2;
-        this.setDeltaMovement(this.lxd, this.lyd, this.lzd);
+        this.targetDeltaMovement = new Vec3(param0, param1, param2);
+        this.setDeltaMovement(this.targetDeltaMovement);
     }
 
     public void setDamage(float param0) {

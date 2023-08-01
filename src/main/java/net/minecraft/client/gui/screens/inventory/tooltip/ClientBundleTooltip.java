@@ -12,10 +12,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientBundleTooltip implements ClientTooltipComponent {
-    public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation("textures/gui/container/bundle.png");
+    private static final ResourceLocation BACKGROUND_SPRITE = new ResourceLocation("container/bundle/background");
     private static final int MARGIN_Y = 4;
     private static final int BORDER_WIDTH = 1;
-    private static final int TEX_SIZE = 128;
     private static final int SLOT_SIZE_X = 18;
     private static final int SLOT_SIZE_Y = 20;
     private final NonNullList<ItemStack> items;
@@ -28,18 +27,27 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
 
     @Override
     public int getHeight() {
-        return this.gridSizeY() * 20 + 2 + 4;
+        return this.backgroundHeight() + 4;
     }
 
     @Override
     public int getWidth(Font param0) {
+        return this.backgroundWidth();
+    }
+
+    private int backgroundWidth() {
         return this.gridSizeX() * 18 + 2;
+    }
+
+    private int backgroundHeight() {
+        return this.gridSizeY() * 20 + 2;
     }
 
     @Override
     public void renderImage(Font param0, int param1, int param2, GuiGraphics param3) {
         int var0 = this.gridSizeX();
         int var1 = this.gridSizeY();
+        param3.blitSprite(BACKGROUND_SPRITE, param1, param2, this.backgroundWidth(), this.backgroundHeight());
         boolean var2 = this.weight >= 64;
         int var3 = 0;
 
@@ -51,7 +59,6 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
             }
         }
 
-        this.drawBorder(param1, param2, var0, var1, param3);
     }
 
     private void renderSlot(int param0, int param1, int param2, boolean param3, GuiGraphics param4, Font param5) {
@@ -69,26 +76,8 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
         }
     }
 
-    private void drawBorder(int param0, int param1, int param2, int param3, GuiGraphics param4) {
-        this.blit(param4, param0, param1, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
-        this.blit(param4, param0 + param2 * 18 + 1, param1, ClientBundleTooltip.Texture.BORDER_CORNER_TOP);
-
-        for(int var0 = 0; var0 < param2; ++var0) {
-            this.blit(param4, param0 + 1 + var0 * 18, param1, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_TOP);
-            this.blit(param4, param0 + 1 + var0 * 18, param1 + param3 * 20, ClientBundleTooltip.Texture.BORDER_HORIZONTAL_BOTTOM);
-        }
-
-        for(int var1 = 0; var1 < param3; ++var1) {
-            this.blit(param4, param0, param1 + var1 * 20 + 1, ClientBundleTooltip.Texture.BORDER_VERTICAL);
-            this.blit(param4, param0 + param2 * 18 + 1, param1 + var1 * 20 + 1, ClientBundleTooltip.Texture.BORDER_VERTICAL);
-        }
-
-        this.blit(param4, param0, param1 + param3 * 20, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
-        this.blit(param4, param0 + param2 * 18 + 1, param1 + param3 * 20, ClientBundleTooltip.Texture.BORDER_CORNER_BOTTOM);
-    }
-
     private void blit(GuiGraphics param0, int param1, int param2, ClientBundleTooltip.Texture param3) {
-        param0.blit(TEXTURE_LOCATION, param1, param2, 0, (float)param3.x, (float)param3.y, param3.w, param3.h, 128, 128);
+        param0.blitSprite(param3.sprite, param1, param2, 0, param3.w, param3.h);
     }
 
     private int gridSizeX() {
@@ -101,24 +90,17 @@ public class ClientBundleTooltip implements ClientTooltipComponent {
 
     @OnlyIn(Dist.CLIENT)
     static enum Texture {
-        SLOT(0, 0, 18, 20),
-        BLOCKED_SLOT(0, 40, 18, 20),
-        BORDER_VERTICAL(0, 18, 1, 20),
-        BORDER_HORIZONTAL_TOP(0, 20, 18, 1),
-        BORDER_HORIZONTAL_BOTTOM(0, 60, 18, 1),
-        BORDER_CORNER_TOP(0, 20, 1, 1),
-        BORDER_CORNER_BOTTOM(0, 60, 1, 1);
+        BLOCKED_SLOT(new ResourceLocation("container/bundle/blocked_slot"), 18, 20),
+        SLOT(new ResourceLocation("container/bundle/slot"), 18, 20);
 
-        public final int x;
-        public final int y;
+        public final ResourceLocation sprite;
         public final int w;
         public final int h;
 
-        private Texture(int param0, int param1, int param2, int param3) {
-            this.x = param0;
-            this.y = param1;
-            this.w = param2;
-            this.h = param3;
+        private Texture(ResourceLocation param0, int param1, int param2) {
+            this.sprite = param0;
+            this.w = param1;
+            this.h = param2;
         }
     }
 }

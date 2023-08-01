@@ -2,36 +2,19 @@ package net.minecraft.network.protocol.game;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.world.level.ChunkPos;
 
-public class ClientboundForgetLevelChunkPacket implements Packet<ClientGamePacketListener> {
-    private final int x;
-    private final int z;
-
-    public ClientboundForgetLevelChunkPacket(int param0, int param1) {
-        this.x = param0;
-        this.z = param1;
-    }
-
+public record ClientboundForgetLevelChunkPacket(ChunkPos pos) implements Packet<ClientGamePacketListener> {
     public ClientboundForgetLevelChunkPacket(FriendlyByteBuf param0) {
-        this.x = param0.readInt();
-        this.z = param0.readInt();
+        this(param0.readChunkPos());
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
-        param0.writeInt(this.x);
-        param0.writeInt(this.z);
+        param0.writeChunkPos(this.pos);
     }
 
     public void handle(ClientGamePacketListener param0) {
         param0.handleForgetLevelChunk(this);
-    }
-
-    public int getX() {
-        return this.x;
-    }
-
-    public int getZ() {
-        return this.z;
     }
 }

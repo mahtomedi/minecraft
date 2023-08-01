@@ -14,6 +14,7 @@ import java.util.List;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.lwjgl.stb.STBTTFontinfo;
@@ -23,8 +24,7 @@ import org.lwjgl.system.MemoryUtil;
 @OnlyIn(Dist.CLIENT)
 public record TrueTypeGlyphProviderDefinition(ResourceLocation location, float size, float oversample, TrueTypeGlyphProviderDefinition.Shift shift, String skip)
     implements GlyphProviderDefinition {
-    private static final Codec<String> SKIP_LIST_CODEC = Codec.either(Codec.STRING, Codec.STRING.listOf())
-        .xmap(param0 -> param0.map(param0x -> param0x, param0x -> String.join("", param0x)), Either::left);
+    private static final Codec<String> SKIP_LIST_CODEC = ExtraCodecs.withAlternative(Codec.STRING, Codec.STRING.listOf(), param0 -> String.join("", param0));
     public static final MapCodec<TrueTypeGlyphProviderDefinition> CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
                     ResourceLocation.CODEC.fieldOf("file").forGetter(TrueTypeGlyphProviderDefinition::location),

@@ -2,6 +2,7 @@ package net.minecraft.client.gui.components;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,6 +19,10 @@ public class PlayerFaceRenderer {
     public static final int SKIN_HAT_HEIGHT = 8;
     public static final int SKIN_TEX_WIDTH = 64;
     public static final int SKIN_TEX_HEIGHT = 64;
+
+    public static void draw(GuiGraphics param0, PlayerSkin param1, int param2, int param3, int param4) {
+        draw(param0, param1.texture(), param2, param3, param4);
+    }
 
     public static void draw(GuiGraphics param0, ResourceLocation param1, int param2, int param3, int param4) {
         draw(param0, param1, param2, param3, param4, true, false);
