@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.advancements.CriterionTrigger;
@@ -38,10 +39,10 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
         this.players.remove(param0);
     }
 
-    protected abstract T createInstance(JsonObject var1, ContextAwarePredicate var2, DeserializationContext var3);
+    protected abstract T createInstance(JsonObject var1, Optional<ContextAwarePredicate> var2, DeserializationContext var3);
 
     public final T createInstance(JsonObject param0, DeserializationContext param1) {
-        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "player", param1);
+        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "player", param1);
         return this.createInstance(param0, var0, param1);
     }
 
@@ -54,18 +55,21 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
 
             for(CriterionTrigger.Listener<T> var4 : var1) {
                 T var5 = var4.getTriggerInstance();
-                if (param1.test(var5) && var5.getPlayerPredicate().matches(var2)) {
-                    if (var3 == null) {
-                        var3 = Lists.newArrayList();
-                    }
+                if (param1.test(var5)) {
+                    Optional<ContextAwarePredicate> var6 = var5.getPlayerPredicate();
+                    if (var6.isEmpty() || var6.get().matches(var2)) {
+                        if (var3 == null) {
+                            var3 = Lists.newArrayList();
+                        }
 
-                    var3.add(var4);
+                        var3.add(var4);
+                    }
                 }
             }
 
             if (var3 != null) {
-                for(CriterionTrigger.Listener<T> var6 : var3) {
-                    var6.run(var0);
+                for(CriterionTrigger.Listener<T> var7 : var3) {
+                    var7.run(var0);
                 }
             }
 

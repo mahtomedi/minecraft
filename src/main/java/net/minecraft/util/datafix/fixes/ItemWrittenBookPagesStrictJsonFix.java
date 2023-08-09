@@ -27,7 +27,7 @@ public class ItemWrittenBookPagesStrictJsonFix extends DataFix {
                         .map(
                             param0x -> param0x.map(
                                     (Function<? super Dynamic<?>, ? extends Dynamic<?>>)(param0xx -> {
-                                        if (!param0xx.asString().result().isPresent()) {
+                                        if (param0xx.asString().result().isEmpty()) {
                                             return param0xx;
                                         } else {
                                             String var0x = param0xx.asString("");

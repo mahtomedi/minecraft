@@ -1,8 +1,9 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
@@ -14,8 +15,9 @@ import org.slf4j.Logger;
 
 public class SmeltItemFunction extends LootItemConditionalFunction {
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Codec<SmeltItemFunction> CODEC = RecordCodecBuilder.create(param0 -> commonFields(param0).apply(param0, SmeltItemFunction::new));
 
-    SmeltItemFunction(LootItemCondition[] param0) {
+    private SmeltItemFunction(List<LootItemCondition> param0) {
         super(param0);
     }
 
@@ -46,11 +48,5 @@ public class SmeltItemFunction extends LootItemConditionalFunction {
 
     public static LootItemConditionalFunction.Builder<?> smelted() {
         return simpleBuilder(SmeltItemFunction::new);
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<SmeltItemFunction> {
-        public SmeltItemFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            return new SmeltItemFunction(param2);
-        }
     }
 }

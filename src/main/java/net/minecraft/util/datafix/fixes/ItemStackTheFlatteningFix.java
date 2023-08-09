@@ -409,7 +409,7 @@ public class ItemStackTheFlatteningFix extends DataFix {
         OpticFinder<?> var2 = var0.findField("tag");
         return this.fixTypeEverywhereTyped("ItemInstanceTheFlatteningFix", var0, param2 -> {
             Optional<Pair<String, String>> var0x = param2.getOptional(var1);
-            if (!var0x.isPresent()) {
+            if (var0x.isEmpty()) {
                 return param2;
             } else {
                 Typed<?> var1x = param2;

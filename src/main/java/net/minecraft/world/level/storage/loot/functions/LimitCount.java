@@ -1,10 +1,9 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -12,9 +11,12 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class LimitCount extends LootItemConditionalFunction {
-    final IntRange limiter;
+    public static final Codec<LimitCount> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0).and(IntRange.CODEC.fieldOf("limit").forGetter(param0x -> param0x.limiter)).apply(param0, LimitCount::new)
+    );
+    private final IntRange limiter;
 
-    LimitCount(LootItemCondition[] param0, IntRange param1) {
+    private LimitCount(List<LootItemCondition> param0, IntRange param1) {
         super(param0);
         this.limiter = param1;
     }
@@ -38,17 +40,5 @@ public class LimitCount extends LootItemConditionalFunction {
 
     public static LootItemConditionalFunction.Builder<?> limitCount(IntRange param0) {
         return simpleBuilder(param1 -> new LimitCount(param1, param0));
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<LimitCount> {
-        public void serialize(JsonObject param0, LimitCount param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.add("limit", param2.serialize(param1.limiter));
-        }
-
-        public LimitCount deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            IntRange var0 = GsonHelper.getAsObject(param0, "limit", param1, IntRange.class);
-            return new LimitCount(param2, var0);
-        }
     }
 }

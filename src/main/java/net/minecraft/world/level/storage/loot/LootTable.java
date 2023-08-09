@@ -1,25 +1,20 @@
 package net.minecraft.world.level.storage.loot;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
@@ -29,21 +24,28 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 
 public class LootTable {
-    static final Logger LOGGER = LogUtils.getLogger();
-    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, null, new LootPool[0], new LootItemFunction[0]);
+    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final LootTable EMPTY = new LootTable(LootContextParamSets.EMPTY, Optional.empty(), List.of(), List.of());
     public static final LootContextParamSet DEFAULT_PARAM_SET = LootContextParamSets.ALL_PARAMS;
-    final LootContextParamSet paramSet;
-    @Nullable
-    final ResourceLocation randomSequence;
-    final LootPool[] pools;
-    final LootItemFunction[] functions;
+    public static final Codec<LootTable> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    LootContextParamSets.CODEC.optionalFieldOf("type", DEFAULT_PARAM_SET).forGetter(param0x -> param0x.paramSet),
+                    ExtraCodecs.strictOptionalField(ResourceLocation.CODEC, "random_sequence").forGetter(param0x -> param0x.randomSequence),
+                    ExtraCodecs.strictOptionalField(LootPool.CODEC.listOf(), "pools", List.of()).forGetter(param0x -> param0x.pools),
+                    ExtraCodecs.strictOptionalField(LootItemFunctions.CODEC.listOf(), "functions", List.of()).forGetter(param0x -> param0x.functions)
+                )
+                .apply(param0, LootTable::new)
+    );
+    private final LootContextParamSet paramSet;
+    private final Optional<ResourceLocation> randomSequence;
+    private final List<LootPool> pools;
+    private final List<LootItemFunction> functions;
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
 
-    LootTable(LootContextParamSet param0, @Nullable ResourceLocation param1, LootPool[] param2, LootItemFunction[] param3) {
+    LootTable(LootContextParamSet param0, Optional<ResourceLocation> param1, List<LootPool> param2, List<LootItemFunction> param3) {
         this.paramSet = param0;
         this.randomSequence = param1;
         this.pools = param2;
@@ -123,12 +125,12 @@ public class LootTable {
     }
 
     public void validate(ValidationContext param0) {
-        for(int var0 = 0; var0 < this.pools.length; ++var0) {
-            this.pools[var0].validate(param0.forChild(".pools[" + var0 + "]"));
+        for(int var0 = 0; var0 < this.pools.size(); ++var0) {
+            this.pools.get(var0).validate(param0.forChild(".pools[" + var0 + "]"));
         }
 
-        for(int var1 = 0; var1 < this.functions.length; ++var1) {
-            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"));
+        for(int var1 = 0; var1 < this.functions.size(); ++var1) {
+            this.functions.get(var1).validate(param0.forChild(".functions[" + var1 + "]"));
         }
 
     }
@@ -208,11 +210,10 @@ public class LootTable {
     }
 
     public static class Builder implements FunctionUserBuilder<LootTable.Builder> {
-        private final List<LootPool> pools = Lists.newArrayList();
-        private final List<LootItemFunction> functions = Lists.newArrayList();
+        private final ImmutableList.Builder<LootPool> pools = ImmutableList.builder();
+        private final ImmutableList.Builder<LootItemFunction> functions = ImmutableList.builder();
         private LootContextParamSet paramSet = LootTable.DEFAULT_PARAM_SET;
-        @Nullable
-        private ResourceLocation randomSequence = null;
+        private Optional<ResourceLocation> randomSequence = Optional.empty();
 
         public LootTable.Builder withPool(LootPool.Builder param0) {
             this.pools.add(param0.build());
@@ -225,7 +226,7 @@ public class LootTable {
         }
 
         public LootTable.Builder setRandomSequence(ResourceLocation param0) {
-            this.randomSequence = param0;
+            this.randomSequence = Optional.of(param0);
             return this;
         }
 
@@ -239,56 +240,7 @@ public class LootTable {
         }
 
         public LootTable build() {
-            return new LootTable(this.paramSet, this.randomSequence, this.pools.toArray(new LootPool[0]), this.functions.toArray(new LootItemFunction[0]));
-        }
-    }
-
-    public static class Serializer implements JsonDeserializer<LootTable>, JsonSerializer<LootTable> {
-        public LootTable deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "loot table");
-            LootPool[] var1 = GsonHelper.getAsObject(var0, "pools", new LootPool[0], param2, LootPool[].class);
-            LootContextParamSet var2 = null;
-            if (var0.has("type")) {
-                String var3 = GsonHelper.getAsString(var0, "type");
-                var2 = LootContextParamSets.get(new ResourceLocation(var3));
-            }
-
-            ResourceLocation var5;
-            if (var0.has("random_sequence")) {
-                String var4 = GsonHelper.getAsString(var0, "random_sequence");
-                var5 = new ResourceLocation(var4);
-            } else {
-                var5 = null;
-            }
-
-            LootItemFunction[] var7 = GsonHelper.getAsObject(var0, "functions", new LootItemFunction[0], param2, LootItemFunction[].class);
-            return new LootTable(var2 != null ? var2 : LootContextParamSets.ALL_PARAMS, var5, var1, var7);
-        }
-
-        public JsonElement serialize(LootTable param0, Type param1, JsonSerializationContext param2) {
-            JsonObject var0 = new JsonObject();
-            if (param0.paramSet != LootTable.DEFAULT_PARAM_SET) {
-                ResourceLocation var1 = LootContextParamSets.getKey(param0.paramSet);
-                if (var1 != null) {
-                    var0.addProperty("type", var1.toString());
-                } else {
-                    LootTable.LOGGER.warn("Failed to find id for param set {}", param0.paramSet);
-                }
-            }
-
-            if (param0.randomSequence != null) {
-                var0.addProperty("random_sequence", param0.randomSequence.toString());
-            }
-
-            if (param0.pools.length > 0) {
-                var0.add("pools", param2.serialize(param0.pools));
-            }
-
-            if (!ArrayUtils.isEmpty((Object[])param0.functions)) {
-                var0.add("functions", param2.serialize(param0.functions));
-            }
-
-            return var0;
+            return new LootTable(this.paramSet, this.randomSequence, this.pools.build(), this.functions.build());
         }
     }
 }

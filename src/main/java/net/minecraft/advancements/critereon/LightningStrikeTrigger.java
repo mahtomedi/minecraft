@@ -2,6 +2,7 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,9 +18,9 @@ public class LightningStrikeTrigger extends SimpleCriterionTrigger<LightningStri
         return ID;
     }
 
-    public LightningStrikeTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "lightning", param2);
-        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "bystander", param2);
+    public LightningStrikeTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "lightning", param2);
+        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "bystander", param2);
         return new LightningStrikeTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -30,32 +31,32 @@ public class LightningStrikeTrigger extends SimpleCriterionTrigger<LightningStri
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ContextAwarePredicate lightning;
-        private final ContextAwarePredicate bystander;
+        private final Optional<ContextAwarePredicate> lightning;
+        private final Optional<ContextAwarePredicate> bystander;
 
-        public TriggerInstance(ContextAwarePredicate param0, ContextAwarePredicate param1, ContextAwarePredicate param2) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1, Optional<ContextAwarePredicate> param2) {
             super(LightningStrikeTrigger.ID, param0);
             this.lightning = param1;
             this.bystander = param2;
         }
 
-        public static LightningStrikeTrigger.TriggerInstance lighthingStrike(EntityPredicate param0, EntityPredicate param1) {
-            return new LightningStrikeTrigger.TriggerInstance(ContextAwarePredicate.ANY, EntityPredicate.wrap(param0), EntityPredicate.wrap(param1));
+        public static LightningStrikeTrigger.TriggerInstance lighthingStrike(Optional<EntityPredicate> param0, Optional<EntityPredicate> param1) {
+            return new LightningStrikeTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), EntityPredicate.wrap(param1));
         }
 
         public boolean matches(LootContext param0, List<LootContext> param1) {
-            if (!this.lightning.matches(param0)) {
+            if (this.lightning.isPresent() && !this.lightning.get().matches(param0)) {
                 return false;
             } else {
-                return this.bystander == ContextAwarePredicate.ANY || !param1.stream().noneMatch(this.bystander::matches);
+                return !this.bystander.isPresent() || !param1.stream().noneMatch(this.bystander.get()::matches);
             }
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("lightning", this.lightning.toJson(param0));
-            var0.add("bystander", this.bystander.toJson(param0));
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.lightning.ifPresent(param1 -> var0.add("lightning", param1.toJson()));
+            this.bystander.ifPresent(param1 -> var0.add("bystander", param1.toJson()));
             return var0;
         }
     }

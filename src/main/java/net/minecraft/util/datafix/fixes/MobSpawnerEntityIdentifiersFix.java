@@ -63,7 +63,7 @@ public class MobSpawnerEntityIdentifiersFix extends DataFix {
             Dynamic<?> var0x = param1.get(DSL.remainderFinder());
             var0x = var0x.set("id", var0x.createString("MobSpawner"));
             DataResult<? extends Pair<? extends Typed<?>, ?>> var1x = var0.readTyped(this.fix(var0x));
-            return !var1x.result().isPresent() ? param1 : (Typed)((Pair)var1x.result().get()).getFirst();
+            return var1x.result().isEmpty() ? param1 : (Typed)((Pair)var1x.result().get()).getFirst();
         });
     }
 }

@@ -1,122 +1,103 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import java.util.Collections;
+import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-public class MobEffectsPredicate {
-    public static final MobEffectsPredicate ANY = new MobEffectsPredicate(Collections.emptyMap());
-    private final Map<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> effects;
-
-    public MobEffectsPredicate(Map<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> param0) {
-        this.effects = param0;
-    }
-
-    public static MobEffectsPredicate effects() {
-        return new MobEffectsPredicate(Maps.newLinkedHashMap());
-    }
-
-    public MobEffectsPredicate and(MobEffect param0) {
-        this.effects.put(param0, new MobEffectsPredicate.MobEffectInstancePredicate());
-        return this;
-    }
-
-    public MobEffectsPredicate and(MobEffect param0, MobEffectsPredicate.MobEffectInstancePredicate param1) {
-        this.effects.put(param0, param1);
-        return this;
-    }
+public record MobEffectsPredicate(Map<Holder<MobEffect>, MobEffectsPredicate.MobEffectInstancePredicate> effectMap) {
+    public static final Codec<MobEffectsPredicate> CODEC = Codec.unboundedMap(
+            BuiltInRegistries.MOB_EFFECT.holderByNameCodec(), MobEffectsPredicate.MobEffectInstancePredicate.CODEC
+        )
+        .xmap(MobEffectsPredicate::new, MobEffectsPredicate::effectMap);
 
     public boolean matches(Entity param0) {
-        if (this == ANY) {
+        if (param0 instanceof LivingEntity var0 && this.matches(var0.getActiveEffectsMap())) {
             return true;
-        } else {
-            return param0 instanceof LivingEntity ? this.matches(((LivingEntity)param0).getActiveEffectsMap()) : false;
         }
+
+        return false;
     }
 
     public boolean matches(LivingEntity param0) {
-        return this == ANY ? true : this.matches(param0.getActiveEffectsMap());
+        return this.matches(param0.getActiveEffectsMap());
     }
 
     public boolean matches(Map<MobEffect, MobEffectInstance> param0) {
-        if (this == ANY) {
-            return true;
-        } else {
-            for(Entry<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> var0 : this.effects.entrySet()) {
-                MobEffectInstance var1 = param0.get(var0.getKey());
-                if (!var0.getValue().matches(var1)) {
-                    return false;
-                }
+        for(Entry<Holder<MobEffect>, MobEffectsPredicate.MobEffectInstancePredicate> var0 : this.effectMap.entrySet()) {
+            MobEffectInstance var1 = param0.get(var0.getKey().value());
+            if (!var0.getValue().matches(var1)) {
+                return false;
             }
-
-            return true;
         }
+
+        return true;
     }
 
-    public static MobEffectsPredicate fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "effects");
-            Map<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> var1 = Maps.newLinkedHashMap();
-
-            for(Entry<String, JsonElement> var2 : var0.entrySet()) {
-                ResourceLocation var3 = new ResourceLocation(var2.getKey());
-                MobEffect var4 = BuiltInRegistries.MOB_EFFECT.getOptional(var3).orElseThrow(() -> new JsonSyntaxException("Unknown effect '" + var3 + "'"));
-                MobEffectsPredicate.MobEffectInstancePredicate var5 = MobEffectsPredicate.MobEffectInstancePredicate.fromJson(
-                    GsonHelper.convertToJsonObject(var2.getValue(), var2.getKey())
-                );
-                var1.put(var4, var5);
-            }
-
-            return new MobEffectsPredicate(var1);
-        } else {
-            return ANY;
-        }
+    public static Optional<MobEffectsPredicate> fromJson(@Nullable JsonElement param0) {
+        return param0 != null && !param0.isJsonNull()
+            ? Optional.of(Util.getOrThrow(CODEC.parse(JsonOps.INSTANCE, param0), JsonParseException::new))
+            : Optional.empty();
     }
 
     public JsonElement serializeToJson() {
-        if (this == ANY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
+        return Util.getOrThrow(CODEC.encodeStart(JsonOps.INSTANCE, this), IllegalStateException::new);
+    }
 
-            for(Entry<MobEffect, MobEffectsPredicate.MobEffectInstancePredicate> var1 : this.effects.entrySet()) {
-                var0.add(BuiltInRegistries.MOB_EFFECT.getKey(var1.getKey()).toString(), var1.getValue().serializeToJson());
-            }
+    public static class Builder {
+        private final ImmutableMap.Builder<Holder<MobEffect>, MobEffectsPredicate.MobEffectInstancePredicate> effectMap = ImmutableMap.builder();
 
-            return var0;
+        public static MobEffectsPredicate.Builder effects() {
+            return new MobEffectsPredicate.Builder();
+        }
+
+        public MobEffectsPredicate.Builder and(MobEffect param0) {
+            this.effectMap.put(param0.builtInRegistryHolder(), new MobEffectsPredicate.MobEffectInstancePredicate());
+            return this;
+        }
+
+        public MobEffectsPredicate.Builder and(MobEffect param0, MobEffectsPredicate.MobEffectInstancePredicate param1) {
+            this.effectMap.put(param0.builtInRegistryHolder(), param1);
+            return this;
+        }
+
+        public Optional<MobEffectsPredicate> build() {
+            ImmutableMap<Holder<MobEffect>, MobEffectsPredicate.MobEffectInstancePredicate> var0 = this.effectMap.build();
+            return var0.isEmpty() ? Optional.empty() : Optional.of(new MobEffectsPredicate(var0));
         }
     }
 
-    public static class MobEffectInstancePredicate {
-        private final MinMaxBounds.Ints amplifier;
-        private final MinMaxBounds.Ints duration;
-        @Nullable
-        private final Boolean ambient;
-        @Nullable
-        private final Boolean visible;
-
-        public MobEffectInstancePredicate(MinMaxBounds.Ints param0, MinMaxBounds.Ints param1, @Nullable Boolean param2, @Nullable Boolean param3) {
-            this.amplifier = param0;
-            this.duration = param1;
-            this.ambient = param2;
-            this.visible = param3;
-        }
+    public static record MobEffectInstancePredicate(
+        MinMaxBounds.Ints amplifier, MinMaxBounds.Ints duration, Optional<Boolean> ambient, Optional<Boolean> visible
+    ) {
+        public static final Codec<MobEffectsPredicate.MobEffectInstancePredicate> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Ints.CODEC, "amplifier", MinMaxBounds.Ints.ANY)
+                            .forGetter(MobEffectsPredicate.MobEffectInstancePredicate::amplifier),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Ints.CODEC, "duration", MinMaxBounds.Ints.ANY)
+                            .forGetter(MobEffectsPredicate.MobEffectInstancePredicate::duration),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "ambient").forGetter(MobEffectsPredicate.MobEffectInstancePredicate::ambient),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "visible").forGetter(MobEffectsPredicate.MobEffectInstancePredicate::visible)
+                    )
+                    .apply(param0, MobEffectsPredicate.MobEffectInstancePredicate::new)
+        );
 
         public MobEffectInstancePredicate() {
-            this(MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, null, null);
+            this(MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, Optional.empty(), Optional.empty());
         }
 
         public boolean matches(@Nullable MobEffectInstance param0) {
@@ -126,28 +107,11 @@ public class MobEffectsPredicate {
                 return false;
             } else if (!this.duration.matches(param0.getDuration())) {
                 return false;
-            } else if (this.ambient != null && this.ambient != param0.isAmbient()) {
+            } else if (this.ambient.isPresent() && this.ambient.get() != param0.isAmbient()) {
                 return false;
             } else {
-                return this.visible == null || this.visible == param0.isVisible();
+                return !this.visible.isPresent() || this.visible.get() == param0.isVisible();
             }
-        }
-
-        public JsonElement serializeToJson() {
-            JsonObject var0 = new JsonObject();
-            var0.add("amplifier", this.amplifier.serializeToJson());
-            var0.add("duration", this.duration.serializeToJson());
-            var0.addProperty("ambient", this.ambient);
-            var0.addProperty("visible", this.visible);
-            return var0;
-        }
-
-        public static MobEffectsPredicate.MobEffectInstancePredicate fromJson(JsonObject param0) {
-            MinMaxBounds.Ints var0 = MinMaxBounds.Ints.fromJson(param0.get("amplifier"));
-            MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("duration"));
-            Boolean var2 = param0.has("ambient") ? GsonHelper.getAsBoolean(param0, "ambient") : null;
-            Boolean var3 = param0.has("visible") ? GsonHelper.getAsBoolean(param0, "visible") : null;
-            return new MobEffectsPredicate.MobEffectInstancePredicate(var0, var1, var2, var3);
         }
     }
 }

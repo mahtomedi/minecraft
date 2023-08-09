@@ -90,9 +90,11 @@ public class TurtleEggBlock extends Block {
             if (var0 < 2) {
                 param1.playSound(null, param2, SoundEvents.TURTLE_EGG_CRACK, SoundSource.BLOCKS, 0.7F, 0.9F + param3.nextFloat() * 0.2F);
                 param1.setBlock(param2, param0.setValue(HATCH, Integer.valueOf(var0 + 1)), 2);
+                param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(param0));
             } else {
                 param1.playSound(null, param2, SoundEvents.TURTLE_EGG_HATCH, SoundSource.BLOCKS, 0.7F, 0.9F + param3.nextFloat() * 0.2F);
                 param1.removeBlock(param2, false);
+                param1.gameEvent(GameEvent.BLOCK_DESTROY, param2, GameEvent.Context.of(param0));
 
                 for(int var1 = 0; var1 < param0.getValue(EGGS); ++var1) {
                     param1.levelEvent(2001, param2, Block.getId(param0));

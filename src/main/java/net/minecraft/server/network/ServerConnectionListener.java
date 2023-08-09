@@ -96,7 +96,7 @@ public class ServerConnectionListener {
                                     ChannelPipeline var0 = param0.pipeline()
                                         .addLast("timeout", new ReadTimeoutHandler(30))
                                         .addLast("legacy_query", new LegacyQueryHandler(ServerConnectionListener.this.getServer()));
-                                    Connection.configureSerialization(var0, PacketFlow.SERVERBOUND);
+                                    Connection.configureSerialization(var0, PacketFlow.SERVERBOUND, null);
                                     int var1 = ServerConnectionListener.this.server.getRateLimitPacketsPerSecond();
                                     Connection var2 = (Connection)(var1 > 0 ? new RateKickingConnection(var1) : new Connection(PacketFlow.SERVERBOUND));
                                     ServerConnectionListener.this.connections.add(var2);

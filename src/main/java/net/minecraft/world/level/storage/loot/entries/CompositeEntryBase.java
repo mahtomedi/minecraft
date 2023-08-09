@@ -1,19 +1,19 @@
 package net.minecraft.world.level.storage.loot.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.function.Consumer;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public abstract class CompositeEntryBase extends LootPoolEntryContainer {
-    protected final LootPoolEntryContainer[] children;
+    protected final List<LootPoolEntryContainer> children;
     private final ComposableEntryContainer composedChildren;
 
-    protected CompositeEntryBase(LootPoolEntryContainer[] param0, LootItemCondition[] param1) {
+    protected CompositeEntryBase(List<LootPoolEntryContainer> param0, List<LootItemCondition> param1) {
         super(param1);
         this.children = param0;
         this.composedChildren = this.compose(param0);
@@ -22,40 +22,35 @@ public abstract class CompositeEntryBase extends LootPoolEntryContainer {
     @Override
     public void validate(ValidationContext param0) {
         super.validate(param0);
-        if (this.children.length == 0) {
+        if (this.children.isEmpty()) {
             param0.reportProblem("Empty children list");
         }
 
-        for(int var0 = 0; var0 < this.children.length; ++var0) {
-            this.children[var0].validate(param0.forChild(".entry[" + var0 + "]"));
+        for(int var0 = 0; var0 < this.children.size(); ++var0) {
+            this.children.get(var0).validate(param0.forChild(".entry[" + var0 + "]"));
         }
 
     }
 
-    protected abstract ComposableEntryContainer compose(ComposableEntryContainer[] var1);
+    protected abstract ComposableEntryContainer compose(List<? extends ComposableEntryContainer> var1);
 
     @Override
     public final boolean expand(LootContext param0, Consumer<LootPoolEntry> param1) {
         return !this.canRun(param0) ? false : this.composedChildren.expand(param0, param1);
     }
 
-    public static <T extends CompositeEntryBase> LootPoolEntryContainer.Serializer<T> createSerializer(
-        final CompositeEntryBase.CompositeEntryConstructor<T> param0
-    ) {
-        return new LootPoolEntryContainer.Serializer<T>() {
-            public void serializeCustom(JsonObject param0x, T param1, JsonSerializationContext param2) {
-                param0.add("children", param2.serialize(param1.children));
-            }
-
-            public final T deserializeCustom(JsonObject param0x, JsonDeserializationContext param1, LootItemCondition[] param2) {
-                LootPoolEntryContainer[] var0 = GsonHelper.getAsObject(param0, "children", param1, LootPoolEntryContainer[].class);
-                return param0.create(var0, param2);
-            }
-        };
+    public static <T extends CompositeEntryBase> Codec<T> createCodec(CompositeEntryBase.CompositeEntryConstructor<T> param0) {
+        return RecordCodecBuilder.create(
+            param1 -> param1.group(
+                        ExtraCodecs.strictOptionalField(LootPoolEntries.CODEC.listOf(), "children", List.of()).forGetter(param0x -> param0x.children)
+                    )
+                    .and(commonFields(param1).t1())
+                    .apply(param1, param0::create)
+        );
     }
 
     @FunctionalInterface
     public interface CompositeEntryConstructor<T extends CompositeEntryBase> {
-        T create(LootPoolEntryContainer[] var1, LootItemCondition[] var2);
+        T create(List<LootPoolEntryContainer> var1, List<LootItemCondition> var2);
     }
 }

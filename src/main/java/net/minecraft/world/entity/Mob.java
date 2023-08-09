@@ -627,40 +627,42 @@ public abstract class Mob extends LivingEntity implements Targeting {
             return this.canReplaceEqualItem(param0, param1);
         } else if (param0.getItem() instanceof CrossbowItem && param1.getItem() instanceof CrossbowItem) {
             return this.canReplaceEqualItem(param0, param1);
-        } else if (param0.getItem() instanceof ArmorItem) {
-            if (EnchantmentHelper.hasBindingCurse(param1)) {
-                return false;
-            } else if (!(param1.getItem() instanceof ArmorItem)) {
-                return true;
-            } else {
-                ArmorItem var2 = (ArmorItem)param0.getItem();
-                ArmorItem var3 = (ArmorItem)param1.getItem();
-                if (var2.getDefense() != var3.getDefense()) {
-                    return var2.getDefense() > var3.getDefense();
-                } else if (var2.getToughness() != var3.getToughness()) {
-                    return var2.getToughness() > var3.getToughness();
-                } else {
-                    return this.canReplaceEqualItem(param0, param1);
-                }
-            }
         } else {
-            if (param0.getItem() instanceof DiggerItem) {
-                if (param1.getItem() instanceof BlockItem) {
+            Item var4 = param0.getItem();
+            if (var4 instanceof ArmorItem var2) {
+                if (EnchantmentHelper.hasBindingCurse(param1)) {
+                    return false;
+                } else if (!(param1.getItem() instanceof ArmorItem)) {
                     return true;
+                } else {
+                    ArmorItem var3 = (ArmorItem)param1.getItem();
+                    if (var2.getDefense() != var3.getDefense()) {
+                        return var2.getDefense() > var3.getDefense();
+                    } else if (var2.getToughness() != var3.getToughness()) {
+                        return var2.getToughness() > var3.getToughness();
+                    } else {
+                        return this.canReplaceEqualItem(param0, param1);
+                    }
                 }
-
-                if (param1.getItem() instanceof DiggerItem) {
-                    DiggerItem var4 = (DiggerItem)param0.getItem();
-                    DiggerItem var5 = (DiggerItem)param1.getItem();
-                    if (var4.getAttackDamage() != var5.getAttackDamage()) {
-                        return var4.getAttackDamage() > var5.getAttackDamage();
+            } else {
+                if (param0.getItem() instanceof DiggerItem) {
+                    if (param1.getItem() instanceof BlockItem) {
+                        return true;
                     }
 
-                    return this.canReplaceEqualItem(param0, param1);
-                }
-            }
+                    Item var5 = param1.getItem();
+                    if (var5 instanceof DiggerItem var4) {
+                        DiggerItem var5x = (DiggerItem)param0.getItem();
+                        if (var5x.getAttackDamage() != var4.getAttackDamage()) {
+                            return var5x.getAttackDamage() > var4.getAttackDamage();
+                        }
 
-            return false;
+                        return this.canReplaceEqualItem(param0, param1);
+                    }
+                }
+
+                return false;
+            }
         }
     }
 

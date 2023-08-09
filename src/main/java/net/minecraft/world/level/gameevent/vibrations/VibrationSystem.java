@@ -22,7 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.ClipBlockStateContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
@@ -60,6 +59,7 @@ public interface VibrationSystem {
         param0.put(GameEvent.INSTRUMENT_PLAY, 3);
         param0.put(GameEvent.ENTITY_ACTION, 4);
         param0.put(GameEvent.ELYTRA_GLIDE, 4);
+        param0.put(GameEvent.UNEQUIP, 4);
         param0.put(GameEvent.ENTITY_DISMOUNT, 5);
         param0.put(GameEvent.EQUIP, 5);
         param0.put(GameEvent.ENTITY_INTERACT, 6);
@@ -342,10 +342,9 @@ public interface VibrationSystem {
         private static boolean areAdjacentChunksTicking(Level param0, BlockPos param1) {
             ChunkPos var0 = new ChunkPos(param1);
 
-            for(int var1 = var0.x - 1; var1 < var0.x + 1; ++var1) {
-                for(int var2 = var0.z - 1; var2 < var0.z + 1; ++var2) {
-                    ChunkAccess var3 = param0.getChunkSource().getChunkNow(var1, var2);
-                    if (var3 == null || !param0.shouldTickBlocksAt(var3.getPos().toLong())) {
+            for(int var1 = var0.x - 1; var1 <= var0.x + 1; ++var1) {
+                for(int var2 = var0.z - 1; var2 <= var0.z + 1; ++var2) {
+                    if (!param0.shouldTickBlocksAt(ChunkPos.asLong(var1, var2)) || param0.getChunkSource().getChunkNow(var1, var2) == null) {
                         return false;
                     }
                 }

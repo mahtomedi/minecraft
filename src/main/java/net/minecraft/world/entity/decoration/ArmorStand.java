@@ -1,6 +1,5 @@
 package net.minecraft.world.entity.decoration;
 
-import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
@@ -290,12 +289,9 @@ public class ArmorStand extends LivingEntity {
 
     @Override
     protected void pushEntities() {
-        List<Entity> var0 = this.level().getEntities(this, this.getBoundingBox(), RIDABLE_MINECARTS);
-
-        for(int var1 = 0; var1 < var0.size(); ++var1) {
-            Entity var2 = var0.get(var1);
-            if (this.distanceToSqr(var2) <= 0.2) {
-                var2.push(this);
+        for(Entity var1 : this.level().getEntities(this, this.getBoundingBox(), RIDABLE_MINECARTS)) {
+            if (this.distanceToSqr(var1) <= 0.2) {
+                var1.push(this);
             }
         }
 

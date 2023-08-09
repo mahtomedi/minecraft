@@ -5,54 +5,43 @@ import java.util.List;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 
 public class SuspiciousStewItem extends Item {
-    public static final String EFFECTS_TAG = "Effects";
-    public static final String EFFECT_ID_TAG = "EffectId";
-    public static final String EFFECT_DURATION_TAG = "EffectDuration";
+    public static final String EFFECTS_TAG = "effects";
     public static final int DEFAULT_DURATION = 160;
 
     public SuspiciousStewItem(Item.Properties param0) {
         super(param0);
     }
 
-    public static void saveMobEffect(ItemStack param0, MobEffect param1, int param2) {
+    public static void saveMobEffects(ItemStack param0, List<SuspiciousEffectHolder.EffectEntry> param1) {
         CompoundTag var0 = param0.getOrCreateTag();
-        ListTag var1 = var0.getList("Effects", 9);
-        CompoundTag var2 = new CompoundTag();
-        var2.putInt("EffectId", MobEffect.getId(param1));
-        var2.putInt("EffectDuration", param2);
-        var1.add(var2);
-        var0.put("Effects", var1);
+        SuspiciousEffectHolder.EffectEntry.LIST_CODEC.encodeStart(NbtOps.INSTANCE, param1).result().ifPresent(param1x -> var0.put("effects", param1x));
     }
 
-    private static void listPotionEffects(ItemStack param0, Consumer<MobEffectInstance> param1) {
+    public static void appendMobEffects(ItemStack param0, List<SuspiciousEffectHolder.EffectEntry> param1) {
+        CompoundTag var0 = param0.getOrCreateTag();
+        List<SuspiciousEffectHolder.EffectEntry> var1 = new ArrayList<>();
+        listPotionEffects(param0, var1::add);
+        var1.addAll(param1);
+        SuspiciousEffectHolder.EffectEntry.LIST_CODEC.encodeStart(NbtOps.INSTANCE, var1).result().ifPresent(param1x -> var0.put("effects", param1x));
+    }
+
+    private static void listPotionEffects(ItemStack param0, Consumer<SuspiciousEffectHolder.EffectEntry> param1) {
         CompoundTag var0 = param0.getTag();
-        if (var0 != null && var0.contains("Effects", 9)) {
-            ListTag var1 = var0.getList("Effects", 10);
-
-            for(int var2 = 0; var2 < var1.size(); ++var2) {
-                CompoundTag var3 = var1.getCompound(var2);
-                int var4;
-                if (var3.contains("EffectDuration", 99)) {
-                    var4 = var3.getInt("EffectDuration");
-                } else {
-                    var4 = 160;
-                }
-
-                MobEffect var6 = MobEffect.byId(var3.getInt("EffectId"));
-                if (var6 != null) {
-                    param1.accept(new MobEffectInstance(var6, var4));
-                }
-            }
+        if (var0 != null && var0.contains("effects", 9)) {
+            SuspiciousEffectHolder.EffectEntry.LIST_CODEC
+                .parse(NbtOps.INSTANCE, var0.getList("effects", 10))
+                .result()
+                .ifPresent(param1x -> param1x.forEach(param1));
         }
 
     }
@@ -62,7 +51,7 @@ public class SuspiciousStewItem extends Item {
         super.appendHoverText(param0, param1, param2, param3);
         if (param3.isCreative()) {
             List<MobEffectInstance> var0 = new ArrayList<>();
-            listPotionEffects(param0, var0::add);
+            listPotionEffects(param0, param1x -> var0.add(param1x.createEffectInstance()));
             PotionUtils.addPotionTooltip(var0, param2, 1.0F);
         }
 
@@ -71,7 +60,7 @@ public class SuspiciousStewItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack param0, Level param1, LivingEntity param2) {
         ItemStack var0 = super.finishUsingItem(param0, param1, param2);
-        listPotionEffects(var0, param2::addEffect);
+        listPotionEffects(var0, param1x -> param2.addEffect(param1x.createEffectInstance()));
         return param2 instanceof Player && ((Player)param2).getAbilities().instabuild ? var0 : new ItemStack(Items.BOWL);
     }
 }

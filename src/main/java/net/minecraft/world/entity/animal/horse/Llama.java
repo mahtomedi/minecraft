@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.VariantHolder;
@@ -518,7 +519,8 @@ public class Llama extends AbstractChestedHorse implements VariantHolder<Llama.V
 
         @Override
         public boolean canContinueToUse() {
-            if (this.mob instanceof Llama var0 && var0.didSpit) {
+            Mob var2 = this.mob;
+            if (var2 instanceof Llama var0 && var0.didSpit) {
                 var0.setDidSpit(false);
                 return false;
             }

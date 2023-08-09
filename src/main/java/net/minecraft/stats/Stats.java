@@ -2,6 +2,7 @@ package net.minecraft.stats;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -101,6 +102,7 @@ public class Stats {
     }
 
     private static <T> StatType<T> makeRegistryStatType(String param0, Registry<T> param1) {
-        return Registry.register(BuiltInRegistries.STAT_TYPE, param0, new StatType<>(param1));
+        Component var0 = Component.translatable("stat_type.minecraft." + param0);
+        return Registry.register(BuiltInRegistries.STAT_TYPE, param0, new StatType<>(param1, var0));
     }
 }

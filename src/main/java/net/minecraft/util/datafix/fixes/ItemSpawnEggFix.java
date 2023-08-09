@@ -113,7 +113,7 @@ public class ItemSpawnEggFix extends DataFix {
                     Optional<String> var6x = var5x.flatMap(param1x -> param1x.getOptional(var3));
                     Typed<?> var7x = param6;
                     String var8x = ID_TO_ENTITY[var2x & 255];
-                    if (var8x != null && (!var6x.isPresent() || !Objects.equals(var6x.get(), var8x))) {
+                    if (var8x != null && (var6x.isEmpty() || !Objects.equals(var6x.get(), var8x))) {
                         Typed<?> var9 = param6.getOrCreateTyped(var4);
                         Typed<?> var10 = var9.getOrCreateTyped(var5);
                         Typed<?> var11 = var10.getOrCreateTyped(var6);

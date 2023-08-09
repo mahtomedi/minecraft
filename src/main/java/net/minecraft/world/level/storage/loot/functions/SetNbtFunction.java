@@ -1,21 +1,21 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class SetNbtFunction extends LootItemConditionalFunction {
-    final CompoundTag tag;
+    public static final Codec<SetNbtFunction> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0).and(TagParser.AS_CODEC.fieldOf("tag").forGetter(param0x -> param0x.tag)).apply(param0, SetNbtFunction::new)
+    );
+    private final CompoundTag tag;
 
-    SetNbtFunction(LootItemCondition[] param0, CompoundTag param1) {
+    private SetNbtFunction(List<LootItemCondition> param0, CompoundTag param1) {
         super(param0);
         this.tag = param1;
     }
@@ -34,21 +34,5 @@ public class SetNbtFunction extends LootItemConditionalFunction {
     @Deprecated
     public static LootItemConditionalFunction.Builder<?> setTag(CompoundTag param0) {
         return simpleBuilder(param1 -> new SetNbtFunction(param1, param0));
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<SetNbtFunction> {
-        public void serialize(JsonObject param0, SetNbtFunction param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.addProperty("tag", param1.tag.toString());
-        }
-
-        public SetNbtFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            try {
-                CompoundTag var0 = TagParser.parseTag(GsonHelper.getAsString(param0, "tag"));
-                return new SetNbtFunction(param2, var0);
-            } catch (CommandSyntaxException var5) {
-                throw new JsonSyntaxException(var5.getMessage());
-            }
-        }
     }
 }

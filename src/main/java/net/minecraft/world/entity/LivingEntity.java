@@ -121,6 +121,7 @@ import org.slf4j.Logger;
 
 public abstract class LivingEntity extends Entity implements Attackable {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String TAG_ACTIVE_EFFECTS = "active_effects";
     private static final UUID SPEED_MODIFIER_SOUL_SPEED_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
     private static final UUID SPEED_MODIFIER_POWDER_SNOW_UUID = UUID.fromString("1eaf83ff-7207-4596-b37a-d7a07b3ec4ce");
     private static final AttributeModifier SPEED_MODIFIER_SPRINTING = new AttributeModifier(
@@ -676,13 +677,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
         boolean var0 = param2.isEmpty() && param1.isEmpty();
         if (!var0 && !ItemStack.isSameItemSameTags(param1, param2) && !this.firstTick) {
             Equipable var1 = Equipable.get(param2);
-            if (var1 != null && !this.isSpectator() && var1.getEquipmentSlot() == param0) {
-                if (!this.level().isClientSide() && !this.isSilent()) {
+            if (!this.level().isClientSide() && !this.isSpectator()) {
+                if (!this.isSilent() && var1 != null && var1.getEquipmentSlot() == param0) {
                     this.level().playSound(null, this.getX(), this.getY(), this.getZ(), var1.getEquipSound(), this.getSoundSource(), 1.0F, 1.0F);
                 }
 
                 if (this.doesEmitEquipEvent(param0)) {
-                    this.gameEvent(GameEvent.EQUIP);
+                    this.gameEvent(var1 != null ? GameEvent.EQUIP : GameEvent.UNEQUIP);
                 }
             }
 
@@ -710,7 +711,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                 var0.add(var1.save(new CompoundTag()));
             }
 
-            param0.put("ActiveEffects", var0);
+            param0.put("active_effects", var0);
         }
 
         param0.putBoolean("FallFlying", this.isFallFlying());
@@ -730,8 +731,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
             this.getAttributes().load(param0.getList("Attributes", 10));
         }
 
-        if (param0.contains("ActiveEffects", 9)) {
-            ListTag var0 = param0.getList("ActiveEffects", 10);
+        if (param0.contains("active_effects", 9)) {
+            ListTag var0 = param0.getList("active_effects", 10);
 
             for(int var1 = 0; var1 < var0.size(); ++var1) {
                 CompoundTag var2 = var0.getCompound(var1);
@@ -2714,8 +2715,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
                 if (var1 > 0 && var0.size() > var1 - 1 && this.random.nextInt(4) == 0) {
                     int var2 = 0;
 
-                    for(int var3 = 0; var3 < var0.size(); ++var3) {
-                        if (!var0.get(var3).isPassenger()) {
+                    for(Entity var3 : var0) {
+                        if (!var3.isPassenger()) {
                             ++var2;
                         }
                     }
@@ -2725,9 +2726,8 @@ public abstract class LivingEntity extends Entity implements Attackable {
                     }
                 }
 
-                for(int var4 = 0; var4 < var0.size(); ++var4) {
-                    Entity var5 = var0.get(var4);
-                    this.doPush(var5);
+                for(Entity var4 : var0) {
+                    this.doPush(var4);
                 }
             }
 
@@ -2738,10 +2738,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
         AABB var0 = param0.minmax(param1);
         List<Entity> var1 = this.level().getEntities(this, var0);
         if (!var1.isEmpty()) {
-            for(int var2 = 0; var2 < var1.size(); ++var2) {
-                Entity var3 = var1.get(var2);
-                if (var3 instanceof LivingEntity) {
-                    this.doAutoAttackOnTouch((LivingEntity)var3);
+            for(Entity var2 : var1) {
+                if (var2 instanceof LivingEntity) {
+                    this.doAutoAttackOnTouch((LivingEntity)var2);
                     this.autoSpinAttackTicks = 0;
                     this.setDeltaMovement(this.getDeltaMovement().scale(-0.2));
                     break;

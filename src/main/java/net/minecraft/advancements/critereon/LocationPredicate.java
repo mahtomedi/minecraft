@@ -1,148 +1,86 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.mojang.logging.LogUtils;
+import com.google.gson.JsonParseException;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import org.slf4j.Logger;
 
-public class LocationPredicate {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    public static final LocationPredicate ANY = new LocationPredicate(
-        MinMaxBounds.Doubles.ANY,
-        MinMaxBounds.Doubles.ANY,
-        MinMaxBounds.Doubles.ANY,
-        null,
-        null,
-        null,
-        null,
-        LightPredicate.ANY,
-        BlockPredicate.ANY,
-        FluidPredicate.ANY
+public record LocationPredicate(
+    Optional<LocationPredicate.PositionPredicate> position,
+    Optional<ResourceKey<Biome>> biome,
+    Optional<ResourceKey<Structure>> structure,
+    Optional<ResourceKey<Level>> dimension,
+    Optional<Boolean> smokey,
+    Optional<LightPredicate> light,
+    Optional<BlockPredicate> block,
+    Optional<FluidPredicate> fluid
+) {
+    public static final Codec<LocationPredicate> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(LocationPredicate.PositionPredicate.CODEC, "position").forGetter(LocationPredicate::position),
+                    ExtraCodecs.strictOptionalField(ResourceKey.codec(Registries.BIOME), "biome").forGetter(LocationPredicate::biome),
+                    ExtraCodecs.strictOptionalField(ResourceKey.codec(Registries.STRUCTURE), "structure").forGetter(LocationPredicate::structure),
+                    ExtraCodecs.strictOptionalField(ResourceKey.codec(Registries.DIMENSION), "dimension").forGetter(LocationPredicate::dimension),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "smokey").forGetter(LocationPredicate::smokey),
+                    ExtraCodecs.strictOptionalField(LightPredicate.CODEC, "light").forGetter(LocationPredicate::light),
+                    ExtraCodecs.strictOptionalField(BlockPredicate.CODEC, "block").forGetter(LocationPredicate::block),
+                    ExtraCodecs.strictOptionalField(FluidPredicate.CODEC, "fluid").forGetter(LocationPredicate::fluid)
+                )
+                .apply(param0, LocationPredicate::new)
     );
-    private final MinMaxBounds.Doubles x;
-    private final MinMaxBounds.Doubles y;
-    private final MinMaxBounds.Doubles z;
-    @Nullable
-    private final ResourceKey<Biome> biome;
-    @Nullable
-    private final ResourceKey<Structure> structure;
-    @Nullable
-    private final ResourceKey<Level> dimension;
-    @Nullable
-    private final Boolean smokey;
-    private final LightPredicate light;
-    private final BlockPredicate block;
-    private final FluidPredicate fluid;
 
-    public LocationPredicate(
-        MinMaxBounds.Doubles param0,
-        MinMaxBounds.Doubles param1,
-        MinMaxBounds.Doubles param2,
-        @Nullable ResourceKey<Biome> param3,
-        @Nullable ResourceKey<Structure> param4,
-        @Nullable ResourceKey<Level> param5,
-        @Nullable Boolean param6,
-        LightPredicate param7,
-        BlockPredicate param8,
-        FluidPredicate param9
+    static Optional<LocationPredicate> of(
+        Optional<LocationPredicate.PositionPredicate> param0,
+        Optional<ResourceKey<Biome>> param1,
+        Optional<ResourceKey<Structure>> param2,
+        Optional<ResourceKey<Level>> param3,
+        Optional<Boolean> param4,
+        Optional<LightPredicate> param5,
+        Optional<BlockPredicate> param6,
+        Optional<FluidPredicate> param7
     ) {
-        this.x = param0;
-        this.y = param1;
-        this.z = param2;
-        this.biome = param3;
-        this.structure = param4;
-        this.dimension = param5;
-        this.smokey = param6;
-        this.light = param7;
-        this.block = param8;
-        this.fluid = param9;
-    }
-
-    public static LocationPredicate inBiome(ResourceKey<Biome> param0) {
-        return new LocationPredicate(
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            param0,
-            null,
-            null,
-            null,
-            LightPredicate.ANY,
-            BlockPredicate.ANY,
-            FluidPredicate.ANY
-        );
-    }
-
-    public static LocationPredicate inDimension(ResourceKey<Level> param0) {
-        return new LocationPredicate(
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            null,
-            null,
-            param0,
-            null,
-            LightPredicate.ANY,
-            BlockPredicate.ANY,
-            FluidPredicate.ANY
-        );
-    }
-
-    public static LocationPredicate inStructure(ResourceKey<Structure> param0) {
-        return new LocationPredicate(
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            MinMaxBounds.Doubles.ANY,
-            null,
-            param0,
-            null,
-            null,
-            LightPredicate.ANY,
-            BlockPredicate.ANY,
-            FluidPredicate.ANY
-        );
-    }
-
-    public static LocationPredicate atYLocation(MinMaxBounds.Doubles param0) {
-        return new LocationPredicate(
-            MinMaxBounds.Doubles.ANY, param0, MinMaxBounds.Doubles.ANY, null, null, null, null, LightPredicate.ANY, BlockPredicate.ANY, FluidPredicate.ANY
-        );
+        return param0.isEmpty()
+                && param1.isEmpty()
+                && param2.isEmpty()
+                && param3.isEmpty()
+                && param4.isEmpty()
+                && param5.isEmpty()
+                && param6.isEmpty()
+                && param7.isEmpty()
+            ? Optional.empty()
+            : Optional.of(new LocationPredicate(param0, param1, param2, param3, param4, param5, param6, param7));
     }
 
     public boolean matches(ServerLevel param0, double param1, double param2, double param3) {
-        if (!this.x.matches(param1)) {
+        if (this.position.isPresent() && !this.position.get().matches(param1, param2, param3)) {
             return false;
-        } else if (!this.y.matches(param2)) {
-            return false;
-        } else if (!this.z.matches(param3)) {
-            return false;
-        } else if (this.dimension != null && this.dimension != param0.dimension()) {
+        } else if (this.dimension.isPresent() && this.dimension.get() != param0.dimension()) {
             return false;
         } else {
             BlockPos var0 = BlockPos.containing(param1, param2, param3);
             boolean var1 = param0.isLoaded(var0);
-            if (this.biome == null || var1 && param0.getBiome(var0).is(this.biome)) {
-                if (this.structure == null || var1 && param0.structureManager().getStructureWithPieceAt(var0, this.structure).isValid()) {
-                    if (this.smokey == null || var1 && this.smokey == CampfireBlock.isSmokeyPos(param0, var0)) {
-                        if (!this.light.matches(param0, var0)) {
+            if (!this.biome.isPresent() || var1 && param0.getBiome(var0).is(this.biome.get())) {
+                if (!this.structure.isPresent() || var1 && param0.structureManager().getStructureWithPieceAt(var0, this.structure.get()).isValid()) {
+                    if (!this.smokey.isPresent() || var1 && this.smokey.get() == CampfireBlock.isSmokeyPos(param0, var0)) {
+                        if (this.light.isPresent() && !this.light.get().matches(param0, var0)) {
                             return false;
-                        } else if (!this.block.matches(param0, var0)) {
+                        } else if (this.block.isPresent() && !this.block.get().matches(param0, var0)) {
                             return false;
                         } else {
-                            return this.fluid.matches(param0, var0);
+                            return !this.fluid.isPresent() || this.fluid.get().matches(param0, var0);
                         }
                     } else {
                         return false;
@@ -157,99 +95,45 @@ public class LocationPredicate {
     }
 
     public JsonElement serializeToJson() {
-        if (this == ANY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
-            if (!this.x.isAny() || !this.y.isAny() || !this.z.isAny()) {
-                JsonObject var1 = new JsonObject();
-                var1.add("x", this.x.serializeToJson());
-                var1.add("y", this.y.serializeToJson());
-                var1.add("z", this.z.serializeToJson());
-                var0.add("position", var1);
-            }
-
-            if (this.dimension != null) {
-                Level.RESOURCE_KEY_CODEC
-                    .encodeStart(JsonOps.INSTANCE, this.dimension)
-                    .resultOrPartial(LOGGER::error)
-                    .ifPresent(param1 -> var0.add("dimension", param1));
-            }
-
-            if (this.structure != null) {
-                var0.addProperty("structure", this.structure.location().toString());
-            }
-
-            if (this.biome != null) {
-                var0.addProperty("biome", this.biome.location().toString());
-            }
-
-            if (this.smokey != null) {
-                var0.addProperty("smokey", this.smokey);
-            }
-
-            var0.add("light", this.light.serializeToJson());
-            var0.add("block", this.block.serializeToJson());
-            var0.add("fluid", this.fluid.serializeToJson());
-            return var0;
-        }
+        return Util.getOrThrow(CODEC.encodeStart(JsonOps.INSTANCE, this), IllegalStateException::new);
     }
 
-    public static LocationPredicate fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "location");
-            JsonObject var1 = GsonHelper.getAsJsonObject(var0, "position", new JsonObject());
-            MinMaxBounds.Doubles var2 = MinMaxBounds.Doubles.fromJson(var1.get("x"));
-            MinMaxBounds.Doubles var3 = MinMaxBounds.Doubles.fromJson(var1.get("y"));
-            MinMaxBounds.Doubles var4 = MinMaxBounds.Doubles.fromJson(var1.get("z"));
-            ResourceKey<Level> var5 = var0.has("dimension")
-                ? ResourceLocation.CODEC
-                    .parse(JsonOps.INSTANCE, var0.get("dimension"))
-                    .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registries.DIMENSION, param0x))
-                    .orElse(null)
-                : null;
-            ResourceKey<Structure> var6 = var0.has("structure")
-                ? ResourceLocation.CODEC
-                    .parse(JsonOps.INSTANCE, var0.get("structure"))
-                    .resultOrPartial(LOGGER::error)
-                    .map(param0x -> ResourceKey.create(Registries.STRUCTURE, param0x))
-                    .orElse(null)
-                : null;
-            ResourceKey<Biome> var7 = null;
-            if (var0.has("biome")) {
-                ResourceLocation var8 = new ResourceLocation(GsonHelper.getAsString(var0, "biome"));
-                var7 = ResourceKey.create(Registries.BIOME, var8);
-            }
-
-            Boolean var9 = var0.has("smokey") ? var0.get("smokey").getAsBoolean() : null;
-            LightPredicate var10 = LightPredicate.fromJson(var0.get("light"));
-            BlockPredicate var11 = BlockPredicate.fromJson(var0.get("block"));
-            FluidPredicate var12 = FluidPredicate.fromJson(var0.get("fluid"));
-            return new LocationPredicate(var2, var3, var4, var7, var6, var5, var9, var10, var11, var12);
-        } else {
-            return ANY;
-        }
+    public static Optional<LocationPredicate> fromJson(@Nullable JsonElement param0) {
+        return param0 != null && !param0.isJsonNull()
+            ? Optional.of(Util.getOrThrow(CODEC.parse(JsonOps.INSTANCE, param0), JsonParseException::new))
+            : Optional.empty();
     }
 
     public static class Builder {
         private MinMaxBounds.Doubles x = MinMaxBounds.Doubles.ANY;
         private MinMaxBounds.Doubles y = MinMaxBounds.Doubles.ANY;
         private MinMaxBounds.Doubles z = MinMaxBounds.Doubles.ANY;
-        @Nullable
-        private ResourceKey<Biome> biome;
-        @Nullable
-        private ResourceKey<Structure> structure;
-        @Nullable
-        private ResourceKey<Level> dimension;
-        @Nullable
-        private Boolean smokey;
-        private LightPredicate light = LightPredicate.ANY;
-        private BlockPredicate block = BlockPredicate.ANY;
-        private FluidPredicate fluid = FluidPredicate.ANY;
+        private Optional<ResourceKey<Biome>> biome = Optional.empty();
+        private Optional<ResourceKey<Structure>> structure = Optional.empty();
+        private Optional<ResourceKey<Level>> dimension = Optional.empty();
+        private Optional<Boolean> smokey = Optional.empty();
+        private Optional<LightPredicate> light = Optional.empty();
+        private Optional<BlockPredicate> block = Optional.empty();
+        private Optional<FluidPredicate> fluid = Optional.empty();
 
         public static LocationPredicate.Builder location() {
             return new LocationPredicate.Builder();
+        }
+
+        public static LocationPredicate.Builder inBiome(ResourceKey<Biome> param0) {
+            return location().setBiome(param0);
+        }
+
+        public static LocationPredicate.Builder inDimension(ResourceKey<Level> param0) {
+            return location().setDimension(param0);
+        }
+
+        public static LocationPredicate.Builder inStructure(ResourceKey<Structure> param0) {
+            return location().setStructure(param0);
+        }
+
+        public static LocationPredicate.Builder atYLocation(MinMaxBounds.Doubles param0) {
+            return location().setY(param0);
         }
 
         public LocationPredicate.Builder setX(MinMaxBounds.Doubles param0) {
@@ -267,43 +151,76 @@ public class LocationPredicate {
             return this;
         }
 
-        public LocationPredicate.Builder setBiome(@Nullable ResourceKey<Biome> param0) {
-            this.biome = param0;
+        public LocationPredicate.Builder setBiome(ResourceKey<Biome> param0) {
+            this.biome = Optional.of(param0);
             return this;
         }
 
-        public LocationPredicate.Builder setStructure(@Nullable ResourceKey<Structure> param0) {
-            this.structure = param0;
+        public LocationPredicate.Builder setStructure(ResourceKey<Structure> param0) {
+            this.structure = Optional.of(param0);
             return this;
         }
 
-        public LocationPredicate.Builder setDimension(@Nullable ResourceKey<Level> param0) {
-            this.dimension = param0;
+        public LocationPredicate.Builder setDimension(ResourceKey<Level> param0) {
+            this.dimension = Optional.of(param0);
             return this;
         }
 
-        public LocationPredicate.Builder setLight(LightPredicate param0) {
-            this.light = param0;
+        public LocationPredicate.Builder setLight(LightPredicate.Builder param0) {
+            this.light = param0.build();
             return this;
         }
 
-        public LocationPredicate.Builder setBlock(BlockPredicate param0) {
-            this.block = param0;
+        public LocationPredicate.Builder setBlock(BlockPredicate.Builder param0) {
+            this.block = param0.build();
             return this;
         }
 
-        public LocationPredicate.Builder setFluid(FluidPredicate param0) {
-            this.fluid = param0;
+        public LocationPredicate.Builder setFluid(FluidPredicate.Builder param0) {
+            this.fluid = param0.build();
             return this;
         }
 
-        public LocationPredicate.Builder setSmokey(Boolean param0) {
-            this.smokey = param0;
+        public LocationPredicate.Builder setSmokey(boolean param0) {
+            this.smokey = Optional.of(param0);
             return this;
         }
 
-        public LocationPredicate build() {
-            return new LocationPredicate(this.x, this.y, this.z, this.biome, this.structure, this.dimension, this.smokey, this.light, this.block, this.fluid);
+        public Optional<LocationPredicate> build() {
+            return LocationPredicate.of(
+                LocationPredicate.PositionPredicate.of(this.x, this.y, this.z),
+                this.biome,
+                this.structure,
+                this.dimension,
+                this.smokey,
+                this.light,
+                this.block,
+                this.fluid
+            );
+        }
+    }
+
+    static record PositionPredicate(MinMaxBounds.Doubles x, MinMaxBounds.Doubles y, MinMaxBounds.Doubles z) {
+        public static final Codec<LocationPredicate.PositionPredicate> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Doubles.CODEC, "x", MinMaxBounds.Doubles.ANY)
+                            .forGetter(LocationPredicate.PositionPredicate::x),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Doubles.CODEC, "y", MinMaxBounds.Doubles.ANY)
+                            .forGetter(LocationPredicate.PositionPredicate::y),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Doubles.CODEC, "z", MinMaxBounds.Doubles.ANY)
+                            .forGetter(LocationPredicate.PositionPredicate::z)
+                    )
+                    .apply(param0, LocationPredicate.PositionPredicate::new)
+        );
+
+        static Optional<LocationPredicate.PositionPredicate> of(MinMaxBounds.Doubles param0, MinMaxBounds.Doubles param1, MinMaxBounds.Doubles param2) {
+            return param0.isAny() && param1.isAny() && param2.isAny()
+                ? Optional.empty()
+                : Optional.of(new LocationPredicate.PositionPredicate(param0, param1, param2));
+        }
+
+        public boolean matches(double param0, double param1, double param2) {
+            return this.x.matches(param0) && this.y.matches(param1) && this.z.matches(param2);
         }
     }
 }

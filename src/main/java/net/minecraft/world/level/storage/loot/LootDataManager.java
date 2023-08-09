@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.mojang.logging.LogUtils;
 import java.util.Collection;
@@ -11,26 +13,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctions;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 import org.slf4j.Logger;
 
 public class LootDataManager implements PreparableReloadListener, LootDataResolver {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Gson GSON = new GsonBuilder().create();
     public static final LootDataId<LootTable> EMPTY_LOOT_TABLE_KEY = new LootDataId<>(LootDataType.TABLE, BuiltInLootTables.EMPTY);
     private Map<LootDataId<?>, ?> elements = Map.of();
     private Multimap<LootDataType<?>, ResourceLocation> typeKeys = ImmutableMultimap.of();
@@ -58,7 +52,7 @@ public class LootDataManager implements PreparableReloadListener, LootDataResolv
         param3.put(param0, var0);
         return CompletableFuture.runAsync(() -> {
             Map<ResourceLocation, JsonElement> var0x = new HashMap<>();
-            SimpleJsonResourceReloadListener.scanDirectory(param1, param0.directory(), param0.parser(), var0x);
+            SimpleJsonResourceReloadListener.scanDirectory(param1, param0.directory(), GSON, var0x);
             var0x.forEach((param2x, param3x) -> param0.deserialize(param2x, param3x).ifPresent(param2xx -> var0.put(param2x, param2xx)));
         }, param2);
     }
@@ -102,71 +96,5 @@ public class LootDataManager implements PreparableReloadListener, LootDataResolv
 
     public Collection<ResourceLocation> getKeys(LootDataType<?> param0) {
         return this.typeKeys.get(param0);
-    }
-
-    public static LootItemCondition createComposite(LootItemCondition[] param0) {
-        return new LootDataManager.CompositePredicate(param0);
-    }
-
-    public static LootItemFunction createComposite(LootItemFunction[] param0) {
-        return new LootDataManager.FunctionSequence(param0);
-    }
-
-    static class CompositePredicate implements LootItemCondition {
-        private final LootItemCondition[] terms;
-        private final Predicate<LootContext> composedPredicate;
-
-        CompositePredicate(LootItemCondition[] param0) {
-            this.terms = param0;
-            this.composedPredicate = LootItemConditions.andConditions(param0);
-        }
-
-        public final boolean test(LootContext param0) {
-            return this.composedPredicate.test(param0);
-        }
-
-        @Override
-        public void validate(ValidationContext param0) {
-            LootItemCondition.super.validate(param0);
-
-            for(int var0 = 0; var0 < this.terms.length; ++var0) {
-                this.terms[var0].validate(param0.forChild(".term[" + var0 + "]"));
-            }
-
-        }
-
-        @Override
-        public LootItemConditionType getType() {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    static class FunctionSequence implements LootItemFunction {
-        protected final LootItemFunction[] functions;
-        private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
-
-        public FunctionSequence(LootItemFunction[] param0) {
-            this.functions = param0;
-            this.compositeFunction = LootItemFunctions.compose(param0);
-        }
-
-        public ItemStack apply(ItemStack param0, LootContext param1) {
-            return this.compositeFunction.apply(param0, param1);
-        }
-
-        @Override
-        public void validate(ValidationContext param0) {
-            LootItemFunction.super.validate(param0);
-
-            for(int var0 = 0; var0 < this.functions.length; ++var0) {
-                this.functions[var0].validate(param0.forChild(".function[" + var0 + "]"));
-            }
-
-        }
-
-        @Override
-        public LootItemFunctionType getType() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

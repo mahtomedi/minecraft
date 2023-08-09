@@ -28,7 +28,7 @@ public class UnderwaterMagmaFeature extends Feature<UnderwaterMagmaConfiguration
         UnderwaterMagmaConfiguration var2 = param0.config();
         RandomSource var3 = param0.random();
         OptionalInt var4 = getFloorY(var0, var1, var2);
-        if (!var4.isPresent()) {
+        if (var4.isEmpty()) {
             return false;
         } else {
             BlockPos var5 = var1.atY(var4.getAsInt());

@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.DeserializationContext;
-import net.minecraft.advancements.critereon.SerializationContext;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -72,7 +71,7 @@ public class Criterion {
         } else {
             JsonObject var0 = new JsonObject();
             var0.addProperty("trigger", this.trigger.getCriterion().toString());
-            JsonObject var1 = this.trigger.serializeToJson(SerializationContext.INSTANCE);
+            JsonObject var1 = this.trigger.serializeToJson();
             if (var1.size() != 0) {
                 var0.add("conditions", var1);
             }

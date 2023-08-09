@@ -1,10 +1,9 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -12,12 +11,23 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
 public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
-    final NumberProvider levels;
-    final boolean treasure;
+    public static final Codec<EnchantWithLevelsFunction> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(
+                    param0.group(
+                        NumberProviders.CODEC.fieldOf("levels").forGetter(param0x -> param0x.levels),
+                        Codec.BOOL.fieldOf("treasure").orElse(false).forGetter(param0x -> param0x.treasure)
+                    )
+                )
+                .apply(param0, EnchantWithLevelsFunction::new)
+    );
+    private final NumberProvider levels;
+    private final boolean treasure;
 
-    EnchantWithLevelsFunction(LootItemCondition[] param0, NumberProvider param1, boolean param2) {
+    EnchantWithLevelsFunction(List<LootItemCondition> param0, NumberProvider param1, boolean param2) {
         super(param0);
         this.levels = param1;
         this.treasure = param2;
@@ -63,20 +73,6 @@ public class EnchantWithLevelsFunction extends LootItemConditionalFunction {
         @Override
         public LootItemFunction build() {
             return new EnchantWithLevelsFunction(this.getConditions(), this.levels, this.treasure);
-        }
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<EnchantWithLevelsFunction> {
-        public void serialize(JsonObject param0, EnchantWithLevelsFunction param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.add("levels", param2.serialize(param1.levels));
-            param0.addProperty("treasure", param1.treasure);
-        }
-
-        public EnchantWithLevelsFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            NumberProvider var0 = GsonHelper.getAsObject(param0, "levels", param1, NumberProvider.class);
-            boolean var1 = GsonHelper.getAsBoolean(param0, "treasure", false);
-            return new EnchantWithLevelsFunction(param2, var0, var1);
         }
     }
 }

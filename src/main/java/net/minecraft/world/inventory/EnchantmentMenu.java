@@ -158,20 +158,19 @@ public class EnchantmentMenu extends AbstractContainerMenu {
                         boolean var2x = var0.is(Items.BOOK);
                         if (var2x) {
                             var0x = new ItemStack(Items.ENCHANTED_BOOK);
-                            CompoundTag var4x = var0.getTag();
-                            if (var4x != null) {
-                                var0x.setTag(var4x.copy());
+                            CompoundTag var3x = var0.getTag();
+                            if (var3x != null) {
+                                var0x.setTag(var3x.copy());
                             }
 
                             this.enchantSlots.setItem(0, var0x);
                         }
 
-                        for(int var4 = 0; var4 < var1x.size(); ++var4) {
-                            EnchantmentInstance var5x = var1x.get(var4);
+                        for(EnchantmentInstance var4x : var1x) {
                             if (var2x) {
-                                EnchantedBookItem.addEnchantment(var0x, var5x);
+                                EnchantedBookItem.addEnchantment(var0x, var4x);
                             } else {
-                                var0x.enchant(var5x.enchantment, var5x.level);
+                                var0x.enchant(var4x.enchantment, var4x.level);
                             }
                         }
 

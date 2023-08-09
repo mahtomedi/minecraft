@@ -1,7 +1,12 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
+import com.mojang.serialization.Codec;
+import java.util.List;
+
 public class AnyOfCondition extends CompositeLootItemCondition {
-    AnyOfCondition(LootItemCondition[] param0) {
+    public static final Codec<AnyOfCondition> CODEC = createCodec(AnyOfCondition::new);
+
+    AnyOfCondition(List<LootItemCondition> param0) {
         super(param0, LootItemConditions.orConditions(param0));
     }
 
@@ -26,13 +31,7 @@ public class AnyOfCondition extends CompositeLootItemCondition {
         }
 
         @Override
-        protected LootItemCondition create(LootItemCondition[] param0) {
-            return new AnyOfCondition(param0);
-        }
-    }
-
-    public static class Serializer extends CompositeLootItemCondition.Serializer<AnyOfCondition> {
-        protected AnyOfCondition create(LootItemCondition[] param0) {
+        protected LootItemCondition create(List<LootItemCondition> param0) {
             return new AnyOfCondition(param0);
         }
     }

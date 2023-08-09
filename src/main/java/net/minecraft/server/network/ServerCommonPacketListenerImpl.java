@@ -33,6 +33,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
     private boolean keepAlivePending;
     private long keepAliveChallenge;
     private int latency;
+    private volatile boolean suspendFlushingOnServerThread = false;
 
     public ServerCommonPacketListenerImpl(MinecraftServer param0, Connection param1, int param2) {
         this.server = param0;
@@ -97,26 +98,29 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack
         this.server.getProfiler().pop();
     }
 
-    public void send(Packet<?> param0) {
-        this.send(param0, null, true);
+    public void suspendFlushing() {
+        this.suspendFlushingOnServerThread = true;
     }
 
-    public void sendNoFlush(Packet<?> param0) {
-        this.send(param0, null, false);
-    }
-
-    public void flush() {
+    public void resumeFlushing() {
+        this.suspendFlushingOnServerThread = false;
         this.connection.flushChannel();
     }
 
-    public void send(Packet<?> param0, @Nullable PacketSendListener param1, boolean param2) {
+    public void send(Packet<?> param0) {
+        this.send(param0, null);
+    }
+
+    public void send(Packet<?> param0, @Nullable PacketSendListener param1) {
+        boolean var0 = !this.suspendFlushingOnServerThread || !this.server.isSameThread();
+
         try {
-            this.connection.send(param0, param1, param2);
+            this.connection.send(param0, param1, var0);
         } catch (Throwable var7) {
-            CrashReport var1 = CrashReport.forThrowable(var7, "Sending packet");
-            CrashReportCategory var2 = var1.addCategory("Packet being sent");
-            var2.setDetail("Packet class", () -> param0.getClass().getCanonicalName());
-            throw new ReportedException(var1);
+            CrashReport var2 = CrashReport.forThrowable(var7, "Sending packet");
+            CrashReportCategory var3 = var2.addCategory("Packet being sent");
+            var3.setDetail("Packet class", () -> param0.getClass().getCanonicalName());
+            throw new ReportedException(var2);
         }
     }
 

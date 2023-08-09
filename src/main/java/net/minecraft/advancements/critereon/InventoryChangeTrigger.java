@@ -1,10 +1,11 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import net.minecraft.core.HolderSet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -20,12 +21,12 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         return ID;
     }
 
-    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         JsonObject var0 = GsonHelper.getAsJsonObject(param0, "slots", new JsonObject());
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(var0.get("occupied"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(var0.get("full"));
         MinMaxBounds.Ints var3 = MinMaxBounds.Ints.fromJson(var0.get("empty"));
-        ItemPredicate[] var4 = ItemPredicate.fromJsonArray(param0.get("items"));
+        List<ItemPredicate> var4 = ItemPredicate.fromJsonArray(param0.get("items"));
         return new InventoryChangeTrigger.TriggerInstance(param1, var1, var2, var3, var4);
     }
 
@@ -57,10 +58,10 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         private final MinMaxBounds.Ints slotsOccupied;
         private final MinMaxBounds.Ints slotsFull;
         private final MinMaxBounds.Ints slotsEmpty;
-        private final ItemPredicate[] predicates;
+        private final List<ItemPredicate> predicates;
 
         public TriggerInstance(
-            ContextAwarePredicate param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, ItemPredicate[] param4
+            Optional<ContextAwarePredicate> param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, List<ItemPredicate> param4
         ) {
             super(InventoryChangeTrigger.ID, param0);
             this.slotsOccupied = param1;
@@ -69,9 +70,13 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
             this.predicates = param4;
         }
 
+        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate.Builder... param0) {
+            return hasItems(Arrays.stream(param0).flatMap(param0x -> param0x.build().stream()).toArray(param0x -> new ItemPredicate[param0x]));
+        }
+
         public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate... param0) {
             return new InventoryChangeTrigger.TriggerInstance(
-                ContextAwarePredicate.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, param0
+                Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
             );
         }
 
@@ -80,14 +85,14 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
 
             for(int var1 = 0; var1 < param0.length; ++var1) {
                 var0[var1] = new ItemPredicate(
-                    null,
-                    ImmutableSet.of(param0[var1].asItem()),
+                    Optional.empty(),
+                    Optional.of(HolderSet.direct(param0[var1].asItem().builtInRegistryHolder())),
                     MinMaxBounds.Ints.ANY,
                     MinMaxBounds.Ints.ANY,
-                    EnchantmentPredicate.NONE,
-                    EnchantmentPredicate.NONE,
-                    null,
-                    NbtPredicate.ANY
+                    List.of(),
+                    List.of(),
+                    Optional.empty(),
+                    Optional.empty()
                 );
             }
 
@@ -95,8 +100,8 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             if (!this.slotsOccupied.isAny() || !this.slotsFull.isAny() || !this.slotsEmpty.isAny()) {
                 JsonObject var1 = new JsonObject();
                 var1.add("occupied", this.slotsOccupied.serializeToJson());
@@ -105,14 +110,8 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
                 var0.add("slots", var1);
             }
 
-            if (this.predicates.length > 0) {
-                JsonArray var2 = new JsonArray();
-
-                for(ItemPredicate var3 : this.predicates) {
-                    var2.add(var3.serializeToJson());
-                }
-
-                var0.add("items", var2);
+            if (!this.predicates.isEmpty()) {
+                var0.add("items", ItemPredicate.serializeToJsonArray(this.predicates));
             }
 
             return var0;
@@ -125,29 +124,26 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
                 return false;
             } else if (!this.slotsOccupied.matches(param4)) {
                 return false;
-            } else {
-                int var0 = this.predicates.length;
-                if (var0 == 0) {
-                    return true;
-                } else if (var0 != 1) {
-                    List<ItemPredicate> var1 = new ObjectArrayList<>(this.predicates);
-                    int var2 = param0.getContainerSize();
+            } else if (this.predicates.isEmpty()) {
+                return true;
+            } else if (this.predicates.size() != 1) {
+                List<ItemPredicate> var0 = new ObjectArrayList<>(this.predicates);
+                int var1 = param0.getContainerSize();
 
-                    for(int var3 = 0; var3 < var2; ++var3) {
-                        if (var1.isEmpty()) {
-                            return true;
-                        }
-
-                        ItemStack var4 = param0.getItem(var3);
-                        if (!var4.isEmpty()) {
-                            var1.removeIf(param1x -> param1x.matches(var4));
-                        }
+                for(int var2 = 0; var2 < var1; ++var2) {
+                    if (var0.isEmpty()) {
+                        return true;
                     }
 
-                    return var1.isEmpty();
-                } else {
-                    return !param1.isEmpty() && this.predicates[0].matches(param1);
+                    ItemStack var3 = param0.getItem(var2);
+                    if (!var3.isEmpty()) {
+                        var0.removeIf(param1x -> param1x.matches(var3));
+                    }
                 }
+
+                return var0.isEmpty();
+            } else {
+                return !param1.isEmpty() && this.predicates.get(0).matches(param1);
             }
         }
     }

@@ -740,19 +740,17 @@ public abstract class AbstractContainerMenu {
         if (param0 == null) {
             return 0;
         } else {
-            int var0 = 0;
-            float var1 = 0.0F;
+            float var0 = 0.0F;
 
-            for(int var2 = 0; var2 < param0.getContainerSize(); ++var2) {
-                ItemStack var3 = param0.getItem(var2);
-                if (!var3.isEmpty()) {
-                    var1 += (float)var3.getCount() / (float)Math.min(param0.getMaxStackSize(), var3.getMaxStackSize());
-                    ++var0;
+            for(int var1 = 0; var1 < param0.getContainerSize(); ++var1) {
+                ItemStack var2 = param0.getItem(var1);
+                if (!var2.isEmpty()) {
+                    var0 += (float)var2.getCount() / (float)Math.min(param0.getMaxStackSize(), var2.getMaxStackSize());
                 }
             }
 
-            var1 /= (float)param0.getContainerSize();
-            return Mth.floor(var1 * 14.0F) + (var0 > 0 ? 1 : 0);
+            var0 /= (float)param0.getContainerSize();
+            return Mth.lerpDiscrete(var0, 0, 15);
         }
     }
 

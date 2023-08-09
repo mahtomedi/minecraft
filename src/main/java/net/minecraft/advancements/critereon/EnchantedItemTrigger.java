@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -13,8 +14,8 @@ public class EnchantedItemTrigger extends SimpleCriterionTrigger<EnchantedItemTr
         return ID;
     }
 
-    public EnchantedItemTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
+    public EnchantedItemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("levels"));
         return new EnchantedItemTrigger.TriggerInstance(param1, var0, var1);
     }
@@ -24,21 +25,21 @@ public class EnchantedItemTrigger extends SimpleCriterionTrigger<EnchantedItemTr
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ItemPredicate item;
+        private final Optional<ItemPredicate> item;
         private final MinMaxBounds.Ints levels;
 
-        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1, MinMaxBounds.Ints param2) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, MinMaxBounds.Ints param2) {
             super(EnchantedItemTrigger.ID, param0);
             this.item = param1;
             this.levels = param2;
         }
 
         public static EnchantedItemTrigger.TriggerInstance enchantedItem() {
-            return new EnchantedItemTrigger.TriggerInstance(ContextAwarePredicate.ANY, ItemPredicate.ANY, MinMaxBounds.Ints.ANY);
+            return new EnchantedItemTrigger.TriggerInstance(Optional.empty(), Optional.empty(), MinMaxBounds.Ints.ANY);
         }
 
         public boolean matches(ItemStack param0, int param1) {
-            if (!this.item.matches(param0)) {
+            if (this.item.isPresent() && !this.item.get().matches(param0)) {
                 return false;
             } else {
                 return this.levels.matches(param1);
@@ -46,9 +47,9 @@ public class EnchantedItemTrigger extends SimpleCriterionTrigger<EnchantedItemTr
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("item", this.item.serializeToJson());
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
             var0.add("levels", this.levels.serializeToJson());
             return var0;
         }

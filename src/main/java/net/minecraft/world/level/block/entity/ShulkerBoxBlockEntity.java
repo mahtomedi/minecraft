@@ -115,10 +115,9 @@ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity impl
             AABB var1 = Shulker.getProgressDeltaAabb(var0, this.progressOld, this.progress).move(param1);
             List<Entity> var2 = param0.getEntities(null, var1);
             if (!var2.isEmpty()) {
-                for(int var3 = 0; var3 < var2.size(); ++var3) {
-                    Entity var4 = var2.get(var3);
-                    if (var4.getPistonPushReaction() != PushReaction.IGNORE) {
-                        var4.move(
+                for(Entity var3 : var2) {
+                    if (var3.getPistonPushReaction() != PushReaction.IGNORE) {
+                        var3.move(
                             MoverType.SHULKER_BOX,
                             new Vec3(
                                 (var1.getXsize() + 0.01) * (double)var0.getStepX(),

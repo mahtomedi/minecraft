@@ -58,7 +58,7 @@ public class KeyValueCondition implements Condition {
 
     private Predicate<BlockState> getBlockStatePredicate(StateDefinition<Block, BlockState> param0, Property<?> param1, String param2) {
         Optional<?> var0 = param1.getValue(param2);
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             throw new RuntimeException(
                 String.format(Locale.ROOT, "Unknown value '%s' for property '%s' on '%s' in '%s'", param2, this.key, param0.getOwner(), this.value)
             );

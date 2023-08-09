@@ -822,11 +822,11 @@ public class Gui {
                     int var30 = var8 - var22 * 8 - 9;
                     param0.blitSprite(var24, var30, var23, 9, 9);
                     if (var22 * 2 + 1 < var6) {
-                        param0.blitSprite(var25, var30, var23, 9, 9);
+                        param0.blitSprite(var26, var30, var23, 9, 9);
                     }
 
                     if (var22 * 2 + 1 == var6) {
-                        param0.blitSprite(var26, var30, var23, 9, 9);
+                        param0.blitSprite(var25, var30, var23, 9, 9);
                     }
                 }
 

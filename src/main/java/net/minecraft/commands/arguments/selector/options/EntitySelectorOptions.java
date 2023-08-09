@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -102,7 +103,7 @@ public class EntitySelectorOptions {
             register("distance", param0 -> {
                 int var0 = param0.getReader().getCursor();
                 MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromReader(param0.getReader());
-                if ((var1.getMin() == null || !(var1.getMin() < 0.0)) && (var1.getMax() == null || !(var1.getMax() < 0.0))) {
+                if ((!var1.min().isPresent() || !(var1.min().get() < 0.0)) && (!var1.max().isPresent() || !(var1.max().get() < 0.0))) {
                     param0.setDistance(var1);
                     param0.setWorldLimited();
                 } else {
@@ -113,7 +114,7 @@ public class EntitySelectorOptions {
             register("level", param0 -> {
                 int var0 = param0.getReader().getCursor();
                 MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromReader(param0.getReader());
-                if ((var1.getMin() == null || var1.getMin() >= 0) && (var1.getMax() == null || var1.getMax() >= 0)) {
+                if ((!var1.min().isPresent() || var1.min().get() >= 0) && (!var1.max().isPresent() || var1.max().get() >= 0)) {
                     param0.setLevel(var1);
                     param0.setIncludesEntities(false);
                 } else {
@@ -504,7 +505,7 @@ public class EntitySelectorOptions {
                                         .withParameter(LootContextParams.THIS_ENTITY, param2)
                                         .withParameter(LootContextParams.ORIGIN, param2.position())
                                         .create(LootContextParamSets.SELECTOR);
-                                    LootContext var3 = new LootContext.Builder(var2x).create(null);
+                                    LootContext var3 = new LootContext.Builder(var2x).create(Optional.empty());
                                     var3.pushVisitedElement(LootContext.createVisitedEntry(var1x));
                                     return var0 ^ var1x.test(var3);
                                 }

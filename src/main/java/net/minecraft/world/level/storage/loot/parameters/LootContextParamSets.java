@@ -2,12 +2,21 @@ package net.minecraft.world.level.storage.loot.parameters;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import java.util.Optional;
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 
 public class LootContextParamSets {
     private static final BiMap<ResourceLocation, LootContextParamSet> REGISTRY = HashBiMap.create();
+    public static final Codec<LootContextParamSet> CODEC = ResourceLocation.CODEC
+        .comapFlatMap(
+            param0 -> Optional.ofNullable(REGISTRY.get(param0))
+                    .map(DataResult::success)
+                    .orElseGet(() -> DataResult.error(() -> "No parameter set exists with id: '" + param0 + "'")),
+            REGISTRY.inverse()::get
+        );
     public static final LootContextParamSet EMPTY = register("empty", param0 -> {
     });
     public static final LootContextParamSet CHEST = register(
@@ -83,15 +92,5 @@ public class LootContextParamSets {
         } else {
             return var1;
         }
-    }
-
-    @Nullable
-    public static LootContextParamSet get(ResourceLocation param0) {
-        return REGISTRY.get(param0);
-    }
-
-    @Nullable
-    public static ResourceLocation getKey(LootContextParamSet param0) {
-        return REGISTRY.inverse().get(param0);
     }
 }

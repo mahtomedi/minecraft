@@ -24,7 +24,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.ItemStack;
 
 public class PotionUtils {
-    public static final String TAG_CUSTOM_POTION_EFFECTS = "CustomPotionEffects";
+    public static final String TAG_CUSTOM_POTION_EFFECTS = "custom_potion_effects";
     public static final String TAG_CUSTOM_POTION_COLOR = "CustomPotionColor";
     public static final String TAG_POTION = "Potion";
     private static final int EMPTY_COLOR = 16253176;
@@ -59,8 +59,8 @@ public class PotionUtils {
     }
 
     public static void getCustomEffects(@Nullable CompoundTag param0, List<MobEffectInstance> param1) {
-        if (param0 != null && param0.contains("CustomPotionEffects", 9)) {
-            ListTag var0 = param0.getList("CustomPotionEffects", 10);
+        if (param0 != null && param0.contains("custom_potion_effects", 9)) {
+            ListTag var0 = param0.getList("custom_potion_effects", 10);
 
             for(int var1 = 0; var1 < var0.size(); ++var1) {
                 CompoundTag var2 = var0.getCompound(var1);
@@ -142,13 +142,13 @@ public class PotionUtils {
             return param0;
         } else {
             CompoundTag var0 = param0.getOrCreateTag();
-            ListTag var1 = var0.getList("CustomPotionEffects", 9);
+            ListTag var1 = var0.getList("custom_potion_effects", 9);
 
             for(MobEffectInstance var2 : param1) {
                 var1.add(var2.save(new CompoundTag()));
             }
 
-            var0.put("CustomPotionEffects", var1);
+            var0.put("custom_potion_effects", var1);
             return param0;
         }
     }

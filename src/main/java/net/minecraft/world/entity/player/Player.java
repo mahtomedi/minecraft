@@ -537,12 +537,11 @@ public abstract class Player extends LivingEntity {
             List<Entity> var4 = this.level().getEntities(this, var2);
             List<Entity> var5 = Lists.newArrayList();
 
-            for(int var6 = 0; var6 < var4.size(); ++var6) {
-                Entity var7 = var4.get(var6);
-                if (var7.getType() == EntityType.EXPERIENCE_ORB) {
-                    var5.add(var7);
-                } else if (!var7.isRemoved()) {
-                    this.touch(var7);
+            for(Entity var6 : var4) {
+                if (var6.getType() == EntityType.EXPERIENCE_ORB) {
+                    var5.add(var6);
+                } else if (!var6.isRemoved()) {
+                    this.touch(var6);
                 }
             }
 

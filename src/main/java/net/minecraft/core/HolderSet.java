@@ -1,6 +1,7 @@
 package net.minecraft.core;
 
 import com.mojang.datafixers.util.Either;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public interface HolderSet<T> extends Iterable<Holder<T>> {
         return direct(Stream.of(param1).map(param0).toList());
     }
 
-    static <E, T> HolderSet.Direct<T> direct(Function<E, Holder<T>> param0, List<E> param1) {
+    static <E, T> HolderSet.Direct<T> direct(Function<E, Holder<T>> param0, Collection<E> param1) {
         return direct(param1.stream().map(param0).toList());
     }
 

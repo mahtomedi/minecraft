@@ -432,6 +432,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Rider
                     }
                 }
 
+                this.gameEvent(GameEvent.EAT);
                 return true;
             }
         }

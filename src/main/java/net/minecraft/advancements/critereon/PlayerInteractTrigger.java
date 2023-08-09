@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -15,9 +16,9 @@ public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteract
         return ID;
     }
 
-    protected PlayerInteractTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
-        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "entity", param2);
+    protected PlayerInteractTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
+        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "entity", param2);
         return new PlayerInteractTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -27,34 +28,38 @@ public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteract
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ItemPredicate item;
-        private final ContextAwarePredicate entity;
+        private final Optional<ItemPredicate> item;
+        private final Optional<ContextAwarePredicate> entity;
 
-        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1, ContextAwarePredicate param2) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, Optional<ContextAwarePredicate> param2) {
             super(PlayerInteractTrigger.ID, param0);
             this.item = param1;
             this.entity = param2;
         }
 
         public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(
-            ContextAwarePredicate param0, ItemPredicate.Builder param1, ContextAwarePredicate param2
+            Optional<ContextAwarePredicate> param0, ItemPredicate.Builder param1, Optional<ContextAwarePredicate> param2
         ) {
             return new PlayerInteractTrigger.TriggerInstance(param0, param1.build(), param2);
         }
 
-        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(ItemPredicate.Builder param0, ContextAwarePredicate param1) {
-            return itemUsedOnEntity(ContextAwarePredicate.ANY, param0, param1);
+        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(ItemPredicate.Builder param0, Optional<ContextAwarePredicate> param1) {
+            return itemUsedOnEntity(Optional.empty(), param0, param1);
         }
 
         public boolean matches(ItemStack param0, LootContext param1) {
-            return !this.item.matches(param0) ? false : this.entity.matches(param1);
+            if (this.item.isPresent() && !this.item.get().matches(param0)) {
+                return false;
+            } else {
+                return this.entity.isEmpty() || this.entity.get().matches(param1);
+            }
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("item", this.item.serializeToJson());
-            var0.add("entity", this.entity.toJson(param0));
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
+            this.entity.ifPresent(param1 -> var0.add("entity", param1.toJson()));
             return var0;
         }
     }

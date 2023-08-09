@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.util.JsonUtils;
-import com.mojang.util.UndashedUuid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.minecraftforge.api.distmarker.Dist;
@@ -44,12 +44,14 @@ public class RealmsServerPlayerList extends ValueObject {
     }
 
     private static List<UUID> parsePlayers(JsonArray param0) {
-        List<UUID> var0 = Lists.newArrayList();
+        List<UUID> var0 = new ArrayList<>(param0.size());
 
         for(JsonElement var1 : param0) {
-            try {
-                var0.add(UndashedUuid.fromStringLenient(var1.getAsString()));
-            } catch (Exception var5) {
+            if (var1.isJsonObject()) {
+                UUID var2 = JsonUtils.getUuidOr("playerId", var1.getAsJsonObject(), null);
+                if (var2 != null) {
+                    var0.add(var2);
+                }
             }
         }
 

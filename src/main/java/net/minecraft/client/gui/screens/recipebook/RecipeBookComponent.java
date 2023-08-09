@@ -103,7 +103,7 @@ public class RecipeBookComponent implements PlaceRecipe<Ingredient>, Renderable,
         this.minecraft.player.getInventory().fillStackedContents(this.stackedContents);
         this.menu.fillCraftSlotsStackedContents(this.stackedContents);
         String var2 = this.searchBox != null ? this.searchBox.getValue() : "";
-        this.searchBox = new EditBox(this.minecraft.font, var0 + 26, var1 + 14, 79, 9 + 3, Component.translatable("itemGroup.search"));
+        this.searchBox = new EditBox(this.minecraft.font, var0 + 25, var1 + 13, 81, 9 + 5, Component.translatable("itemGroup.search"));
         this.searchBox.setMaxLength(50);
         this.searchBox.setVisible(true);
         this.searchBox.setTextColor(16777215);

@@ -1,15 +1,17 @@
 package net.minecraft.world.level.storage.loot.entries;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import org.apache.commons.lang3.ArrayUtils;
 
 public class AlternativesEntry extends CompositeEntryBase {
-    AlternativesEntry(LootPoolEntryContainer[] param0, LootItemCondition[] param1) {
+    public static final Codec<AlternativesEntry> CODEC = createCodec(AlternativesEntry::new);
+
+    AlternativesEntry(List<LootPoolEntryContainer> param0, List<LootItemCondition> param1) {
         super(param0, param1);
     }
 
@@ -19,33 +21,29 @@ public class AlternativesEntry extends CompositeEntryBase {
     }
 
     @Override
-    protected ComposableEntryContainer compose(ComposableEntryContainer[] param0) {
-        switch(param0.length) {
-            case 0:
-                return ALWAYS_FALSE;
-            case 1:
-                return param0[0];
-            case 2:
-                return param0[0].or(param0[1]);
-            default:
-                return (param1, param2) -> {
-                    for(ComposableEntryContainer var0 : param0) {
-                        if (var0.expand(param1, param2)) {
-                            return true;
-                        }
-                    }
+    protected ComposableEntryContainer compose(List<? extends ComposableEntryContainer> param0) {
+        return switch(param0.size()) {
+            case 0 -> ALWAYS_FALSE;
+            case 1 -> (ComposableEntryContainer)param0.get(0);
+            case 2 -> param0.get(0).or(param0.get(1));
+            default -> (param1, param2) -> {
+            for(ComposableEntryContainer var0 : param0) {
+                if (var0.expand(param1, param2)) {
+                    return true;
+                }
+            }
 
-                    return false;
-                };
-        }
+            return false;
+        };
+        };
     }
 
     @Override
     public void validate(ValidationContext param0) {
         super.validate(param0);
 
-        for(int var0 = 0; var0 < this.children.length - 1; ++var0) {
-            if (ArrayUtils.isEmpty((Object[])this.children[var0].conditions)) {
+        for(int var0 = 0; var0 < this.children.size() - 1; ++var0) {
+            if (this.children.get(var0).conditions.isEmpty()) {
                 param0.reportProblem("Unreachable entry!");
             }
         }
@@ -61,7 +59,7 @@ public class AlternativesEntry extends CompositeEntryBase {
     }
 
     public static class Builder extends LootPoolEntryContainer.Builder<AlternativesEntry.Builder> {
-        private final List<LootPoolEntryContainer> entries = Lists.newArrayList();
+        private final ImmutableList.Builder<LootPoolEntryContainer> entries = ImmutableList.builder();
 
         public Builder(LootPoolEntryContainer.Builder<?>... param0) {
             for(LootPoolEntryContainer.Builder<?> var0 : param0) {
@@ -82,7 +80,7 @@ public class AlternativesEntry extends CompositeEntryBase {
 
         @Override
         public LootPoolEntryContainer build() {
-            return new AlternativesEntry(this.entries.toArray(new LootPoolEntryContainer[0]), this.getConditions());
+            return new AlternativesEntry(this.entries.build(), this.getConditions());
         }
     }
 }

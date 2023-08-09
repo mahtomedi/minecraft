@@ -16,7 +16,7 @@ public class EntityZombieVillagerTypeFix extends NamedEntityFix {
 
     public Dynamic<?> fixTag(Dynamic<?> param0) {
         if (param0.get("IsVillager").asBoolean(false)) {
-            if (!param0.get("ZombieType").result().isPresent()) {
+            if (param0.get("ZombieType").result().isEmpty()) {
                 int var0 = this.getVillagerProfession(param0.get("VillagerProfession").asInt(-1));
                 if (var0 == -1) {
                     var0 = this.getVillagerProfession(RANDOM.nextInt(6));

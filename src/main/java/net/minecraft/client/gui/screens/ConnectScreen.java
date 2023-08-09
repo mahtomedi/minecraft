@@ -83,7 +83,7 @@ public class ConnectScreen extends Screen {
                         return;
                     }
 
-                    if (!var1.isPresent()) {
+                    if (var1.isEmpty()) {
                         param0.execute(
                             () -> param0.setScreen(
                                     new DisconnectedScreen(ConnectScreen.this.parent, ConnectScreen.this.connectFailedTitle, ConnectScreen.UNKNOWN_HOST_MESSAGE)
@@ -100,6 +100,7 @@ public class ConnectScreen extends Screen {
                         }
 
                         var2 = new Connection(PacketFlow.CLIENTBOUND);
+                        var2.setBandwidthLogger(param0.bandwidthLogger);
                         ConnectScreen.this.channelFuture = Connection.connect(var0, param0.options.useNativeTransport(), var2);
                     }
 

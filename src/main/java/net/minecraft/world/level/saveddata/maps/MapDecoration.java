@@ -1,119 +1,66 @@
 package net.minecraft.world.level.saveddata.maps;
 
-import java.util.Objects;
+import com.mojang.serialization.Codec;
 import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 
-public class MapDecoration {
-    private final MapDecoration.Type type;
-    private final byte x;
-    private final byte y;
-    private final byte rot;
-    @Nullable
-    private final Component name;
-
-    public MapDecoration(MapDecoration.Type param0, byte param1, byte param2, byte param3, @Nullable Component param4) {
-        this.type = param0;
-        this.x = param1;
-        this.y = param2;
-        this.rot = param3;
-        this.name = param4;
-    }
-
+public record MapDecoration(MapDecoration.Type type, byte x, byte y, byte rot, @Nullable Component name) {
     public byte getImage() {
         return this.type.getIcon();
-    }
-
-    public MapDecoration.Type getType() {
-        return this.type;
-    }
-
-    public byte getX() {
-        return this.x;
-    }
-
-    public byte getY() {
-        return this.y;
-    }
-
-    public byte getRot() {
-        return this.rot;
     }
 
     public boolean renderOnFrame() {
         return this.type.isRenderedOnFrame();
     }
 
-    @Nullable
-    public Component getName() {
-        return this.name;
-    }
+    public static enum Type implements StringRepresentable {
+        PLAYER("player", false, true),
+        FRAME("frame", true, true),
+        RED_MARKER("red_marker", false, true),
+        BLUE_MARKER("blue_marker", false, true),
+        TARGET_X("target_x", true, false),
+        TARGET_POINT("target_point", true, false),
+        PLAYER_OFF_MAP("player_off_map", false, true),
+        PLAYER_OFF_LIMITS("player_off_limits", false, true),
+        MANSION("mansion", true, 5393476, false),
+        MONUMENT("monument", true, 3830373, false),
+        BANNER_WHITE("banner_white", true, true),
+        BANNER_ORANGE("banner_orange", true, true),
+        BANNER_MAGENTA("banner_magenta", true, true),
+        BANNER_LIGHT_BLUE("banner_light_blue", true, true),
+        BANNER_YELLOW("banner_yellow", true, true),
+        BANNER_LIME("banner_lime", true, true),
+        BANNER_PINK("banner_pink", true, true),
+        BANNER_GRAY("banner_gray", true, true),
+        BANNER_LIGHT_GRAY("banner_light_gray", true, true),
+        BANNER_CYAN("banner_cyan", true, true),
+        BANNER_PURPLE("banner_purple", true, true),
+        BANNER_BLUE("banner_blue", true, true),
+        BANNER_BROWN("banner_brown", true, true),
+        BANNER_GREEN("banner_green", true, true),
+        BANNER_RED("banner_red", true, true),
+        BANNER_BLACK("banner_black", true, true),
+        RED_X("red_x", true, false);
 
-    @Override
-    public boolean equals(Object param0) {
-        if (this == param0) {
-            return true;
-        } else if (!(param0 instanceof MapDecoration)) {
-            return false;
-        } else {
-            MapDecoration var0 = (MapDecoration)param0;
-            return this.type == var0.type && this.rot == var0.rot && this.x == var0.x && this.y == var0.y && Objects.equals(this.name, var0.name);
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        int var0 = this.type.getIcon();
-        var0 = 31 * var0 + this.x;
-        var0 = 31 * var0 + this.y;
-        var0 = 31 * var0 + this.rot;
-        return 31 * var0 + Objects.hashCode(this.name);
-    }
-
-    public static enum Type {
-        PLAYER(false, true),
-        FRAME(true, true),
-        RED_MARKER(false, true),
-        BLUE_MARKER(false, true),
-        TARGET_X(true, false),
-        TARGET_POINT(true, false),
-        PLAYER_OFF_MAP(false, true),
-        PLAYER_OFF_LIMITS(false, true),
-        MANSION(true, 5393476, false),
-        MONUMENT(true, 3830373, false),
-        BANNER_WHITE(true, true),
-        BANNER_ORANGE(true, true),
-        BANNER_MAGENTA(true, true),
-        BANNER_LIGHT_BLUE(true, true),
-        BANNER_YELLOW(true, true),
-        BANNER_LIME(true, true),
-        BANNER_PINK(true, true),
-        BANNER_GRAY(true, true),
-        BANNER_LIGHT_GRAY(true, true),
-        BANNER_CYAN(true, true),
-        BANNER_PURPLE(true, true),
-        BANNER_BLUE(true, true),
-        BANNER_BROWN(true, true),
-        BANNER_GREEN(true, true),
-        BANNER_RED(true, true),
-        BANNER_BLACK(true, true),
-        RED_X(true, false);
-
+        public static final Codec<MapDecoration.Type> CODEC = StringRepresentable.fromEnum(MapDecoration.Type::values);
+        private final String name;
         private final byte icon;
         private final boolean renderedOnFrame;
         private final int mapColor;
         private final boolean trackCount;
 
-        private Type(boolean param0, boolean param1) {
-            this(param0, -1, param1);
+        private Type(String param0, boolean param1, boolean param2) {
+            this(param0, param1, -1, param2);
         }
 
-        private Type(boolean param0, int param1, boolean param2) {
-            this.trackCount = param2;
+        private Type(String param0, boolean param1, int param2, boolean param3) {
+            this.name = param0;
+            this.trackCount = param3;
             this.icon = (byte)this.ordinal();
-            this.renderedOnFrame = param0;
-            this.mapColor = param1;
+            this.renderedOnFrame = param1;
+            this.mapColor = param2;
         }
 
         public byte getIcon() {
@@ -138,6 +85,11 @@ public class MapDecoration {
 
         public boolean shouldTrackCount() {
             return this.trackCount;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

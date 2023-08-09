@@ -364,7 +364,7 @@ public class StructureBlockEntity extends BlockEntity {
                 return false;
             }
 
-            return !var1.isPresent() ? false : this.loadStructure(param0, param1, var1.get());
+            return var1.isEmpty() ? false : this.loadStructure(param0, param1, var1.get());
         } else {
             return false;
         }

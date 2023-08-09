@@ -376,7 +376,7 @@ public class GuiGraphics {
         if (var1 instanceof GuiSpriteScaling.Stretch) {
             this.blitSprite(var0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
         } else {
-            this.blitSprite(param0, param5, param6, param7, param8, param9);
+            this.blitSprite(var0, param5, param6, param7, param8, param9);
         }
 
     }
@@ -384,24 +384,37 @@ public class GuiGraphics {
     private void blitSprite(
         TextureAtlasSprite param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, int param8, int param9
     ) {
-        this.innerBlit(
-            param0.atlasLocation(),
-            param5,
-            param5 + param8,
-            param6,
-            param6 + param9,
-            param7,
-            param0.getU((float)param3 / (float)param1),
-            param0.getU((float)(param3 + param8) / (float)param1),
-            param0.getV((float)param4 / (float)param2),
-            param0.getV((float)(param4 + param9) / (float)param2)
-        );
+        if (param8 != 0 && param9 != 0) {
+            this.innerBlit(
+                param0.atlasLocation(),
+                param5,
+                param5 + param8,
+                param6,
+                param6 + param9,
+                param7,
+                param0.getU((float)param3 / (float)param1),
+                param0.getU((float)(param3 + param8) / (float)param1),
+                param0.getV((float)param4 / (float)param2),
+                param0.getV((float)(param4 + param9) / (float)param2)
+            );
+        }
     }
 
     private void blitSprite(TextureAtlasSprite param0, int param1, int param2, int param3, int param4, int param5) {
-        this.innerBlit(
-            param0.atlasLocation(), param1, param1 + param4, param2, param2 + param5, param3, param0.getU0(), param0.getU1(), param0.getV0(), param0.getV1()
-        );
+        if (param4 != 0 && param5 != 0) {
+            this.innerBlit(
+                param0.atlasLocation(),
+                param1,
+                param1 + param4,
+                param2,
+                param2 + param5,
+                param3,
+                param0.getU0(),
+                param0.getU1(),
+                param0.getV0(),
+                param0.getV1()
+            );
+        }
     }
 
     public void blit(ResourceLocation param0, int param1, int param2, int param3, int param4, int param5, int param6) {
@@ -627,15 +640,21 @@ public class GuiGraphics {
         int param10,
         int param11
     ) {
-        for(int var0 = 0; var0 < param4; var0 += param8) {
-            int var1 = Math.min(param8, param4 - var0);
+        if (param4 > 0 && param5 > 0) {
+            if (param8 > 0 && param9 > 0) {
+                for(int var0 = 0; var0 < param4; var0 += param8) {
+                    int var1 = Math.min(param8, param4 - var0);
 
-            for(int var2 = 0; var2 < param5; var2 += param9) {
-                int var3 = Math.min(param9, param5 - var2);
-                this.blitSprite(param0, param10, param11, param6, param7, param1 + var0, param2 + var2, param3, var1, var3);
+                    for(int var2 = 0; var2 < param5; var2 += param9) {
+                        int var3 = Math.min(param9, param5 - var2);
+                        this.blitSprite(param0, param10, param11, param6, param7, param1 + var0, param2 + var2, param3, var1, var3);
+                    }
+                }
+
+            } else {
+                throw new IllegalArgumentException("Tiled sprite texture size must be positive, got " + param8 + "x" + param9);
             }
         }
-
     }
 
     public void renderItem(ItemStack param0, int param1, int param2) {

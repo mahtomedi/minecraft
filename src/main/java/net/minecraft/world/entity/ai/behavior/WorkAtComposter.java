@@ -22,7 +22,7 @@ public class WorkAtComposter extends WorkAtPoi {
     @Override
     protected void useWorkstation(ServerLevel param0, Villager param1) {
         Optional<GlobalPos> var0 = param1.getBrain().getMemory(MemoryModuleType.JOB_SITE);
-        if (var0.isPresent()) {
+        if (!var0.isEmpty()) {
             GlobalPos var1 = var0.get();
             BlockState var2 = param0.getBlockState(var1.pos());
             if (var2.is(Blocks.COMPOSTER)) {

@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.AbstractVillager;
@@ -15,9 +16,9 @@ public class TradeTrigger extends SimpleCriterionTrigger<TradeTrigger.TriggerIns
         return ID;
     }
 
-    public TradeTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "villager", param2);
-        ItemPredicate var1 = ItemPredicate.fromJson(param0.get("item"));
+    public TradeTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "villager", param2);
+        Optional<ItemPredicate> var1 = ItemPredicate.fromJson(param0.get("item"));
         return new TradeTrigger.TriggerInstance(param1, var0, var1);
     }
 
@@ -27,36 +28,36 @@ public class TradeTrigger extends SimpleCriterionTrigger<TradeTrigger.TriggerIns
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ContextAwarePredicate villager;
-        private final ItemPredicate item;
+        private final Optional<ContextAwarePredicate> villager;
+        private final Optional<ItemPredicate> item;
 
-        public TriggerInstance(ContextAwarePredicate param0, ContextAwarePredicate param1, ItemPredicate param2) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1, Optional<ItemPredicate> param2) {
             super(TradeTrigger.ID, param0);
             this.villager = param1;
             this.item = param2;
         }
 
         public static TradeTrigger.TriggerInstance tradedWithVillager() {
-            return new TradeTrigger.TriggerInstance(ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, ItemPredicate.ANY);
+            return new TradeTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         public static TradeTrigger.TriggerInstance tradedWithVillager(EntityPredicate.Builder param0) {
-            return new TradeTrigger.TriggerInstance(EntityPredicate.wrap(param0.build()), ContextAwarePredicate.ANY, ItemPredicate.ANY);
+            return new TradeTrigger.TriggerInstance(EntityPredicate.wrap(param0), Optional.empty(), Optional.empty());
         }
 
         public boolean matches(LootContext param0, ItemStack param1) {
-            if (!this.villager.matches(param0)) {
+            if (this.villager.isPresent() && !this.villager.get().matches(param0)) {
                 return false;
             } else {
-                return this.item.matches(param1);
+                return !this.item.isPresent() || this.item.get().matches(param1);
             }
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("item", this.item.serializeToJson());
-            var0.add("villager", this.villager.toJson(param0));
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
+            this.villager.ifPresent(param1 -> var0.add("villager", param1.toJson()));
             return var0;
         }
     }

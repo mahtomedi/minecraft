@@ -1,96 +1,51 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import javax.annotation.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 
-public class FluidPredicate {
-    public static final FluidPredicate ANY = new FluidPredicate(null, null, StatePropertiesPredicate.ANY);
-    @Nullable
-    private final TagKey<Fluid> tag;
-    @Nullable
-    private final Fluid fluid;
-    private final StatePropertiesPredicate properties;
+public record FluidPredicate(Optional<TagKey<Fluid>> tag, Optional<Holder<Fluid>> fluid, Optional<StatePropertiesPredicate> properties) {
+    public static final Codec<FluidPredicate> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(TagKey.codec(Registries.FLUID), "tag").forGetter(FluidPredicate::tag),
+                    ExtraCodecs.strictOptionalField(BuiltInRegistries.FLUID.holderByNameCodec(), "fluid").forGetter(FluidPredicate::fluid),
+                    ExtraCodecs.strictOptionalField(StatePropertiesPredicate.CODEC, "state").forGetter(FluidPredicate::properties)
+                )
+                .apply(param0, FluidPredicate::new)
+    );
 
-    public FluidPredicate(@Nullable TagKey<Fluid> param0, @Nullable Fluid param1, StatePropertiesPredicate param2) {
-        this.tag = param0;
-        this.fluid = param1;
-        this.properties = param2;
+    static Optional<FluidPredicate> of(Optional<TagKey<Fluid>> param0, Optional<Holder<Fluid>> param1, Optional<StatePropertiesPredicate> param2) {
+        return param0.isEmpty() && param1.isEmpty() && param2.isEmpty() ? Optional.empty() : Optional.of(new FluidPredicate(param0, param1, param2));
     }
 
     public boolean matches(ServerLevel param0, BlockPos param1) {
-        if (this == ANY) {
-            return true;
-        } else if (!param0.isLoaded(param1)) {
+        if (!param0.isLoaded(param1)) {
             return false;
         } else {
             FluidState var0 = param0.getFluidState(param1);
-            if (this.tag != null && !var0.is(this.tag)) {
+            if (this.tag.isPresent() && !var0.is(this.tag.get())) {
                 return false;
-            } else if (this.fluid != null && !var0.is(this.fluid)) {
+            } else if (this.fluid.isPresent() && !var0.is(this.fluid.get().value())) {
                 return false;
             } else {
-                return this.properties.matches(var0);
+                return !this.properties.isPresent() || this.properties.get().matches(var0);
             }
-        }
-    }
-
-    public static FluidPredicate fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "fluid");
-            Fluid var1 = null;
-            if (var0.has("fluid")) {
-                ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(var0, "fluid"));
-                var1 = BuiltInRegistries.FLUID.get(var2);
-            }
-
-            TagKey<Fluid> var3 = null;
-            if (var0.has("tag")) {
-                ResourceLocation var4 = new ResourceLocation(GsonHelper.getAsString(var0, "tag"));
-                var3 = TagKey.create(Registries.FLUID, var4);
-            }
-
-            StatePropertiesPredicate var5 = StatePropertiesPredicate.fromJson(var0.get("state"));
-            return new FluidPredicate(var3, var1, var5);
-        } else {
-            return ANY;
-        }
-    }
-
-    public JsonElement serializeToJson() {
-        if (this == ANY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
-            if (this.fluid != null) {
-                var0.addProperty("fluid", BuiltInRegistries.FLUID.getKey(this.fluid).toString());
-            }
-
-            if (this.tag != null) {
-                var0.addProperty("tag", this.tag.location().toString());
-            }
-
-            var0.add("state", this.properties.serializeToJson());
-            return var0;
         }
     }
 
     public static class Builder {
-        @Nullable
-        private Fluid fluid;
-        @Nullable
-        private TagKey<Fluid> fluids;
-        private StatePropertiesPredicate properties = StatePropertiesPredicate.ANY;
+        private Optional<Holder<Fluid>> fluid = Optional.empty();
+        private Optional<TagKey<Fluid>> fluids = Optional.empty();
+        private Optional<StatePropertiesPredicate> properties = Optional.empty();
 
         private Builder() {
         }
@@ -100,22 +55,22 @@ public class FluidPredicate {
         }
 
         public FluidPredicate.Builder of(Fluid param0) {
-            this.fluid = param0;
+            this.fluid = Optional.of(param0.builtInRegistryHolder());
             return this;
         }
 
         public FluidPredicate.Builder of(TagKey<Fluid> param0) {
-            this.fluids = param0;
+            this.fluids = Optional.of(param0);
             return this;
         }
 
         public FluidPredicate.Builder setProperties(StatePropertiesPredicate param0) {
-            this.properties = param0;
+            this.properties = Optional.of(param0);
             return this;
         }
 
-        public FluidPredicate build() {
-            return new FluidPredicate(this.fluids, this.fluid, this.properties);
+        public Optional<FluidPredicate> build() {
+            return FluidPredicate.of(this.fluids, this.fluid, this.properties);
         }
     }
 }

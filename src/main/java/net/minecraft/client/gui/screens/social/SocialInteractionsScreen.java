@@ -113,7 +113,7 @@ public class SocialInteractionsScreen extends Screen {
             Button.builder(TAB_BLOCKED, param0 -> this.showPage(SocialInteractionsScreen.Page.BLOCKED)).bounds(var2 - var0 + 1, 45, var0, 20).build()
         );
         String var6 = this.searchBox != null ? this.searchBox.getValue() : "";
-        this.searchBox = new EditBox(this.font, this.marginX() + 29, 75, 198, 13, SEARCH_HINT) {
+        this.searchBox = new EditBox(this.font, this.marginX() + 28, 74, 200, 15, SEARCH_HINT) {
             @Override
             protected MutableComponent createNarrationMessage() {
                 return !SocialInteractionsScreen.this.searchBox.getValue().isEmpty() && SocialInteractionsScreen.this.socialInteractionsPlayerList.isEmpty()

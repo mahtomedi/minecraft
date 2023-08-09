@@ -60,11 +60,11 @@ public class ClientboundMapItemDataPacket implements Packet<ClientGamePacketList
         param0.writeByte(this.scale);
         param0.writeBoolean(this.locked);
         param0.writeNullable(this.decorations, (param0x, param1) -> param0x.writeCollection(param1, (param0xx, param1x) -> {
-                param0xx.writeEnum(param1x.getType());
-                param0xx.writeByte(param1x.getX());
-                param0xx.writeByte(param1x.getY());
-                param0xx.writeByte(param1x.getRot() & 15);
-                param0xx.writeNullable(param1x.getName(), FriendlyByteBuf::writeComponent);
+                param0xx.writeEnum(param1x.type());
+                param0xx.writeByte(param1x.x());
+                param0xx.writeByte(param1x.y());
+                param0xx.writeByte(param1x.rot() & 15);
+                param0xx.writeNullable(param1x.name(), FriendlyByteBuf::writeComponent);
             }));
         if (this.colorPatch != null) {
             param0.writeByte(this.colorPatch.width);

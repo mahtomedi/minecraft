@@ -1,11 +1,9 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -13,14 +11,14 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
-public class LootItemRandomChanceWithLootingCondition implements LootItemCondition {
-    final float percent;
-    final float lootingMultiplier;
-
-    LootItemRandomChanceWithLootingCondition(float param0, float param1) {
-        this.percent = param0;
-        this.lootingMultiplier = param1;
-    }
+public record LootItemRandomChanceWithLootingCondition(float percent, float lootingMultiplier) implements LootItemCondition {
+    public static final Codec<LootItemRandomChanceWithLootingCondition> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.FLOAT.fieldOf("chance").forGetter(LootItemRandomChanceWithLootingCondition::percent),
+                    Codec.FLOAT.fieldOf("looting_multiplier").forGetter(LootItemRandomChanceWithLootingCondition::lootingMultiplier)
+                )
+                .apply(param0, LootItemRandomChanceWithLootingCondition::new)
+    );
 
     @Override
     public LootItemConditionType getType() {
@@ -44,16 +42,5 @@ public class LootItemRandomChanceWithLootingCondition implements LootItemConditi
 
     public static LootItemCondition.Builder randomChanceAndLootingBoost(float param0, float param1) {
         return () -> new LootItemRandomChanceWithLootingCondition(param0, param1);
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<LootItemRandomChanceWithLootingCondition> {
-        public void serialize(JsonObject param0, LootItemRandomChanceWithLootingCondition param1, JsonSerializationContext param2) {
-            param0.addProperty("chance", param1.percent);
-            param0.addProperty("looting_multiplier", param1.lootingMultiplier);
-        }
-
-        public LootItemRandomChanceWithLootingCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            return new LootItemRandomChanceWithLootingCondition(GsonHelper.getAsFloat(param0, "chance"), GsonHelper.getAsFloat(param0, "looting_multiplier"));
-        }
     }
 }

@@ -1,23 +1,21 @@
 package net.minecraft.world.level.storage.loot.providers.number;
 
 import com.google.common.collect.Sets;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
-public class UniformGenerator implements NumberProvider {
-    final NumberProvider min;
-    final NumberProvider max;
-
-    UniformGenerator(NumberProvider param0, NumberProvider param1) {
-        this.min = param0;
-        this.max = param1;
-    }
+public record UniformGenerator(NumberProvider min, NumberProvider max) implements NumberProvider {
+    public static final Codec<UniformGenerator> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    NumberProviders.CODEC.fieldOf("min").forGetter(UniformGenerator::min),
+                    NumberProviders.CODEC.fieldOf("max").forGetter(UniformGenerator::max)
+                )
+                .apply(param0, UniformGenerator::new)
+    );
 
     @Override
     public LootNumberProviderType getType() {
@@ -41,18 +39,5 @@ public class UniformGenerator implements NumberProvider {
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
         return Sets.union(this.min.getReferencedContextParams(), this.max.getReferencedContextParams());
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<UniformGenerator> {
-        public UniformGenerator deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            NumberProvider var0 = GsonHelper.getAsObject(param0, "min", param1, NumberProvider.class);
-            NumberProvider var1 = GsonHelper.getAsObject(param0, "max", param1, NumberProvider.class);
-            return new UniformGenerator(var0, var1);
-        }
-
-        public void serialize(JsonObject param0, UniformGenerator param1, JsonSerializationContext param2) {
-            param0.add("min", param2.serialize(param1.min));
-            param0.add("max", param2.serialize(param1.max));
-        }
     }
 }

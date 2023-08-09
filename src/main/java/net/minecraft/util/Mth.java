@@ -89,6 +89,10 @@ public class Mth {
         return Math.min(Math.max(param0, param1), param2);
     }
 
+    public static long clamp(long param0, long param1, long param2) {
+        return Math.min(Math.max(param0, param1), param2);
+    }
+
     public static float clamp(float param0, float param1, float param2) {
         return param0 < param1 ? param1 : Math.min(param0, param2);
     }
@@ -484,6 +488,11 @@ public class Mth {
 
     public static int lerpInt(float param0, int param1, int param2) {
         return param1 + floor(param0 * (float)(param2 - param1));
+    }
+
+    public static int lerpDiscrete(float param0, int param1, int param2) {
+        int var0 = param2 - param1;
+        return param1 + floor(param0 * (float)(var0 - 1)) + (param0 > 0.0F ? 1 : 0);
     }
 
     public static float lerp(float param0, float param1, float param2) {

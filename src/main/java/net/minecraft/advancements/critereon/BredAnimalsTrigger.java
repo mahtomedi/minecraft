@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,10 +17,10 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
         return ID;
     }
 
-    public BredAnimalsTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "parent", param2);
-        ContextAwarePredicate var1 = EntityPredicate.fromJson(param0, "partner", param2);
-        ContextAwarePredicate var2 = EntityPredicate.fromJson(param0, "child", param2);
+    public BredAnimalsTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "parent", param2);
+        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "partner", param2);
+        Optional<ContextAwarePredicate> var2 = EntityPredicate.fromJson(param0, "child", param2);
         return new BredAnimalsTrigger.TriggerInstance(param1, var0, var1, var2);
     }
 
@@ -31,11 +32,16 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ContextAwarePredicate parent;
-        private final ContextAwarePredicate partner;
-        private final ContextAwarePredicate child;
+        private final Optional<ContextAwarePredicate> parent;
+        private final Optional<ContextAwarePredicate> partner;
+        private final Optional<ContextAwarePredicate> child;
 
-        public TriggerInstance(ContextAwarePredicate param0, ContextAwarePredicate param1, ContextAwarePredicate param2, ContextAwarePredicate param3) {
+        public TriggerInstance(
+            Optional<ContextAwarePredicate> param0,
+            Optional<ContextAwarePredicate> param1,
+            Optional<ContextAwarePredicate> param2,
+            Optional<ContextAwarePredicate> param3
+        ) {
             super(BredAnimalsTrigger.ID, param0);
             this.parent = param1;
             this.partner = param2;
@@ -43,37 +49,39 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
         }
 
         public static BredAnimalsTrigger.TriggerInstance bredAnimals() {
-            return new BredAnimalsTrigger.TriggerInstance(
-                ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, ContextAwarePredicate.ANY
-            );
+            return new BredAnimalsTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         public static BredAnimalsTrigger.TriggerInstance bredAnimals(EntityPredicate.Builder param0) {
-            return new BredAnimalsTrigger.TriggerInstance(
-                ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, ContextAwarePredicate.ANY, EntityPredicate.wrap(param0.build())
-            );
+            return new BredAnimalsTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty(), EntityPredicate.wrap(param0));
         }
 
-        public static BredAnimalsTrigger.TriggerInstance bredAnimals(EntityPredicate param0, EntityPredicate param1, EntityPredicate param2) {
+        public static BredAnimalsTrigger.TriggerInstance bredAnimals(
+            Optional<EntityPredicate> param0, Optional<EntityPredicate> param1, Optional<EntityPredicate> param2
+        ) {
             return new BredAnimalsTrigger.TriggerInstance(
-                ContextAwarePredicate.ANY, EntityPredicate.wrap(param0), EntityPredicate.wrap(param1), EntityPredicate.wrap(param2)
+                Optional.empty(), EntityPredicate.wrap(param0), EntityPredicate.wrap(param1), EntityPredicate.wrap(param2)
             );
         }
 
         public boolean matches(LootContext param0, LootContext param1, @Nullable LootContext param2) {
-            if (this.child == ContextAwarePredicate.ANY || param2 != null && this.child.matches(param2)) {
-                return this.parent.matches(param0) && this.partner.matches(param1) || this.parent.matches(param1) && this.partner.matches(param0);
+            if (!this.child.isPresent() || param2 != null && this.child.get().matches(param2)) {
+                return matches(this.parent, param0) && matches(this.partner, param1) || matches(this.parent, param1) && matches(this.partner, param0);
             } else {
                 return false;
             }
         }
 
+        private static boolean matches(Optional<ContextAwarePredicate> param0, LootContext param1) {
+            return param0.isEmpty() || param0.get().matches(param1);
+        }
+
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("parent", this.parent.toJson(param0));
-            var0.add("partner", this.partner.toJson(param0));
-            var0.add("child", this.child.toJson(param0));
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.parent.ifPresent(param1 -> var0.add("parent", param1.toJson()));
+            this.partner.ifPresent(param1 -> var0.add("partner", param1.toJson()));
+            this.child.ifPresent(param1 -> var0.add("child", param1.toJson()));
             return var0;
         }
     }

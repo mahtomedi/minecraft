@@ -189,7 +189,7 @@ public class SectionStorage<R> implements AutoCloseable {
             long var2 = getKey(param0, var1);
             this.dirty.remove(var2);
             Optional<R> var3 = this.storage.get(var2);
-            if (var3 != null && var3.isPresent()) {
+            if (var3 != null && !var3.isEmpty()) {
                 DataResult<T> var4 = this.codec.apply(() -> this.setDirty(var2)).encodeStart(param1, var3.get());
                 String var5 = Integer.toString(var1);
                 var4.resultOrPartial(LOGGER::error).ifPresent(param3 -> var0.put(param1.createString(var5), param3));
@@ -218,7 +218,7 @@ public class SectionStorage<R> implements AutoCloseable {
 
     protected void setDirty(long param0) {
         Optional<R> var0 = this.storage.get(param0);
-        if (var0 != null && var0.isPresent()) {
+        if (var0 != null && !var0.isEmpty()) {
             this.dirty.add(param0);
         } else {
             LOGGER.warn("No data for position: {}", SectionPos.of(param0));

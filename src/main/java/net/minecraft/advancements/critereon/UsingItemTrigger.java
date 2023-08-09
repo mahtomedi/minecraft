@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -13,8 +14,8 @@ public class UsingItemTrigger extends SimpleCriterionTrigger<UsingItemTrigger.Tr
         return ID;
     }
 
-    public UsingItemTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ItemPredicate var0 = ItemPredicate.fromJson(param0.get("item"));
+    public UsingItemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         return new UsingItemTrigger.TriggerInstance(param1, var0);
     }
 
@@ -23,25 +24,25 @@ public class UsingItemTrigger extends SimpleCriterionTrigger<UsingItemTrigger.Tr
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ItemPredicate item;
+        private final Optional<ItemPredicate> item;
 
-        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1) {
             super(UsingItemTrigger.ID, param0);
             this.item = param1;
         }
 
         public static UsingItemTrigger.TriggerInstance lookingAt(EntityPredicate.Builder param0, ItemPredicate.Builder param1) {
-            return new UsingItemTrigger.TriggerInstance(EntityPredicate.wrap(param0.build()), param1.build());
+            return new UsingItemTrigger.TriggerInstance(EntityPredicate.wrap(param0), param1.build());
         }
 
         public boolean matches(ItemStack param0) {
-            return this.item.matches(param0);
+            return !this.item.isPresent() || this.item.get().matches(param0);
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("item", this.item.serializeToJson());
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
             return var0;
         }
     }

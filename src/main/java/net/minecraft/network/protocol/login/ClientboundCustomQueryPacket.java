@@ -13,7 +13,7 @@ public record ClientboundCustomQueryPacket(int transactionId, CustomQueryPayload
         this(param0.readVarInt(), readPayload(param0.readResourceLocation(), param0));
     }
 
-    private static DiscardedQueryPayload readPayload(ResourceLocation param0, FriendlyByteBuf param1) {
+    private static CustomQueryPayload readPayload(ResourceLocation param0, FriendlyByteBuf param1) {
         return readUnknownPayload(param0, param1);
     }
 

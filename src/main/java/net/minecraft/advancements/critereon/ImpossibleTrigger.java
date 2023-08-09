@@ -37,7 +37,7 @@ public class ImpossibleTrigger implements CriterionTrigger<ImpossibleTrigger.Tri
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
+        public JsonObject serializeToJson() {
             return new JsonObject();
         }
     }

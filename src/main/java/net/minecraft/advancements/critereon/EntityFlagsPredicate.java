@@ -1,133 +1,90 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import javax.annotation.Nullable;
-import net.minecraft.util.GsonHelper;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-public class EntityFlagsPredicate {
-    public static final EntityFlagsPredicate ANY = new EntityFlagsPredicate.Builder().build();
-    @Nullable
-    private final Boolean isOnFire;
-    @Nullable
-    private final Boolean isCrouching;
-    @Nullable
-    private final Boolean isSprinting;
-    @Nullable
-    private final Boolean isSwimming;
-    @Nullable
-    private final Boolean isBaby;
+public record EntityFlagsPredicate(
+    Optional<Boolean> isOnFire, Optional<Boolean> isCrouching, Optional<Boolean> isSprinting, Optional<Boolean> isSwimming, Optional<Boolean> isBaby
+) {
+    public static final Codec<EntityFlagsPredicate> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "is_on_fire").forGetter(EntityFlagsPredicate::isOnFire),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "is_sneaking").forGetter(EntityFlagsPredicate::isCrouching),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "is_sprinting").forGetter(EntityFlagsPredicate::isSprinting),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "is_swimming").forGetter(EntityFlagsPredicate::isSwimming),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "is_baby").forGetter(EntityFlagsPredicate::isBaby)
+                )
+                .apply(param0, EntityFlagsPredicate::new)
+    );
 
-    public EntityFlagsPredicate(
-        @Nullable Boolean param0, @Nullable Boolean param1, @Nullable Boolean param2, @Nullable Boolean param3, @Nullable Boolean param4
+    static Optional<EntityFlagsPredicate> of(
+        Optional<Boolean> param0, Optional<Boolean> param1, Optional<Boolean> param2, Optional<Boolean> param3, Optional<Boolean> param4
     ) {
-        this.isOnFire = param0;
-        this.isCrouching = param1;
-        this.isSprinting = param2;
-        this.isSwimming = param3;
-        this.isBaby = param4;
+        return param0.isEmpty() && param1.isEmpty() && param2.isEmpty() && param3.isEmpty() && param4.isEmpty()
+            ? Optional.empty()
+            : Optional.of(new EntityFlagsPredicate(param0, param1, param2, param3, param4));
     }
 
     public boolean matches(Entity param0) {
-        if (this.isOnFire != null && param0.isOnFire() != this.isOnFire) {
+        if (this.isOnFire.isPresent() && param0.isOnFire() != this.isOnFire.get()) {
             return false;
-        } else if (this.isCrouching != null && param0.isCrouching() != this.isCrouching) {
+        } else if (this.isCrouching.isPresent() && param0.isCrouching() != this.isCrouching.get()) {
             return false;
-        } else if (this.isSprinting != null && param0.isSprinting() != this.isSprinting) {
+        } else if (this.isSprinting.isPresent() && param0.isSprinting() != this.isSprinting.get()) {
             return false;
-        } else if (this.isSwimming != null && param0.isSwimming() != this.isSwimming) {
+        } else if (this.isSwimming.isPresent() && param0.isSwimming() != this.isSwimming.get()) {
             return false;
         } else {
-            return this.isBaby == null || !(param0 instanceof LivingEntity) || ((LivingEntity)param0).isBaby() == this.isBaby;
-        }
-    }
+            if (this.isBaby.isPresent() && param0 instanceof LivingEntity var0 && var0.isBaby() != this.isBaby.get()) {
+                return false;
+            }
 
-    @Nullable
-    private static Boolean getOptionalBoolean(JsonObject param0, String param1) {
-        return param0.has(param1) ? GsonHelper.getAsBoolean(param0, param1) : null;
-    }
-
-    public static EntityFlagsPredicate fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "entity flags");
-            Boolean var1 = getOptionalBoolean(var0, "is_on_fire");
-            Boolean var2 = getOptionalBoolean(var0, "is_sneaking");
-            Boolean var3 = getOptionalBoolean(var0, "is_sprinting");
-            Boolean var4 = getOptionalBoolean(var0, "is_swimming");
-            Boolean var5 = getOptionalBoolean(var0, "is_baby");
-            return new EntityFlagsPredicate(var1, var2, var3, var4, var5);
-        } else {
-            return ANY;
-        }
-    }
-
-    private void addOptionalBoolean(JsonObject param0, String param1, @Nullable Boolean param2) {
-        if (param2 != null) {
-            param0.addProperty(param1, param2);
-        }
-
-    }
-
-    public JsonElement serializeToJson() {
-        if (this == ANY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
-            this.addOptionalBoolean(var0, "is_on_fire", this.isOnFire);
-            this.addOptionalBoolean(var0, "is_sneaking", this.isCrouching);
-            this.addOptionalBoolean(var0, "is_sprinting", this.isSprinting);
-            this.addOptionalBoolean(var0, "is_swimming", this.isSwimming);
-            this.addOptionalBoolean(var0, "is_baby", this.isBaby);
-            return var0;
+            return true;
         }
     }
 
     public static class Builder {
-        @Nullable
-        private Boolean isOnFire;
-        @Nullable
-        private Boolean isCrouching;
-        @Nullable
-        private Boolean isSprinting;
-        @Nullable
-        private Boolean isSwimming;
-        @Nullable
-        private Boolean isBaby;
+        private Optional<Boolean> isOnFire = Optional.empty();
+        private Optional<Boolean> isCrouching = Optional.empty();
+        private Optional<Boolean> isSprinting = Optional.empty();
+        private Optional<Boolean> isSwimming = Optional.empty();
+        private Optional<Boolean> isBaby = Optional.empty();
 
         public static EntityFlagsPredicate.Builder flags() {
             return new EntityFlagsPredicate.Builder();
         }
 
-        public EntityFlagsPredicate.Builder setOnFire(@Nullable Boolean param0) {
-            this.isOnFire = param0;
+        public EntityFlagsPredicate.Builder setOnFire(Boolean param0) {
+            this.isOnFire = Optional.of(param0);
             return this;
         }
 
-        public EntityFlagsPredicate.Builder setCrouching(@Nullable Boolean param0) {
-            this.isCrouching = param0;
+        public EntityFlagsPredicate.Builder setCrouching(Boolean param0) {
+            this.isCrouching = Optional.of(param0);
             return this;
         }
 
-        public EntityFlagsPredicate.Builder setSprinting(@Nullable Boolean param0) {
-            this.isSprinting = param0;
+        public EntityFlagsPredicate.Builder setSprinting(Boolean param0) {
+            this.isSprinting = Optional.of(param0);
             return this;
         }
 
-        public EntityFlagsPredicate.Builder setSwimming(@Nullable Boolean param0) {
-            this.isSwimming = param0;
+        public EntityFlagsPredicate.Builder setSwimming(Boolean param0) {
+            this.isSwimming = Optional.of(param0);
             return this;
         }
 
-        public EntityFlagsPredicate.Builder setIsBaby(@Nullable Boolean param0) {
-            this.isBaby = param0;
+        public EntityFlagsPredicate.Builder setIsBaby(Boolean param0) {
+            this.isBaby = Optional.of(param0);
             return this;
         }
 
-        public EntityFlagsPredicate build() {
-            return new EntityFlagsPredicate(this.isOnFire, this.isCrouching, this.isSprinting, this.isSwimming, this.isBaby);
+        public Optional<EntityFlagsPredicate> build() {
+            return EntityFlagsPredicate.of(this.isOnFire, this.isCrouching, this.isSprinting, this.isSwimming, this.isBaby);
         }
     }
 }

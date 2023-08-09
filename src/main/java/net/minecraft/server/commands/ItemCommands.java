@@ -12,6 +12,7 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -470,7 +471,7 @@ public class ItemCommands {
             .withParameter(LootContextParams.ORIGIN, param0.getPosition())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity())
             .create(LootContextParamSets.COMMAND);
-        LootContext var2 = new LootContext.Builder(var1).create(null);
+        LootContext var2 = new LootContext.Builder(var1).create(Optional.empty());
         var2.pushVisitedElement(LootContext.createVisitedEntry(param1));
         return param1.apply(param2, var2);
     }

@@ -22,10 +22,8 @@ public record ProfilePublicKey(ProfilePublicKey.Data data) {
     public static final Duration EXPIRY_GRACE_PERIOD = Duration.ofHours(8L);
     public static final Codec<ProfilePublicKey> TRUSTED_CODEC = ProfilePublicKey.Data.CODEC.xmap(ProfilePublicKey::new, ProfilePublicKey::data);
 
-    public static ProfilePublicKey createValidated(SignatureValidator param0, UUID param1, ProfilePublicKey.Data param2, Duration param3) throws ProfilePublicKey.ValidationException {
-        if (param2.hasExpired(param3)) {
-            throw new ProfilePublicKey.ValidationException(EXPIRED_PROFILE_PUBLIC_KEY);
-        } else if (!param2.validateSignature(param0, param1)) {
+    public static ProfilePublicKey createValidated(SignatureValidator param0, UUID param1, ProfilePublicKey.Data param2) throws ProfilePublicKey.ValidationException {
+        if (!param2.validateSignature(param0, param1)) {
             throw new ProfilePublicKey.ValidationException(INVALID_SIGNATURE);
         } else {
             return new ProfilePublicKey(param2);

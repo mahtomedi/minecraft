@@ -1760,7 +1760,7 @@ public class CreativeModeTabs {
 
         for(SuspiciousEffectHolder var2 : var0) {
             ItemStack var3 = new ItemStack(Items.SUSPICIOUS_STEW);
-            SuspiciousStewItem.saveMobEffect(var3, var2.getSuspiciousEffect(), var2.getEffectDuration());
+            SuspiciousStewItem.saveMobEffects(var3, var2.getSuspiciousEffects());
             var1.add(var3);
         }
 

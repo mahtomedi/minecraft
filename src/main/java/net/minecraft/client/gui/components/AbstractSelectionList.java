@@ -21,6 +21,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,6 +31,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     extends AbstractContainerEventHandler
     implements Renderable,
     NarratableEntry {
+    protected static final int SCROLLBAR_WIDTH = 6;
+    private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("widget/scroller");
     protected final Minecraft minecraft;
     protected final int itemHeight;
     private final List<E> children = new AbstractSelectionList.TrackedList();
@@ -193,12 +196,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        int var0 = this.getScrollbarPosition();
-        int var1 = var0 + 6;
         this.hovered = this.isMouseOver((double)param1, (double)param2) ? this.getEntryAtPosition((double)param1, (double)param2) : null;
         if (this.renderBackground) {
             param0.setColor(0.125F, 0.125F, 0.125F, 1.0F);
-            int var2 = 32;
+            int var0 = 32;
             param0.blit(
                 Screen.BACKGROUND_LOCATION,
                 this.x0,
@@ -211,32 +212,32 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 32
             );
             param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-            int var3 = 4;
+            int var1 = 4;
             param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
             param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
         }
 
-        int var4 = this.getRowLeft();
-        int var5 = this.y0 + 4 - (int)this.getScrollAmount();
+        int var2 = this.getRowLeft();
+        int var3 = this.y0 + 4 - (int)this.getScrollAmount();
         this.enableScissor(param0);
         if (this.renderHeader) {
-            this.renderHeader(param0, var4, var5);
+            this.renderHeader(param0, var2, var3);
         }
 
         this.renderList(param0, param1, param2, param3);
         param0.disableScissor();
-        int var6 = this.getMaxScroll();
-        if (var6 > 0) {
-            int var7 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            var7 = Mth.clamp(var7, 32, this.y1 - this.y0 - 8);
-            int var8 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var7) / var6 + this.y0;
-            if (var8 < this.y0) {
-                var8 = this.y0;
+        int var4 = this.getMaxScroll();
+        if (var4 > 0) {
+            int var5 = this.getScrollbarPosition();
+            int var6 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
+            var6 = Mth.clamp(var6, 32, this.y1 - this.y0 - 8);
+            int var7 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var6) / var4 + this.y0;
+            if (var7 < this.y0) {
+                var7 = this.y0;
             }
 
-            param0.fill(var0, this.y0, var1, this.y1, -16777216);
-            param0.fill(var0, var8, var1, var8 + var7, -8355712);
-            param0.fill(var0, var8, var1 - 1, var8 + var7 - 1, -4144960);
+            param0.fill(var5, this.y0, var5 + 6, this.y1, -16777216);
+            param0.blitSprite(SCROLLER_SPRITE, var5, var7, 6, var6);
         }
 
         this.renderDecorations(param0, param1, param2);

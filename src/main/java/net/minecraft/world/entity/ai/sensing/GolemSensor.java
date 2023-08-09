@@ -33,7 +33,7 @@ public class GolemSensor extends Sensor<LivingEntity> {
 
     public static void checkForNearbyGolem(LivingEntity param0) {
         Optional<List<LivingEntity>> var0 = param0.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES);
-        if (var0.isPresent()) {
+        if (!var0.isEmpty()) {
             boolean var1 = var0.get().stream().anyMatch(param0x -> param0x.getType().equals(EntityType.IRON_GOLEM));
             if (var1) {
                 golemDetected(param0);

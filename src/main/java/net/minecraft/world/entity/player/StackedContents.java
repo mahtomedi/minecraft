@@ -143,10 +143,9 @@ public class StackedContents {
 
                 this.data.clear(0, this.ingredientCount + this.itemCount + this.ingredientCount);
                 int var5 = 0;
-                List<Ingredient> var6 = this.recipe.getIngredients();
 
-                for(int var7 = 0; var7 < var6.size(); ++var7) {
-                    if (var4 && var6.get(var7).isEmpty()) {
+                for(Ingredient var7 : this.recipe.getIngredients()) {
+                    if (var4 && var7.isEmpty()) {
                         param1.add(0);
                     } else {
                         for(int var8 = 0; var8 < this.itemCount; ++var8) {

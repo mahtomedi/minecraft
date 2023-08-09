@@ -81,18 +81,7 @@ public abstract class RenderType extends RenderStateShard {
         translucentState(RENDERTYPE_TRANSLUCENT_NO_CRUMBLING_SHADER)
     );
     private static final Function<ResourceLocation, RenderType> ARMOR_CUTOUT_NO_CULL = Util.memoize(
-        param0 -> {
-            RenderType.CompositeState var0 = RenderType.CompositeState.builder()
-                .setShaderState(RENDERTYPE_ARMOR_CUTOUT_NO_CULL_SHADER)
-                .setTextureState(new RenderStateShard.TextureStateShard(param0, false, false))
-                .setTransparencyState(NO_TRANSPARENCY)
-                .setCullState(NO_CULL)
-                .setLightmapState(LIGHTMAP)
-                .setOverlayState(OVERLAY)
-                .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-                .createCompositeState(true);
-            return create("armor_cutout_no_cull", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, false, var0);
-        }
+        param0 -> createArmorCutoutNoCull("armor_cutout_no_cull", param0, false)
     );
     private static final Function<ResourceLocation, RenderType> ENTITY_SOLID = Util.memoize(
         param0 -> {
@@ -807,8 +796,26 @@ public abstract class RenderType extends RenderStateShard {
         return TRANSLUCENT_NO_CRUMBLING;
     }
 
+    private static RenderType.CompositeRenderType createArmorCutoutNoCull(String param0, ResourceLocation param1, boolean param2) {
+        RenderType.CompositeState var0 = RenderType.CompositeState.builder()
+            .setShaderState(RENDERTYPE_ARMOR_CUTOUT_NO_CULL_SHADER)
+            .setTextureState(new RenderStateShard.TextureStateShard(param1, false, false))
+            .setTransparencyState(NO_TRANSPARENCY)
+            .setCullState(NO_CULL)
+            .setLightmapState(LIGHTMAP)
+            .setOverlayState(OVERLAY)
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .setDepthTestState(param2 ? EQUAL_DEPTH_TEST : LEQUAL_DEPTH_TEST)
+            .createCompositeState(true);
+        return create(param0, DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, false, var0);
+    }
+
     public static RenderType armorCutoutNoCull(ResourceLocation param0) {
         return ARMOR_CUTOUT_NO_CULL.apply(param0);
+    }
+
+    public static RenderType createArmorDecalCutoutNoCull(ResourceLocation param0) {
+        return createArmorCutoutNoCull("armor_decal_cutout_no_cull", param0, true);
     }
 
     public static RenderType entitySolid(ResourceLocation param0) {

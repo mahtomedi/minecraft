@@ -34,11 +34,10 @@ public class HoneyBottleItem extends Item {
         if (param0.isEmpty()) {
             return new ItemStack(Items.GLASS_BOTTLE);
         } else {
-            if (param2 instanceof Player && !((Player)param2).getAbilities().instabuild) {
-                ItemStack var1 = new ItemStack(Items.GLASS_BOTTLE);
-                Player var2 = (Player)param2;
-                if (!var2.getInventory().add(var1)) {
-                    var2.drop(var1, false);
+            if (param2 instanceof Player var1 && !var1.getAbilities().instabuild) {
+                ItemStack var2 = new ItemStack(Items.GLASS_BOTTLE);
+                if (!var1.getInventory().add(var2)) {
+                    var1.drop(var2, false);
                 }
             }
 

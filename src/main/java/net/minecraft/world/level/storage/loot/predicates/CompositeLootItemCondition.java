@@ -1,22 +1,31 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 
 public abstract class CompositeLootItemCondition implements LootItemCondition {
-    final LootItemCondition[] terms;
+    protected final List<LootItemCondition> terms;
     private final Predicate<LootContext> composedPredicate;
 
-    protected CompositeLootItemCondition(LootItemCondition[] param0, Predicate<LootContext> param1) {
+    protected CompositeLootItemCondition(List<LootItemCondition> param0, Predicate<LootContext> param1) {
         this.terms = param0;
         this.composedPredicate = param1;
+    }
+
+    protected static <T extends CompositeLootItemCondition> Codec<T> createCodec(Function<List<LootItemCondition>, T> param0) {
+        return RecordCodecBuilder.create(
+            param1 -> param1.group(LootItemConditions.CODEC.listOf().fieldOf("terms").forGetter(param0x -> param0x.terms)).apply(param1, param0)
+        );
+    }
+
+    protected static <T extends CompositeLootItemCondition> Codec<T> createInlineCodec(Function<List<LootItemCondition>, T> param0) {
+        return LootItemConditions.CODEC.listOf().xmap(param0, param0x -> param0x.terms);
     }
 
     public final boolean test(LootContext param0) {
@@ -27,16 +36,16 @@ public abstract class CompositeLootItemCondition implements LootItemCondition {
     public void validate(ValidationContext param0) {
         LootItemCondition.super.validate(param0);
 
-        for(int var0 = 0; var0 < this.terms.length; ++var0) {
-            this.terms[var0].validate(param0.forChild(".term[" + var0 + "]"));
+        for(int var0 = 0; var0 < this.terms.size(); ++var0) {
+            this.terms.get(var0).validate(param0.forChild(".term[" + var0 + "]"));
         }
 
     }
 
     public abstract static class Builder implements LootItemCondition.Builder {
-        private final List<LootItemCondition> terms = new ArrayList<>();
+        private final ImmutableList.Builder<LootItemCondition> terms = ImmutableList.builder();
 
-        public Builder(LootItemCondition.Builder... param0) {
+        protected Builder(LootItemCondition.Builder... param0) {
             for(LootItemCondition.Builder var0 : param0) {
                 this.terms.add(var0.build());
             }
@@ -49,23 +58,9 @@ public abstract class CompositeLootItemCondition implements LootItemCondition {
 
         @Override
         public LootItemCondition build() {
-            LootItemCondition[] var0 = this.terms.toArray(param0 -> new LootItemCondition[param0]);
-            return this.create(var0);
+            return this.create(this.terms.build());
         }
 
-        protected abstract LootItemCondition create(LootItemCondition[] var1);
-    }
-
-    public abstract static class Serializer<T extends CompositeLootItemCondition> implements net.minecraft.world.level.storage.loot.Serializer<T> {
-        public void serialize(JsonObject param0, CompositeLootItemCondition param1, JsonSerializationContext param2) {
-            param0.add("terms", param2.serialize(param1.terms));
-        }
-
-        public T deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            LootItemCondition[] var0 = GsonHelper.getAsObject(param0, "terms", param1, LootItemCondition[].class);
-            return this.create(var0);
-        }
-
-        protected abstract T create(LootItemCondition[] var1);
+        protected abstract LootItemCondition create(List<LootItemCondition> var1);
     }
 }

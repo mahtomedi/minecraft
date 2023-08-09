@@ -1,22 +1,32 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
 public class SetItemCountFunction extends LootItemConditionalFunction {
-    final NumberProvider value;
-    final boolean add;
+    public static final Codec<SetItemCountFunction> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(
+                    param0.group(
+                        NumberProviders.CODEC.fieldOf("count").forGetter(param0x -> param0x.value),
+                        Codec.BOOL.fieldOf("add").orElse(false).forGetter(param0x -> param0x.add)
+                    )
+                )
+                .apply(param0, SetItemCountFunction::new)
+    );
+    private final NumberProvider value;
+    private final boolean add;
 
-    SetItemCountFunction(LootItemCondition[] param0, NumberProvider param1, boolean param2) {
+    private SetItemCountFunction(List<LootItemCondition> param0, NumberProvider param1, boolean param2) {
         super(param0);
         this.value = param1;
         this.add = param2;
@@ -45,19 +55,5 @@ public class SetItemCountFunction extends LootItemConditionalFunction {
 
     public static LootItemConditionalFunction.Builder<?> setCount(NumberProvider param0, boolean param1) {
         return simpleBuilder(param2 -> new SetItemCountFunction(param2, param0, param1));
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<SetItemCountFunction> {
-        public void serialize(JsonObject param0, SetItemCountFunction param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.add("count", param2.serialize(param1.value));
-            param0.addProperty("add", param1.add);
-        }
-
-        public SetItemCountFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            NumberProvider var0 = GsonHelper.getAsObject(param0, "count", param1, NumberProvider.class);
-            boolean var1 = GsonHelper.getAsBoolean(param0, "add", false);
-            return new SetItemCountFunction(param2, var0, var1);
-        }
     }
 }

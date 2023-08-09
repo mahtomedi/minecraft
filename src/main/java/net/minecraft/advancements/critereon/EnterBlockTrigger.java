@@ -2,6 +2,7 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -18,13 +19,13 @@ public class EnterBlockTrigger extends SimpleCriterionTrigger<EnterBlockTrigger.
         return ID;
     }
 
-    public EnterBlockTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public EnterBlockTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
-        StatePropertiesPredicate var1 = StatePropertiesPredicate.fromJson(param0.get("state"));
+        Optional<StatePropertiesPredicate> var1 = StatePropertiesPredicate.fromJson(param0.get("state"));
         if (var0 != null) {
-            var1.checkState(var0.getStateDefinition(), param1x -> {
-                throw new JsonSyntaxException("Block " + var0 + " has no property " + param1x);
-            });
+            var1.ifPresent(param1x -> param1x.checkState(var0.getStateDefinition(), param1xx -> {
+                    throw new JsonSyntaxException("Block " + var0 + " has no property " + param1xx);
+                }));
         }
 
         return new EnterBlockTrigger.TriggerInstance(param1, var0, var1);
@@ -47,26 +48,26 @@ public class EnterBlockTrigger extends SimpleCriterionTrigger<EnterBlockTrigger.
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         @Nullable
         private final Block block;
-        private final StatePropertiesPredicate state;
+        private final Optional<StatePropertiesPredicate> state;
 
-        public TriggerInstance(ContextAwarePredicate param0, @Nullable Block param1, StatePropertiesPredicate param2) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Block param1, Optional<StatePropertiesPredicate> param2) {
             super(EnterBlockTrigger.ID, param0);
             this.block = param1;
             this.state = param2;
         }
 
         public static EnterBlockTrigger.TriggerInstance entersBlock(Block param0) {
-            return new EnterBlockTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, StatePropertiesPredicate.ANY);
+            return new EnterBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty());
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             if (this.block != null) {
                 var0.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.block).toString());
             }
 
-            var0.add("state", this.state.serializeToJson());
+            this.state.ifPresent(param1 -> var0.add("state", param1.serializeToJson()));
             return var0;
         }
 
@@ -74,7 +75,7 @@ public class EnterBlockTrigger extends SimpleCriterionTrigger<EnterBlockTrigger.
             if (this.block != null && !param0.is(this.block)) {
                 return false;
             } else {
-                return this.state.matches(param0);
+                return !this.state.isPresent() || this.state.get().matches(param0);
             }
         }
     }

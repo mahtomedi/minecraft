@@ -2,11 +2,9 @@ package net.minecraft.client.multiplayer;
 
 import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
@@ -14,6 +12,7 @@ import net.minecraft.client.resources.SkinManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.RemoteChatSession;
 import net.minecraft.network.chat.SignedMessageValidator;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraftforge.api.distmarker.Dist;
@@ -40,39 +39,14 @@ public class PlayerInfo {
 
     private static Supplier<PlayerSkin> createSkinLookup(GameProfile param0) {
         Minecraft var0 = Minecraft.getInstance();
-        CompletableFuture<PlayerSkin> var1 = loadSkin(param0, var0.getSkinManager(), var0.getMinecraftSessionService());
-        boolean var2 = !var0.isLocalPlayer(param0.getId());
-        PlayerSkin var3 = DefaultPlayerSkin.get(param0);
+        SkinManager var1 = var0.getSkinManager();
+        CompletableFuture<PlayerSkin> var2 = var1.getOrLoad(param0);
+        boolean var3 = !var0.isLocalPlayer(param0.getId());
+        PlayerSkin var4 = DefaultPlayerSkin.get(param0);
         return () -> {
-            PlayerSkin var0x = var1.getNow(var3);
-            return var2 && !var0x.secure() ? var3 : var0x;
+            PlayerSkin var0x = var2.getNow(var4);
+            return var3 && !var0x.secure() ? var4 : var0x;
         };
-    }
-
-    private static CompletableFuture<PlayerSkin> loadSkin(GameProfile param0, SkinManager param1, MinecraftSessionService param2) {
-        CompletableFuture<GameProfile> var0;
-        if (param1.hasSecureTextureData(param0)) {
-            var0 = CompletableFuture.completedFuture(param0);
-        } else {
-            var0 = CompletableFuture.supplyAsync(() -> fillProfileProperties(param0, param2), Util.ioPool());
-        }
-
-        return var0.thenCompose(param1::getOrLoad);
-    }
-
-    private static GameProfile fillProfileProperties(GameProfile param0, MinecraftSessionService param1) {
-        Minecraft var0 = Minecraft.getInstance();
-        param0.getProperties().clear();
-        if (var0.isLocalPlayer(param0.getId())) {
-            param0.getProperties().putAll(var0.getProfileProperties());
-        } else {
-            GameProfile var1 = param1.fetchProfile(param0.getId(), true);
-            if (var1 != null) {
-                var1.getProperties().putAll(var1.getProperties());
-            }
-        }
-
-        return param0;
     }
 
     public GameProfile getProfile() {
@@ -94,7 +68,7 @@ public class PlayerInfo {
 
     protected void setChatSession(RemoteChatSession param0) {
         this.chatSession = param0;
-        this.messageValidator = param0.createMessageValidator();
+        this.messageValidator = param0.createMessageValidator(ProfilePublicKey.EXPIRY_GRACE_PERIOD);
     }
 
     protected void clearChatSession(boolean param0) {

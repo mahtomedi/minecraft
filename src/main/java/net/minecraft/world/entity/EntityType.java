@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -943,6 +944,10 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
 
     public boolean is(TagKey<EntityType<?>> param0) {
         return this.builtInRegistryHolder.is(param0);
+    }
+
+    public boolean is(HolderSet<EntityType<?>> param0) {
+        return param0.contains(this.builtInRegistryHolder);
     }
 
     @Nullable

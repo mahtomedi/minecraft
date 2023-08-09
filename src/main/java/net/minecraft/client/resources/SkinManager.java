@@ -94,11 +94,6 @@ public class SkinManager {
         return CompletableFuture.allOf(var1, var7, var9).thenApply(param5 -> new PlayerSkin(var1.join(), var7.join(), var9.join(), var2, param1.secure()));
     }
 
-    public boolean hasSecureTextureData(GameProfile param0) {
-        Property var0 = getTextureProperty(param0);
-        return var0 != null && var0.hasSignature();
-    }
-
     @Nullable
     static Property getTextureProperty(GameProfile param0) {
         return Iterables.getFirst(param0.getProperties().get("textures"), null);

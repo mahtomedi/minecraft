@@ -1,24 +1,23 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
 import com.google.common.collect.Sets;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
-public class ValueCheckCondition implements LootItemCondition {
-    final NumberProvider provider;
-    final IntRange range;
-
-    ValueCheckCondition(NumberProvider param0, IntRange param1) {
-        this.provider = param0;
-        this.range = param1;
-    }
+public record ValueCheckCondition(NumberProvider provider, IntRange range) implements LootItemCondition {
+    public static final Codec<ValueCheckCondition> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    NumberProviders.CODEC.fieldOf("value").forGetter(ValueCheckCondition::provider),
+                    IntRange.CODEC.fieldOf("range").forGetter(ValueCheckCondition::range)
+                )
+                .apply(param0, ValueCheckCondition::new)
+    );
 
     @Override
     public LootItemConditionType getType() {
@@ -36,18 +35,5 @@ public class ValueCheckCondition implements LootItemCondition {
 
     public static LootItemCondition.Builder hasValue(NumberProvider param0, IntRange param1) {
         return () -> new ValueCheckCondition(param0, param1);
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ValueCheckCondition> {
-        public void serialize(JsonObject param0, ValueCheckCondition param1, JsonSerializationContext param2) {
-            param0.add("value", param2.serialize(param1.provider));
-            param0.add("range", param2.serialize(param1.range));
-        }
-
-        public ValueCheckCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            NumberProvider var0 = GsonHelper.getAsObject(param0, "value", param1, NumberProvider.class);
-            IntRange var1 = GsonHelper.getAsObject(param0, "range", param1, IntRange.class);
-            return new ValueCheckCondition(var0, var1);
-        }
     }
 }

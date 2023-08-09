@@ -642,7 +642,7 @@ public abstract class BlockBehaviour implements FeatureElement {
         }
 
         public boolean hasOffsetFunction() {
-            return !this.offsetFunction.isEmpty();
+            return this.offsetFunction.isPresent();
         }
 
         public boolean triggerEvent(Level param0, BlockPos param1, int param2, int param3) {
@@ -763,6 +763,10 @@ public abstract class BlockBehaviour implements FeatureElement {
 
         public boolean is(HolderSet<Block> param0) {
             return param0.contains(this.getBlock().builtInRegistryHolder());
+        }
+
+        public boolean is(Holder<Block> param0) {
+            return this.is(param0.value());
         }
 
         public Stream<TagKey<Block>> getTags() {

@@ -49,6 +49,7 @@ import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.network.protocol.status.ClientStatusPacketListener;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.util.Mth;
+import net.minecraft.util.SampleLogger;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
@@ -92,6 +93,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
     private boolean handlingFault;
     @Nullable
     private volatile Component delayedDisconnect;
+    @Nullable
+    BandwidthDebugMonitor bandwidthDebugMonitor;
 
     public Connection(PacketFlow param0) {
         this.receiving = param0;
@@ -242,16 +245,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         this.send(param0, null);
     }
 
-    public void sendNoFlush(Packet<?> param0) {
-        this.sendNoFlush(param0, null);
-    }
-
     public void send(Packet<?> param0, @Nullable PacketSendListener param1) {
         this.send(param0, param1, true);
-    }
-
-    public void sendNoFlush(Packet<?> param0, @Nullable PacketSendListener param1) {
-        this.send(param0, param1, false);
     }
 
     public void send(Packet<?> param0, @Nullable PacketSendListener param1, boolean param2) {
@@ -360,6 +355,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             this.tickSecond();
         }
 
+        if (this.bandwidthDebugMonitor != null) {
+            this.bandwidthDebugMonitor.tick();
+        }
+
     }
 
     protected void tickSecond() {
@@ -405,8 +404,12 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
         return this.receiving.getOpposite();
     }
 
-    public static Connection connectToServer(InetSocketAddress param0, boolean param1) {
+    public static Connection connectToServer(InetSocketAddress param0, boolean param1, @Nullable SampleLogger param2) {
         Connection var0 = new Connection(PacketFlow.CLIENTBOUND);
+        if (param2 != null) {
+            var0.setBandwidthLogger(param2);
+        }
+
         ChannelFuture var1 = connect(param0, param1, var0);
         var1.syncUninterruptibly();
         return var0;
@@ -434,17 +437,17 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 }
 
                 ChannelPipeline var0 = param0.pipeline().addLast("timeout", new ReadTimeoutHandler(30));
-                Connection.configureSerialization(var0, PacketFlow.CLIENTBOUND);
+                Connection.configureSerialization(var0, PacketFlow.CLIENTBOUND, param2.bandwidthDebugMonitor);
                 var0.addLast("packet_handler", param2);
             }
         }).channel(var0).connect(param0.getAddress(), param0.getPort());
     }
 
-    public static void configureSerialization(ChannelPipeline param0, PacketFlow param1) {
+    public static void configureSerialization(ChannelPipeline param0, PacketFlow param1, @Nullable BandwidthDebugMonitor param2) {
         PacketFlow var0 = param1.getOpposite();
         AttributeKey<ConnectionProtocol.CodecData<?>> var1 = getProtocolKey(param1);
         AttributeKey<ConnectionProtocol.CodecData<?>> var2 = getProtocolKey(var0);
-        param0.addLast("splitter", new Varint21FrameDecoder())
+        param0.addLast("splitter", new Varint21FrameDecoder(param2))
             .addLast("decoder", new PacketDecoder(var1))
             .addLast("prepender", new Varint21LengthFieldPrepender())
             .addLast("encoder", new PacketEncoder(var2))
@@ -560,5 +563,9 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
     public float getAverageSentPackets() {
         return this.averageSentPackets;
+    }
+
+    public void setBandwidthLogger(SampleLogger param0) {
+        this.bandwidthDebugMonitor = new BandwidthDebugMonitor(param0);
     }
 }

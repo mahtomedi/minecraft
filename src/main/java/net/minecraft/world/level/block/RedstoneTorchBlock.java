@@ -121,9 +121,8 @@ public class RedstoneTorchBlock extends TorchBlock {
 
         int var1 = 0;
 
-        for(int var2 = 0; var2 < var0.size(); ++var2) {
-            RedstoneTorchBlock.Toggle var3 = var0.get(var2);
-            if (var3.pos.equals(param1)) {
+        for(RedstoneTorchBlock.Toggle var2 : var0) {
+            if (var2.pos.equals(param1)) {
                 if (++var1 >= 8) {
                     return true;
                 }

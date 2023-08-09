@@ -63,6 +63,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CarrotBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
 
@@ -589,6 +590,7 @@ public class Rabbit extends Animal implements VariantHolder<Rabbit.Variant> {
                         var0.destroyBlock(var1, true, this.rabbit);
                     } else {
                         var0.setBlock(var1, var2.setValue(CarrotBlock.AGE, Integer.valueOf(var4 - 1)), 2);
+                        var0.gameEvent(GameEvent.BLOCK_CHANGE, var1, GameEvent.Context.of(this.rabbit));
                         var0.levelEvent(2001, var1, Block.getId(var2));
                     }
 

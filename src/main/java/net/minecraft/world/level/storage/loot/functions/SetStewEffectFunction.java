@@ -1,38 +1,52 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Maps;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSyntaxException;
-import java.util.Map;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
+import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SuspiciousStewItem;
+import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
 public class SetStewEffectFunction extends LootItemConditionalFunction {
-    final Map<MobEffect, NumberProvider> effectDurationMap;
+    private static final Codec<List<SetStewEffectFunction.EffectEntry>> EFFECTS_LIST = ExtraCodecs.validate(
+        SetStewEffectFunction.EffectEntry.CODEC.listOf(), param0 -> {
+            Set<Holder<MobEffect>> var0 = new ObjectOpenHashSet<>();
+    
+            for(SetStewEffectFunction.EffectEntry var1 : param0) {
+                if (!var0.add(var1.effect())) {
+                    return DataResult.error(() -> "Encountered duplicate mob effect: '" + var1.effect() + "'");
+                }
+            }
+    
+            return DataResult.success(param0);
+        }
+    );
+    public static final Codec<SetStewEffectFunction> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(ExtraCodecs.strictOptionalField(EFFECTS_LIST, "effects", List.of()).forGetter(param0x -> param0x.effects))
+                .apply(param0, SetStewEffectFunction::new)
+    );
+    private final List<SetStewEffectFunction.EffectEntry> effects;
 
-    SetStewEffectFunction(LootItemCondition[] param0, Map<MobEffect, NumberProvider> param1) {
+    SetStewEffectFunction(List<LootItemCondition> param0, List<SetStewEffectFunction.EffectEntry> param1) {
         super(param0);
-        this.effectDurationMap = ImmutableMap.copyOf(param1);
+        this.effects = param1;
     }
 
     @Override
@@ -42,22 +56,20 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return this.effectDurationMap.values().stream().flatMap(param0 -> param0.getReferencedContextParams().stream()).collect(ImmutableSet.toImmutableSet());
+        return this.effects.stream().flatMap(param0 -> param0.duration().getReferencedContextParams().stream()).collect(ImmutableSet.toImmutableSet());
     }
 
     @Override
     public ItemStack run(ItemStack param0, LootContext param1) {
-        if (param0.is(Items.SUSPICIOUS_STEW) && !this.effectDurationMap.isEmpty()) {
-            RandomSource var0 = param1.getRandom();
-            int var1 = var0.nextInt(this.effectDurationMap.size());
-            Entry<MobEffect, NumberProvider> var2 = Iterables.get(this.effectDurationMap.entrySet(), var1);
-            MobEffect var3 = var2.getKey();
-            int var4 = var2.getValue().getInt(param1);
-            if (!var3.isInstantenous()) {
-                var4 *= 20;
+        if (param0.is(Items.SUSPICIOUS_STEW) && !this.effects.isEmpty()) {
+            SetStewEffectFunction.EffectEntry var0 = Util.getRandom(this.effects, param1.getRandom());
+            MobEffect var1 = var0.effect().value();
+            int var2 = var0.duration().getInt(param1);
+            if (!var1.isInstantenous()) {
+                var2 *= 20;
             }
 
-            SuspiciousStewItem.saveMobEffect(param0, var3, var4);
+            SuspiciousStewItem.appendMobEffects(param0, List.of(new SuspiciousEffectHolder.EffectEntry(var1, var2)));
             return param0;
         } else {
             return param0;
@@ -69,60 +81,30 @@ public class SetStewEffectFunction extends LootItemConditionalFunction {
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<SetStewEffectFunction.Builder> {
-        private final Map<MobEffect, NumberProvider> effectDurationMap = Maps.newLinkedHashMap();
+        private final ImmutableList.Builder<SetStewEffectFunction.EffectEntry> effects = ImmutableList.builder();
 
         protected SetStewEffectFunction.Builder getThis() {
             return this;
         }
 
         public SetStewEffectFunction.Builder withEffect(MobEffect param0, NumberProvider param1) {
-            this.effectDurationMap.put(param0, param1);
+            this.effects.add(new SetStewEffectFunction.EffectEntry(param0.builtInRegistryHolder(), param1));
             return this;
         }
 
         @Override
         public LootItemFunction build() {
-            return new SetStewEffectFunction(this.getConditions(), this.effectDurationMap);
+            return new SetStewEffectFunction(this.getConditions(), this.effects.build());
         }
     }
 
-    public static class Serializer extends LootItemConditionalFunction.Serializer<SetStewEffectFunction> {
-        public void serialize(JsonObject param0, SetStewEffectFunction param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            if (!param1.effectDurationMap.isEmpty()) {
-                JsonArray var0 = new JsonArray();
-
-                for(MobEffect var1 : param1.effectDurationMap.keySet()) {
-                    JsonObject var2 = new JsonObject();
-                    ResourceLocation var3 = BuiltInRegistries.MOB_EFFECT.getKey(var1);
-                    if (var3 == null) {
-                        throw new IllegalArgumentException("Don't know how to serialize mob effect " + var1);
-                    }
-
-                    var2.add("type", new JsonPrimitive(var3.toString()));
-                    var2.add("duration", param2.serialize(param1.effectDurationMap.get(var1)));
-                    var0.add(var2);
-                }
-
-                param0.add("effects", var0);
-            }
-
-        }
-
-        public SetStewEffectFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            Map<MobEffect, NumberProvider> var0 = Maps.newLinkedHashMap();
-            if (param0.has("effects")) {
-                for(JsonElement var2 : GsonHelper.getAsJsonArray(param0, "effects")) {
-                    String var3 = GsonHelper.getAsString(var2.getAsJsonObject(), "type");
-                    MobEffect var4 = BuiltInRegistries.MOB_EFFECT
-                        .getOptional(new ResourceLocation(var3))
-                        .orElseThrow(() -> new JsonSyntaxException("Unknown mob effect '" + var3 + "'"));
-                    NumberProvider var5 = GsonHelper.getAsObject(var2.getAsJsonObject(), "duration", param1, NumberProvider.class);
-                    var0.put(var4, var5);
-                }
-            }
-
-            return new SetStewEffectFunction(param2, var0);
-        }
+    static record EffectEntry(Holder<MobEffect> effect, NumberProvider duration) {
+        public static final Codec<SetStewEffectFunction.EffectEntry> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        BuiltInRegistries.MOB_EFFECT.holderByNameCodec().fieldOf("type").forGetter(SetStewEffectFunction.EffectEntry::effect),
+                        NumberProviders.CODEC.fieldOf("duration").forGetter(SetStewEffectFunction.EffectEntry::duration)
+                    )
+                    .apply(param0, SetStewEffectFunction.EffectEntry::new)
+        );
     }
 }

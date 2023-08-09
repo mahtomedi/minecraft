@@ -284,7 +284,8 @@ public class ServerEntity {
             param1.accept(new ClientboundSetPassengersPacket(this.entity.getVehicle()));
         }
 
-        if (this.entity instanceof Mob var6 && var6.isLeashed()) {
+        Entity var13 = this.entity;
+        if (var13 instanceof Mob var6 && var6.isLeashed()) {
             param1.accept(new ClientboundSetEntityLinkPacket(var6, var6.getLeashHolder()));
         }
 

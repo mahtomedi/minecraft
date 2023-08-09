@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -57,24 +58,27 @@ public abstract class LivingEntityRenderer<T extends LivingEntity, M extends Ent
         float var0 = Mth.rotLerp(param2, param0.yBodyRotO, param0.yBodyRot);
         float var1 = Mth.rotLerp(param2, param0.yHeadRotO, param0.yHeadRot);
         float var2 = var1 - var0;
-        if (param0.isPassenger() && param0.getVehicle() instanceof LivingEntity var3) {
-            var0 = Mth.rotLerp(param2, var3.yBodyRotO, var3.yBodyRot);
-            var2 = var1 - var0;
-            float var4 = Mth.wrapDegrees(var2);
-            if (var4 < -85.0F) {
-                var4 = -85.0F;
-            }
+        if (param0.isPassenger()) {
+            Entity var8 = param0.getVehicle();
+            if (var8 instanceof LivingEntity var3) {
+                var0 = Mth.rotLerp(param2, var3.yBodyRotO, var3.yBodyRot);
+                var2 = var1 - var0;
+                float var4 = Mth.wrapDegrees(var2);
+                if (var4 < -85.0F) {
+                    var4 = -85.0F;
+                }
 
-            if (var4 >= 85.0F) {
-                var4 = 85.0F;
-            }
+                if (var4 >= 85.0F) {
+                    var4 = 85.0F;
+                }
 
-            var0 = var1 - var4;
-            if (var4 * var4 > 2500.0F) {
-                var0 += var4 * 0.2F;
-            }
+                var0 = var1 - var4;
+                if (var4 * var4 > 2500.0F) {
+                    var0 += var4 * 0.2F;
+                }
 
-            var2 = var1 - var0;
+                var2 = var1 - var0;
+            }
         }
 
         float var5 = Mth.lerp(param2, param0.xRotO, param0.getXRot());

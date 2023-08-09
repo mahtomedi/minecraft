@@ -1,16 +1,25 @@
 package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.MapLike;
+import com.mojang.serialization.RecordBuilder;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.lang.runtime.ObjectMethods;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -21,11 +30,63 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class ApplyBonusCount extends LootItemConditionalFunction {
-    static final Map<ResourceLocation, ApplyBonusCount.FormulaDeserializer> FORMULAS = Maps.newHashMap();
-    final Enchantment enchantment;
-    final ApplyBonusCount.Formula formula;
+    private static final Map<ResourceLocation, ApplyBonusCount.FormulaType> FORMULAS = Stream.of(
+            ApplyBonusCount.BinomialWithBonusCount.TYPE, ApplyBonusCount.OreDrops.TYPE, ApplyBonusCount.UniformBonusCount.TYPE
+        )
+        .collect(Collectors.toMap(ApplyBonusCount.FormulaType::id, Function.identity()));
+    static final Codec<ApplyBonusCount.FormulaType> FORMULA_TYPE_CODEC = ResourceLocation.CODEC.comapFlatMap(param0 -> {
+        ApplyBonusCount.FormulaType var0 = FORMULAS.get(param0);
+        return var0 != null ? DataResult.success(var0) : DataResult.error(() -> "No formula type with id: '" + param0 + "'");
+    }, ApplyBonusCount.FormulaType::id);
+    private static final MapCodec<ApplyBonusCount.Formula> FORMULA_CODEC = new MapCodec<ApplyBonusCount.Formula>() {
+        private static final String TYPE_KEY = "formula";
+        private static final String VALUE_KEY = "parameters";
 
-    ApplyBonusCount(LootItemCondition[] param0, Enchantment param1, ApplyBonusCount.Formula param2) {
+        @Override
+        public <T> Stream<T> keys(DynamicOps<T> param0) {
+            return Stream.of(param0.createString("formula"), param0.createString("parameters"));
+        }
+
+        @Override
+        public <T> DataResult<ApplyBonusCount.Formula> decode(DynamicOps<T> param0, MapLike<T> param1) {
+            T var0 = param1.get("formula");
+            return var0 == null
+                ? DataResult.error(() -> "Missing type for formula in: " + param1)
+                : ApplyBonusCount.FORMULA_TYPE_CODEC.decode(param0, var0).flatMap(param2 -> {
+                    T var0x = Objects.requireNonNullElseGet(param1.get("parameters"), param0::emptyMap);
+                    return param2.getFirst().codec().decode(param0, var0x).map(Pair::getFirst);
+                });
+        }
+
+        public <T> RecordBuilder<T> encode(ApplyBonusCount.Formula param0, DynamicOps<T> param1, RecordBuilder<T> param2) {
+            ApplyBonusCount.FormulaType var0 = param0.getType();
+            param2.add("formula", ApplyBonusCount.FORMULA_TYPE_CODEC.encodeStart(param1, var0));
+            DataResult<T> var1 = this.encode(var0.codec(), param0, param1);
+            if (var1.result().isEmpty() || !Objects.equals(var1.result().get(), param1.emptyMap())) {
+                param2.add("parameters", var1);
+            }
+
+            return param2;
+        }
+
+        private <T, F extends ApplyBonusCount.Formula> DataResult<T> encode(Codec<F> param0, ApplyBonusCount.Formula param1, DynamicOps<T> param2) {
+            return param0.encodeStart(param2, (F)param1);
+        }
+    };
+    public static final Codec<ApplyBonusCount> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(
+                    param0.group(
+                        BuiltInRegistries.ENCHANTMENT.holderByNameCodec().fieldOf("enchantment").forGetter(param0x -> param0x.enchantment),
+                        FORMULA_CODEC.forGetter(param0x -> param0x.formula)
+                    )
+                )
+                .apply(param0, ApplyBonusCount::new)
+    );
+    private final Holder<Enchantment> enchantment;
+    private final ApplyBonusCount.Formula formula;
+
+    private ApplyBonusCount(List<LootItemCondition> param0, Holder<Enchantment> param1, ApplyBonusCount.Formula param2) {
         super(param0);
         this.enchantment = param1;
         this.formula = param2;
@@ -45,7 +106,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     public ItemStack run(ItemStack param0, LootContext param1) {
         ItemStack var0 = param1.getParamOrNull(LootContextParams.TOOL);
         if (var0 != null) {
-            int var1 = EnchantmentHelper.getItemEnchantmentLevel(this.enchantment, var0);
+            int var1 = EnchantmentHelper.getItemEnchantmentLevel(this.enchantment.value(), var0);
             int var2 = this.formula.calculateNewCount(param1.getRandom(), param0.getCount(), var1);
             param0.setCount(var2);
         }
@@ -54,36 +115,30 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     }
 
     public static LootItemConditionalFunction.Builder<?> addBonusBinomialDistributionCount(Enchantment param0, float param1, int param2) {
-        return simpleBuilder(param3 -> new ApplyBonusCount(param3, param0, new ApplyBonusCount.BinomialWithBonusCount(param2, param1)));
+        return simpleBuilder(param3 -> new ApplyBonusCount(param3, param0.builtInRegistryHolder(), new ApplyBonusCount.BinomialWithBonusCount(param2, param1)));
     }
 
     public static LootItemConditionalFunction.Builder<?> addOreBonusCount(Enchantment param0) {
-        return simpleBuilder(param1 -> new ApplyBonusCount(param1, param0, new ApplyBonusCount.OreDrops()));
+        return simpleBuilder(param1 -> new ApplyBonusCount(param1, param0.builtInRegistryHolder(), new ApplyBonusCount.OreDrops()));
     }
 
     public static LootItemConditionalFunction.Builder<?> addUniformBonusCount(Enchantment param0) {
-        return simpleBuilder(param1 -> new ApplyBonusCount(param1, param0, new ApplyBonusCount.UniformBonusCount(1)));
+        return simpleBuilder(param1 -> new ApplyBonusCount(param1, param0.builtInRegistryHolder(), new ApplyBonusCount.UniformBonusCount(1)));
     }
 
     public static LootItemConditionalFunction.Builder<?> addUniformBonusCount(Enchantment param0, int param1) {
-        return simpleBuilder(param2 -> new ApplyBonusCount(param2, param0, new ApplyBonusCount.UniformBonusCount(param1)));
+        return simpleBuilder(param2 -> new ApplyBonusCount(param2, param0.builtInRegistryHolder(), new ApplyBonusCount.UniformBonusCount(param1)));
     }
 
-    static {
-        FORMULAS.put(ApplyBonusCount.BinomialWithBonusCount.TYPE, ApplyBonusCount.BinomialWithBonusCount::deserialize);
-        FORMULAS.put(ApplyBonusCount.OreDrops.TYPE, ApplyBonusCount.OreDrops::deserialize);
-        FORMULAS.put(ApplyBonusCount.UniformBonusCount.TYPE, ApplyBonusCount.UniformBonusCount::deserialize);
-    }
-
-    static final class BinomialWithBonusCount implements ApplyBonusCount.Formula {
-        public static final ResourceLocation TYPE = new ResourceLocation("binomial_with_bonus_count");
-        private final int extraRounds;
-        private final float probability;
-
-        public BinomialWithBonusCount(int param0, float param1) {
-            this.extraRounds = param0;
-            this.probability = param1;
-        }
+    static record BinomialWithBonusCount(int extraRounds, float probability) implements ApplyBonusCount.Formula {
+        private static final Codec<ApplyBonusCount.BinomialWithBonusCount> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Codec.INT.fieldOf("extra").forGetter(ApplyBonusCount.BinomialWithBonusCount::extraRounds),
+                        Codec.FLOAT.fieldOf("probability").forGetter(ApplyBonusCount.BinomialWithBonusCount::probability)
+                    )
+                    .apply(param0, ApplyBonusCount.BinomialWithBonusCount::new)
+        );
+        public static final ApplyBonusCount.FormulaType TYPE = new ApplyBonusCount.FormulaType(new ResourceLocation("binomial_with_bonus_count"), CODEC);
 
         @Override
         public int calculateNewCount(RandomSource param0, int param1, int param2) {
@@ -97,19 +152,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         }
 
         @Override
-        public void serializeParams(JsonObject param0, JsonSerializationContext param1) {
-            param0.addProperty("extra", this.extraRounds);
-            param0.addProperty("probability", this.probability);
-        }
-
-        public static ApplyBonusCount.Formula deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            int var0 = GsonHelper.getAsInt(param0, "extra");
-            float var1 = GsonHelper.getAsFloat(param0, "probability");
-            return new ApplyBonusCount.BinomialWithBonusCount(var0, var1);
-        }
-
-        @Override
-        public ResourceLocation getType() {
+        public ApplyBonusCount.FormulaType getType() {
             return TYPE;
         }
     }
@@ -117,17 +160,15 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
     interface Formula {
         int calculateNewCount(RandomSource var1, int var2, int var3);
 
-        void serializeParams(JsonObject var1, JsonSerializationContext var2);
-
-        ResourceLocation getType();
+        ApplyBonusCount.FormulaType getType();
     }
 
-    interface FormulaDeserializer {
-        ApplyBonusCount.Formula deserialize(JsonObject var1, JsonDeserializationContext var2);
+    static record FormulaType(ResourceLocation id, Codec<? extends ApplyBonusCount.Formula> codec) {
     }
 
-    static final class OreDrops implements ApplyBonusCount.Formula {
-        public static final ResourceLocation TYPE = new ResourceLocation("ore_drops");
+    static final class OreDrops extends Record implements ApplyBonusCount.Formula {
+        public static final Codec<ApplyBonusCount.OreDrops> CODEC = Codec.unit(ApplyBonusCount.OreDrops::new);
+        public static final ApplyBonusCount.FormulaType TYPE = new ApplyBonusCount.FormulaType(new ResourceLocation("ore_drops"), CODEC);
 
         @Override
         public int calculateNewCount(RandomSource param0, int param1, int param2) {
@@ -144,59 +185,32 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         }
 
         @Override
-        public void serializeParams(JsonObject param0, JsonSerializationContext param1) {
-        }
-
-        public static ApplyBonusCount.Formula deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            return new ApplyBonusCount.OreDrops();
+        public ApplyBonusCount.FormulaType getType() {
+            return TYPE;
         }
 
         @Override
-        public ResourceLocation getType() {
-            return TYPE;
+        public final String toString() {
+            return ObjectMethods.bootstrap<"toString",ApplyBonusCount.OreDrops,"">(this);
+        }
+
+        @Override
+        public final int hashCode() {
+            return ObjectMethods.bootstrap<"hashCode",ApplyBonusCount.OreDrops,"">(this);
+        }
+
+        @Override
+        public final boolean equals(Object param0) {
+            return ObjectMethods.bootstrap<"equals",ApplyBonusCount.OreDrops,"">(this, param0);
         }
     }
 
-    public static class Serializer extends LootItemConditionalFunction.Serializer<ApplyBonusCount> {
-        public void serialize(JsonObject param0, ApplyBonusCount param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.addProperty("enchantment", BuiltInRegistries.ENCHANTMENT.getKey(param1.enchantment).toString());
-            param0.addProperty("formula", param1.formula.getType().toString());
-            JsonObject var0 = new JsonObject();
-            param1.formula.serializeParams(var0, param2);
-            if (var0.size() > 0) {
-                param0.add("parameters", var0);
-            }
-
-        }
-
-        public ApplyBonusCount deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "enchantment"));
-            Enchantment var1 = BuiltInRegistries.ENCHANTMENT.getOptional(var0).orElseThrow(() -> new JsonParseException("Invalid enchantment id: " + var0));
-            ResourceLocation var2 = new ResourceLocation(GsonHelper.getAsString(param0, "formula"));
-            ApplyBonusCount.FormulaDeserializer var3 = ApplyBonusCount.FORMULAS.get(var2);
-            if (var3 == null) {
-                throw new JsonParseException("Invalid formula id: " + var2);
-            } else {
-                ApplyBonusCount.Formula var4;
-                if (param0.has("parameters")) {
-                    var4 = var3.deserialize(GsonHelper.getAsJsonObject(param0, "parameters"), param1);
-                } else {
-                    var4 = var3.deserialize(new JsonObject(), param1);
-                }
-
-                return new ApplyBonusCount(param2, var1, var4);
-            }
-        }
-    }
-
-    static final class UniformBonusCount implements ApplyBonusCount.Formula {
-        public static final ResourceLocation TYPE = new ResourceLocation("uniform_bonus_count");
-        private final int bonusMultiplier;
-
-        public UniformBonusCount(int param0) {
-            this.bonusMultiplier = param0;
-        }
+    static record UniformBonusCount(int bonusMultiplier) implements ApplyBonusCount.Formula {
+        public static final Codec<ApplyBonusCount.UniformBonusCount> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(Codec.INT.fieldOf("bonusMultiplier").forGetter(ApplyBonusCount.UniformBonusCount::bonusMultiplier))
+                    .apply(param0, ApplyBonusCount.UniformBonusCount::new)
+        );
+        public static final ApplyBonusCount.FormulaType TYPE = new ApplyBonusCount.FormulaType(new ResourceLocation("uniform_bonus_count"), CODEC);
 
         @Override
         public int calculateNewCount(RandomSource param0, int param1, int param2) {
@@ -204,17 +218,7 @@ public class ApplyBonusCount extends LootItemConditionalFunction {
         }
 
         @Override
-        public void serializeParams(JsonObject param0, JsonSerializationContext param1) {
-            param0.addProperty("bonusMultiplier", this.bonusMultiplier);
-        }
-
-        public static ApplyBonusCount.Formula deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            int var0 = GsonHelper.getAsInt(param0, "bonusMultiplier");
-            return new ApplyBonusCount.UniformBonusCount(var0);
-        }
-
-        @Override
-        public ResourceLocation getType() {
+        public ApplyBonusCount.FormulaType getType() {
             return TYPE;
         }
     }

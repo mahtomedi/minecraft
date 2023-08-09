@@ -36,7 +36,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.seedEdit = new EditBox(this.font, 208, 20, Component.translatable("mco.reset.world.seed"));
+        this.seedEdit = new EditBox(this.font, 210, 20, Component.translatable("mco.reset.world.seed"));
         this.seedEdit.setMaxLength(32);
         this.setInitialFocus(this.seedEdit);
         this.layout.addToHeader(new StringWidget(this.title, this.font));
@@ -44,7 +44,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
         var0.defaultCellSetting().alignHorizontallyCenter();
         LinearLayout var1 = var0.addChild(LinearLayout.vertical().spacing(4));
         var1.addChild(new StringWidget(SEED_LABEL, this.font), LayoutSettings::alignHorizontallyLeft);
-        var1.addChild(this.seedEdit, param0 -> param0.padding(1));
+        var1.addChild(this.seedEdit);
         var0.addChild(
             CycleButton.builder(LevelType::getName)
                 .withValues(LevelType.values())

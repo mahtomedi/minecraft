@@ -341,23 +341,22 @@ public abstract class AbstractMinecart extends Entity {
             if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
                 List<Entity> var9 = this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F), EntitySelector.pushableBy(this));
                 if (!var9.isEmpty()) {
-                    for(int var10 = 0; var10 < var9.size(); ++var10) {
-                        Entity var11 = var9.get(var10);
-                        if (!(var11 instanceof Player)
-                            && !(var11 instanceof IronGolem)
-                            && !(var11 instanceof AbstractMinecart)
+                    for(Entity var10 : var9) {
+                        if (!(var10 instanceof Player)
+                            && !(var10 instanceof IronGolem)
+                            && !(var10 instanceof AbstractMinecart)
                             && !this.isVehicle()
-                            && !var11.isPassenger()) {
-                            var11.startRiding(this);
+                            && !var10.isPassenger()) {
+                            var10.startRiding(this);
                         } else {
-                            var11.push(this);
+                            var10.push(this);
                         }
                     }
                 }
             } else {
-                for(Entity var12 : this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
-                    if (!this.hasPassenger(var12) && var12.isPushable() && var12 instanceof AbstractMinecart) {
-                        var12.push(this);
+                for(Entity var11 : this.level().getEntities(this, this.getBoundingBox().inflate(0.2F, 0.0, 0.2F))) {
+                    if (!this.hasPassenger(var11) && var11.isPushable() && var11 instanceof AbstractMinecart) {
+                        var11.push(this);
                     }
                 }
             }

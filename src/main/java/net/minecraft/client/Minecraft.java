@@ -9,7 +9,6 @@ import com.mojang.authlib.minecraft.BanDetails;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.minecraft.UserApiService.UserFlag;
-import com.mojang.authlib.properties.PropertyMap;
 import com.mojang.authlib.yggdrasil.ServicesKeyType;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -194,10 +193,10 @@ import net.minecraft.sounds.Musics;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.FileZipper;
-import net.minecraft.util.FrameTimer;
 import net.minecraft.util.MemoryReserve;
 import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
+import net.minecraft.util.SampleLogger;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.Unit;
@@ -259,7 +258,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private static final Component SOCIAL_INTERACTIONS_NOT_AVAILABLE = Component.translatable("multiplayer.socialInteractions.not_available");
     public static final String UPDATE_DRIVERS_ADVICE = "Please make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).";
     private final Path resourcePackDirectory;
-    private final PropertyMap profileProperties;
+    private final CompletableFuture<GameProfile> profileFuture;
     private final TextureManager textureManager;
     private final DataFixer fixerUpper;
     private final VirtualScreen virtualScreen;
@@ -288,7 +287,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final String versionType;
     private final Proxy proxy;
     private final LevelStorageSource levelSource;
-    public final FrameTimer frameTimer = new FrameTimer();
+    public final SampleLogger frameTimeLogger = new SampleLogger();
+    public final SampleLogger pingLogger = new SampleLogger();
+    public final SampleLogger bandwidthLogger = new SampleLogger();
     private final boolean is64bit;
     private final boolean demo;
     private final boolean allowsMultiplayer;
@@ -354,7 +355,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public Screen screen;
     @Nullable
     private Overlay overlay;
-    private boolean connectedToRealms;
     private Thread gameThread;
     private volatile boolean running;
     @Nullable
@@ -389,6 +389,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private ReportingContext reportingContext;
     private final CommandHistory commandHistory;
     private final DirectoryValidator directoryValidator;
+    private boolean gameLoadFinished;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
@@ -399,7 +400,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.resourcePackDirectory = param0.location.resourcePackDirectory.toPath();
         this.launchedVersion = param0.game.launchVersion;
         this.versionType = param0.game.versionType;
-        this.profileProperties = param0.user.profileProperties;
         Path var1 = this.gameDirectory.toPath();
         this.directoryValidator = LevelStorageSource.parseValidator(var1.resolve("allowed_symlinks.txt"));
         ClientPackSource var2 = new ClientPackSource(param0.location.getExternalAssetSource(), this.directoryValidator);
@@ -410,8 +410,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.proxy = param0.user.proxy;
         this.authenticationService = new YggdrasilAuthenticationService(this.proxy);
         this.minecraftSessionService = this.authenticationService.createMinecraftSessionService();
-        this.userApiService = this.createUserApiService(this.authenticationService, param0);
         this.user = param0.user.user;
+        this.profileFuture = CompletableFuture.supplyAsync(() -> this.minecraftSessionService.fetchProfile(this.user.getProfileId(), true), Util.ioPool());
+        this.userApiService = this.createUserApiService(this.authenticationService, param0);
         LOGGER.info("Setting user: {}", this.user.getName());
         LOGGER.debug("(Session ID is {})", this.user.getSessionId());
         this.demo = param0.game.demo;
@@ -575,7 +576,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
 
                 this.reloadStateTracker.finishReload();
-                this.onGameLoadFinished();
+                this.onResourceLoadFinished();
             }), false));
         this.quickPlayLog = QuickPlayLog.of(param0.quickPlay.path());
         if (this.shouldShowBanNotice()) {
@@ -592,10 +593,22 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     }
 
+    private void onResourceLoadFinished() {
+        if (!this.gameLoadFinished) {
+            this.gameLoadFinished = true;
+            this.onGameLoadFinished();
+        }
+
+    }
+
     private void onGameLoadFinished() {
         GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
         GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_TOTAL_TIME_MS);
         GameLoadTimesEvent.INSTANCE.send(this.telemetryManager.getOutsideSessionSender());
+    }
+
+    public boolean isGameLoadFinished() {
+        return this.gameLoadFinished;
     }
 
     private void setInitialScreen(RealmsClient param0, ReloadInstance param1, GameConfig.QuickPlayData param2) {
@@ -878,6 +891,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                                 this.levelRenderer.allChanged();
                                 this.reloadStateTracker.finishReload();
                                 var0.complete(null);
+                                this.onResourceLoadFinished();
                             }),
                         true
                     )
@@ -1175,7 +1189,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.savedCpuDuration = var12;
         }
 
-        this.frameTimer.logFrameDuration(var12);
+        this.frameTimeLogger.logSample(var12);
         this.lastNanoTime = var11;
         this.profiler.push("fpsUpdate");
         if (this.currentFrameProfile != null && this.currentFrameProfile.isDone()) {
@@ -2085,6 +2099,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.updateLevelInEngines(null);
         this.player = null;
         SkullBlockEntity.clear();
+        this.pingLogger.reset();
+        this.bandwidthLogger.reset();
     }
 
     public void clearClientLevel(Screen param0) {
@@ -2102,6 +2118,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.updateLevelInEngines(null);
         this.player = null;
         SkullBlockEntity.clear();
+        this.pingLogger.reset();
+        this.bandwidthLogger.reset();
     }
 
     private void updateScreenAndTick(Screen param0) {
@@ -2399,15 +2417,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.user;
     }
 
-    public PropertyMap getProfileProperties() {
-        if (this.profileProperties.isEmpty()) {
-            GameProfile var0 = this.getMinecraftSessionService().fetchProfile(this.user.getProfileId(), false);
-            if (var0 != null) {
-                this.profileProperties.putAll(var0.getProperties());
-            }
-        }
-
-        return this.profileProperties;
+    public GameProfile getGameProfile() {
+        GameProfile var0 = this.profileFuture.join();
+        return var0 != null ? var0 : new GameProfile(this.user.getProfileId(), this.user.getName());
     }
 
     public Proxy getProxy() {
@@ -2546,8 +2558,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.searchRegistry.populate(param0, param1);
     }
 
-    public FrameTimer getFrameTimer() {
-        return this.frameTimer;
+    public SampleLogger getFrameTimeLogger() {
+        return this.frameTimeLogger;
     }
 
     public DataFixer getFixerUpper() {

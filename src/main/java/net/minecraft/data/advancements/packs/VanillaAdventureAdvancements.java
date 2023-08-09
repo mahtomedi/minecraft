@@ -2,6 +2,7 @@ package net.minecraft.data.advancements.packs;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import net.minecraft.advancements.Advancement;
@@ -22,7 +23,7 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.advancements.critereon.KilledByCrossbowTrigger;
 import net.minecraft.advancements.critereon.KilledTrigger;
-import net.minecraft.advancements.critereon.LighthingBoltPredicate;
+import net.minecraft.advancements.critereon.LightningBoltPredicate;
 import net.minecraft.advancements.critereon.LightningStrikeTrigger;
 import net.minecraft.advancements.critereon.LocationPredicate;
 import net.minecraft.advancements.critereon.LootTableTrigger;
@@ -112,11 +113,11 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
         EntityType.ZOMBIFIED_PIGLIN
     };
 
-    private static LightningStrikeTrigger.TriggerInstance fireCountAndBystander(MinMaxBounds.Ints param0, EntityPredicate param1) {
+    private static LightningStrikeTrigger.TriggerInstance fireCountAndBystander(MinMaxBounds.Ints param0, Optional<EntityPredicate> param1) {
         return LightningStrikeTrigger.TriggerInstance.lighthingStrike(
             EntityPredicate.Builder.entity()
                 .distance(DistancePredicate.absolute(MinMaxBounds.Doubles.atMost(30.0)))
-                .subPredicate(LighthingBoltPredicate.blockSetOnFire(param0))
+                .subPredicate(LightningBoltPredicate.blockSetOnFire(param0))
                 .build(),
             param1
         );
@@ -191,7 +192,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "trade_at_world_height",
                 TradeTrigger.TriggerInstance.tradedWithVillager(
-                    EntityPredicate.Builder.entity().located(LocationPredicate.atYLocation(MinMaxBounds.Doubles.atLeast(319.0)))
+                    EntityPredicate.Builder.entity().located(LocationPredicate.Builder.atYLocation(MinMaxBounds.Doubles.atLeast(319.0)))
                 )
             )
             .save(param1, "adventure/trade_at_world_height");
@@ -237,7 +238,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion(
                 "shot_arrow",
-                PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntity(
+                PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntityWithDamage(
                     DamagePredicate.Builder.damageInstance()
                         .type(
                             DamageSourcePredicate.Builder.damageType()
@@ -261,7 +262,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             )
             .addCriterion(
                 "shot_trident",
-                PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntity(
+                PlayerHurtEntityTrigger.TriggerInstance.playerHurtEntityWithDamage(
                     DamagePredicate.Builder.damageInstance()
                         .type(
                             DamageSourcePredicate.Builder.damageType()
@@ -284,8 +285,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 false
             )
             .addCriterion(
-                "struck_villager",
-                ChanneledLightningTrigger.TriggerInstance.channeledLightning(EntityPredicate.Builder.entity().of(EntityType.VILLAGER).build())
+                "struck_villager", ChanneledLightningTrigger.TriggerInstance.channeledLightning(EntityPredicate.Builder.entity().of(EntityType.VILLAGER))
             )
             .save(param1, "adventure/very_very_frightening");
         Advancement.Builder.advancement()
@@ -465,7 +465,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 "bullseye",
                 TargetBlockTrigger.TriggerInstance.targetHit(
                     MinMaxBounds.Ints.exactly(15),
-                    EntityPredicate.wrap(EntityPredicate.Builder.entity().distance(DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(30.0))).build())
+                    EntityPredicate.wrap(EntityPredicate.Builder.entity().distance(DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(30.0))))
                 )
             )
             .save(param1, "adventure/bullseye");
@@ -545,7 +545,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "play_jukebox_in_meadows",
                 ItemUsedOnLocationTrigger.TriggerInstance.itemUsedOnBlock(
-                    LocationPredicate.Builder.location().setBiome(Biomes.MEADOW).setBlock(BlockPredicate.Builder.block().of(Blocks.JUKEBOX).build()),
+                    LocationPredicate.Builder.location().setBiome(Biomes.MEADOW).setBlock(BlockPredicate.Builder.block().of(Blocks.JUKEBOX)),
                     ItemPredicate.Builder.item().of(ItemTags.MUSIC_DISCS)
                 )
             )
@@ -579,9 +579,9 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "fall_from_world_height",
                 DistanceTrigger.TriggerInstance.fallFromHeight(
-                    EntityPredicate.Builder.entity().located(LocationPredicate.atYLocation(MinMaxBounds.Doubles.atMost(-59.0))),
+                    EntityPredicate.Builder.entity().located(LocationPredicate.Builder.atYLocation(MinMaxBounds.Doubles.atMost(-59.0))),
                     DistancePredicate.vertical(MinMaxBounds.Doubles.atLeast(379.0)),
-                    LocationPredicate.atYLocation(MinMaxBounds.Doubles.atLeast(319.0))
+                    LocationPredicate.Builder.atYLocation(MinMaxBounds.Doubles.atLeast(319.0))
                 )
             )
             .save(param1, "adventure/fall_from_world_height");
@@ -645,10 +645,10 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 RecipeCraftedTrigger.TriggerInstance.craftedItem(
                     new ResourceLocation("minecraft:decorated_pot"),
                     List.of(
-                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
-                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
-                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build(),
-                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build()
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS),
+                        ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS)
                     )
                 )
             )
@@ -700,8 +700,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
 
     private static CriterionTriggerInstance placedBlockReadByComparator(Block param0) {
         LootItemCondition.Builder[] var0 = ComparatorBlock.FACING.getPossibleValues().stream().map(param0x -> {
-            StatePropertiesPredicate var0x = StatePropertiesPredicate.Builder.properties().hasProperty(ComparatorBlock.FACING, param0x).build();
-            BlockPredicate var1x = BlockPredicate.Builder.block().of(Blocks.COMPARATOR).setProperties(var0x).build();
+            StatePropertiesPredicate.Builder var0x = StatePropertiesPredicate.Builder.properties().hasProperty(ComparatorBlock.FACING, param0x);
+            BlockPredicate.Builder var1x = BlockPredicate.Builder.block().of(Blocks.COMPARATOR).setProperties(var0x);
             return LocationCheck.checkLocation(LocationPredicate.Builder.location().setBlock(var1x), new BlockPos(param0x.getOpposite().getNormal()));
         }).toArray(param0x -> new LootItemCondition.Builder[param0x]);
         return ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(
@@ -718,7 +718,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                     StatePropertiesPredicate.Builder var0x = StatePropertiesPredicate.Builder.properties().hasProperty(ComparatorBlock.FACING, param1);
                     LootItemBlockStatePropertyCondition.Builder var1x = new LootItemBlockStatePropertyCondition.Builder(Blocks.COMPARATOR).setProperties(var0x);
                     LootItemCondition.Builder var2 = LocationCheck.checkLocation(
-                        LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(param0).build()), new BlockPos(param1.getNormal())
+                        LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(param0)), new BlockPos(param1.getNormal())
                     );
                     return AllOfCondition.allOf(var1x, var2);
                 }
@@ -766,9 +766,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
         param0.addCriterion("trail_ruins_common", LootTableTrigger.TriggerInstance.lootTableUsed(BuiltInLootTables.TRAIL_RUINS_ARCHAEOLOGY_COMMON));
         String[] var0 = param0.getCriteria().keySet().toArray(param0x -> new String[param0x]);
         String var1 = "has_sherd";
-        param0.addCriterion(
-            "has_sherd", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS).build())
-        );
+        param0.addCriterion("has_sherd", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DECORATED_POT_SHERDS)));
         param0.requirements(new String[][]{var0, {"has_sherd"}});
         return param0;
     }
@@ -803,7 +801,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
 
     protected static Advancement.Builder addBiomes(Advancement.Builder param0, List<ResourceKey<Biome>> param1) {
         for(ResourceKey<Biome> var0 : param1) {
-            param0.addCriterion(var0.location().toString(), PlayerTrigger.TriggerInstance.located(LocationPredicate.inBiome(var0)));
+            param0.addCriterion(var0.location().toString(), PlayerTrigger.TriggerInstance.located(LocationPredicate.Builder.inBiome(var0)));
         }
 
         return param0;

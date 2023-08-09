@@ -222,7 +222,7 @@ public class Brain<E extends LivingEntity> {
         } else {
             return param1 == MemoryStatus.REGISTERED
                 || param1 == MemoryStatus.VALUE_PRESENT && var0.isPresent()
-                || param1 == MemoryStatus.VALUE_ABSENT && !var0.isPresent();
+                || param1 == MemoryStatus.VALUE_ABSENT && var0.isEmpty();
         }
     }
 

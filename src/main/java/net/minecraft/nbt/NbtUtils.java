@@ -149,30 +149,31 @@ public final class NbtUtils {
             }
 
             return true;
-        } else if (param0 instanceof ListTag var4 && param2) {
-            ListTag var5 = (ListTag)param1;
-            if (var4.isEmpty()) {
-                return var5.isEmpty();
-            } else {
-                for(int var6 = 0; var6 < var4.size(); ++var6) {
-                    Tag var7 = var4.get(var6);
-                    boolean var8 = false;
+        } else {
+            if (param0 instanceof ListTag var4 && param2) {
+                ListTag var5 = (ListTag)param1;
+                if (var4.isEmpty()) {
+                    return var5.isEmpty();
+                }
 
-                    for(int var9 = 0; var9 < var5.size(); ++var9) {
-                        if (compareNbt(var7, var5.get(var9), param2)) {
-                            var8 = true;
+                for(Tag var6 : var4) {
+                    boolean var7 = false;
+
+                    for(Tag var8 : var5) {
+                        if (compareNbt(var6, var8, param2)) {
+                            var7 = true;
                             break;
                         }
                     }
 
-                    if (!var8) {
+                    if (!var7) {
                         return false;
                     }
                 }
 
                 return true;
             }
-        } else {
+
             return param0.equals(param1);
         }
     }
@@ -243,7 +244,7 @@ public final class NbtUtils {
         if (var0.isPresent()) {
             return param0.setValue(param1, var0.get());
         } else {
-            LOGGER.warn("Unable to read property: {} with value: {} for blockstate: {}", param2, param3.getString(param2), param4.toString());
+            LOGGER.warn("Unable to read property: {} with value: {} for blockstate: {}", param2, param3.getString(param2), param4);
             return param0;
         }
     }

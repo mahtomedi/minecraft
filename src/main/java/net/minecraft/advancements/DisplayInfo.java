@@ -6,6 +6,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import javax.annotation.Nullable;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -115,7 +116,7 @@ public class DisplayInfo {
         if (!param0.has("item")) {
             throw new JsonSyntaxException("Unsupported icon type, currently only items are supported (add 'item' key)");
         } else {
-            Item var0 = GsonHelper.getAsItem(param0, "item");
+            Holder<Item> var0 = GsonHelper.getAsItem(param0, "item");
             if (param0.has("data")) {
                 throw new JsonParseException("Disallowed data tag found");
             } else {

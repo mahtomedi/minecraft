@@ -155,8 +155,8 @@ public class RandomCommand {
             var0 = param0.getLevel().getRandom();
         }
 
-        int var2 = param1.getMin() == null ? Integer.MIN_VALUE : param1.getMin();
-        int var3 = param1.getMax() == null ? Integer.MAX_VALUE : param1.getMax();
+        int var2 = param1.min().orElse(Integer.MIN_VALUE);
+        int var3 = param1.max().orElse(Integer.MAX_VALUE);
         long var4 = (long)var3 - (long)var2;
         if (var4 == 0L) {
             throw ERROR_RANGE_TOO_SMALL.create();

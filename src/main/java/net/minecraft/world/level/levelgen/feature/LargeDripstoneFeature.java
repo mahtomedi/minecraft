@@ -34,7 +34,7 @@ public class LargeDripstoneFeature extends Feature<LargeDripstoneConfiguration> 
             Optional<Column> var4 = Column.scan(
                 var0, var1, var2.floorToCeilingSearchRange, DripstoneUtils::isEmptyOrWater, DripstoneUtils::isDripstoneBaseOrLava
             );
-            if (var4.isPresent() && var4.get() instanceof Column.Range var5) {
+            if (!var4.isEmpty() && var4.get() instanceof Column.Range var5) {
                 if (var5.height() < 4) {
                     return false;
                 } else {

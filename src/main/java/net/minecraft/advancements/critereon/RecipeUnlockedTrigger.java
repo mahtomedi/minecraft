@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -14,7 +15,7 @@ public class RecipeUnlockedTrigger extends SimpleCriterionTrigger<RecipeUnlocked
         return ID;
     }
 
-    public RecipeUnlockedTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public RecipeUnlockedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "recipe"));
         return new RecipeUnlockedTrigger.TriggerInstance(param1, var0);
     }
@@ -24,20 +25,20 @@ public class RecipeUnlockedTrigger extends SimpleCriterionTrigger<RecipeUnlocked
     }
 
     public static RecipeUnlockedTrigger.TriggerInstance unlocked(ResourceLocation param0) {
-        return new RecipeUnlockedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
+        return new RecipeUnlockedTrigger.TriggerInstance(Optional.empty(), param0);
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ResourceLocation recipe;
 
-        public TriggerInstance(ContextAwarePredicate param0, ResourceLocation param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, ResourceLocation param1) {
             super(RecipeUnlockedTrigger.ID, param0);
             this.recipe = param1;
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             var0.addProperty("recipe", this.recipe.toString());
             return var0;
         }

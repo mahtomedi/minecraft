@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -24,19 +25,7 @@ public class MobEffect {
     @Nullable
     private String descriptionId;
     private Supplier<MobEffectInstance.FactorData> factorDataFactory = () -> null;
-
-    @Nullable
-    public static MobEffect byId(int param0) {
-        return BuiltInRegistries.MOB_EFFECT.byId(param0);
-    }
-
-    public static int getId(MobEffect param0) {
-        return BuiltInRegistries.MOB_EFFECT.getId(param0);
-    }
-
-    public static int getIdFromNullable(@Nullable MobEffect param0) {
-        return BuiltInRegistries.MOB_EFFECT.getId(param0);
-    }
+    private final Holder.Reference<MobEffect> builtInRegistryHolder = BuiltInRegistries.MOB_EFFECT.createIntrusiveHolder(this);
 
     protected MobEffect(MobEffectCategory param0, int param1) {
         this.category = param0;
@@ -126,6 +115,11 @@ public class MobEffect {
 
     public boolean isBeneficial() {
         return this.category == MobEffectCategory.BENEFICIAL;
+    }
+
+    @Deprecated
+    public Holder.Reference<MobEffect> builtInRegistryHolder() {
+        return this.builtInRegistryHolder;
     }
 
     class MobEffectAttributeModifierTemplate implements AttributeModifierTemplate {

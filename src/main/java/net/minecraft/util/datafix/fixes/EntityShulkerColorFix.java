@@ -11,7 +11,7 @@ public class EntityShulkerColorFix extends NamedEntityFix {
     }
 
     public Dynamic<?> fixTag(Dynamic<?> param0) {
-        return !param0.get("Color").map(Dynamic::asNumber).result().isPresent() ? param0.set("Color", param0.createByte((byte)10)) : param0;
+        return param0.get("Color").map(Dynamic::asNumber).result().isEmpty() ? param0.set("Color", param0.createByte((byte)10)) : param0;
     }
 
     @Override

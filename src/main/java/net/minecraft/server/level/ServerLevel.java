@@ -865,7 +865,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
     private void addPlayer(ServerPlayer param0) {
         Entity var0 = this.getEntities().get(param0.getUUID());
         if (var0 != null) {
-            LOGGER.warn("Force-added player with duplicate UUID {}", param0.getUUID().toString());
+            LOGGER.warn("Force-added player with duplicate UUID {}", param0.getUUID());
             var0.unRide();
             this.removePlayerImmediately((ServerPlayer)var0, Entity.RemovalReason.DISCARDED);
         }

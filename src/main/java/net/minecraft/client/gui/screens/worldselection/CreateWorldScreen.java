@@ -556,7 +556,7 @@ public class CreateWorldScreen extends Screen {
             GridLayout.RowHelper var1 = new GridLayout().rowSpacing(4).createRowHelper(1);
             var1.addChild(new StringWidget(CreateWorldScreen.NAME_LABEL, CreateWorldScreen.this.minecraft.font), var1.newCellSettings().paddingLeft(1));
             this.nameEdit = var1.addChild(
-                new EditBox(CreateWorldScreen.this.font, 208, 20, Component.translatable("selectWorld.enterName")), var1.newCellSettings().padding(1)
+                new EditBox(CreateWorldScreen.this.font, 210, 20, Component.translatable("selectWorld.enterName")), var1.newCellSettings()
             );
             this.nameEdit.setValue(CreateWorldScreen.this.uiState.getName());
             this.nameEdit.setResponder(CreateWorldScreen.this.uiState::setName);
@@ -702,12 +702,12 @@ public class CreateWorldScreen extends Screen {
             CreateWorldScreen.this.uiState.addListener(param0x -> this.customizeTypeButton.active = !param0x.isDebug() && param0x.getPresetEditor() != null);
             GridLayout.RowHelper var1 = new GridLayout().rowSpacing(4).createRowHelper(1);
             var1.addChild(new StringWidget(SEED_LABEL, CreateWorldScreen.this.font).alignLeft());
-            this.seedEdit = var1.addChild(new EditBox(CreateWorldScreen.this.font, 308, 20, Component.translatable("selectWorld.enterSeed")) {
+            this.seedEdit = var1.addChild(new EditBox(CreateWorldScreen.this.font, 310, 20, Component.translatable("selectWorld.enterSeed")) {
                 @Override
                 protected MutableComponent createNarrationMessage() {
                     return super.createNarrationMessage().append(CommonComponents.NARRATION_SEPARATOR).append(CreateWorldScreen.WorldTab.SEED_EMPTY_HINT);
                 }
-            }, param0.newCellSettings().padding(1));
+            });
             this.seedEdit.setHint(SEED_EMPTY_HINT);
             this.seedEdit.setValue(CreateWorldScreen.this.uiState.getSeed());
             this.seedEdit.setResponder(param0x -> CreateWorldScreen.this.uiState.setSeed(this.seedEdit.getValue()));

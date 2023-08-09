@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ public class PathPackResources extends AbstractPackResources {
                 }
 
             });
-        } catch (NoSuchFileException var10) {
+        } catch (NotDirectoryException | NoSuchFileException var10) {
         } catch (IOException var11) {
             LOGGER.error("Failed to list path {}", var0, var11);
         }
@@ -109,7 +110,7 @@ public class PathPackResources extends AbstractPackResources {
                     LOGGER.warn("Non [a-z0-9_.-] character in namespace {} in pack {}, ignoring", var4, this.root);
                 }
             }
-        } catch (NoSuchFileException var10) {
+        } catch (NotDirectoryException | NoSuchFileException var10) {
         } catch (IOException var11) {
             LOGGER.error("Failed to list path {}", var1, var11);
         }

@@ -11,6 +11,7 @@ import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.types.templates.List.ListType;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import java.util.List;
 import java.util.Map;
@@ -55,23 +56,21 @@ public class ChunkBedBlockEntityInjecterFix extends DataFix {
                     int var2x = var1x.get("xPos").asInt(0);
                     int var3x = var1x.get("zPos").asInt(0);
                     List<TE> var4x = Lists.newArrayList(var0x.getOrCreate(var2));
-                    List<? extends Dynamic<?>> var5x = var1x.get("Sections").asList(Function.identity());
         
-                    for(int var6x = 0; var6x < var5x.size(); ++var6x) {
-                        Dynamic<?> var7 = (Dynamic)var5x.get(var6x);
-                        int var8 = var7.get("Y").asInt(0);
-                        Streams.mapWithIndex(var7.get("Blocks").asIntStream(), (param4, param5) -> {
+                    for(Dynamic<?> var6x : var1x.get("Sections").asList(Function.identity())) {
+                        int var7 = var6x.get("Y").asInt(0);
+                        Streams.mapWithIndex(var6x.get("Blocks").asIntStream(), (param4, param5) -> {
                                 if (416 == (param4 & 0xFF) << 4) {
                                     int var0xx = (int)param5;
                                     int var1xx = var0xx & 15;
                                     int var2xx = var0xx >> 8 & 15;
                                     int var3xx = var0xx >> 4 & 15;
                                     Map<Dynamic<?>, Dynamic<?>> var4xx = Maps.newHashMap();
-                                    var4xx.put(var7.createString("id"), var7.createString("minecraft:bed"));
-                                    var4xx.put(var7.createString("x"), var7.createInt(var1xx + (var2x << 4)));
-                                    var4xx.put(var7.createString("y"), var7.createInt(var2xx + (var8 << 4)));
-                                    var4xx.put(var7.createString("z"), var7.createInt(var3xx + (var3x << 4)));
-                                    var4xx.put(var7.createString("color"), var7.createShort((short)14));
+                                    var4xx.put(var6x.createString("id"), var6x.createString("minecraft:bed"));
+                                    var4xx.put(var6x.createString("x"), var6x.createInt(var1xx + (var2x << 4)));
+                                    var4xx.put(var6x.createString("y"), var6x.createInt(var2xx + (var7 << 4)));
+                                    var4xx.put(var6x.createString("z"), var6x.createInt(var3xx + (var3x << 4)));
+                                    var4xx.put(var6x.createString("color"), var6x.createShort((short)14));
                                     return var4xx;
                                 } else {
                                     return null;
@@ -81,9 +80,9 @@ public class ChunkBedBlockEntityInjecterFix extends DataFix {
                                 param3x -> {
                                     if (param3x != null) {
                                         var4x.add(
-                                            var0.read(var7.createMap(param3x))
-                                                .result()
-                                                .orElseThrow(() -> new IllegalStateException("Could not parse newly created bed block entity."))
+                                            ((Pair)var0.read(var6x.createMap(param3x))
+                                                    .result()
+                                                    .orElseThrow(() -> new IllegalStateException("Could not parse newly created bed block entity.")))
                                                 .getFirst()
                                         );
                                     }

@@ -749,7 +749,7 @@ public class ExecuteCommand {
             .withParameter(LootContextParams.ORIGIN, param0.getPosition())
             .withOptionalParameter(LootContextParams.THIS_ENTITY, param0.getEntity())
             .create(LootContextParamSets.COMMAND);
-        LootContext var2 = new LootContext.Builder(var1).create(null);
+        LootContext var2 = new LootContext.Builder(var1).create(Optional.empty());
         var2.pushVisitedElement(LootContext.createVisitedEntry(param1));
         return param1.test(var2);
     }

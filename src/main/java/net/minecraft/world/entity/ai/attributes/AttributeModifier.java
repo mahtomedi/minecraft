@@ -1,6 +1,7 @@
 package net.minecraft.world.entity.ai.attributes;
 
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -8,6 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import org.slf4j.Logger;
 
 public class AttributeModifier {
@@ -99,16 +101,19 @@ public class AttributeModifier {
         }
     }
 
-    public static enum Operation {
-        ADDITION(0),
-        MULTIPLY_BASE(1),
-        MULTIPLY_TOTAL(2);
+    public static enum Operation implements StringRepresentable {
+        ADDITION("addition", 0),
+        MULTIPLY_BASE("multiply_base", 1),
+        MULTIPLY_TOTAL("multiply_total", 2);
 
         private static final AttributeModifier.Operation[] OPERATIONS = new AttributeModifier.Operation[]{ADDITION, MULTIPLY_BASE, MULTIPLY_TOTAL};
+        public static final Codec<AttributeModifier.Operation> CODEC = StringRepresentable.fromEnum(AttributeModifier.Operation::values);
+        private final String name;
         private final int value;
 
-        private Operation(int param0) {
-            this.value = param0;
+        private Operation(String param0, int param1) {
+            this.name = param0;
+            this.value = param1;
         }
 
         public int toValue() {
@@ -121,6 +126,11 @@ public class AttributeModifier {
             } else {
                 throw new IllegalArgumentException("No operation with value " + param0);
             }
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 }

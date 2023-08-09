@@ -282,80 +282,79 @@ public class PistonBaseBlock extends DirectionalBlock {
             List<BlockPos> var3 = var1.getToPush();
             List<BlockState> var4 = Lists.newArrayList();
 
-            for(int var5 = 0; var5 < var3.size(); ++var5) {
-                BlockPos var6 = var3.get(var5);
-                BlockState var7 = param0.getBlockState(var6);
-                var4.add(var7);
-                var2.put(var6, var7);
+            for(BlockPos var5 : var3) {
+                BlockState var6 = param0.getBlockState(var5);
+                var4.add(var6);
+                var2.put(var5, var6);
             }
 
-            List<BlockPos> var8 = var1.getToDestroy();
-            BlockState[] var9 = new BlockState[var3.size() + var8.size()];
-            Direction var10 = param3 ? param2 : param2.getOpposite();
-            int var11 = 0;
+            List<BlockPos> var7 = var1.getToDestroy();
+            BlockState[] var8 = new BlockState[var3.size() + var7.size()];
+            Direction var9 = param3 ? param2 : param2.getOpposite();
+            int var10 = 0;
 
-            for(int var12 = var8.size() - 1; var12 >= 0; --var12) {
-                BlockPos var13 = var8.get(var12);
-                BlockState var14 = param0.getBlockState(var13);
-                BlockEntity var15 = var14.hasBlockEntity() ? param0.getBlockEntity(var13) : null;
-                dropResources(var14, param0, var13, var15);
-                param0.setBlock(var13, Blocks.AIR.defaultBlockState(), 18);
-                param0.gameEvent(GameEvent.BLOCK_DESTROY, var13, GameEvent.Context.of(var14));
-                if (!var14.is(BlockTags.FIRE)) {
-                    param0.addDestroyBlockEffect(var13, var14);
+            for(int var11 = var7.size() - 1; var11 >= 0; --var11) {
+                BlockPos var12 = var7.get(var11);
+                BlockState var13 = param0.getBlockState(var12);
+                BlockEntity var14 = var13.hasBlockEntity() ? param0.getBlockEntity(var12) : null;
+                dropResources(var13, param0, var12, var14);
+                param0.setBlock(var12, Blocks.AIR.defaultBlockState(), 18);
+                param0.gameEvent(GameEvent.BLOCK_DESTROY, var12, GameEvent.Context.of(var13));
+                if (!var13.is(BlockTags.FIRE)) {
+                    param0.addDestroyBlockEffect(var12, var13);
                 }
 
-                var9[var11++] = var14;
+                var8[var10++] = var13;
             }
 
-            for(int var16 = var3.size() - 1; var16 >= 0; --var16) {
-                BlockPos var17 = var3.get(var16);
-                BlockState var18 = param0.getBlockState(var17);
-                var17 = var17.relative(var10);
-                var2.remove(var17);
-                BlockState var19 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, param2);
-                param0.setBlock(var17, var19, 68);
-                param0.setBlockEntity(MovingPistonBlock.newMovingBlockEntity(var17, var19, var4.get(var16), param2, param3, false));
-                var9[var11++] = var18;
+            for(int var15 = var3.size() - 1; var15 >= 0; --var15) {
+                BlockPos var16 = var3.get(var15);
+                BlockState var17 = param0.getBlockState(var16);
+                var16 = var16.relative(var9);
+                var2.remove(var16);
+                BlockState var18 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, param2);
+                param0.setBlock(var16, var18, 68);
+                param0.setBlockEntity(MovingPistonBlock.newMovingBlockEntity(var16, var18, var4.get(var15), param2, param3, false));
+                var8[var10++] = var17;
             }
 
             if (param3) {
-                PistonType var20 = this.isSticky ? PistonType.STICKY : PistonType.DEFAULT;
-                BlockState var21 = Blocks.PISTON_HEAD.defaultBlockState().setValue(PistonHeadBlock.FACING, param2).setValue(PistonHeadBlock.TYPE, var20);
-                BlockState var22 = Blocks.MOVING_PISTON
+                PistonType var19 = this.isSticky ? PistonType.STICKY : PistonType.DEFAULT;
+                BlockState var20 = Blocks.PISTON_HEAD.defaultBlockState().setValue(PistonHeadBlock.FACING, param2).setValue(PistonHeadBlock.TYPE, var19);
+                BlockState var21 = Blocks.MOVING_PISTON
                     .defaultBlockState()
                     .setValue(MovingPistonBlock.FACING, param2)
                     .setValue(MovingPistonBlock.TYPE, this.isSticky ? PistonType.STICKY : PistonType.DEFAULT);
                 var2.remove(var0);
-                param0.setBlock(var0, var22, 68);
-                param0.setBlockEntity(MovingPistonBlock.newMovingBlockEntity(var0, var22, var21, param2, true, true));
+                param0.setBlock(var0, var21, 68);
+                param0.setBlockEntity(MovingPistonBlock.newMovingBlockEntity(var0, var21, var20, param2, true, true));
             }
 
-            BlockState var23 = Blocks.AIR.defaultBlockState();
+            BlockState var22 = Blocks.AIR.defaultBlockState();
 
-            for(BlockPos var24 : var2.keySet()) {
-                param0.setBlock(var24, var23, 82);
+            for(BlockPos var23 : var2.keySet()) {
+                param0.setBlock(var23, var22, 82);
             }
 
-            for(Entry<BlockPos, BlockState> var25 : var2.entrySet()) {
-                BlockPos var26 = var25.getKey();
-                BlockState var27 = var25.getValue();
-                var27.updateIndirectNeighbourShapes(param0, var26, 2);
-                var23.updateNeighbourShapes(param0, var26, 2);
-                var23.updateIndirectNeighbourShapes(param0, var26, 2);
+            for(Entry<BlockPos, BlockState> var24 : var2.entrySet()) {
+                BlockPos var25 = var24.getKey();
+                BlockState var26 = var24.getValue();
+                var26.updateIndirectNeighbourShapes(param0, var25, 2);
+                var22.updateNeighbourShapes(param0, var25, 2);
+                var22.updateIndirectNeighbourShapes(param0, var25, 2);
             }
 
-            var11 = 0;
+            var10 = 0;
 
-            for(int var28 = var8.size() - 1; var28 >= 0; --var28) {
-                BlockState var29 = var9[var11++];
-                BlockPos var30 = var8.get(var28);
-                var29.updateIndirectNeighbourShapes(param0, var30, 2);
-                param0.updateNeighborsAt(var30, var29.getBlock());
+            for(int var27 = var7.size() - 1; var27 >= 0; --var27) {
+                BlockState var28 = var8[var10++];
+                BlockPos var29 = var7.get(var27);
+                var28.updateIndirectNeighbourShapes(param0, var29, 2);
+                param0.updateNeighborsAt(var29, var28.getBlock());
             }
 
-            for(int var31 = var3.size() - 1; var31 >= 0; --var31) {
-                param0.updateNeighborsAt(var3.get(var31), var9[var11++].getBlock());
+            for(int var30 = var3.size() - 1; var30 >= 0; --var30) {
+                param0.updateNeighborsAt(var3.get(var30), var8[var10++].getBlock());
             }
 
             if (param3) {

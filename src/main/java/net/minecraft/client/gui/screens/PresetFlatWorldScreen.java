@@ -228,8 +228,8 @@ public class PresetFlatWorldScreen extends Screen {
         param0.pose().pushPose();
         param0.pose().translate(0.0F, 0.0F, 400.0F);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
-        param0.drawString(this.font, this.shareText, 50, 30, 10526880);
-        param0.drawString(this.font, this.listText, 50, 70, 10526880);
+        param0.drawString(this.font, this.shareText, 51, 30, 10526880);
+        param0.drawString(this.font, this.listText, 51, 70, 10526880);
         param0.pose().popPose();
         this.export.render(param0, param1, param2, param3);
     }

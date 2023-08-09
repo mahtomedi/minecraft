@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.DebugQueryHandler;
@@ -225,6 +224,7 @@ import net.minecraft.network.protocol.game.ServerboundConfigurationAcknowledgedP
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundMoveVehiclePacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
+import net.minecraft.network.protocol.status.ClientboundPongResponsePacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -331,8 +331,9 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     private SignedMessageChain.Encoder signedMessageEncoder = SignedMessageChain.Encoder.UNSIGNED;
     private LastSeenMessagesTracker lastSeenMessages = new LastSeenMessagesTracker(20);
     private MessageSignatureCache messageSignatureCache = MessageSignatureCache.createDefault();
-    private volatile long chunkBatchStartTime = Util.getMillis();
-    private final ChunkReceiveSpeedAccumulator accumulator = new ChunkReceiveSpeedAccumulator(50);
+    private final ChunkBatchSizeCalculator chunkBatchSizeCalculator = new ChunkBatchSizeCalculator();
+    private final PingDebugMonitor pingDebugMonitor;
+    private boolean seenInsecureChatWarning = false;
 
     public ClientPacketListener(Minecraft param0, Connection param1, CommonListenerCookie param2) {
         super(param0, param1, param2);
@@ -341,6 +342,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         this.enabledFeatures = param2.enabledFeatures();
         this.advancements = new ClientAdvancements(param0, this.telemetryManager);
         this.suggestionsProvider = new ClientSuggestionProvider(this, param0);
+        this.pingDebugMonitor = new PingDebugMonitor(this, param0.pingLogger);
     }
 
     public ClientSuggestionProvider getSuggestionsProvider() {
@@ -846,6 +848,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             UUID var2 = param0.sender();
             PlayerInfo var3 = this.getPlayerInfo(var2);
             if (var3 == null) {
+                LOGGER.error("Received player chat packet for unknown player with ID: {}", var2);
                 this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
             } else {
                 RemoteChatSession var4 = var3.getChatSession();
@@ -858,7 +861,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
 
                 PlayerChatMessage var7 = new PlayerChatMessage(var5, param0.signature(), var0.get(), param0.unsignedContent(), param0.filterMask());
                 if (!var3.getMessageValidator().updateAndValidate(var7)) {
-                    this.connection.disconnect(CHAT_VALIDATION_FAILED_ERROR);
+                    this.minecraft.getChatListener().handleChatMessageError(var2, var1.get());
                 } else {
                     this.minecraft.getChatListener().handlePlayerChatMessage(var7, var3.getProfile(), var1.get());
                     this.messageSignatureCache.push(var7);
@@ -1145,13 +1148,12 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     public void handleHorseScreenOpen(ClientboundHorseScreenOpenPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Entity var0 = this.level.getEntity(param0.getEntityId());
-        if (var0 instanceof AbstractHorse) {
-            LocalPlayer var1 = this.minecraft.player;
-            AbstractHorse var2 = (AbstractHorse)var0;
+        if (var0 instanceof AbstractHorse var1) {
+            LocalPlayer var2 = this.minecraft.player;
             SimpleContainer var3 = new SimpleContainer(param0.getSize());
-            HorseInventoryMenu var4 = new HorseInventoryMenu(param0.getContainerId(), var1.getInventory(), var3, var2);
-            var1.containerMenu = var4;
-            this.minecraft.setScreen(new HorseInventoryScreen(var4, var1.getInventory(), var2));
+            HorseInventoryMenu var4 = new HorseInventoryMenu(param0.getContainerId(), var2.getInventory(), var3, var1);
+            var2.containerMenu = var4;
+            this.minecraft.setScreen(new HorseInventoryScreen(var4, var2.getInventory(), var1));
         }
 
     }
@@ -1640,11 +1642,12 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             param0.getIconBytes().ifPresent(this.serverData::setIconBytes);
             this.serverData.setEnforcesSecureChat(param0.enforcesSecureChat());
             ServerList.saveSingleServer(this.serverData);
-            if (!param0.enforcesSecureChat()) {
+            if (!this.seenInsecureChatWarning && !param0.enforcesSecureChat()) {
                 SystemToast var0 = SystemToast.multiline(
                     this.minecraft, SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING, UNSECURE_SERVER_TOAST_TITLE, UNSERURE_SERVER_TOAST
                 );
                 this.minecraft.getToasts().addToast(var0);
+                this.seenInsecureChatWarning = true;
             }
 
         }
@@ -1773,7 +1776,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             RemoteChatSession.Data var2 = param0.chatSession();
             if (var2 != null) {
                 try {
-                    RemoteChatSession var3 = var2.validate(var0, var1, ProfilePublicKey.EXPIRY_GRACE_PERIOD);
+                    RemoteChatSession var3 = var2.validate(var0, var1);
                     param1.setChatSession(var3);
                 } catch (ProfilePublicKey.ValidationException var7) {
                     LOGGER.error("Failed to validate profile key for player: '{}'", var0.getName(), var7);
@@ -2187,20 +2190,18 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
 
     @Override
     public void handleChunkBatchStart(ClientboundChunkBatchStartPacket param0) {
-        this.chunkBatchStartTime = Util.getMillis();
+        this.chunkBatchSizeCalculator.onBatchStart();
     }
 
     @Override
     public void handleChunkBatchFinished(ClientboundChunkBatchFinishedPacket param0) {
-        long var0 = Util.getMillis() - this.chunkBatchStartTime;
-        int var1 = param0.batchSize();
-        if (var1 > 0) {
-            this.accumulator.accumulate(var1, var0);
-        }
+        this.chunkBatchSizeCalculator.onBatchFinished(param0.batchSize());
+        this.send(new ServerboundChunkBatchReceivedPacket(this.chunkBatchSizeCalculator.getDesiredChunksPerTick()));
+    }
 
-        double var2 = Math.max(0.0, this.accumulator.getMillisPerChunk());
-        float var3 = (float)(25.0 / var2);
-        this.send(new ServerboundChunkBatchReceivedPacket(var3));
+    @Override
+    public void handlePongResponse(ClientboundPongResponsePacket param0) {
+        this.pingDebugMonitor.onPongReceived(param0);
     }
 
     private void readSectionList(int param0, int param1, LevelLightEngine param2, LightLayer param3, BitSet param4, BitSet param5, Iterator<byte[]> param6) {
@@ -2345,6 +2346,10 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         }
 
         this.sendDeferredPackets();
+        if (this.minecraft.options.renderNetworkChart) {
+            this.pingDebugMonitor.tick();
+        }
+
         this.telemetryManager.tick();
     }
 

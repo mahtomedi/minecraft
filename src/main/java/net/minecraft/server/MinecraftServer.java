@@ -95,11 +95,11 @@ import net.minecraft.server.players.ServerOpListEntry;
 import net.minecraft.server.players.UserWhiteList;
 import net.minecraft.util.Crypt;
 import net.minecraft.util.CryptException;
-import net.minecraft.util.FrameTimer;
 import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
 import net.minecraft.util.NativeModuleLister;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.SampleLogger;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.Unit;
 import net.minecraft.util.profiling.EmptyProfileResults;
@@ -233,7 +233,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     private CommandStorage commandStorage;
     private final CustomBossEvents customBossEvents = new CustomBossEvents();
     private final ServerFunctionManager functionManager;
-    private final FrameTimer frameTimer = new FrameTimer();
+    private final SampleLogger tickTimeLogger = new SampleLogger();
     private boolean enforceWhitelist;
     private float averageTickTime;
     private final Executor executor;
@@ -820,7 +820,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         long var1 = this.tickTimes[this.tickCount % 100] = Util.getNanos() - var0;
         this.averageTickTime = this.averageTickTime * 0.8F + (float)var1 / 1000000.0F * 0.19999999F;
         long var2 = Util.getNanos();
-        this.frameTimer.logFrameDuration(var2 - var0);
+        this.tickTimeLogger.logSample(var2 - var0);
         this.profiler.pop();
     }
 
@@ -856,6 +856,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
     }
 
     public void tickChildren(BooleanSupplier param0) {
+        this.getPlayerList().getPlayers().forEach(param0x -> param0x.connection.suspendFlushing());
         this.profiler.push("commandFunctions");
         this.getFunctions().tick();
         this.profiler.popPush("levels");
@@ -894,6 +895,13 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
 
         for(int var3 = 0; var3 < this.tickables.size(); ++var3) {
             this.tickables.get(var3).run();
+        }
+
+        this.profiler.popPush("send chunks");
+
+        for(ServerPlayer var4 : this.playerList.getPlayers()) {
+            var4.connection.chunkSender.sendNextChunks(var4);
+            var4.connection.resumeFlushing();
         }
 
         this.profiler.pop();
@@ -1516,8 +1524,8 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
         }
     }
 
-    public FrameTimer getFrameTimer() {
-        return this.frameTimer;
+    public SampleLogger getTickTimeLogger() {
+        return this.tickTimeLogger;
     }
 
     public ProfilerFiller getProfiler() {

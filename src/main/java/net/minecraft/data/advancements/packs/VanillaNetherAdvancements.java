@@ -1,5 +1,6 @@
 package net.minecraft.data.advancements.packs;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -55,28 +56,28 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
         LootItemEntityPropertyCondition.hasProperties(
                 LootContext.EntityTarget.THIS,
                 EntityPredicate.Builder.entity()
-                    .equipment(EntityEquipmentPredicate.Builder.equipment().head(ItemPredicate.Builder.item().of(Items.GOLDEN_HELMET).build()).build())
+                    .equipment(EntityEquipmentPredicate.Builder.equipment().head(ItemPredicate.Builder.item().of(Items.GOLDEN_HELMET)))
             )
             .invert()
             .build(),
         LootItemEntityPropertyCondition.hasProperties(
                 LootContext.EntityTarget.THIS,
                 EntityPredicate.Builder.entity()
-                    .equipment(EntityEquipmentPredicate.Builder.equipment().chest(ItemPredicate.Builder.item().of(Items.GOLDEN_CHESTPLATE).build()).build())
+                    .equipment(EntityEquipmentPredicate.Builder.equipment().chest(ItemPredicate.Builder.item().of(Items.GOLDEN_CHESTPLATE)))
             )
             .invert()
             .build(),
         LootItemEntityPropertyCondition.hasProperties(
                 LootContext.EntityTarget.THIS,
                 EntityPredicate.Builder.entity()
-                    .equipment(EntityEquipmentPredicate.Builder.equipment().legs(ItemPredicate.Builder.item().of(Items.GOLDEN_LEGGINGS).build()).build())
+                    .equipment(EntityEquipmentPredicate.Builder.equipment().legs(ItemPredicate.Builder.item().of(Items.GOLDEN_LEGGINGS)))
             )
             .invert()
             .build(),
         LootItemEntityPropertyCondition.hasProperties(
                 LootContext.EntityTarget.THIS,
                 EntityPredicate.Builder.entity()
-                    .equipment(EntityEquipmentPredicate.Builder.equipment().feet(ItemPredicate.Builder.item().of(Items.GOLDEN_BOOTS).build()).build())
+                    .equipment(EntityEquipmentPredicate.Builder.equipment().feet(ItemPredicate.Builder.item().of(Items.GOLDEN_BOOTS)))
             )
             .invert()
             .build()
@@ -132,7 +133,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .addCriterion("fortress", PlayerTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.FORTRESS)))
+            .addCriterion("fortress", PlayerTrigger.TriggerInstance.located(LocationPredicate.Builder.inStructure(BuiltinStructures.FORTRESS)))
             .save(param1, "nether/find_fortress");
         Advancement.Builder.advancement()
             .parent(var0)
@@ -167,7 +168,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "killed_ghast",
                 KilledTrigger.TriggerInstance.playerKilledEntity(
-                    EntityPredicate.Builder.entity().of(EntityType.GHAST).located(LocationPredicate.inDimension(Level.OVERWORLD))
+                    EntityPredicate.Builder.entity().of(EntityType.GHAST).located(LocationPredicate.Builder.inDimension(Level.OVERWORLD))
                 )
             )
             .save(param1, "nether/uneasy_alliance");
@@ -271,7 +272,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "all_effects",
                 EffectsChangedTrigger.TriggerInstance.hasEffects(
-                    MobEffectsPredicate.effects()
+                    MobEffectsPredicate.Builder.effects()
                         .and(MobEffects.MOVEMENT_SPEED)
                         .and(MobEffects.MOVEMENT_SLOWDOWN)
                         .and(MobEffects.DAMAGE_BOOST)
@@ -304,7 +305,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "all_effects",
                 EffectsChangedTrigger.TriggerInstance.hasEffects(
-                    MobEffectsPredicate.effects()
+                    MobEffectsPredicate.Builder.effects()
                         .and(MobEffects.MOVEMENT_SPEED)
                         .and(MobEffects.MOVEMENT_SLOWDOWN)
                         .and(MobEffects.DAMAGE_BOOST)
@@ -384,7 +385,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "use_lodestone",
                 ItemUsedOnLocationTrigger.TriggerInstance.itemUsedOnBlock(
-                    LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.LODESTONE).build()),
+                    LocationPredicate.Builder.location().setBlock(BlockPredicate.Builder.block().of(Blocks.LODESTONE)),
                     ItemPredicate.Builder.item().of(Items.COMPASS)
                 )
             )
@@ -422,8 +423,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
                         .setBlock(
                             BlockPredicate.Builder.block()
                                 .of(Blocks.RESPAWN_ANCHOR)
-                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(RespawnAnchorBlock.CHARGE, 4).build())
-                                .build()
+                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(RespawnAnchorBlock.CHARGE, 4))
                         ),
                     ItemPredicate.Builder.item().of(Blocks.GLOWSTONE)
                 )
@@ -444,7 +444,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
             .addCriterion(
                 "used_warped_fungus_on_a_stick",
                 ItemDurabilityTrigger.TriggerInstance.changedDurability(
-                    EntityPredicate.wrap(EntityPredicate.Builder.entity().vehicle(EntityPredicate.Builder.entity().of(EntityType.STRIDER).build()).build()),
+                    EntityPredicate.wrap(EntityPredicate.Builder.entity().vehicle(EntityPredicate.Builder.entity().of(EntityType.STRIDER))),
                     ItemPredicate.Builder.item().of(Items.WARPED_FUNGUS_ON_A_STICK).build(),
                     MinMaxBounds.Ints.ANY
                 )
@@ -466,8 +466,8 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
                 "ride_entity_distance",
                 DistanceTrigger.TriggerInstance.rideEntityInLava(
                     EntityPredicate.Builder.entity()
-                        .located(LocationPredicate.inDimension(Level.OVERWORLD))
-                        .vehicle(EntityPredicate.Builder.entity().of(EntityType.STRIDER).build()),
+                        .located(LocationPredicate.Builder.inDimension(Level.OVERWORLD))
+                        .vehicle(EntityPredicate.Builder.entity().of(EntityType.STRIDER)),
                     DistancePredicate.horizontal(MinMaxBounds.Doubles.atLeast(50.0))
                 )
             )
@@ -498,7 +498,7 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
                 true,
                 false
             )
-            .addCriterion("bastion", PlayerTrigger.TriggerInstance.located(LocationPredicate.inStructure(BuiltinStructures.BASTION_REMNANT)))
+            .addCriterion("bastion", PlayerTrigger.TriggerInstance.located(LocationPredicate.Builder.inStructure(BuiltinStructures.BASTION_REMNANT)))
             .save(param1, "nether/find_bastion");
         Advancement.Builder.advancement()
             .parent(var12)
@@ -538,19 +538,15 @@ public class VanillaNetherAdvancements implements AdvancementSubProvider {
                 PickedUpItemTrigger.TriggerInstance.thrownItemPickedUpByEntity(
                     DISTRACT_PIGLIN_PLAYER_ARMOR_PREDICATE,
                     ItemPredicate.Builder.item().of(ItemTags.PIGLIN_LOVED).build(),
-                    EntityPredicate.wrap(
-                        EntityPredicate.Builder.entity().of(EntityType.PIGLIN).flags(EntityFlagsPredicate.Builder.flags().setIsBaby(false).build()).build()
-                    )
+                    EntityPredicate.wrap(EntityPredicate.Builder.entity().of(EntityType.PIGLIN).flags(EntityFlagsPredicate.Builder.flags().setIsBaby(false)))
                 )
             )
             .addCriterion(
                 "distract_piglin_directly",
                 PlayerInteractTrigger.TriggerInstance.itemUsedOnEntity(
-                    DISTRACT_PIGLIN_PLAYER_ARMOR_PREDICATE,
+                    Optional.of(DISTRACT_PIGLIN_PLAYER_ARMOR_PREDICATE),
                     ItemPredicate.Builder.item().of(PiglinAi.BARTERING_ITEM),
-                    EntityPredicate.wrap(
-                        EntityPredicate.Builder.entity().of(EntityType.PIGLIN).flags(EntityFlagsPredicate.Builder.flags().setIsBaby(false).build()).build()
-                    )
+                    EntityPredicate.wrap(EntityPredicate.Builder.entity().of(EntityType.PIGLIN).flags(EntityFlagsPredicate.Builder.flags().setIsBaby(false)))
                 )
             )
             .save(param1, "nether/distract_piglin");

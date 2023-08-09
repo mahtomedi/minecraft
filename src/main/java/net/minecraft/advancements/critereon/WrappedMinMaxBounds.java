@@ -12,18 +12,9 @@ import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
 
-public class WrappedMinMaxBounds {
+public record WrappedMinMaxBounds(@Nullable Float min, @Nullable Float max) {
     public static final WrappedMinMaxBounds ANY = new WrappedMinMaxBounds(null, null);
     public static final SimpleCommandExceptionType ERROR_INTS_ONLY = new SimpleCommandExceptionType(Component.translatable("argument.range.ints"));
-    @Nullable
-    private final Float min;
-    @Nullable
-    private final Float max;
-
-    public WrappedMinMaxBounds(@Nullable Float param0, @Nullable Float param1) {
-        this.min = param0;
-        this.max = param1;
-    }
 
     public static WrappedMinMaxBounds exactly(float param0) {
         return new WrappedMinMaxBounds(param0, param0);
@@ -59,16 +50,6 @@ public class WrappedMinMaxBounds {
         } else {
             return this.max == null || !((double)(this.max * this.max) < param0);
         }
-    }
-
-    @Nullable
-    public Float getMin() {
-        return this.min;
-    }
-
-    @Nullable
-    public Float getMax() {
-        return this.max;
     }
 
     public JsonElement serializeToJson() {

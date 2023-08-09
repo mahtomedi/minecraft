@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -13,8 +14,8 @@ public class EntityHurtPlayerTrigger extends SimpleCriterionTrigger<EntityHurtPl
         return ID;
     }
 
-    public EntityHurtPlayerTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        DamagePredicate var0 = DamagePredicate.fromJson(param0.get("damage"));
+    public EntityHurtPlayerTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<DamagePredicate> var0 = DamagePredicate.fromJson(param0.get("damage"));
         return new EntityHurtPlayerTrigger.TriggerInstance(param1, var0);
     }
 
@@ -23,33 +24,33 @@ public class EntityHurtPlayerTrigger extends SimpleCriterionTrigger<EntityHurtPl
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final DamagePredicate damage;
+        private final Optional<DamagePredicate> damage;
 
-        public TriggerInstance(ContextAwarePredicate param0, DamagePredicate param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<DamagePredicate> param1) {
             super(EntityHurtPlayerTrigger.ID, param0);
             this.damage = param1;
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer() {
-            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, DamagePredicate.ANY);
+            return new EntityHurtPlayerTrigger.TriggerInstance(Optional.empty(), Optional.empty());
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer(DamagePredicate param0) {
-            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
+            return new EntityHurtPlayerTrigger.TriggerInstance(Optional.empty(), Optional.of(param0));
         }
 
         public static EntityHurtPlayerTrigger.TriggerInstance entityHurtPlayer(DamagePredicate.Builder param0) {
-            return new EntityHurtPlayerTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0.build());
+            return new EntityHurtPlayerTrigger.TriggerInstance(Optional.empty(), param0.build());
         }
 
         public boolean matches(ServerPlayer param0, DamageSource param1, float param2, float param3, boolean param4) {
-            return this.damage.matches(param0, param1, param2, param3, param4);
+            return !this.damage.isPresent() || this.damage.get().matches(param0, param1, param2, param3, param4);
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("damage", this.damage.serializeToJson());
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.damage.ifPresent(param1 -> var0.add("damage", param1.serializeToJson()));
             return var0;
         }
     }

@@ -1,27 +1,25 @@
 package net.minecraft.world.level.storage.loot.providers.number;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.providers.score.ContextScoreboardNameProvider;
 import net.minecraft.world.level.storage.loot.providers.score.ScoreboardNameProvider;
+import net.minecraft.world.level.storage.loot.providers.score.ScoreboardNameProviders;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
-public class ScoreboardValue implements NumberProvider {
-    final ScoreboardNameProvider target;
-    final String score;
-    final float scale;
-
-    ScoreboardValue(ScoreboardNameProvider param0, String param1, float param2) {
-        this.target = param0;
-        this.score = param1;
-        this.scale = param2;
-    }
+public record ScoreboardValue(ScoreboardNameProvider target, String score, float scale) implements NumberProvider {
+    public static final Codec<ScoreboardValue> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ScoreboardNameProviders.CODEC.fieldOf("target").forGetter(ScoreboardValue::target),
+                    Codec.STRING.fieldOf("score").forGetter(ScoreboardValue::score),
+                    Codec.FLOAT.fieldOf("scale").orElse(1.0F).forGetter(ScoreboardValue::scale)
+                )
+                .apply(param0, ScoreboardValue::new)
+    );
 
     @Override
     public LootNumberProviderType getType() {
@@ -54,21 +52,6 @@ public class ScoreboardValue implements NumberProvider {
             } else {
                 return !var1.hasPlayerScore(var0, var2) ? 0.0F : (float)var1.getOrCreatePlayerScore(var0, var2).getScore() * this.scale;
             }
-        }
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ScoreboardValue> {
-        public ScoreboardValue deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            String var0 = GsonHelper.getAsString(param0, "score");
-            float var1 = GsonHelper.getAsFloat(param0, "scale", 1.0F);
-            ScoreboardNameProvider var2 = GsonHelper.getAsObject(param0, "target", param1, ScoreboardNameProvider.class);
-            return new ScoreboardValue(var2, var0, var1);
-        }
-
-        public void serialize(JsonObject param0, ScoreboardValue param1, JsonSerializationContext param2) {
-            param0.addProperty("score", param1.score);
-            param0.add("target", param2.serialize(param1.target));
-            param0.addProperty("scale", param1.scale);
         }
     }
 }

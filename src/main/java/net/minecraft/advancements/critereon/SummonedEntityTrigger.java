@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -14,8 +15,8 @@ public class SummonedEntityTrigger extends SimpleCriterionTrigger<SummonedEntity
         return ID;
     }
 
-    public SummonedEntityTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
-        ContextAwarePredicate var0 = EntityPredicate.fromJson(param0, "entity", param2);
+    public SummonedEntityTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
+        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "entity", param2);
         return new SummonedEntityTrigger.TriggerInstance(param1, var0);
     }
 
@@ -25,25 +26,25 @@ public class SummonedEntityTrigger extends SimpleCriterionTrigger<SummonedEntity
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ContextAwarePredicate entity;
+        private final Optional<ContextAwarePredicate> entity;
 
-        public TriggerInstance(ContextAwarePredicate param0, ContextAwarePredicate param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1) {
             super(SummonedEntityTrigger.ID, param0);
             this.entity = param1;
         }
 
         public static SummonedEntityTrigger.TriggerInstance summonedEntity(EntityPredicate.Builder param0) {
-            return new SummonedEntityTrigger.TriggerInstance(ContextAwarePredicate.ANY, EntityPredicate.wrap(param0.build()));
+            return new SummonedEntityTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0));
         }
 
         public boolean matches(LootContext param0) {
-            return this.entity.matches(param0);
+            return this.entity.isEmpty() || this.entity.get().matches(param0);
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("entity", this.entity.toJson(param0));
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.entity.ifPresent(param1 -> var0.add("entity", param1.toJson()));
             return var0;
         }
     }

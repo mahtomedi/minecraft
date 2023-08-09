@@ -16,9 +16,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.BaseCoralWallFanBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class BoneMealItem extends Item {
     public static final int GRASS_SPREAD_WIDTH = 3;
@@ -36,6 +38,7 @@ public class BoneMealItem extends Item {
         BlockPos var2 = var1.relative(param0.getClickedFace());
         if (growCrop(param0.getItemInHand(), var0, var1)) {
             if (!var0.isClientSide) {
+                param0.getPlayer().gameEvent(GameEvent.ITEM_INTERACT_FINISH);
                 var0.levelEvent(1505, var1, 0);
             }
 
@@ -45,6 +48,7 @@ public class BoneMealItem extends Item {
             boolean var4 = var3.isFaceSturdy(var0, var1, param0.getClickedFace());
             if (var4 && growWaterPlant(param0.getItemInHand(), var0, var2, param0.getClickedFace())) {
                 if (!var0.isClientSide) {
+                    param0.getPlayer().gameEvent(GameEvent.ITEM_INTERACT_FINISH);
                     var0.levelEvent(1505, var2, 0);
                 }
 
@@ -57,7 +61,8 @@ public class BoneMealItem extends Item {
 
     public static boolean growCrop(ItemStack param0, Level param1, BlockPos param2) {
         BlockState var0 = param1.getBlockState(param2);
-        if (var0.getBlock() instanceof BonemealableBlock var1 && var1.isValidBonemealTarget(param1, param2, var0)) {
+        Block var5 = var0.getBlock();
+        if (var5 instanceof BonemealableBlock var1 && var1.isValidBonemealTarget(param1, param2, var0)) {
             if (param1 instanceof ServerLevel) {
                 if (var1.isBonemealSuccess(param1, param1.random, param2, var0)) {
                     var1.performBonemeal((ServerLevel)param1, param1.random, param2, var0);

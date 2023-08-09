@@ -3,16 +3,19 @@ package net.minecraft.client.gui.components;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class AbstractScrollWidget extends AbstractWidget implements Renderable, GuiEventListener {
-    private static final int BORDER_COLOR_FOCUSED = -1;
-    private static final int BORDER_COLOR = -6250336;
-    private static final int BACKGROUND_COLOR = -16777216;
+    private static final WidgetSprites BACKGROUND_SPRITES = new WidgetSprites(
+        new ResourceLocation("widget/text_field"), new ResourceLocation("widget/text_field_highlighted")
+    );
+    private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("widget/scroller");
     private static final int INNER_PADDING = 4;
+    private static final int SCROLL_BAR_WIDTH = 8;
     private double scrollAmount;
     private boolean scrolling;
 
@@ -147,19 +150,15 @@ public abstract class AbstractScrollWidget extends AbstractWidget implements Ren
     }
 
     protected void renderBorder(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        int var0 = this.isFocused() ? -1 : -6250336;
-        param0.fill(param1, param2, param1 + param3, param2 + param4, var0);
-        param0.fill(param1 + 1, param2 + 1, param1 + param3 - 1, param2 + param4 - 1, -16777216);
+        ResourceLocation var0 = BACKGROUND_SPRITES.get(this.isActive(), this.isFocused());
+        param0.blitSprite(var0, param1, param2, param3, param4);
     }
 
     private void renderScrollBar(GuiGraphics param0) {
         int var0 = this.getScrollBarHeight();
         int var1 = this.getX() + this.width;
-        int var2 = this.getX() + this.width + 8;
-        int var3 = Math.max(this.getY(), (int)this.scrollAmount * (this.height - var0) / this.getMaxScrollAmount() + this.getY());
-        int var4 = var3 + var0;
-        param0.fill(var1, var3, var2, var4, -8355712);
-        param0.fill(var1, var3, var2 - 1, var4 - 1, -4144960);
+        int var2 = Math.max(this.getY(), (int)this.scrollAmount * (this.height - var0) / this.getMaxScrollAmount() + this.getY());
+        param0.blitSprite(SCROLLER_SPRITE, var1, var2, 8, var0);
     }
 
     protected boolean withinContentAreaTopBottom(int param0, int param1) {

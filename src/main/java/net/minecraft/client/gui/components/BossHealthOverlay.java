@@ -9,6 +9,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBossEventPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -78,7 +79,7 @@ public class BossHealthOverlay {
 
     private void drawBar(GuiGraphics param0, int param1, int param2, BossEvent param3) {
         this.drawBar(param0, param1, param2, param3, 182, BAR_BACKGROUND_SPRITES, OVERLAY_BACKGROUND_SPRITES);
-        int var0 = (int)(param3.getProgress() * 183.0F);
+        int var0 = Mth.lerpDiscrete(param3.getProgress(), 0, 182);
         if (var0 > 0) {
             this.drawBar(param0, param1, param2, param3, var0, BAR_PROGRESS_SPRITES, OVERLAY_PROGRESS_SPRITES);
         }
@@ -89,7 +90,7 @@ public class BossHealthOverlay {
         param0.blitSprite(param5[param3.getColor().ordinal()], 182, 5, 0, 0, param1, param2, param4, 5);
         if (param3.getOverlay() != BossEvent.BossBarOverlay.PROGRESS) {
             RenderSystem.enableBlend();
-            param0.blitSprite(param6[param3.getOverlay().ordinal() - 1], param1, param2, param4, 5);
+            param0.blitSprite(param6[param3.getOverlay().ordinal() - 1], 182, 5, 0, 0, param1, param2, param4, 5);
             RenderSystem.disableBlend();
         }
 

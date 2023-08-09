@@ -28,9 +28,12 @@ import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.debugchart.BandwidthDebugChart;
+import net.minecraft.client.gui.components.debugchart.FpsDebugChart;
+import net.minecraft.client.gui.components.debugchart.PingDebugChart;
+import net.minecraft.client.gui.components.debugchart.TpsDebugChart;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,7 +43,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.FrameTimer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
@@ -90,14 +92,19 @@ public class DebugScreenOverlay {
     private LevelChunk clientChunk;
     @Nullable
     private CompletableFuture<LevelChunk> serverChunk;
-    private static final int RED = -65536;
-    private static final int YELLOW = -256;
-    private static final int GREEN = -16711936;
+    private final FpsDebugChart fpsChart;
+    private final PingDebugChart pingChart;
+    private final BandwidthDebugChart bandwidthChart;
+    @Nullable
+    private TpsDebugChart tpsChart;
 
     public DebugScreenOverlay(Minecraft param0) {
         this.minecraft = param0;
         this.allocationRateCalculator = new DebugScreenOverlay.AllocationRateCalculator();
         this.font = param0.font;
+        this.fpsChart = new FpsDebugChart(this.font, param0.frameTimeLogger);
+        this.pingChart = new PingDebugChart(this.font, param0.pingLogger);
+        this.bandwidthChart = new BandwidthDebugChart(this.font, param0.bandwidthLogger);
     }
 
     public void clearChunkCache() {
@@ -115,15 +122,42 @@ public class DebugScreenOverlay {
             this.drawSystemInformation(param0);
             if (this.minecraft.options.renderFpsChart) {
                 int var0x = param0.guiWidth();
-                this.drawChart(param0, this.minecraft.getFrameTimer(), 0, var0x / 2, true);
-                IntegratedServer var1x = this.minecraft.getSingleplayerServer();
-                if (var1x != null) {
-                    this.drawChart(param0, var1x.getFrameTimer(), var0x - Math.min(var0x / 2, 240), var0x / 2, false);
+                int var1 = var0x / 2;
+                this.fpsChart.drawChart(param0, 0, this.fpsChart.getWidth(var1));
+                TpsDebugChart var2 = this.getTpsChart();
+                if (var2 != null) {
+                    int var3 = var2.getWidth(var1);
+                    var2.drawChart(param0, var0x - var3, var3);
                 }
+            }
+
+            if (this.minecraft.options.renderNetworkChart) {
+                int var4 = param0.guiWidth();
+                int var5 = var4 / 2;
+                if (!this.minecraft.isLocalServer()) {
+                    this.bandwidthChart.drawChart(param0, 0, this.bandwidthChart.getWidth(var5));
+                }
+
+                int var6 = this.pingChart.getWidth(var5);
+                this.pingChart.drawChart(param0, var4 - var6, var6);
             }
 
         });
         this.minecraft.getProfiler().pop();
+    }
+
+    @Nullable
+    private TpsDebugChart getTpsChart() {
+        if (this.tpsChart != null) {
+            return this.tpsChart;
+        } else {
+            IntegratedServer var0 = this.minecraft.getSingleplayerServer();
+            if (var0 != null) {
+                this.tpsChart = new TpsDebugChart(this.font, var0.getTickTimeLogger());
+            }
+
+            return this.tpsChart;
+        }
     }
 
     protected void drawGameInformation(GuiGraphics param0) {
@@ -496,88 +530,6 @@ public class DebugScreenOverlay {
         }
 
         return var0.getName() + ": " + var2;
-    }
-
-    private void drawChart(GuiGraphics param0, FrameTimer param1, int param2, int param3, boolean param4) {
-        int var0 = param1.getLogStart();
-        int var1 = param1.getLogEnd();
-        long[] var2 = param1.getLog();
-        int var4 = param2;
-        int var5 = Math.max(0, var2.length - param3);
-        int var6 = var2.length - var5;
-        int var3 = param1.wrapIndex(var0 + var5);
-        long var7 = 0L;
-        int var8 = Integer.MAX_VALUE;
-        int var9x = Integer.MIN_VALUE;
-
-        for(int var10 = 0; var10 < var6; ++var10) {
-            int var11 = (int)(var2[param1.wrapIndex(var3 + var10)] / 1000000L);
-            var8 = Math.min(var8, var11);
-            var9x = Math.max(var9x, var11);
-            var7 += (long)var11;
-        }
-
-        int var12 = param0.guiHeight();
-        param0.fill(RenderType.guiOverlay(), param2, var12 - 60, param2 + var6, var12, -1873784752);
-
-        while(var3 != var1) {
-            int var13 = param1.scaleSampleTo(var2[var3], param4 ? 30 : 60, param4 ? 60 : 20);
-            int var14 = param4 ? 100 : 60;
-            int var15 = this.getSampleColor(Mth.clamp(var13, 0, var14), 0, var14 / 2, var14);
-            param0.fill(RenderType.guiOverlay(), var4, var12 - var13, var4 + 1, var12, var15);
-            ++var4;
-            var3 = param1.wrapIndex(var3 + 1);
-        }
-
-        if (param4) {
-            param0.fill(RenderType.guiOverlay(), param2 + 1, var12 - 30 + 1, param2 + 14, var12 - 30 + 10, -1873784752);
-            param0.drawString(this.font, "60 FPS", param2 + 2, var12 - 30 + 2, 14737632, false);
-            param0.hLine(RenderType.guiOverlay(), param2, param2 + var6 - 1, var12 - 30, -1);
-            param0.fill(RenderType.guiOverlay(), param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
-            param0.drawString(this.font, "30 FPS", param2 + 2, var12 - 60 + 2, 14737632, false);
-            param0.hLine(RenderType.guiOverlay(), param2, param2 + var6 - 1, var12 - 60, -1);
-        } else {
-            param0.fill(RenderType.guiOverlay(), param2 + 1, var12 - 60 + 1, param2 + 14, var12 - 60 + 10, -1873784752);
-            param0.drawString(this.font, "20 TPS", param2 + 2, var12 - 60 + 2, 14737632, false);
-            param0.hLine(RenderType.guiOverlay(), param2, param2 + var6 - 1, var12 - 60, -1);
-        }
-
-        param0.hLine(RenderType.guiOverlay(), param2, param2 + var6 - 1, var12 - 1, -1);
-        param0.vLine(RenderType.guiOverlay(), param2, var12 - 60, var12, -1);
-        param0.vLine(RenderType.guiOverlay(), param2 + var6 - 1, var12 - 60, var12, -1);
-        int var16 = this.minecraft.options.framerateLimit().get();
-        if (param4 && var16 > 0 && var16 <= 250) {
-            param0.hLine(RenderType.guiOverlay(), param2, param2 + var6 - 1, var12 - 1 - (int)(1800.0 / (double)var16), -16711681);
-        }
-
-        String var17 = var8 + " ms min";
-        String var18 = var7 / (long)var6 + " ms avg";
-        String var19 = var9x + " ms max";
-        param0.drawString(this.font, var17, param2 + 2, var12 - 60 - 9, 14737632);
-        param0.drawCenteredString(this.font, var18, param2 + var6 / 2, var12 - 60 - 9, 14737632);
-        param0.drawString(this.font, var19, param2 + var6 - this.font.width(var19), var12 - 60 - 9, 14737632);
-    }
-
-    private int getSampleColor(int param0, int param1, int param2, int param3) {
-        return param0 < param2
-            ? this.colorLerp(-16711936, -256, (float)param0 / (float)param2)
-            : this.colorLerp(-256, -65536, (float)(param0 - param2) / (float)(param3 - param2));
-    }
-
-    private int colorLerp(int param0, int param1, float param2) {
-        int var0 = param0 >> 24 & 0xFF;
-        int var1 = param0 >> 16 & 0xFF;
-        int var2 = param0 >> 8 & 0xFF;
-        int var3 = param0 & 0xFF;
-        int var4 = param1 >> 24 & 0xFF;
-        int var5 = param1 >> 16 & 0xFF;
-        int var6 = param1 >> 8 & 0xFF;
-        int var7 = param1 & 0xFF;
-        int var8 = Mth.clamp((int)Mth.lerp(param2, (float)var0, (float)var4), 0, 255);
-        int var9 = Mth.clamp((int)Mth.lerp(param2, (float)var1, (float)var5), 0, 255);
-        int var10 = Mth.clamp((int)Mth.lerp(param2, (float)var2, (float)var6), 0, 255);
-        int var11 = Mth.clamp((int)Mth.lerp(param2, (float)var3, (float)var7), 0, 255);
-        return var8 << 24 | var9 << 16 | var10 << 8 | var11;
     }
 
     private static long bytesToMegabytes(long param0) {

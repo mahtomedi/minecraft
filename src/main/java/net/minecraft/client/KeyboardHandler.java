@@ -314,9 +314,9 @@ public class KeyboardHandler {
             param2.remove("Pos");
             param2.remove("Dimension");
             String var0 = NbtUtils.toPrettyComponent(param2).getString();
-            var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f %s", param0.toString(), param1.x, param1.y, param1.z, var0);
+            var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f %s", param0, param1.x, param1.y, param1.z, var0);
         } else {
-            var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f", param0.toString(), param1.x, param1.y, param1.z);
+            var1 = String.format(Locale.ROOT, "/summon %s %.2f %.2f %.2f", param0, param1.x, param1.y, param1.z);
         }
 
         this.setClipboard(var1);
@@ -417,6 +417,7 @@ public class KeyboardHandler {
                             this.minecraft.options.renderDebug = !this.minecraft.options.renderDebug;
                             this.minecraft.options.renderDebugCharts = this.minecraft.options.renderDebug && Screen.hasShiftDown();
                             this.minecraft.options.renderFpsChart = this.minecraft.options.renderDebug && Screen.hasAltDown();
+                            this.minecraft.options.renderNetworkChart = this.minecraft.options.renderDebug && Screen.hasControlDown() && !Screen.hasAltDown();
                         }
                     }
                 } else {

@@ -52,7 +52,7 @@ public class SuspiciousStewRecipe extends CustomRecipe {
             if (!var2.isEmpty()) {
                 SuspiciousEffectHolder var3 = SuspiciousEffectHolder.tryGet(var2.getItem());
                 if (var3 != null) {
-                    SuspiciousStewItem.saveMobEffect(var0, var3.getSuspiciousEffect(), var3.getEffectDuration());
+                    SuspiciousStewItem.saveMobEffects(var0, var3.getSuspiciousEffects());
                     break;
                 }
             }

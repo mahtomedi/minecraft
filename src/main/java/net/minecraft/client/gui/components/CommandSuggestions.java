@@ -383,8 +383,10 @@ public class CommandSuggestions {
         private int lastNarratedEntry;
 
         SuggestionsList(int param1, int param2, int param3, List<Suggestion> param4, boolean param5) {
-            int var0 = param1 - 1;
-            int var1 = CommandSuggestions.this.anchorToBottom ? param2 - 3 - Math.min(param4.size(), CommandSuggestions.this.suggestionLineLimit) * 12 : param2;
+            int var0 = param1 - (CommandSuggestions.this.input.isBordered() ? 0 : 1);
+            int var1 = CommandSuggestions.this.anchorToBottom
+                ? param2 - 3 - Math.min(param4.size(), CommandSuggestions.this.suggestionLineLimit) * 12
+                : param2 - (CommandSuggestions.this.input.isBordered() ? 1 : 0);
             this.rect = new Rect2i(var0, var1, param3 + 1, Math.min(param4.size(), CommandSuggestions.this.suggestionLineLimit) * 12);
             this.originalContents = CommandSuggestions.this.input.getValue();
             this.lastNarratedEntry = param5 ? -1 : 0;

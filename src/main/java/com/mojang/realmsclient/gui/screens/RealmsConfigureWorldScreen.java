@@ -14,6 +14,7 @@ import com.mojang.realmsclient.util.task.OpenServerTask;
 import com.mojang.realmsclient.util.task.SwitchMinigameTask;
 import com.mojang.realmsclient.util.task.SwitchSlotTask;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -400,53 +401,39 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void drawServerStatus(GuiGraphics param0, int param1, int param2, int param3, int param4) {
         if (this.serverData.expired) {
-            this.drawExpired(param0, param1, param2, param3, param4);
+            this.drawRealmStatus(param0, param1, param2, param3, param4, EXPIRED_SPRITE, () -> SERVER_EXPIRED_TOOLTIP);
         } else if (this.serverData.state == RealmsServer.State.CLOSED) {
-            this.drawClose(param0, param1, param2, param3, param4);
+            this.drawRealmStatus(param0, param1, param2, param3, param4, CLOSED_SPRITE, () -> SERVER_CLOSED_TOOLTIP);
         } else if (this.serverData.state == RealmsServer.State.OPEN) {
             if (this.serverData.daysLeft < 7) {
-                this.drawExpiring(param0, param1, param2, param3, param4, this.serverData.daysLeft);
+                this.drawRealmStatus(
+                    param0,
+                    param1,
+                    param2,
+                    param3,
+                    param4,
+                    EXPIRES_SOON_SPRITE,
+                    () -> {
+                        if (this.serverData.daysLeft <= 0) {
+                            return SERVER_EXPIRING_SOON_TOOLTIP;
+                        } else {
+                            return (Component)(this.serverData.daysLeft == 1
+                                ? SERVER_EXPIRING_IN_DAY_TOOLTIP
+                                : Component.translatable("mco.selectServer.expires.days", this.serverData.daysLeft));
+                        }
+                    }
+                );
             } else {
-                this.drawOpen(param0, param1, param2, param3, param4);
+                this.drawRealmStatus(param0, param1, param2, param3, param4, OPEN_SPRITE, () -> SERVER_OPEN_TOOLTIP);
             }
         }
 
     }
 
-    private void drawExpired(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        param0.blitSprite(EXPIRED_SPRITE, param1, param2, 10, 28);
+    private void drawRealmStatus(GuiGraphics param0, int param1, int param2, int param3, int param4, ResourceLocation param5, Supplier<Component> param6) {
+        param0.blitSprite(param5, param1, param2, 10, 28);
         if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
-            this.toolTip = SERVER_EXPIRED_TOOLTIP;
-        }
-
-    }
-
-    private void drawExpiring(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5) {
-        param0.blitSprite(EXPIRES_SOON_SPRITE, param1, param2, 10, 28);
-        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
-            if (param5 <= 0) {
-                this.toolTip = SERVER_EXPIRING_SOON_TOOLTIP;
-            } else if (param5 == 1) {
-                this.toolTip = SERVER_EXPIRING_IN_DAY_TOOLTIP;
-            } else {
-                this.toolTip = Component.translatable("mco.selectServer.expires.days", param5);
-            }
-        }
-
-    }
-
-    private void drawOpen(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        param0.blitSprite(OPEN_SPRITE, param1, param2, 10, 28);
-        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
-            this.toolTip = SERVER_OPEN_TOOLTIP;
-        }
-
-    }
-
-    private void drawClose(GuiGraphics param0, int param1, int param2, int param3, int param4) {
-        param0.blitSprite(CLOSED_SPRITE, param1, param2, 10, 28);
-        if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
-            this.toolTip = SERVER_CLOSED_TOOLTIP;
+            this.toolTip = param6.get();
         }
 
     }

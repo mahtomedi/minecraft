@@ -101,7 +101,7 @@ public class ServerRecipeBook extends RecipeBook {
             try {
                 ResourceLocation var2 = new ResourceLocation(var1);
                 Optional<? extends Recipe<?>> var3 = param2.byKey(var2);
-                if (!var3.isPresent()) {
+                if (var3.isEmpty()) {
                     LOGGER.error("Tried to load unrecognized recipe: {} removed now.", var2);
                 } else {
                     param1.accept(var3.get());

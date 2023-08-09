@@ -249,7 +249,7 @@ public class MapItemSavedData extends SavedData {
 
     private void removeDecoration(String param0) {
         MapDecoration var0 = this.decorations.remove(param0);
-        if (var0 != null && var0.getType().shouldTrackCount()) {
+        if (var0 != null && var0.type().shouldTrackCount()) {
             --this.trackedDecorationCount;
         }
 
@@ -335,7 +335,7 @@ public class MapItemSavedData extends SavedData {
         MapDecoration var11 = new MapDecoration(param0, var3, var4, var6, param6);
         MapDecoration var12 = this.decorations.put(param2, var11);
         if (!var11.equals(var12)) {
-            if (var12 != null && var12.getType().shouldTrackCount()) {
+            if (var12 != null && var12.type().shouldTrackCount()) {
                 --this.trackedDecorationCount;
             }
 
@@ -449,7 +449,7 @@ public class MapItemSavedData extends SavedData {
 
     public boolean isExplorationMap() {
         for(MapDecoration var0 : this.decorations.values()) {
-            if (var0.getType() == MapDecoration.Type.MANSION || var0.getType() == MapDecoration.Type.MONUMENT) {
+            if (var0.type() == MapDecoration.Type.MANSION || var0.type() == MapDecoration.Type.MONUMENT) {
                 return true;
             }
         }
@@ -464,7 +464,7 @@ public class MapItemSavedData extends SavedData {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             MapDecoration var1 = param0.get(var0);
             this.decorations.put("icon-" + var0, var1);
-            if (var1.getType().shouldTrackCount()) {
+            if (var1.type().shouldTrackCount()) {
                 ++this.trackedDecorationCount;
             }
         }

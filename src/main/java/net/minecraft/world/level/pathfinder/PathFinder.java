@@ -115,7 +115,7 @@ public class PathFinder {
                 .map(param1x -> this.reconstructPath(param1x.getBestNode(), param2.get(param1x), false))
                 .min(Comparator.comparingDouble(Path::getDistToTarget).thenComparingInt(Path::getNodeCount));
         param0.pop();
-        return !var12.isPresent() ? null : var12.get();
+        return var12.isEmpty() ? null : var12.get();
     }
 
     protected float distance(Node param0, Node param1) {

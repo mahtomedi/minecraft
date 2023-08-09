@@ -24,7 +24,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.StringUtils;
@@ -108,18 +111,18 @@ public class GsonHelper {
         return param0.has(param1) ? convertToString(param0.get(param1), param1) : param2;
     }
 
-    public static Item convertToItem(JsonElement param0, String param1) {
+    public static Holder<Item> convertToItem(JsonElement param0, String param1) {
         if (param0.isJsonPrimitive()) {
             String var0 = param0.getAsString();
             return BuiltInRegistries.ITEM
-                .getOptional(new ResourceLocation(var0))
+                .getHolder(ResourceKey.create(Registries.ITEM, new ResourceLocation(var0)))
                 .orElseThrow(() -> new JsonSyntaxException("Expected " + param1 + " to be an item, was unknown string '" + var0 + "'"));
         } else {
             throw new JsonSyntaxException("Expected " + param1 + " to be an item, was " + getType(param0));
         }
     }
 
-    public static Item getAsItem(JsonObject param0, String param1) {
+    public static Holder<Item> getAsItem(JsonObject param0, String param1) {
         if (param0.has(param1)) {
             return convertToItem(param0.get(param1), param1);
         } else {
@@ -129,7 +132,7 @@ public class GsonHelper {
 
     @Nullable
     @Contract("_,_,!null->!null;_,_,null->_")
-    public static Item getAsItem(JsonObject param0, String param1, @Nullable Item param2) {
+    public static Holder<Item> getAsItem(JsonObject param0, String param1, @Nullable Holder<Item> param2) {
         return param0.has(param1) ? convertToItem(param0.get(param1), param1) : param2;
     }
 

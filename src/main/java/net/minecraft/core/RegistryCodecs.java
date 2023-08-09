@@ -27,7 +27,7 @@ public class RegistryCodecs {
 
     public static <T> Codec<Registry<T>> networkCodec(ResourceKey<? extends Registry<T>> param0, Lifecycle param1, Codec<T> param2) {
         return withNameAndId(param0, param2.fieldOf("element")).codec().listOf().xmap(param2x -> {
-            WritableRegistry<T> var0x = new MappedRegistry<>(param0, param1);
+            MappedRegistry<T> var0x = new MappedRegistry<>(param0, param1);
 
             for(RegistryCodecs.RegistryEntry<T> var1x : param2x) {
                 var0x.registerMapping(var1x.id(), var1x.key(), var1x.value(), param1);

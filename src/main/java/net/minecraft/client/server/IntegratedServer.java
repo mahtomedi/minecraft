@@ -54,7 +54,7 @@ public class IntegratedServer extends MinecraftServer {
         ChunkProgressListenerFactory param6
     ) {
         super(param0, param2, param3, param4, param1.getProxy(), param1.getFixerUpper(), param5, param6);
-        this.setSingleplayerProfile(param1.getUser().getGameProfile());
+        this.setSingleplayerProfile(param1.getGameProfile());
         this.setDemo(param1.isDemo());
         this.setPlayerList(new IntegratedPlayerList(this, this.registries(), this.playerDataStorage));
         this.minecraft = param1;

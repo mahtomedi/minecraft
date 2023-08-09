@@ -31,7 +31,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
 
     public boolean checkExtraStartConditions(ServerLevel param0, Villager param1) {
         Brain<?> var0 = param1.getBrain();
-        if (!var0.getMemory(MemoryModuleType.INTERACTION_TARGET).isPresent()) {
+        if (var0.getMemory(MemoryModuleType.INTERACTION_TARGET).isEmpty()) {
             return false;
         } else {
             LivingEntity var1 = var0.getMemory(MemoryModuleType.INTERACTION_TARGET).get();

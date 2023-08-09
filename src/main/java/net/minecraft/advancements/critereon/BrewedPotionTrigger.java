@@ -2,6 +2,7 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +18,7 @@ public class BrewedPotionTrigger extends SimpleCriterionTrigger<BrewedPotionTrig
         return ID;
     }
 
-    public BrewedPotionTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public BrewedPotionTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Potion var0 = null;
         if (param0.has("potion")) {
             ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "potion"));
@@ -35,13 +36,13 @@ public class BrewedPotionTrigger extends SimpleCriterionTrigger<BrewedPotionTrig
         @Nullable
         private final Potion potion;
 
-        public TriggerInstance(ContextAwarePredicate param0, @Nullable Potion param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Potion param1) {
             super(BrewedPotionTrigger.ID, param0);
             this.potion = param1;
         }
 
         public static BrewedPotionTrigger.TriggerInstance brewedPotion() {
-            return new BrewedPotionTrigger.TriggerInstance(ContextAwarePredicate.ANY, null);
+            return new BrewedPotionTrigger.TriggerInstance(Optional.empty(), null);
         }
 
         public boolean matches(Potion param0) {
@@ -49,8 +50,8 @@ public class BrewedPotionTrigger extends SimpleCriterionTrigger<BrewedPotionTrig
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             if (this.potion != null) {
                 var0.addProperty("potion", BuiltInRegistries.POTION.getKey(this.potion).toString());
             }

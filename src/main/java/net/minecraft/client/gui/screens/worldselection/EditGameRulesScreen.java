@@ -189,7 +189,7 @@ public class EditGameRulesScreen extends Screen {
 
         public IntegerRuleEntry(Component param1, List<FormattedCharSequence> param2, String param3, GameRules.IntegerValue param4) {
             super(param2, param1);
-            this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 42, 20, param1.copy().append("\n").append(param3).append("\n"));
+            this.input = new EditBox(EditGameRulesScreen.this.minecraft.font, 10, 5, 44, 20, param1.copy().append("\n").append(param3).append("\n"));
             this.input.setValue(Integer.toString(param4.get()));
             this.input.setResponder(param1x -> {
                 if (param4.tryDeserialize(param1x)) {
@@ -207,7 +207,7 @@ public class EditGameRulesScreen extends Screen {
         @Override
         public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             this.renderLabel(param0, param2, param3);
-            this.input.setX(param3 + param4 - 44);
+            this.input.setX(param3 + param4 - 45);
             this.input.setY(param2);
             this.input.render(param0, param6, param7, param9);
         }

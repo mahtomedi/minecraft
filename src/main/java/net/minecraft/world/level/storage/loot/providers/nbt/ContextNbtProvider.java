@@ -1,19 +1,14 @@
 package net.minecraft.world.level.storage.loot.providers.nbt;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.storage.loot.GsonAdapterFactory;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -38,7 +33,19 @@ public class ContextNbtProvider implements NbtProvider {
         }
     };
     public static final ContextNbtProvider BLOCK_ENTITY = new ContextNbtProvider(BLOCK_ENTITY_PROVIDER);
-    final ContextNbtProvider.Getter getter;
+    private static final Codec<ContextNbtProvider.Getter> GETTER_CODEC = Codec.STRING.xmap(param0 -> {
+        if (param0.equals("block_entity")) {
+            return BLOCK_ENTITY_PROVIDER;
+        } else {
+            LootContext.EntityTarget var0 = LootContext.EntityTarget.getByName(param0);
+            return forEntity(var0);
+        }
+    }, ContextNbtProvider.Getter::getId);
+    public static final Codec<ContextNbtProvider> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(GETTER_CODEC.fieldOf("target").forGetter(param0x -> param0x.getter)).apply(param0, ContextNbtProvider::new)
+    );
+    public static final Codec<ContextNbtProvider> INLINE_CODEC = GETTER_CODEC.xmap(ContextNbtProvider::new, param0 -> param0.getter);
+    private final ContextNbtProvider.Getter getter;
 
     private static ContextNbtProvider.Getter forEntity(final LootContext.EntityTarget param0) {
         return new ContextNbtProvider.Getter() {
@@ -85,15 +92,6 @@ public class ContextNbtProvider implements NbtProvider {
         return new ContextNbtProvider(forEntity(param0));
     }
 
-    static ContextNbtProvider createFromContext(String param0) {
-        if (param0.equals("block_entity")) {
-            return new ContextNbtProvider(BLOCK_ENTITY_PROVIDER);
-        } else {
-            LootContext.EntityTarget var0 = LootContext.EntityTarget.getByName(param0);
-            return new ContextNbtProvider(forEntity(var0));
-        }
-    }
-
     interface Getter {
         @Nullable
         Tag get(LootContext var1);
@@ -101,27 +99,5 @@ public class ContextNbtProvider implements NbtProvider {
         String getId();
 
         Set<LootContextParam<?>> getReferencedContextParams();
-    }
-
-    public static class InlineSerializer implements GsonAdapterFactory.InlineSerializer<ContextNbtProvider> {
-        public JsonElement serialize(ContextNbtProvider param0, JsonSerializationContext param1) {
-            return new JsonPrimitive(param0.getter.getId());
-        }
-
-        public ContextNbtProvider deserialize(JsonElement param0, JsonDeserializationContext param1) {
-            String var0 = param0.getAsString();
-            return ContextNbtProvider.createFromContext(var0);
-        }
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<ContextNbtProvider> {
-        public void serialize(JsonObject param0, ContextNbtProvider param1, JsonSerializationContext param2) {
-            param0.addProperty("target", param1.getter.getId());
-        }
-
-        public ContextNbtProvider deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            String var0 = GsonHelper.getAsString(param0, "target");
-            return ContextNbtProvider.createFromContext(var0);
-        }
     }
 }

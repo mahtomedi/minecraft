@@ -100,7 +100,7 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     @Override
     public boolean isValidBonemealTarget(LevelReader param0, BlockPos param1, BlockState param2) {
         Optional<BlockPos> var0 = BlockUtil.getTopConnectedBlock(param0, param1, param2.getBlock(), Direction.UP, Blocks.BIG_DRIPLEAF);
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             return false;
         } else {
             BlockPos var1 = var0.get().above();
@@ -117,7 +117,7 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     @Override
     public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         Optional<BlockPos> var0 = BlockUtil.getTopConnectedBlock(param0, param2, param3.getBlock(), Direction.UP, Blocks.BIG_DRIPLEAF);
-        if (var0.isPresent()) {
+        if (!var0.isEmpty()) {
             BlockPos var1 = var0.get();
             BlockPos var2 = var1.above();
             Direction var3 = param3.getValue(FACING);

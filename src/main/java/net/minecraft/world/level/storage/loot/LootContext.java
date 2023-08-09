@@ -1,10 +1,7 @@
 package net.minecraft.world.level.storage.loot;
 
 import com.google.common.collect.Sets;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
@@ -12,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -109,29 +107,22 @@ public class LootContext {
             return this.params.getLevel();
         }
 
-        public LootContext create(@Nullable ResourceLocation param0) {
+        public LootContext create(Optional<ResourceLocation> param0) {
             ServerLevel var0 = this.getLevel();
             MinecraftServer var1 = var0.getServer();
-            RandomSource var2;
-            if (this.random != null) {
-                var2 = this.random;
-            } else if (param0 != null) {
-                var2 = var0.getRandomSequence(param0);
-            } else {
-                var2 = var0.getRandom();
-            }
-
+            RandomSource var2 = Optional.ofNullable(this.random).or(() -> param0.map(var0::getRandomSequence)).orElseGet(var0::getRandom);
             return new LootContext(this.params, var2, var1.getLootData());
         }
     }
 
-    public static enum EntityTarget {
+    public static enum EntityTarget implements StringRepresentable {
         THIS("this", LootContextParams.THIS_ENTITY),
         KILLER("killer", LootContextParams.KILLER_ENTITY),
         DIRECT_KILLER("direct_killer", LootContextParams.DIRECT_KILLER_ENTITY),
         KILLER_PLAYER("killer_player", LootContextParams.LAST_DAMAGE_PLAYER);
 
-        final String name;
+        public static final StringRepresentable.EnumCodec<LootContext.EntityTarget> CODEC = StringRepresentable.fromEnum(LootContext.EntityTarget::values);
+        private final String name;
         private final LootContextParam<? extends Entity> param;
 
         private EntityTarget(String param0, LootContextParam<? extends Entity> param1) {
@@ -144,23 +135,17 @@ public class LootContext {
         }
 
         public static LootContext.EntityTarget getByName(String param0) {
-            for(LootContext.EntityTarget var0 : values()) {
-                if (var0.name.equals(param0)) {
-                    return var0;
-                }
+            LootContext.EntityTarget var0 = CODEC.byName(param0);
+            if (var0 != null) {
+                return var0;
+            } else {
+                throw new IllegalArgumentException("Invalid entity target " + param0);
             }
-
-            throw new IllegalArgumentException("Invalid entity target " + param0);
         }
 
-        public static class Serializer extends TypeAdapter<LootContext.EntityTarget> {
-            public void write(JsonWriter param0, LootContext.EntityTarget param1) throws IOException {
-                param0.value(param1.name);
-            }
-
-            public LootContext.EntityTarget read(JsonReader param0) throws IOException {
-                return LootContext.EntityTarget.getByName(param0.nextString());
-            }
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 

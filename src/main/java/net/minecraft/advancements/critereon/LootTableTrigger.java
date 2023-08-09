@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
@@ -13,7 +14,7 @@ public class LootTableTrigger extends SimpleCriterionTrigger<LootTableTrigger.Tr
         return ID;
     }
 
-    protected LootTableTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    protected LootTableTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "loot_table"));
         return new LootTableTrigger.TriggerInstance(param1, var0);
     }
@@ -25,13 +26,13 @@ public class LootTableTrigger extends SimpleCriterionTrigger<LootTableTrigger.Tr
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         private final ResourceLocation lootTable;
 
-        public TriggerInstance(ContextAwarePredicate param0, ResourceLocation param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, ResourceLocation param1) {
             super(LootTableTrigger.ID, param0);
             this.lootTable = param1;
         }
 
         public static LootTableTrigger.TriggerInstance lootTableUsed(ResourceLocation param0) {
-            return new LootTableTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
+            return new LootTableTrigger.TriggerInstance(Optional.empty(), param0);
         }
 
         public boolean matches(ResourceLocation param0) {
@@ -39,8 +40,8 @@ public class LootTableTrigger extends SimpleCriterionTrigger<LootTableTrigger.Tr
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             var0.addProperty("loot_table", this.lootTable.toString());
             return var0;
         }

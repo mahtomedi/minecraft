@@ -25,7 +25,7 @@ public class HeightmapRenamingFix extends DataFix {
 
     private Dynamic<?> fix(Dynamic<?> param0) {
         Optional<? extends Dynamic<?>> var0 = param0.get("Heightmaps").result();
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             return param0;
         } else {
             Dynamic<?> var1 = var0.get();

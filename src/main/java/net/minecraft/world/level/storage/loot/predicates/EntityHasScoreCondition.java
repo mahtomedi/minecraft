@@ -2,16 +2,12 @@ package net.minecraft.world.level.storage.loot.predicates;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.IntRange;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -19,14 +15,14 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Scoreboard;
 
-public class EntityHasScoreCondition implements LootItemCondition {
-    final Map<String, IntRange> scores;
-    final LootContext.EntityTarget entityTarget;
-
-    EntityHasScoreCondition(Map<String, IntRange> param0, LootContext.EntityTarget param1) {
-        this.scores = ImmutableMap.copyOf(param0);
-        this.entityTarget = param1;
-    }
+public record EntityHasScoreCondition(Map<String, IntRange> scores, LootContext.EntityTarget entityTarget) implements LootItemCondition {
+    public static final Codec<EntityHasScoreCondition> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    Codec.unboundedMap(Codec.STRING, IntRange.CODEC).fieldOf("scores").forGetter(EntityHasScoreCondition::scores),
+                    LootContext.EntityTarget.CODEC.fieldOf("entity").forGetter(EntityHasScoreCondition::entityTarget)
+                )
+                .apply(param0, EntityHasScoreCondition::new)
+    );
 
     @Override
     public LootItemConditionType getType() {
@@ -73,7 +69,7 @@ public class EntityHasScoreCondition implements LootItemCondition {
     }
 
     public static class Builder implements LootItemCondition.Builder {
-        private final Map<String, IntRange> scores = Maps.newHashMap();
+        private final ImmutableMap.Builder<String, IntRange> scores = ImmutableMap.builder();
         private final LootContext.EntityTarget entityTarget;
 
         public Builder(LootContext.EntityTarget param0) {
@@ -87,31 +83,7 @@ public class EntityHasScoreCondition implements LootItemCondition {
 
         @Override
         public LootItemCondition build() {
-            return new EntityHasScoreCondition(this.scores, this.entityTarget);
-        }
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<EntityHasScoreCondition> {
-        public void serialize(JsonObject param0, EntityHasScoreCondition param1, JsonSerializationContext param2) {
-            JsonObject var0 = new JsonObject();
-
-            for(Entry<String, IntRange> var1 : param1.scores.entrySet()) {
-                var0.add(var1.getKey(), param2.serialize(var1.getValue()));
-            }
-
-            param0.add("scores", var0);
-            param0.add("entity", param2.serialize(param1.entityTarget));
-        }
-
-        public EntityHasScoreCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            Set<Entry<String, JsonElement>> var0 = GsonHelper.getAsJsonObject(param0, "scores").entrySet();
-            Map<String, IntRange> var1 = Maps.newLinkedHashMap();
-
-            for(Entry<String, JsonElement> var2 : var0) {
-                var1.put(var2.getKey(), GsonHelper.convertToObject(var2.getValue(), "score", param1, IntRange.class));
-            }
-
-            return new EntityHasScoreCondition(var1, GsonHelper.getAsObject(param0, "entity", param1, LootContext.EntityTarget.class));
+            return new EntityHasScoreCondition(this.scores.build(), this.entityTarget);
         }
     }
 }

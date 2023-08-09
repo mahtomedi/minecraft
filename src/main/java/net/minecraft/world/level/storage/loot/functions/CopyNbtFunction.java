@@ -1,15 +1,12 @@
 package net.minecraft.world.level.storage.loot.functions;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -17,35 +14,38 @@ import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.nbt.NbtProvider;
+import net.minecraft.world.level.storage.loot.providers.nbt.NbtProviders;
 
 public class CopyNbtFunction extends LootItemConditionalFunction {
-    final NbtProvider source;
-    final List<CopyNbtFunction.CopyOperation> operations;
+    public static final Codec<CopyNbtFunction> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(
+                    param0.group(
+                        NbtProviders.CODEC.fieldOf("source").forGetter(param0x -> param0x.source),
+                        CopyNbtFunction.CopyOperation.CODEC.listOf().fieldOf("ops").forGetter(param0x -> param0x.operations)
+                    )
+                )
+                .apply(param0, CopyNbtFunction::new)
+    );
+    private final NbtProvider source;
+    private final List<CopyNbtFunction.CopyOperation> operations;
 
-    CopyNbtFunction(LootItemCondition[] param0, NbtProvider param1, List<CopyNbtFunction.CopyOperation> param2) {
+    CopyNbtFunction(List<LootItemCondition> param0, NbtProvider param1, List<CopyNbtFunction.CopyOperation> param2) {
         super(param0);
         this.source = param1;
-        this.operations = ImmutableList.copyOf(param2);
+        this.operations = List.copyOf(param2);
     }
 
     @Override
     public LootItemFunctionType getType() {
         return LootItemFunctions.COPY_NBT;
-    }
-
-    static NbtPathArgument.NbtPath compileNbtPath(String param0) {
-        try {
-            return new NbtPathArgument().parse(new StringReader(param0));
-        } catch (CommandSyntaxException var2) {
-            throw new IllegalArgumentException("Failed to parse path " + param0, var2);
-        }
     }
 
     @Override
@@ -80,8 +80,12 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         }
 
         public CopyNbtFunction.Builder copy(String param0, String param1, CopyNbtFunction.MergeStrategy param2) {
-            this.ops.add(new CopyNbtFunction.CopyOperation(param0, param1, param2));
-            return this;
+            try {
+                this.ops.add(new CopyNbtFunction.CopyOperation(CopyNbtFunction.Path.of(param0), CopyNbtFunction.Path.of(param1), param2));
+                return this;
+            } catch (CommandSyntaxException var5) {
+                throw new IllegalArgumentException(var5);
+            }
         }
 
         public CopyNbtFunction.Builder copy(String param0, String param1) {
@@ -98,49 +102,29 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
         }
     }
 
-    static class CopyOperation {
-        private final String sourcePathText;
-        private final NbtPathArgument.NbtPath sourcePath;
-        private final String targetPathText;
-        private final NbtPathArgument.NbtPath targetPath;
-        private final CopyNbtFunction.MergeStrategy op;
-
-        CopyOperation(String param0, String param1, CopyNbtFunction.MergeStrategy param2) {
-            this.sourcePathText = param0;
-            this.sourcePath = CopyNbtFunction.compileNbtPath(param0);
-            this.targetPathText = param1;
-            this.targetPath = CopyNbtFunction.compileNbtPath(param1);
-            this.op = param2;
-        }
+    static record CopyOperation(CopyNbtFunction.Path sourcePath, CopyNbtFunction.Path targetPath, CopyNbtFunction.MergeStrategy op) {
+        public static final Codec<CopyNbtFunction.CopyOperation> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        CopyNbtFunction.Path.CODEC.fieldOf("source").forGetter(CopyNbtFunction.CopyOperation::sourcePath),
+                        CopyNbtFunction.Path.CODEC.fieldOf("target").forGetter(CopyNbtFunction.CopyOperation::targetPath),
+                        CopyNbtFunction.MergeStrategy.CODEC.fieldOf("op").forGetter(CopyNbtFunction.CopyOperation::op)
+                    )
+                    .apply(param0, CopyNbtFunction.CopyOperation::new)
+        );
 
         public void apply(Supplier<Tag> param0, Tag param1) {
             try {
-                List<Tag> var0 = this.sourcePath.get(param1);
+                List<Tag> var0 = this.sourcePath.path().get(param1);
                 if (!var0.isEmpty()) {
-                    this.op.merge(param0.get(), this.targetPath, var0);
+                    this.op.merge(param0.get(), this.targetPath.path(), var0);
                 }
             } catch (CommandSyntaxException var4) {
             }
 
         }
-
-        public JsonObject toJson() {
-            JsonObject var0 = new JsonObject();
-            var0.addProperty("source", this.sourcePathText);
-            var0.addProperty("target", this.targetPathText);
-            var0.addProperty("op", this.op.name);
-            return var0;
-        }
-
-        public static CopyNbtFunction.CopyOperation fromJson(JsonObject param0) {
-            String var0 = GsonHelper.getAsString(param0, "source");
-            String var1 = GsonHelper.getAsString(param0, "target");
-            CopyNbtFunction.MergeStrategy var2 = CopyNbtFunction.MergeStrategy.getByName(GsonHelper.getAsString(param0, "op"));
-            return new CopyNbtFunction.CopyOperation(var0, var1, var2);
-        }
     }
 
-    public static enum MergeStrategy {
+    public static enum MergeStrategy implements StringRepresentable {
         REPLACE("replace") {
             @Override
             public void merge(Tag param0, NbtPathArgument.NbtPath param1, List<Tag> param2) throws CommandSyntaxException {
@@ -177,7 +161,8 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
             }
         };
 
-        final String name;
+        public static final Codec<CopyNbtFunction.MergeStrategy> CODEC = StringRepresentable.fromEnum(CopyNbtFunction.MergeStrategy::values);
+        private final String name;
 
         public abstract void merge(Tag var1, NbtPathArgument.NbtPath var2, List<Tag> var3) throws CommandSyntaxException;
 
@@ -185,36 +170,24 @@ public class CopyNbtFunction extends LootItemConditionalFunction {
             this.name = param0;
         }
 
-        public static CopyNbtFunction.MergeStrategy getByName(String param0) {
-            for(CopyNbtFunction.MergeStrategy var0 : values()) {
-                if (var0.name.equals(param0)) {
-                    return var0;
-                }
-            }
-
-            throw new IllegalArgumentException("Invalid merge strategy" + param0);
+        @Override
+        public String getSerializedName() {
+            return this.name;
         }
     }
 
-    public static class Serializer extends LootItemConditionalFunction.Serializer<CopyNbtFunction> {
-        public void serialize(JsonObject param0, CopyNbtFunction param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.add("source", param2.serialize(param1.source));
-            JsonArray var0 = new JsonArray();
-            param1.operations.stream().map(CopyNbtFunction.CopyOperation::toJson).forEach(var0::add);
-            param0.add("ops", var0);
-        }
-
-        public CopyNbtFunction deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            NbtProvider var0 = GsonHelper.getAsObject(param0, "source", param1, NbtProvider.class);
-            List<CopyNbtFunction.CopyOperation> var1 = Lists.newArrayList();
-
-            for(JsonElement var3 : GsonHelper.getAsJsonArray(param0, "ops")) {
-                JsonObject var4 = GsonHelper.convertToJsonObject(var3, "op");
-                var1.add(CopyNbtFunction.CopyOperation.fromJson(var4));
+    static record Path(String string, NbtPathArgument.NbtPath path) {
+        public static final Codec<CopyNbtFunction.Path> CODEC = Codec.STRING.comapFlatMap(param0 -> {
+            try {
+                return DataResult.success(of(param0));
+            } catch (CommandSyntaxException var2) {
+                return DataResult.error(() -> "Failed to parse path " + param0 + ": " + var2.getMessage());
             }
+        }, CopyNbtFunction.Path::string);
 
-            return new CopyNbtFunction(param2, var0, var1);
+        public static CopyNbtFunction.Path of(String param0) throws CommandSyntaxException {
+            NbtPathArgument.NbtPath var0 = new NbtPathArgument().parse(new StringReader(param0));
+            return new CopyNbtFunction.Path(param0, var0);
         }
     }
 }

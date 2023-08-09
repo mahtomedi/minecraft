@@ -2,6 +2,7 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -19,9 +20,9 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         return ID;
     }
 
-    public BeeNestDestroyedTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public BeeNestDestroyedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
-        ItemPredicate var1 = ItemPredicate.fromJson(param0.get("item"));
+        Optional<ItemPredicate> var1 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(param0.get("num_bees_inside"));
         return new BeeNestDestroyedTrigger.TriggerInstance(param1, var0, var1, var2);
     }
@@ -43,10 +44,10 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
         @Nullable
         private final Block block;
-        private final ItemPredicate item;
+        private final Optional<ItemPredicate> item;
         private final MinMaxBounds.Ints numBees;
 
-        public TriggerInstance(ContextAwarePredicate param0, @Nullable Block param1, ItemPredicate param2, MinMaxBounds.Ints param3) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Block param1, Optional<ItemPredicate> param2, MinMaxBounds.Ints param3) {
             super(BeeNestDestroyedTrigger.ID, param0);
             this.block = param1;
             this.item = param2;
@@ -54,25 +55,25 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         }
 
         public static BeeNestDestroyedTrigger.TriggerInstance destroyedBeeNest(Block param0, ItemPredicate.Builder param1, MinMaxBounds.Ints param2) {
-            return new BeeNestDestroyedTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0, param1.build(), param2);
+            return new BeeNestDestroyedTrigger.TriggerInstance(Optional.empty(), param0, param1.build(), param2);
         }
 
         public boolean matches(BlockState param0, ItemStack param1, int param2) {
             if (this.block != null && !param0.is(this.block)) {
                 return false;
             } else {
-                return !this.item.matches(param1) ? false : this.numBees.matches(param2);
+                return this.item.isPresent() && !this.item.get().matches(param1) ? false : this.numBees.matches(param2);
             }
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
             if (this.block != null) {
                 var0.addProperty("block", BuiltInRegistries.BLOCK.getKey(this.block).toString());
             }
 
-            var0.add("item", this.item.serializeToJson());
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
             var0.add("num_bees_inside", this.numBees.serializeToJson());
             return var0;
         }

@@ -1,12 +1,11 @@
 package net.minecraft.world.level.storage.loot.entries;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -15,9 +14,14 @@ import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class LootItem extends LootPoolSingletonContainer {
-    final Item item;
+    public static final Codec<LootItem> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("name").forGetter(param0x -> param0x.item))
+                .and(singletonFields(param0))
+                .apply(param0, LootItem::new)
+    );
+    private final Holder<Item> item;
 
-    LootItem(Item param0, int param1, int param2, LootItemCondition[] param3, LootItemFunction[] param4) {
+    private LootItem(Holder<Item> param0, int param1, int param2, List<LootItemCondition> param3, List<LootItemFunction> param4) {
         super(param1, param2, param3, param4);
         this.item = param0;
     }
@@ -33,25 +37,6 @@ public class LootItem extends LootPoolSingletonContainer {
     }
 
     public static LootPoolSingletonContainer.Builder<?> lootTableItem(ItemLike param0) {
-        return simpleBuilder((param1, param2, param3, param4) -> new LootItem(param0.asItem(), param1, param2, param3, param4));
-    }
-
-    public static class Serializer extends LootPoolSingletonContainer.Serializer<LootItem> {
-        public void serializeCustom(JsonObject param0, LootItem param1, JsonSerializationContext param2) {
-            super.serializeCustom(param0, param1, param2);
-            ResourceLocation var0 = BuiltInRegistries.ITEM.getKey(param1.item);
-            if (var0 == null) {
-                throw new IllegalArgumentException("Can't serialize unknown item " + param1.item);
-            } else {
-                param0.addProperty("name", var0.toString());
-            }
-        }
-
-        protected LootItem deserialize(
-            JsonObject param0, JsonDeserializationContext param1, int param2, int param3, LootItemCondition[] param4, LootItemFunction[] param5
-        ) {
-            Item var0 = GsonHelper.getAsItem(param0, "name");
-            return new LootItem(var0, param2, param3, param4, param5);
-        }
+        return simpleBuilder((param1, param2, param3, param4) -> new LootItem(param0.asItem().builtInRegistryHolder(), param1, param2, param3, param4));
     }
 }

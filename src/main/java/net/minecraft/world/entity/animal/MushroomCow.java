@@ -1,11 +1,13 @@
 package net.minecraft.world.entity.animal;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -19,7 +21,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
@@ -39,14 +40,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SuspiciousEffectHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import org.apache.commons.lang3.tuple.Pair;
 
 public class MushroomCow extends Cow implements Shearable, VariantHolder<MushroomCow.MushroomType> {
     private static final EntityDataAccessor<String> DATA_TYPE = SynchedEntityData.defineId(MushroomCow.class, EntityDataSerializers.STRING);
     private static final int MUTATE_CHANCE = 1024;
+    private static final String TAG_STEW_EFFECTS = "stew_effects";
     @Nullable
-    private MobEffect effect;
-    private int effectDuration;
+    private List<SuspiciousEffectHolder.EffectEntry> stewEffects;
     @Nullable
     private UUID lastLightningBoltUUID;
 
@@ -88,12 +88,11 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
         if (var0.is(Items.BOWL) && !this.isBaby()) {
             boolean var1 = false;
             ItemStack var2;
-            if (this.effect != null) {
+            if (this.stewEffects != null) {
                 var1 = true;
                 var2 = new ItemStack(Items.SUSPICIOUS_STEW);
-                SuspiciousStewItem.saveMobEffect(var2, this.effect, this.effectDuration);
-                this.effect = null;
-                this.effectDuration = 0;
+                SuspiciousStewItem.saveMobEffects(var2, this.stewEffects);
+                this.stewEffects = null;
             } else {
                 var2 = new ItemStack(Items.MUSHROOM_STEW);
             }
@@ -118,7 +117,7 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
 
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         } else if (this.getVariant() == MushroomCow.MushroomType.BROWN && var0.is(ItemTags.SMALL_FLOWERS)) {
-            if (this.effect != null) {
+            if (this.stewEffects != null) {
                 for(int var7 = 0; var7 < 2; ++var7) {
                     this.level()
                         .addParticle(
@@ -132,17 +131,16 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
                         );
                 }
             } else {
-                Optional<Pair<MobEffect, Integer>> var8 = this.getEffectFromItemStack(var0);
-                if (!var8.isPresent()) {
+                Optional<List<SuspiciousEffectHolder.EffectEntry>> var8 = this.getEffectsFromItemStack(var0);
+                if (var8.isEmpty()) {
                     return InteractionResult.PASS;
                 }
 
-                Pair<MobEffect, Integer> var9 = var8.get();
                 if (!param0.getAbilities().instabuild) {
                     var0.shrink(1);
                 }
 
-                for(int var10 = 0; var10 < 4; ++var10) {
+                for(int var9 = 0; var9 < 4; ++var9) {
                     this.level()
                         .addParticle(
                             ParticleTypes.EFFECT,
@@ -155,8 +153,7 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
                         );
                 }
 
-                this.effect = var9.getLeft();
-                this.effectDuration = var9.getRight();
+                this.stewEffects = var8.get();
                 this.playSound(SoundEvents.MOOSHROOM_EAT, 2.0F, 1.0F);
             }
 
@@ -209,9 +206,11 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
         param0.putString("Type", this.getVariant().getSerializedName());
-        if (this.effect != null) {
-            param0.putInt("EffectId", MobEffect.getId(this.effect));
-            param0.putInt("EffectDuration", this.effectDuration);
+        if (this.stewEffects != null) {
+            SuspiciousEffectHolder.EffectEntry.LIST_CODEC
+                .encodeStart(NbtOps.INSTANCE, this.stewEffects)
+                .result()
+                .ifPresent(param1 -> param0.put("stew_effects", param1));
         }
 
     }
@@ -220,19 +219,18 @@ public class MushroomCow extends Cow implements Shearable, VariantHolder<Mushroo
     public void readAdditionalSaveData(CompoundTag param0) {
         super.readAdditionalSaveData(param0);
         this.setVariant(MushroomCow.MushroomType.byType(param0.getString("Type")));
-        if (param0.contains("EffectId", 99)) {
-            this.effect = MobEffect.byId(param0.getInt("EffectId"));
-        }
-
-        if (param0.contains("EffectDuration", 99)) {
-            this.effectDuration = param0.getInt("EffectDuration");
+        if (param0.contains("stew_effects", 9)) {
+            SuspiciousEffectHolder.EffectEntry.LIST_CODEC
+                .parse(NbtOps.INSTANCE, param0.get("stew_effects"))
+                .result()
+                .ifPresent(param0x -> this.stewEffects = param0x);
         }
 
     }
 
-    private Optional<Pair<MobEffect, Integer>> getEffectFromItemStack(ItemStack param0) {
+    private Optional<List<SuspiciousEffectHolder.EffectEntry>> getEffectsFromItemStack(ItemStack param0) {
         SuspiciousEffectHolder var0 = SuspiciousEffectHolder.tryGet(param0.getItem());
-        return var0 != null ? Optional.of(Pair.of(var0.getSuspiciousEffect(), var0.getEffectDuration())) : Optional.empty();
+        return var0 != null ? Optional.of(var0.getSuspiciousEffects()) : Optional.empty();
     }
 
     public void setVariant(MushroomCow.MushroomType param0) {

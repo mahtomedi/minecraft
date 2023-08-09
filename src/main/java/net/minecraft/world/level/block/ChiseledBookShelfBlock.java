@@ -133,7 +133,6 @@ public class ChiseledBookShelfBlock extends BaseEntityBlock {
                 param4.grow(1);
             }
 
-            param0.gameEvent(param2, GameEvent.BLOCK_CHANGE, param1);
         }
     }
 

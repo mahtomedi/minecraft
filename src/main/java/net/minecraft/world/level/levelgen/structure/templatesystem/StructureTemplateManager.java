@@ -234,7 +234,7 @@ public class StructureTemplateManager {
 
     public boolean save(ResourceLocation param0) {
         Optional<StructureTemplate> var0 = this.structureRepository.get(param0);
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             return false;
         } else {
             StructureTemplate var1 = var0.get();

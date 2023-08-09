@@ -1,22 +1,18 @@
 package net.minecraft.world.level.storage.loot;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import java.lang.reflect.Type;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.FunctionUserBuilder;
@@ -27,19 +23,29 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditions;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
-import org.apache.commons.lang3.ArrayUtils;
+import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public class LootPool {
-    final LootPoolEntryContainer[] entries;
-    final LootItemCondition[] conditions;
+    public static final Codec<LootPool> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    LootPoolEntries.CODEC.listOf().fieldOf("entries").forGetter(param0x -> param0x.entries),
+                    ExtraCodecs.strictOptionalField(LootItemConditions.CODEC.listOf(), "conditions", List.of()).forGetter(param0x -> param0x.conditions),
+                    ExtraCodecs.strictOptionalField(LootItemFunctions.CODEC.listOf(), "functions", List.of()).forGetter(param0x -> param0x.functions),
+                    NumberProviders.CODEC.fieldOf("rolls").forGetter(param0x -> param0x.rolls),
+                    NumberProviders.CODEC.fieldOf("bonus_rolls").orElse(ConstantValue.exactly(0.0F)).forGetter(param0x -> param0x.bonusRolls)
+                )
+                .apply(param0, LootPool::new)
+    );
+    private final List<LootPoolEntryContainer> entries;
+    private final List<LootItemCondition> conditions;
     private final Predicate<LootContext> compositeCondition;
-    final LootItemFunction[] functions;
+    private final List<LootItemFunction> functions;
     private final BiFunction<ItemStack, LootContext, ItemStack> compositeFunction;
-    final NumberProvider rolls;
-    final NumberProvider bonusRolls;
+    private final NumberProvider rolls;
+    private final NumberProvider bonusRolls;
 
-    LootPool(LootPoolEntryContainer[] param0, LootItemCondition[] param1, LootItemFunction[] param2, NumberProvider param3, NumberProvider param4) {
+    LootPool(List<LootPoolEntryContainer> param0, List<LootItemCondition> param1, List<LootItemFunction> param2, NumberProvider param3, NumberProvider param4) {
         this.entries = param0;
         this.conditions = param1;
         this.compositeCondition = LootItemConditions.andConditions(param1);
@@ -97,16 +103,16 @@ public class LootPool {
     }
 
     public void validate(ValidationContext param0) {
-        for(int var0 = 0; var0 < this.conditions.length; ++var0) {
-            this.conditions[var0].validate(param0.forChild(".condition[" + var0 + "]"));
+        for(int var0 = 0; var0 < this.conditions.size(); ++var0) {
+            this.conditions.get(var0).validate(param0.forChild(".condition[" + var0 + "]"));
         }
 
-        for(int var1 = 0; var1 < this.functions.length; ++var1) {
-            this.functions[var1].validate(param0.forChild(".functions[" + var1 + "]"));
+        for(int var1 = 0; var1 < this.functions.size(); ++var1) {
+            this.functions.get(var1).validate(param0.forChild(".functions[" + var1 + "]"));
         }
 
-        for(int var2 = 0; var2 < this.entries.length; ++var2) {
-            this.entries[var2].validate(param0.forChild(".entries[" + var2 + "]"));
+        for(int var2 = 0; var2 < this.entries.size(); ++var2) {
+            this.entries.get(var2).validate(param0.forChild(".entries[" + var2 + "]"));
         }
 
         this.rolls.validate(param0.forChild(".rolls"));
@@ -118,9 +124,9 @@ public class LootPool {
     }
 
     public static class Builder implements FunctionUserBuilder<LootPool.Builder>, ConditionUserBuilder<LootPool.Builder> {
-        private final List<LootPoolEntryContainer> entries = Lists.newArrayList();
-        private final List<LootItemCondition> conditions = Lists.newArrayList();
-        private final List<LootItemFunction> functions = Lists.newArrayList();
+        private final ImmutableList.Builder<LootPoolEntryContainer> entries = ImmutableList.builder();
+        private final ImmutableList.Builder<LootItemCondition> conditions = ImmutableList.builder();
+        private final ImmutableList.Builder<LootItemFunction> functions = ImmutableList.builder();
         private NumberProvider rolls = ConstantValue.exactly(1.0F);
         private NumberProvider bonusRolls = ConstantValue.exactly(0.0F);
 
@@ -154,45 +160,7 @@ public class LootPool {
         }
 
         public LootPool build() {
-            if (this.rolls == null) {
-                throw new IllegalArgumentException("Rolls not set");
-            } else {
-                return new LootPool(
-                    this.entries.toArray(new LootPoolEntryContainer[0]),
-                    this.conditions.toArray(new LootItemCondition[0]),
-                    this.functions.toArray(new LootItemFunction[0]),
-                    this.rolls,
-                    this.bonusRolls
-                );
-            }
-        }
-    }
-
-    public static class Serializer implements JsonDeserializer<LootPool>, JsonSerializer<LootPool> {
-        public LootPool deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "loot pool");
-            LootPoolEntryContainer[] var1 = GsonHelper.getAsObject(var0, "entries", param2, LootPoolEntryContainer[].class);
-            LootItemCondition[] var2 = GsonHelper.getAsObject(var0, "conditions", new LootItemCondition[0], param2, LootItemCondition[].class);
-            LootItemFunction[] var3 = GsonHelper.getAsObject(var0, "functions", new LootItemFunction[0], param2, LootItemFunction[].class);
-            NumberProvider var4 = GsonHelper.getAsObject(var0, "rolls", param2, NumberProvider.class);
-            NumberProvider var5 = GsonHelper.getAsObject(var0, "bonus_rolls", ConstantValue.exactly(0.0F), param2, NumberProvider.class);
-            return new LootPool(var1, var2, var3, var4, var5);
-        }
-
-        public JsonElement serialize(LootPool param0, Type param1, JsonSerializationContext param2) {
-            JsonObject var0 = new JsonObject();
-            var0.add("rolls", param2.serialize(param0.rolls));
-            var0.add("bonus_rolls", param2.serialize(param0.bonusRolls));
-            var0.add("entries", param2.serialize(param0.entries));
-            if (!ArrayUtils.isEmpty((Object[])param0.conditions)) {
-                var0.add("conditions", param2.serialize(param0.conditions));
-            }
-
-            if (!ArrayUtils.isEmpty((Object[])param0.functions)) {
-                var0.add("functions", param2.serialize(param0.functions));
-            }
-
-            return var0;
+            return new LootPool(this.entries.build(), this.conditions.build(), this.functions.build(), this.rolls, this.bonusRolls);
         }
     }
 }

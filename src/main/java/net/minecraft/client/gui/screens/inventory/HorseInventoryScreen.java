@@ -31,7 +31,8 @@ public class HorseInventoryScreen extends AbstractContainerScreen<HorseInventory
         int var0 = (this.width - this.imageWidth) / 2;
         int var1 = (this.height - this.imageHeight) / 2;
         param0.blit(HORSE_INVENTORY_LOCATION, var0, var1, 0, 0, this.imageWidth, this.imageHeight);
-        if (this.horse instanceof AbstractChestedHorse var2 && var2.hasChest()) {
+        AbstractHorse var8 = this.horse;
+        if (var8 instanceof AbstractChestedHorse var2 && var2.hasChest()) {
             param0.blitSprite(CHEST_SLOTS_SPRITE, 90, 54, 0, 0, var0 + 79, var1 + 17, var2.getInventoryColumns() * 18, 54);
         }
 

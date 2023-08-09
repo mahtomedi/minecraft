@@ -1,20 +1,18 @@
 package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
@@ -22,13 +20,27 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class CopyBlockState extends LootItemConditionalFunction {
-    final Block block;
-    final Set<Property<?>> properties;
+    public static final Codec<CopyBlockState> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(
+                    param0.group(
+                        BuiltInRegistries.BLOCK.holderByNameCodec().fieldOf("block").forGetter(param0x -> param0x.block),
+                        Codec.STRING.listOf().fieldOf("properties").forGetter(param0x -> param0x.properties.stream().map(Property::getName).toList())
+                    )
+                )
+                .apply(param0, CopyBlockState::new)
+    );
+    private final Holder<Block> block;
+    private final Set<Property<?>> properties;
 
-    CopyBlockState(LootItemCondition[] param0, Block param1, Set<Property<?>> param2) {
+    CopyBlockState(List<LootItemCondition> param0, Holder<Block> param1, Set<Property<?>> param2) {
         super(param0);
         this.block = param1;
         this.properties = param2;
+    }
+
+    private CopyBlockState(List<LootItemCondition> param0, Holder<Block> param1, List<String> param2) {
+        this(param0, param1, param2.stream().map(param1.value().getStateDefinition()::getProperty).filter(Objects::nonNull).collect(Collectors.toSet()));
     }
 
     @Override
@@ -54,7 +66,11 @@ public class CopyBlockState extends LootItemConditionalFunction {
                 var1.put("BlockStateTag", var2);
             }
 
-            this.properties.stream().filter(var0::hasProperty).forEach(param2 -> var2.putString(param2.getName(), serialize(var0, param2)));
+            for(Property<?> var4 : this.properties) {
+                if (var0.hasProperty(var4)) {
+                    var2.putString(var4.getName(), serialize(var0, var4));
+                }
+            }
         }
 
         return param0;
@@ -70,15 +86,15 @@ public class CopyBlockState extends LootItemConditionalFunction {
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<CopyBlockState.Builder> {
-        private final Block block;
-        private final Set<Property<?>> properties = Sets.newHashSet();
+        private final Holder<Block> block;
+        private final ImmutableSet.Builder<Property<?>> properties = ImmutableSet.builder();
 
         Builder(Block param0) {
-            this.block = param0;
+            this.block = param0.builtInRegistryHolder();
         }
 
         public CopyBlockState.Builder copy(Property<?> param0) {
-            if (!this.block.getStateDefinition().getProperties().contains(param0)) {
+            if (!this.block.value().getStateDefinition().getProperties().contains(param0)) {
                 throw new IllegalStateException("Property " + param0 + " is not present on block " + this.block);
             } else {
                 this.properties.add(param0);
@@ -92,30 +108,7 @@ public class CopyBlockState extends LootItemConditionalFunction {
 
         @Override
         public LootItemFunction build() {
-            return new CopyBlockState(this.getConditions(), this.block, this.properties);
-        }
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<CopyBlockState> {
-        public void serialize(JsonObject param0, CopyBlockState param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.addProperty("block", BuiltInRegistries.BLOCK.getKey(param1.block).toString());
-            JsonArray var0 = new JsonArray();
-            param1.properties.forEach(param1x -> var0.add(param1x.getName()));
-            param0.add("properties", var0);
-        }
-
-        public CopyBlockState deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "block"));
-            Block var1 = BuiltInRegistries.BLOCK.getOptional(var0).orElseThrow(() -> new IllegalArgumentException("Can't find block " + var0));
-            StateDefinition<Block, BlockState> var2 = var1.getStateDefinition();
-            Set<Property<?>> var3 = Sets.newHashSet();
-            JsonArray var4 = GsonHelper.getAsJsonArray(param0, "properties", null);
-            if (var4 != null) {
-                var4.forEach(param2x -> var3.add(var2.getProperty(GsonHelper.convertToString(param2x, "property"))));
-            }
-
-            return new CopyBlockState(param2, var1, var3);
+            return new CopyBlockState(this.getConditions(), this.block, this.properties.build());
         }
     }
 }

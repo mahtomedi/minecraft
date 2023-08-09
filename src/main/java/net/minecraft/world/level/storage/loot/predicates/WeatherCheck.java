@@ -1,23 +1,20 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
-import javax.annotation.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.storage.loot.LootContext;
 
-public class WeatherCheck implements LootItemCondition {
-    @Nullable
-    final Boolean isRaining;
-    @Nullable
-    final Boolean isThundering;
-
-    WeatherCheck(@Nullable Boolean param0, @Nullable Boolean param1) {
-        this.isRaining = param0;
-        this.isThundering = param1;
-    }
+public record WeatherCheck(Optional<Boolean> isRaining, Optional<Boolean> isThundering) implements LootItemCondition {
+    public static final Codec<WeatherCheck> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "raining").forGetter(WeatherCheck::isRaining),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "thundering").forGetter(WeatherCheck::isThundering)
+                )
+                .apply(param0, WeatherCheck::new)
+    );
 
     @Override
     public LootItemConditionType getType() {
@@ -26,10 +23,10 @@ public class WeatherCheck implements LootItemCondition {
 
     public boolean test(LootContext param0) {
         ServerLevel var0 = param0.getLevel();
-        if (this.isRaining != null && this.isRaining != var0.isRaining()) {
+        if (this.isRaining.isPresent() && this.isRaining.get() != var0.isRaining()) {
             return false;
         } else {
-            return this.isThundering == null || this.isThundering == var0.isThundering();
+            return !this.isThundering.isPresent() || this.isThundering.get() == var0.isThundering();
         }
     }
 
@@ -38,36 +35,21 @@ public class WeatherCheck implements LootItemCondition {
     }
 
     public static class Builder implements LootItemCondition.Builder {
-        @Nullable
-        private Boolean isRaining;
-        @Nullable
-        private Boolean isThundering;
+        private Optional<Boolean> isRaining = Optional.empty();
+        private Optional<Boolean> isThundering = Optional.empty();
 
-        public WeatherCheck.Builder setRaining(@Nullable Boolean param0) {
-            this.isRaining = param0;
+        public WeatherCheck.Builder setRaining(boolean param0) {
+            this.isRaining = Optional.of(param0);
             return this;
         }
 
-        public WeatherCheck.Builder setThundering(@Nullable Boolean param0) {
-            this.isThundering = param0;
+        public WeatherCheck.Builder setThundering(boolean param0) {
+            this.isThundering = Optional.of(param0);
             return this;
         }
 
         public WeatherCheck build() {
             return new WeatherCheck(this.isRaining, this.isThundering);
-        }
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<WeatherCheck> {
-        public void serialize(JsonObject param0, WeatherCheck param1, JsonSerializationContext param2) {
-            param0.addProperty("raining", param1.isRaining);
-            param0.addProperty("thundering", param1.isThundering);
-        }
-
-        public WeatherCheck deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            Boolean var0 = param0.has("raining") ? GsonHelper.getAsBoolean(param0, "raining") : null;
-            Boolean var1 = param0.has("thundering") ? GsonHelper.getAsBoolean(param0, "thundering") : null;
-            return new WeatherCheck(var0, var1);
         }
     }
 }

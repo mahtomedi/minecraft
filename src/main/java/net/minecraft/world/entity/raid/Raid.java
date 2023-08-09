@@ -21,6 +21,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerBossEvent;
@@ -131,10 +132,8 @@ public class Raid {
         this.status = Raid.RaidStatus.getByName(param1.getString("Status"));
         this.heroesOfTheVillage.clear();
         if (param1.contains("HeroesOfTheVillage", 9)) {
-            ListTag var0 = param1.getList("HeroesOfTheVillage", 11);
-
-            for(int var1 = 0; var1 < var0.size(); ++var1) {
-                this.heroesOfTheVillage.add(NbtUtils.loadUUID(var0.get(var1)));
+            for(Tag var1 : param1.getList("HeroesOfTheVillage", 11)) {
+                this.heroesOfTheVillage.add(NbtUtils.loadUUID(var1));
             }
         }
 

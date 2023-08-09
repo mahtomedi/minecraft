@@ -1,27 +1,24 @@
 package net.minecraft.world.level.storage.loot.predicates;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.ValidationContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
-public class InvertedLootItemCondition implements LootItemCondition {
-    final LootItemCondition term;
-
-    InvertedLootItemCondition(LootItemCondition param0) {
-        this.term = param0;
-    }
+public record InvertedLootItemCondition(LootItemCondition term) implements LootItemCondition {
+    public static final Codec<InvertedLootItemCondition> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(LootItemConditions.CODEC.fieldOf("term").forGetter(InvertedLootItemCondition::term))
+                .apply(param0, InvertedLootItemCondition::new)
+    );
 
     @Override
     public LootItemConditionType getType() {
         return LootItemConditions.INVERTED;
     }
 
-    public final boolean test(LootContext param0) {
+    public boolean test(LootContext param0) {
         return !this.term.test(param0);
     }
 
@@ -39,16 +36,5 @@ public class InvertedLootItemCondition implements LootItemCondition {
     public static LootItemCondition.Builder invert(LootItemCondition.Builder param0) {
         InvertedLootItemCondition var0 = new InvertedLootItemCondition(param0.build());
         return () -> var0;
-    }
-
-    public static class Serializer implements net.minecraft.world.level.storage.loot.Serializer<InvertedLootItemCondition> {
-        public void serialize(JsonObject param0, InvertedLootItemCondition param1, JsonSerializationContext param2) {
-            param0.add("term", param2.serialize(param1.term));
-        }
-
-        public InvertedLootItemCondition deserialize(JsonObject param0, JsonDeserializationContext param1) {
-            LootItemCondition var0 = GsonHelper.getAsObject(param0, "term", param1, LootItemCondition.class);
-            return new InvertedLootItemCondition(var0);
-        }
     }
 }

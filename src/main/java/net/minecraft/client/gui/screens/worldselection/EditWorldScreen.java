@@ -188,7 +188,7 @@ public class EditWorldScreen extends Screen {
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
-        param0.drawString(this.font, NAME_LABEL, this.width / 2 - 100, 24, 10526880);
+        param0.drawString(this.font, NAME_LABEL, this.width / 2 - 100 + 1, 24, 10526880);
         this.nameEdit.render(param0, param1, param2, param3);
     }
 }

@@ -1,7 +1,7 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +15,7 @@ public class ConsumeItemTrigger extends SimpleCriterionTrigger<ConsumeItemTrigge
         return ID;
     }
 
-    public ConsumeItemTrigger.TriggerInstance createInstance(JsonObject param0, ContextAwarePredicate param1, DeserializationContext param2) {
+    public ConsumeItemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         return new ConsumeItemTrigger.TriggerInstance(param1, ItemPredicate.fromJson(param0.get("item")));
     }
 
@@ -24,45 +24,33 @@ public class ConsumeItemTrigger extends SimpleCriterionTrigger<ConsumeItemTrigge
     }
 
     public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ItemPredicate item;
+        private final Optional<ItemPredicate> item;
 
-        public TriggerInstance(ContextAwarePredicate param0, ItemPredicate param1) {
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1) {
             super(ConsumeItemTrigger.ID, param0);
             this.item = param1;
         }
 
         public static ConsumeItemTrigger.TriggerInstance usedItem() {
-            return new ConsumeItemTrigger.TriggerInstance(ContextAwarePredicate.ANY, ItemPredicate.ANY);
+            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.empty());
         }
 
         public static ConsumeItemTrigger.TriggerInstance usedItem(ItemPredicate param0) {
-            return new ConsumeItemTrigger.TriggerInstance(ContextAwarePredicate.ANY, param0);
+            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.of(param0));
         }
 
         public static ConsumeItemTrigger.TriggerInstance usedItem(ItemLike param0) {
-            return new ConsumeItemTrigger.TriggerInstance(
-                ContextAwarePredicate.ANY,
-                new ItemPredicate(
-                    null,
-                    ImmutableSet.of(param0.asItem()),
-                    MinMaxBounds.Ints.ANY,
-                    MinMaxBounds.Ints.ANY,
-                    EnchantmentPredicate.NONE,
-                    EnchantmentPredicate.NONE,
-                    null,
-                    NbtPredicate.ANY
-                )
-            );
+            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), ItemPredicate.Builder.item().of(param0.asItem()).build());
         }
 
         public boolean matches(ItemStack param0) {
-            return this.item.matches(param0);
+            return this.item.isEmpty() || this.item.get().matches(param0);
         }
 
         @Override
-        public JsonObject serializeToJson(SerializationContext param0) {
-            JsonObject var0 = super.serializeToJson(param0);
-            var0.add("item", this.item.serializeToJson());
+        public JsonObject serializeToJson() {
+            JsonObject var0 = super.serializeToJson();
+            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
             return var0;
         }
     }

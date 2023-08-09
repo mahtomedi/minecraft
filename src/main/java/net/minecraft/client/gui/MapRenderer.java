@@ -120,8 +120,8 @@ public class MapRenderer implements AutoCloseable {
             for(MapDecoration var6 : this.data.getDecorations()) {
                 if (!param2 || var6.renderOnFrame()) {
                     param0.pushPose();
-                    param0.translate(0.0F + (float)var6.getX() / 2.0F + 64.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F, -0.02F);
-                    param0.mulPose(Axis.ZP.rotationDegrees((float)(var6.getRot() * 360) / 16.0F));
+                    param0.translate(0.0F + (float)var6.x() / 2.0F + 64.0F, 0.0F + (float)var6.y() / 2.0F + 64.0F, -0.02F);
+                    param0.mulPose(Axis.ZP.rotationDegrees((float)(var6.rot() * 360) / 16.0F));
                     param0.scale(4.0F, 4.0F, 3.0F);
                     param0.translate(-0.125F, 0.125F, 0.0F);
                     byte var7 = var6.getImage();
@@ -137,15 +137,13 @@ public class MapRenderer implements AutoCloseable {
                     var14.vertex(var12, 1.0F, -1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var10, var11).uv2(param3).endVertex();
                     var14.vertex(var12, -1.0F, -1.0F, (float)var5 * -0.001F).color(255, 255, 255, 255).uv(var8, var11).uv2(param3).endVertex();
                     param0.popPose();
-                    if (var6.getName() != null) {
+                    if (var6.name() != null) {
                         Font var15 = Minecraft.getInstance().font;
-                        Component var16 = var6.getName();
+                        Component var16 = var6.name();
                         float var17 = (float)var15.width(var16);
                         float var18 = Mth.clamp(25.0F / var17, 0.0F, 6.0F / 9.0F);
                         param0.pushPose();
-                        param0.translate(
-                            0.0F + (float)var6.getX() / 2.0F + 64.0F - var17 * var18 / 2.0F, 0.0F + (float)var6.getY() / 2.0F + 64.0F + 4.0F, -0.025F
-                        );
+                        param0.translate(0.0F + (float)var6.x() / 2.0F + 64.0F - var17 * var18 / 2.0F, 0.0F + (float)var6.y() / 2.0F + 64.0F + 4.0F, -0.025F);
                         param0.scale(var18, var18, 1.0F);
                         param0.translate(0.0F, 0.0F, -0.1F);
                         var15.drawInBatch(var16, 0.0F, 0.0F, -1, false, param0.last().pose(), param1, Font.DisplayMode.NORMAL, Integer.MIN_VALUE, param3);

@@ -21,14 +21,32 @@ public interface GuiSpriteScaling {
 
     @OnlyIn(Dist.CLIENT)
     public static record NineSlice(int width, int height, GuiSpriteScaling.NineSlice.Border border) implements GuiSpriteScaling {
-        public static final Codec<GuiSpriteScaling.NineSlice> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(
-                        ExtraCodecs.POSITIVE_INT.fieldOf("width").forGetter(GuiSpriteScaling.NineSlice::width),
-                        ExtraCodecs.POSITIVE_INT.fieldOf("height").forGetter(GuiSpriteScaling.NineSlice::height),
-                        GuiSpriteScaling.NineSlice.Border.CODEC.fieldOf("border").forGetter(GuiSpriteScaling.NineSlice::border)
-                    )
-                    .apply(param0, GuiSpriteScaling.NineSlice::new)
+        public static final Codec<GuiSpriteScaling.NineSlice> CODEC = ExtraCodecs.validate(
+            RecordCodecBuilder.create(
+                param0 -> param0.group(
+                            ExtraCodecs.POSITIVE_INT.fieldOf("width").forGetter(GuiSpriteScaling.NineSlice::width),
+                            ExtraCodecs.POSITIVE_INT.fieldOf("height").forGetter(GuiSpriteScaling.NineSlice::height),
+                            GuiSpriteScaling.NineSlice.Border.CODEC.fieldOf("border").forGetter(GuiSpriteScaling.NineSlice::border)
+                        )
+                        .apply(param0, GuiSpriteScaling.NineSlice::new)
+            ),
+            GuiSpriteScaling.NineSlice::validate
         );
+
+        private static DataResult<GuiSpriteScaling.NineSlice> validate(GuiSpriteScaling.NineSlice param0) {
+            GuiSpriteScaling.NineSlice.Border var0 = param0.border();
+            if (var0.left() + var0.right() >= param0.width()) {
+                return DataResult.error(
+                    () -> "Nine-sliced texture has no horizontal center slice: " + var0.left() + " + " + var0.right() + " >= " + param0.width()
+                );
+            } else {
+                return var0.top() + var0.bottom() >= param0.height()
+                    ? DataResult.error(
+                        () -> "Nine-sliced texture has no vertical center slice: " + var0.top() + " + " + var0.bottom() + " >= " + param0.height()
+                    )
+                    : DataResult.success(param0);
+            }
+        }
 
         @Override
         public GuiSpriteScaling.Type type() {
@@ -44,10 +62,10 @@ public interface GuiSpriteScaling {
                 });
             private static final Codec<GuiSpriteScaling.NineSlice.Border> RECORD_CODEC = RecordCodecBuilder.create(
                 param0 -> param0.group(
-                            ExtraCodecs.POSITIVE_INT.fieldOf("left").forGetter(GuiSpriteScaling.NineSlice.Border::left),
-                            ExtraCodecs.POSITIVE_INT.fieldOf("top").forGetter(GuiSpriteScaling.NineSlice.Border::top),
-                            ExtraCodecs.POSITIVE_INT.fieldOf("right").forGetter(GuiSpriteScaling.NineSlice.Border::right),
-                            ExtraCodecs.POSITIVE_INT.fieldOf("bottom").forGetter(GuiSpriteScaling.NineSlice.Border::bottom)
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("left").forGetter(GuiSpriteScaling.NineSlice.Border::left),
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("top").forGetter(GuiSpriteScaling.NineSlice.Border::top),
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("right").forGetter(GuiSpriteScaling.NineSlice.Border::right),
+                            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("bottom").forGetter(GuiSpriteScaling.NineSlice.Border::bottom)
                         )
                         .apply(param0, GuiSpriteScaling.NineSlice.Border::new)
             );

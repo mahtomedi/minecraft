@@ -1,14 +1,13 @@
 package net.minecraft.world.level.storage.loot.functions;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSerializationContext;
 import com.mojang.authlib.GameProfile;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -17,9 +16,14 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 
 public class FillPlayerHead extends LootItemConditionalFunction {
-    final LootContext.EntityTarget entityTarget;
+    public static final Codec<FillPlayerHead> CODEC = RecordCodecBuilder.create(
+        param0 -> commonFields(param0)
+                .and(LootContext.EntityTarget.CODEC.fieldOf("entity").forGetter(param0x -> param0x.entityTarget))
+                .apply(param0, FillPlayerHead::new)
+    );
+    private final LootContext.EntityTarget entityTarget;
 
-    public FillPlayerHead(LootItemCondition[] param0, LootContext.EntityTarget param1) {
+    public FillPlayerHead(List<LootItemCondition> param0, LootContext.EntityTarget param1) {
         super(param0);
         this.entityTarget = param1;
     }
@@ -49,17 +53,5 @@ public class FillPlayerHead extends LootItemConditionalFunction {
 
     public static LootItemConditionalFunction.Builder<?> fillPlayerHead(LootContext.EntityTarget param0) {
         return simpleBuilder(param1 -> new FillPlayerHead(param1, param0));
-    }
-
-    public static class Serializer extends LootItemConditionalFunction.Serializer<FillPlayerHead> {
-        public void serialize(JsonObject param0, FillPlayerHead param1, JsonSerializationContext param2) {
-            super.serialize(param0, param1, param2);
-            param0.add("entity", param2.serialize(param1.entityTarget));
-        }
-
-        public FillPlayerHead deserialize(JsonObject param0, JsonDeserializationContext param1, LootItemCondition[] param2) {
-            LootContext.EntityTarget var0 = GsonHelper.getAsObject(param0, "entity", param1, LootContext.EntityTarget.class);
-            return new FillPlayerHead(param2, var0);
-        }
     }
 }

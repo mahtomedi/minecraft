@@ -67,7 +67,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
 
     private void tryToGiveBirth(ServerLevel param0, Villager param1, Villager param2) {
         Optional<BlockPos> var0 = this.takeVacantBed(param0, param1);
-        if (!var0.isPresent()) {
+        if (var0.isEmpty()) {
             param0.broadcastEntityEvent(param2, (byte)13);
             param0.broadcastEntityEvent(param1, (byte)13);
         } else {
@@ -89,7 +89,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
     private boolean isBreedingPossible(Villager param0) {
         Brain<Villager> var0 = param0.getBrain();
         Optional<AgeableMob> var1 = var0.getMemory(MemoryModuleType.BREED_TARGET).filter(param0x -> param0x.getType() == EntityType.VILLAGER);
-        if (!var1.isPresent()) {
+        if (var1.isEmpty()) {
             return false;
         } else {
             return BehaviorUtils.targetIsValid(var0, MemoryModuleType.BREED_TARGET, EntityType.VILLAGER) && param0.canBreed() && var1.get().canBreed();
