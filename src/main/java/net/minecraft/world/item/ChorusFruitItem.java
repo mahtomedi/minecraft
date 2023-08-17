@@ -43,6 +43,7 @@ public class ChorusFruitItem extends Item {
                     SoundEvent var9 = param2 instanceof Fox ? SoundEvents.FOX_TELEPORT : SoundEvents.CHORUS_FRUIT_TELEPORT;
                     param1.playSound(null, var1, var2, var3, var9, SoundSource.PLAYERS, 1.0F, 1.0F);
                     param2.playSound(var9, 1.0F, 1.0F);
+                    param2.resetFallDistance();
                     break;
                 }
             }

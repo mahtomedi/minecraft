@@ -22,7 +22,7 @@ public interface AbuseReportSender {
         return new AbuseReportSender.Services(param0, param1);
     }
 
-    CompletableFuture<Unit> send(UUID var1, AbuseReport var2);
+    CompletableFuture<Unit> send(UUID var1, ReportType var2, AbuseReport var3);
 
     boolean isEnabled();
 
@@ -44,22 +44,28 @@ public interface AbuseReportSender {
         private static final Component JSON_ERROR_TEXT = Component.translatable("gui.abuseReport.send.json_error");
 
         @Override
-        public CompletableFuture<Unit> send(UUID param0, AbuseReport param1) {
+        public CompletableFuture<Unit> send(UUID param0, ReportType param1, AbuseReport param2) {
             return CompletableFuture.supplyAsync(
                 () -> {
                     AbuseReportRequest var0 = new AbuseReportRequest(
-                        1, param0, param1, this.environment.clientInfo(), this.environment.thirdPartyServerInfo(), this.environment.realmInfo()
+                        1,
+                        param0,
+                        param2,
+                        this.environment.clientInfo(),
+                        this.environment.thirdPartyServerInfo(),
+                        this.environment.realmInfo(),
+                        param1.backendName()
                     );
     
                     try {
                         this.userApiService.reportAbuse(var0);
                         return Unit.INSTANCE;
-                    } catch (MinecraftClientHttpException var6) {
-                        Component var2 = this.getHttpErrorDescription(var6);
-                        throw new CompletionException(new AbuseReportSender.SendException(var2, var6));
-                    } catch (MinecraftClientException var7) {
-                        Component var4 = this.getErrorDescription(var7);
-                        throw new CompletionException(new AbuseReportSender.SendException(var4, var7));
+                    } catch (MinecraftClientHttpException var7) {
+                        Component var2 = this.getHttpErrorDescription(var7);
+                        throw new CompletionException(new AbuseReportSender.SendException(var2, var7));
+                    } catch (MinecraftClientException var8) {
+                        Component var4 = this.getErrorDescription(var8);
+                        throw new CompletionException(new AbuseReportSender.SendException(var4, var8));
                     }
                 },
                 Util.ioPool()

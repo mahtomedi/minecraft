@@ -70,6 +70,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.phys.AABB;
 
 public abstract class Mob extends LivingEntity implements Targeting {
     private static final EntityDataAccessor<Byte> DATA_MOB_FLAGS_ID = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BYTE);
@@ -86,6 +87,7 @@ public abstract class Mob extends LivingEntity implements Targeting {
     public static final float DEFAULT_EQUIPMENT_DROP_CHANCE = 0.085F;
     public static final int PRESERVE_ITEM_DROP_CHANCE = 2;
     public static final int UPDATE_GOAL_SELECTOR_EVERY_N_TICKS = 2;
+    private static final double DEFAULT_ATTACK_REACH = Math.sqrt(2.04F) - 0.6F;
     public int ambientSoundTime;
     protected int xpReward;
     protected LookControl lookControl;
@@ -1370,17 +1372,29 @@ public abstract class Mob extends LivingEntity implements Targeting {
         return this.isLeftHanded() ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
     }
 
-    public double getMeleeAttackRangeSqr(LivingEntity param0) {
-        return (double)(this.getBbWidth() * 2.0F * this.getBbWidth() * 2.0F + param0.getBbWidth());
-    }
-
-    public double getPerceivedTargetDistanceSquareForMeleeAttack(LivingEntity param0) {
-        return Math.max(this.distanceToSqr(param0.getMeleeAttackReferencePosition()), this.distanceToSqr(param0.position()));
-    }
-
     public boolean isWithinMeleeAttackRange(LivingEntity param0) {
-        double var0 = this.getPerceivedTargetDistanceSquareForMeleeAttack(param0);
-        return var0 <= this.getMeleeAttackRangeSqr(param0);
+        return this.getAttackBoundingBox().intersects(param0.getHitbox());
+    }
+
+    protected AABB getAttackBoundingBox() {
+        Entity var0 = this.getVehicle();
+        AABB var3;
+        if (var0 != null) {
+            AABB var1 = var0.getBoundingBox();
+            AABB var2 = this.getBoundingBox();
+            var3 = new AABB(
+                Math.min(var2.minX, var1.minX),
+                var2.minY,
+                Math.min(var2.minZ, var1.minZ),
+                Math.max(var2.maxX, var1.maxX),
+                var2.maxY,
+                Math.max(var2.maxZ, var1.maxZ)
+            );
+        } else {
+            var3 = this.getBoundingBox();
+        }
+
+        return var3.inflate(DEFAULT_ATTACK_REACH, 0.0, DEFAULT_ATTACK_REACH);
     }
 
     @Override

@@ -8,8 +8,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.util.JsonUtils;
 import java.util.Comparator;
@@ -77,9 +77,9 @@ public class RealmsServer extends ValueObject {
         for(UUID var3 : param0.players) {
             if (!Minecraft.getInstance().isLocalPlayer(var3)) {
                 try {
-                    GameProfile var4 = var2.fetchProfile(var3, false);
+                    ProfileResult var4 = var2.fetchProfile(var3, false);
                     if (var4 != null) {
-                        var0.add(var4.getName());
+                        var0.add(var4.profile().getName());
                     }
 
                     ++var1;

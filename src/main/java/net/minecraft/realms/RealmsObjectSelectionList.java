@@ -25,9 +25,6 @@ public abstract class RealmsObjectSelectionList<E extends ObjectSelectionList.En
         this.setSelectedItem(param0);
     }
 
-    public void itemClicked(int param0, int param1, double param2, double param3, int param4, int param5) {
-    }
-
     @Override
     public int getMaxPosition() {
         return 0;

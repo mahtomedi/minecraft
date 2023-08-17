@@ -100,7 +100,7 @@ public class ConnectScreen extends Screen {
                         }
 
                         var2 = new Connection(PacketFlow.CLIENTBOUND);
-                        var2.setBandwidthLogger(param0.bandwidthLogger);
+                        var2.setBandwidthLogger(param0.getDebugOverlay().getBandwidthLogger());
                         ConnectScreen.this.channelFuture = Connection.connect(var0, param0.options.useNativeTransport(), var2);
                     }
 

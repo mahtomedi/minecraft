@@ -2,6 +2,7 @@ package net.minecraft.client;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationException;
@@ -9,6 +10,8 @@ import com.mojang.authlib.minecraft.BanDetails;
 import com.mojang.authlib.minecraft.MinecraftSessionService;
 import com.mojang.authlib.minecraft.UserApiService;
 import com.mojang.authlib.minecraft.UserApiService.UserFlag;
+import com.mojang.authlib.yggdrasil.ProfileActionType;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.authlib.yggdrasil.ServicesKeyType;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.blaze3d.pipeline.MainTarget;
@@ -45,11 +48,13 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.Queue;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -73,12 +78,13 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.GuiSpriteManager;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.components.toasts.TutorialToast;
 import net.minecraft.client.gui.font.FontManager;
 import net.minecraft.client.gui.screens.AccessibilityOnboardingScreen;
-import net.minecraft.client.gui.screens.BanNoticeScreen;
+import net.minecraft.client.gui.screens.BanNoticeScreens;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.DeathScreen;
@@ -196,7 +202,6 @@ import net.minecraft.util.FileZipper;
 import net.minecraft.util.MemoryReserve;
 import net.minecraft.util.ModCheck;
 import net.minecraft.util.Mth;
-import net.minecraft.util.SampleLogger;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.Unit;
@@ -258,7 +263,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private static final Component SOCIAL_INTERACTIONS_NOT_AVAILABLE = Component.translatable("multiplayer.socialInteractions.not_available");
     public static final String UPDATE_DRIVERS_ADVICE = "Please make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).";
     private final Path resourcePackDirectory;
-    private final CompletableFuture<GameProfile> profileFuture;
+    private final CompletableFuture<ProfileResult> profileFuture;
     private final TextureManager textureManager;
     private final DataFixer fixerUpper;
     private final VirtualScreen virtualScreen;
@@ -287,9 +292,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final String versionType;
     private final Proxy proxy;
     private final LevelStorageSource levelSource;
-    public final SampleLogger frameTimeLogger = new SampleLogger();
-    public final SampleLogger pingLogger = new SampleLogger();
-    public final SampleLogger bandwidthLogger = new SampleLogger();
     private final boolean is64bit;
     private final boolean demo;
     private final boolean allowsMultiplayer;
@@ -451,8 +453,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         try {
             this.window.setIcon(this.vanillaPackResources, SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
-        } catch (IOException var111) {
-            LOGGER.error("Couldn't set icon", (Throwable)var111);
+        } catch (IOException var121) {
+            LOGGER.error("Couldn't set icon", (Throwable)var121);
         }
 
         this.window.setFramerateLimit(this.options.framerateLimit().get());
@@ -570,54 +572,85 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var10);
         ReloadInstance var11 = this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var10);
         GameLoadTimesEvent.INSTANCE.beginStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
-        this.setOverlay(new LoadingOverlay(this, var11, param0x -> Util.ifElse(param0x, this::rollbackResourcePacks, () -> {
+        Minecraft.GameLoadCookie var12 = new Minecraft.GameLoadCookie(var8, param0.quickPlay);
+        this.setOverlay(new LoadingOverlay(this, var11, param1 -> Util.ifElse(param1, param1x -> this.rollbackResourcePacks(param1x, var12), () -> {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     this.selfTest();
                 }
 
                 this.reloadStateTracker.finishReload();
-                this.onResourceLoadFinished();
+                this.onResourceLoadFinished(var12);
             }), false));
         this.quickPlayLog = QuickPlayLog.of(param0.quickPlay.path());
-        if (this.shouldShowBanNotice()) {
-            this.setScreen(BanNoticeScreen.create(param3 -> {
-                if (param3) {
-                    Util.getPlatform().openUri("https://aka.ms/mcjavamoderation");
-                }
-
-                this.setInitialScreen(var8, var11, param0.quickPlay);
-            }, this.multiplayerBan()));
-        } else {
-            this.setInitialScreen(var8, var11, param0.quickPlay);
-        }
-
     }
 
-    private void onResourceLoadFinished() {
+    private void onResourceLoadFinished(@Nullable Minecraft.GameLoadCookie param0) {
         if (!this.gameLoadFinished) {
             this.gameLoadFinished = true;
-            this.onGameLoadFinished();
+            this.onGameLoadFinished(param0);
         }
 
     }
 
-    private void onGameLoadFinished() {
+    private void onGameLoadFinished(@Nullable Minecraft.GameLoadCookie param0) {
+        Runnable var0 = this.buildInitialScreens(param0);
         GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
         GameLoadTimesEvent.INSTANCE.endStep(TelemetryProperty.LOAD_TIME_TOTAL_TIME_MS);
         GameLoadTimesEvent.INSTANCE.send(this.telemetryManager.getOutsideSessionSender());
+        var0.run();
     }
 
     public boolean isGameLoadFinished() {
         return this.gameLoadFinished;
     }
 
-    private void setInitialScreen(RealmsClient param0, ReloadInstance param1, GameConfig.QuickPlayData param2) {
-        if (param2.isEnabled()) {
-            QuickPlay.connect(this, param2, param1, param0);
-        } else if (this.options.onboardAccessibility) {
-            this.setScreen(new AccessibilityOnboardingScreen(this.options));
-        } else {
-            this.setScreen(new TitleScreen(true));
+    private Runnable buildInitialScreens(@Nullable Minecraft.GameLoadCookie param0) {
+        List<Function<Runnable, Screen>> var0 = new ArrayList<>();
+        this.addInitialScreens(var0);
+        Runnable var1 = () -> {
+            if (param0 != null && param0.quickPlayData().isEnabled()) {
+                QuickPlay.connect(this, param0.quickPlayData(), param0.realmsClient());
+            } else {
+                this.setScreen(new TitleScreen(true));
+            }
+
+        };
+
+        for(Function<Runnable, Screen> var2 : Lists.reverse(var0)) {
+            Screen var3 = var2.apply(var1);
+            var1 = () -> this.setScreen(var3);
+        }
+
+        return var1;
+    }
+
+    private void addInitialScreens(List<Function<Runnable, Screen>> param0) {
+        if (this.options.onboardAccessibility) {
+            param0.add(param0x -> new AccessibilityOnboardingScreen(this.options, param0x));
+        }
+
+        BanDetails var0 = this.multiplayerBan();
+        if (var0 != null) {
+            param0.add(param1 -> BanNoticeScreens.create(param1x -> {
+                    if (param1x) {
+                        Util.getPlatform().openUri("https://aka.ms/mcjavamoderation");
+                    }
+
+                    param1.run();
+                }, var0));
+        }
+
+        ProfileResult var1 = this.profileFuture.join();
+        if (var1 != null) {
+            GameProfile var2 = var1.profile();
+            Set<ProfileActionType> var3 = var1.actions();
+            if (var3.contains(ProfileActionType.FORCED_NAME_CHANGE)) {
+                param0.add(param1 -> BanNoticeScreens.createNameBan(var2.getName(), param1));
+            }
+
+            if (var3.contains(ProfileActionType.USING_BANNED_SKIN)) {
+                param0.add(BanNoticeScreens::createSkinBan);
+            }
         }
 
     }
@@ -673,23 +706,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return ModCheck.identify("vanilla", ClientBrandRetriever::getClientModName, "Client", Minecraft.class);
     }
 
-    private void rollbackResourcePacks(Throwable param0) {
+    private void rollbackResourcePacks(Throwable param0, @Nullable Minecraft.GameLoadCookie param1) {
         if (this.resourcePackRepository.getSelectedIds().size() > 1) {
-            this.clearResourcePacksOnError(param0, null);
+            this.clearResourcePacksOnError(param0, null, param1);
         } else {
             Util.throwAsRuntime(param0);
         }
 
     }
 
-    public void clearResourcePacksOnError(Throwable param0, @Nullable Component param1) {
+    public void clearResourcePacksOnError(Throwable param0, @Nullable Component param1, @Nullable Minecraft.GameLoadCookie param2) {
         LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", param0);
         this.reloadStateTracker.startRecovery(param0);
         this.resourcePackRepository.setSelected(Collections.emptyList());
         this.options.resourcePacks.clear();
         this.options.incompatibleResourcePacks.clear();
         this.options.save();
-        this.reloadResourcePacks(true).thenRun(() -> this.addResourcePackLoadFailToast(param1));
+        this.reloadResourcePacks(true, param2).thenRun(() -> this.addResourcePackLoadFailToast(param1));
     }
 
     private void abortResourcePackRecovery() {
@@ -725,7 +758,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
                 try {
                     SingleTickProfiler var1 = SingleTickProfiler.createTickProfiler("Renderer");
-                    boolean var2 = this.shouldRenderFpsPie();
+                    boolean var2 = this.getDebugOverlay().showProfilerChart();
                     this.profiler = this.constructProfiler(var2, var1);
                     this.profiler.startTick();
                     this.metricsRecorder.startTick();
@@ -858,10 +891,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public CompletableFuture<Void> reloadResourcePacks() {
-        return this.reloadResourcePacks(false);
+        return this.reloadResourcePacks(false, null);
     }
 
-    private CompletableFuture<Void> reloadResourcePacks(boolean param0) {
+    private CompletableFuture<Void> reloadResourcePacks(boolean param0, @Nullable Minecraft.GameLoadCookie param1) {
         if (this.pendingReload != null) {
             return this.pendingReload;
         } else {
@@ -880,18 +913,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     new LoadingOverlay(
                         this,
                         this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
-                        param2 -> Util.ifElse(param2, param1x -> {
+                        param3 -> Util.ifElse(param3, param2x -> {
                                 if (param0) {
                                     this.abortResourcePackRecovery();
                                 } else {
-                                    this.rollbackResourcePacks(param1x);
+                                    this.rollbackResourcePacks(param2x, param1);
                                 }
         
                             }, () -> {
                                 this.levelRenderer.allChanged();
                                 this.reloadStateTracker.finishReload();
                                 var0.complete(null);
-                                this.onResourceLoadFinished();
+                                this.onResourceLoadFinished(param1);
                             }),
                         true
                     )
@@ -1120,7 +1153,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.profiler.push("render");
         long var5 = Util.getNanos();
         boolean var7;
-        if (!this.options.renderDebug && !this.metricsRecorder.isRecording()) {
+        if (!this.getDebugOverlay().showDebugScreen() && !this.metricsRecorder.isRecording()) {
             var7 = false;
             this.gpuUtilization = 0.0;
         } else {
@@ -1189,7 +1222,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.savedCpuDuration = var12;
         }
 
-        this.frameTimeLogger.logSample(var12);
+        this.getDebugOverlay().logFrameDuration(var12);
         this.lastNanoTime = var11;
         this.profiler.push("fpsUpdate");
         if (this.currentFrameProfile != null && this.currentFrameProfile.isDone()) {
@@ -1223,10 +1256,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         this.profiler.pop();
-    }
-
-    private boolean shouldRenderFpsPie() {
-        return this.options.renderDebug && this.options.renderDebugCharts && !this.options.hideGui;
     }
 
     private ProfilerFiller constructProfiler(boolean param0, @Nullable SingleTickProfiler param1) {
@@ -1769,7 +1798,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             Screen.wrapScreenError(() -> this.screen.tick(), "Ticking screen", this.screen.getClass().getCanonicalName());
         }
 
-        if (!this.options.renderDebug) {
+        if (!this.getDebugOverlay().showDebugScreen()) {
             this.gui.clearCache();
         }
 
@@ -2099,8 +2128,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.updateLevelInEngines(null);
         this.player = null;
         SkullBlockEntity.clear();
-        this.pingLogger.reset();
-        this.bandwidthLogger.reset();
     }
 
     public void clearClientLevel(Screen param0) {
@@ -2118,8 +2145,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.updateLevelInEngines(null);
         this.player = null;
         SkullBlockEntity.clear();
-        this.pingLogger.reset();
-        this.bandwidthLogger.reset();
     }
 
     private void updateScreenAndTick(Screen param0) {
@@ -2159,20 +2184,24 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public boolean allowsMultiplayer() {
-        return this.allowsMultiplayer && this.userApiService.properties().flag(UserFlag.SERVERS_ALLOWED) && this.multiplayerBan() == null;
+        return this.allowsMultiplayer
+            && this.userApiService.properties().flag(UserFlag.SERVERS_ALLOWED)
+            && this.multiplayerBan() == null
+            && !this.isNameBanned();
     }
 
     public boolean allowsRealms() {
         return this.userApiService.properties().flag(UserFlag.REALMS_ALLOWED) && this.multiplayerBan() == null;
     }
 
-    public boolean shouldShowBanNotice() {
-        return this.multiplayerBan() != null;
-    }
-
     @Nullable
     public BanDetails multiplayerBan() {
         return this.userApiService.properties().bannedScopes().get("MULTIPLAYER");
+    }
+
+    public boolean isNameBanned() {
+        ProfileResult var0 = this.profileFuture.getNow(null);
+        return var0 != null && var0.actions().contains(ProfileActionType.FORCED_NAME_CHANGE);
     }
 
     public boolean isBlocked(UUID param0) {
@@ -2418,8 +2447,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public GameProfile getGameProfile() {
-        GameProfile var0 = this.profileFuture.join();
-        return var0 != null ? var0 : new GameProfile(this.user.getProfileId(), this.user.getName());
+        ProfileResult var0 = this.profileFuture.join();
+        return var0 != null ? var0.profile() : new GameProfile(this.user.getProfileId(), this.user.getName());
     }
 
     public Proxy getProxy() {
@@ -2556,10 +2585,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public <T> void populateSearchTree(SearchRegistry.Key<T> param0, List<T> param1) {
         this.searchRegistry.populate(param0, param1);
-    }
-
-    public SampleLogger getFrameTimeLogger() {
-        return this.frameTimeLogger;
     }
 
     public DataFixer getFixerUpper() {
@@ -2770,6 +2795,10 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.window;
     }
 
+    public DebugScreenOverlay getDebugOverlay() {
+        return this.gui.getDebugOverlay();
+    }
+
     public RenderBuffers renderBuffers() {
         return this.renderBuffers;
     }
@@ -2877,5 +2906,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         public abstract boolean isChatAllowed(boolean var1);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    static record GameLoadCookie(RealmsClient realmsClient, GameConfig.QuickPlayData quickPlayData) {
     }
 }

@@ -130,7 +130,7 @@ public class Gui {
     public float vignetteBrightness = 1.0F;
     private int toolHighlightTimer;
     private ItemStack lastToolHighlight = ItemStack.EMPTY;
-    private final DebugScreenOverlay debugScreen;
+    private final DebugScreenOverlay debugOverlay;
     private final SubtitleOverlay subtitleOverlay;
     private final SpectatorGui spectatorGui;
     private final PlayerTabOverlay tabList;
@@ -156,7 +156,7 @@ public class Gui {
     public Gui(Minecraft param0, ItemRenderer param1) {
         this.minecraft = param0;
         this.itemRenderer = param1;
-        this.debugScreen = new DebugScreenOverlay(param0);
+        this.debugOverlay = new DebugScreenOverlay(param0);
         this.spectatorGui = new SpectatorGui(param0);
         this.chat = new ChatComponent(param0);
         this.tabList = new PlayerTabOverlay(param0, this);
@@ -257,8 +257,8 @@ public class Gui {
         }
 
         this.renderEffects(param0);
-        if (this.minecraft.options.renderDebug) {
-            this.debugScreen.render(param0);
+        if (this.debugOverlay.showDebugScreen()) {
+            this.debugOverlay.render(param0);
         }
 
         if (!this.minecraft.options.hideGui) {
@@ -378,7 +378,7 @@ public class Gui {
         Options var0 = this.minecraft.options;
         if (var0.getCameraType().isFirstPerson()) {
             if (this.minecraft.gameMode.getPlayerMode() != GameType.SPECTATOR || this.canRenderCrosshairForSpectator(this.minecraft.hitResult)) {
-                if (var0.renderDebug && !var0.hideGui && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo().get()) {
+                if (this.debugOverlay.showDebugScreen() && !this.minecraft.player.isReducedDebugInfo() && !var0.reducedDebugInfo().get()) {
                     Camera var1 = this.minecraft.gameRenderer.getMainCamera();
                     PoseStack var2 = RenderSystem.getModelViewStack();
                     var2.pushPose();
@@ -1174,7 +1174,7 @@ public class Gui {
         this.tabList.reset();
         this.bossOverlay.reset();
         this.minecraft.getToasts().clear();
-        this.minecraft.options.renderDebug = false;
+        this.debugOverlay.reset();
         this.chat.clearMessages(true);
     }
 
@@ -1182,8 +1182,12 @@ public class Gui {
         return this.bossOverlay;
     }
 
+    public DebugScreenOverlay getDebugOverlay() {
+        return this.debugOverlay;
+    }
+
     public void clearCache() {
-        this.debugScreen.clearChunkCache();
+        this.debugOverlay.clearChunkCache();
     }
 
     private void renderSavingIndicator(GuiGraphics param0) {

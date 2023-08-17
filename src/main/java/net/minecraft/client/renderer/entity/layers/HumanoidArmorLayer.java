@@ -120,7 +120,7 @@ public class HumanoidArmorLayer<T extends LivingEntity, M extends HumanoidModel<
 
     private void renderTrim(ArmorMaterial param0, PoseStack param1, MultiBufferSource param2, int param3, ArmorTrim param4, A param5, boolean param6) {
         TextureAtlasSprite var0 = this.armorTrimAtlas.getSprite(param6 ? param4.innerTexture(param0) : param4.outerTexture(param0));
-        VertexConsumer var1 = var0.wrap(param2.getBuffer(Sheets.armorTrimsSheet()));
+        VertexConsumer var1 = var0.wrap(param2.getBuffer(Sheets.armorTrimsSheet(param4.pattern().value().decal())));
         param5.renderToBuffer(param1, var1, param3, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
     }
 

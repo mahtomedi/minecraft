@@ -865,7 +865,12 @@ public final class ItemStack {
     }
 
     public void setRepairCost(int param0) {
-        this.getOrCreateTag().putInt("RepairCost", param0);
+        if (param0 > 0) {
+            this.getOrCreateTag().putInt("RepairCost", param0);
+        } else {
+            this.removeTagKey("RepairCost");
+        }
+
     }
 
     public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot param0) {

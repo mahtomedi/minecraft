@@ -22,7 +22,7 @@ import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.chat.ChatTrustLevel;
 import net.minecraft.client.multiplayer.chat.LoggedChatMessage;
-import net.minecraft.client.multiplayer.chat.report.ChatReportBuilder;
+import net.minecraft.client.multiplayer.chat.report.ChatReport;
 import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.locale.Language;
@@ -47,11 +47,11 @@ public class ChatSelectionScreen extends Screen {
     private MultiLineLabel contextInfoLabel;
     @Nullable
     private ChatSelectionScreen.ChatSelectionList chatSelectionList;
-    final ChatReportBuilder report;
-    private final Consumer<ChatReportBuilder> onSelected;
+    final ChatReport.Builder report;
+    private final Consumer<ChatReport.Builder> onSelected;
     private ChatSelectionLogFiller chatLogFiller;
 
-    public ChatSelectionScreen(@Nullable Screen param0, ReportingContext param1, ChatReportBuilder param2, Consumer<ChatReportBuilder> param3) {
+    public ChatSelectionScreen(@Nullable Screen param0, ReportingContext param1, ChatReport.Builder param2, Consumer<ChatReport.Builder> param3) {
         super(TITLE);
         this.lastScreen = param0;
         this.reportingContext = param1;

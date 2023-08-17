@@ -56,6 +56,10 @@ public class Slot {
     }
 
     public void setByPlayer(ItemStack param0) {
+        this.setByPlayer(param0, this.getItem());
+    }
+
+    public void setByPlayer(ItemStack param0, ItemStack param1) {
         this.set(param0);
     }
 
@@ -105,7 +109,7 @@ public class Slot {
                 return Optional.empty();
             } else {
                 if (this.getItem().isEmpty()) {
-                    this.setByPlayer(ItemStack.EMPTY);
+                    this.setByPlayer(ItemStack.EMPTY, var0);
                 }
 
                 return Optional.of(var0);

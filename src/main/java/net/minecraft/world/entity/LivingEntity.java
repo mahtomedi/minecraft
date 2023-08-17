@@ -1504,13 +1504,19 @@ public abstract class LivingEntity extends Entity implements Attackable {
         return this.skipDropExperience;
     }
 
-    protected Vec3 getMeleeAttackReferencePosition() {
-        Entity var2 = this.getVehicle();
-        return var2 instanceof RiderShieldingMount var0 ? this.position().add(0.0, var0.getRiderShieldingHeight(), 0.0) : this.position();
-    }
-
     public float getHurtDir() {
         return 0.0F;
+    }
+
+    protected AABB getHitbox() {
+        AABB var0 = this.getBoundingBox();
+        Entity var1 = this.getVehicle();
+        if (var1 != null) {
+            Vec3 var2 = var1.getPassengerRidingPosition(this);
+            return var0.setMinY(Math.max(var2.y, var0.minY));
+        } else {
+            return var0;
+        }
     }
 
     public LivingEntity.Fallsounds getFallSounds() {

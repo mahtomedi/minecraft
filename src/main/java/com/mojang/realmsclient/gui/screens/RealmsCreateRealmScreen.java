@@ -7,8 +7,8 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.CommonLayouts;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
-import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -38,21 +38,16 @@ public class RealmsCreateRealmScreen extends RealmsScreen {
     public void init() {
         this.layout.addToHeader(new StringWidget(this.title, this.font));
         LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical()).spacing(10);
-        var0.defaultCellSetting().alignHorizontallyCenter();
         Button var1 = Button.builder(Component.translatable("mco.create.world"), param0 -> this.createWorld()).build();
         var1.active = false;
         this.nameBox = new EditBox(this.font, 210, 20, Component.translatable("mco.configure.world.name"));
         this.nameBox.setResponder(param1 -> var1.active = !Util.isBlank(param1));
         this.descriptionBox = new EditBox(this.font, 210, 20, Component.translatable("mco.configure.world.description"));
-        LinearLayout var2 = var0.addChild(LinearLayout.vertical().spacing(4));
-        var2.addChild(new StringWidget(NAME_LABEL, this.font), LayoutSettings::alignHorizontallyLeft);
-        var2.addChild(this.nameBox);
-        LinearLayout var3 = var0.addChild(LinearLayout.vertical().spacing(4));
-        var3.addChild(new StringWidget(DESCRIPTION_LABEL, this.font), LayoutSettings::alignHorizontallyLeft);
-        var3.addChild(this.descriptionBox);
-        LinearLayout var4 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
-        var4.addChild(var1);
-        var4.addChild(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.onClose()).build());
+        var0.addChild(CommonLayouts.labeledElement(this.font, this.nameBox, NAME_LABEL));
+        var0.addChild(CommonLayouts.labeledElement(this.font, this.descriptionBox, DESCRIPTION_LABEL));
+        LinearLayout var2 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
+        var2.addChild(var1);
+        var2.addChild(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.onClose()).build());
         this.layout.visitWidgets(param1 -> {
         });
         this.repositionElements();

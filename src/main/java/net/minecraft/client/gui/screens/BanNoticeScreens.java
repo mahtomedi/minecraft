@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.time.Duration;
 import java.time.Instant;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.multiplayer.chat.report.BanReason;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -15,13 +16,47 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 @OnlyIn(Dist.CLIENT)
-public class BanNoticeScreen {
+public class BanNoticeScreens {
     private static final Component TEMPORARY_BAN_TITLE = Component.translatable("gui.banned.title.temporary").withStyle(ChatFormatting.BOLD);
     private static final Component PERMANENT_BAN_TITLE = Component.translatable("gui.banned.title.permanent").withStyle(ChatFormatting.BOLD);
+    public static final Component NAME_BAN_TITLE = Component.translatable("gui.banned.name.title").withStyle(ChatFormatting.BOLD);
+    private static final Component SKIN_BAN_TITLE = Component.translatable("gui.banned.skin.title").withStyle(ChatFormatting.BOLD);
+    private static final Component SKIN_BAN_DESCRIPTION = Component.translatable(
+        "gui.banned.skin.description", Component.literal("https://aka.ms/mcjavamoderation")
+    );
 
     public static ConfirmLinkScreen create(BooleanConsumer param0, BanDetails param1) {
         return new ConfirmLinkScreen(
             param0, getBannedTitle(param1), getBannedScreenText(param1), "https://aka.ms/mcjavamoderation", CommonComponents.GUI_ACKNOWLEDGE, true
+        );
+    }
+
+    public static ConfirmLinkScreen createSkinBan(Runnable param0) {
+        String var0 = "https://aka.ms/mcjavamoderation";
+        return new ConfirmLinkScreen(param1 -> {
+            if (param1) {
+                Util.getPlatform().openUri("https://aka.ms/mcjavamoderation");
+            }
+
+            param0.run();
+        }, SKIN_BAN_TITLE, SKIN_BAN_DESCRIPTION, "https://aka.ms/mcjavamoderation", CommonComponents.GUI_ACKNOWLEDGE, true);
+    }
+
+    public static ConfirmLinkScreen createNameBan(String param0, Runnable param1) {
+        String var0 = "https://aka.ms/mcjavamoderation";
+        return new ConfirmLinkScreen(
+            param1x -> {
+                if (param1x) {
+                    Util.getPlatform().openUri("https://aka.ms/mcjavamoderation");
+                }
+    
+                param1.run();
+            },
+            NAME_BAN_TITLE,
+            Component.translatable("gui.banned.name.description", Component.literal(param0).withStyle(ChatFormatting.YELLOW), "https://aka.ms/mcjavamoderation"),
+            "https://aka.ms/mcjavamoderation",
+            CommonComponents.GUI_ACKNOWLEDGE,
+            true
         );
     }
 

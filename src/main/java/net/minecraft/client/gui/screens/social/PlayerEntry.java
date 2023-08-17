@@ -18,7 +18,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.client.gui.screens.reporting.ChatReportScreen;
+import net.minecraft.client.gui.screens.reporting.ReportPlayerScreen;
 import net.minecraft.client.multiplayer.chat.report.ReportingContext;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.CommonComponents;
@@ -52,8 +52,8 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private boolean isRemoved;
     private boolean hasRecentMessages;
     private final boolean reportingEnabled;
-    private final boolean playerReportable;
     private final boolean hasDraftReport;
+    private final boolean chatReportable;
     @Nullable
     private Button hideButton;
     @Nullable
@@ -67,7 +67,6 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     private static final Component HIDDEN_OFFLINE = Component.translatable("gui.socialInteractions.status_hidden_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component BLOCKED_OFFLINE = Component.translatable("gui.socialInteractions.status_blocked_offline").withStyle(ChatFormatting.ITALIC);
     private static final Component REPORT_DISABLED_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report.disabled");
-    private static final Component NOT_REPORTABLE_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report.not_reportable");
     private static final Component HIDE_TEXT_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.hide");
     private static final Component SHOW_TEXT_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.show");
     private static final Component REPORT_PLAYER_TOOLTIP = Component.translatable("gui.socialInteractions.tooltip.report");
@@ -87,7 +86,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         this.skinGetter = param4;
         ReportingContext var0 = param0.getReportingContext();
         this.reportingEnabled = var0.sender().isEnabled();
-        this.playerReportable = param5;
+        this.chatReportable = param5;
         this.hasDraftReport = var0.hasDraftReportFor(param2);
         Component var1 = Component.translatable("gui.socialInteractions.narration.hide", param3);
         Component var2 = Component.translatable("gui.socialInteractions.narration.show", param3);
@@ -101,7 +100,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
                 20,
                 20,
                 REPORT_BUTTON_SPRITES,
-                param4x -> var0.draftReportHandled(param0, param1, () -> param0.setScreen(new ChatReportScreen(param1, var0, param2)), false),
+                param3x -> var0.draftReportHandled(param0, param1, () -> param0.setScreen(new ReportPlayerScreen(param1, var0, this)), false),
                 Component.translatable("gui.socialInteractions.report")
             ) {
                 @Override
@@ -109,6 +108,7 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
                     return PlayerEntry.this.getEntryNarationMessage(super.createNarrationMessage());
                 }
             };
+            this.reportButton.active = this.reportingEnabled;
             this.reportButton.setTooltip(this.createReportButtonTooltip());
             this.reportButton.setTooltipDelay(10);
             this.hideButton = new ImageButton(0, 0, 20, 20, MUTE_BUTTON_SPRITES, param3x -> {
@@ -133,7 +133,6 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
             };
             this.showButton.setTooltip(Tooltip.create(SHOW_TEXT_TOOLTIP, var2));
             this.showButton.setTooltipDelay(10);
-            this.reportButton.active = false;
             this.children = new ArrayList<>();
             this.children.add(this.hideButton);
             this.children.add(this.reportButton);
@@ -145,15 +144,9 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
     }
 
     private Tooltip createReportButtonTooltip() {
-        if (!this.playerReportable) {
-            return Tooltip.create(NOT_REPORTABLE_TOOLTIP);
-        } else if (!this.reportingEnabled) {
-            return Tooltip.create(REPORT_DISABLED_TOOLTIP);
-        } else {
-            return !this.hasRecentMessages
-                ? Tooltip.create(Component.translatable("gui.socialInteractions.tooltip.report.no_messages", this.playerName))
-                : Tooltip.create(REPORT_PLAYER_TOOLTIP, Component.translatable("gui.socialInteractions.narration.report", this.playerName));
-        }
+        return !this.reportingEnabled
+            ? Tooltip.create(REPORT_DISABLED_TOOLTIP)
+            : Tooltip.create(REPORT_PLAYER_TOOLTIP, Component.translatable("gui.socialInteractions.narration.report", this.playerName));
     }
 
     @Override
@@ -218,6 +211,10 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
         return this.id;
     }
 
+    public Supplier<PlayerSkin> getSkinGetter() {
+        return this.skinGetter;
+    }
+
     public void setRemoved(boolean param0) {
         this.isRemoved = param0;
     }
@@ -228,15 +225,14 @@ public class PlayerEntry extends ContainerObjectSelectionList.Entry<PlayerEntry>
 
     public void setHasRecentMessages(boolean param0) {
         this.hasRecentMessages = param0;
-        if (this.reportButton != null) {
-            this.reportButton.active = this.reportingEnabled && this.playerReportable && param0;
-            this.reportButton.setTooltip(this.createReportButtonTooltip());
-        }
-
     }
 
     public boolean hasRecentMessages() {
         return this.hasRecentMessages;
+    }
+
+    public boolean isChatReportable() {
+        return this.chatReportable;
     }
 
     private void onHiddenOrShown(boolean param0, Component param1) {

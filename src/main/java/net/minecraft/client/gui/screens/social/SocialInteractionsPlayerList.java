@@ -118,10 +118,10 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
         this.players.sort(Comparator.<PlayerEntry, Integer>comparing(param0 -> {
             if (this.minecraft.isLocalPlayer(param0.getPlayerId())) {
                 return 0;
-            } else if (param0.getPlayerId().version() == 2) {
-                return 4;
             } else if (this.minecraft.getReportingContext().hasDraftReportFor(param0.getPlayerId())) {
                 return 1;
+            } else if (param0.getPlayerId().version() == 2) {
+                return 4;
             } else {
                 return param0.hasRecentMessages() ? 2 : 3;
             }

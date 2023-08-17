@@ -44,6 +44,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.SampleLogger;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MobCategory;
@@ -92,19 +93,27 @@ public class DebugScreenOverlay {
     private LevelChunk clientChunk;
     @Nullable
     private CompletableFuture<LevelChunk> serverChunk;
+    private boolean renderDebug;
+    private boolean renderProfilerChart;
+    private boolean renderFpsCharts;
+    private boolean renderNetworkCharts;
+    private final SampleLogger frameTimeLogger = new SampleLogger();
+    private final SampleLogger tickTimeLogger = new SampleLogger();
+    private final SampleLogger pingLogger = new SampleLogger();
+    private final SampleLogger bandwidthLogger = new SampleLogger();
     private final FpsDebugChart fpsChart;
+    private final TpsDebugChart tpsChart;
     private final PingDebugChart pingChart;
     private final BandwidthDebugChart bandwidthChart;
-    @Nullable
-    private TpsDebugChart tpsChart;
 
     public DebugScreenOverlay(Minecraft param0) {
         this.minecraft = param0;
         this.allocationRateCalculator = new DebugScreenOverlay.AllocationRateCalculator();
         this.font = param0.font;
-        this.fpsChart = new FpsDebugChart(this.font, param0.frameTimeLogger);
-        this.pingChart = new PingDebugChart(this.font, param0.pingLogger);
-        this.bandwidthChart = new BandwidthDebugChart(this.font, param0.bandwidthLogger);
+        this.fpsChart = new FpsDebugChart(this.font, this.frameTimeLogger);
+        this.tpsChart = new TpsDebugChart(this.font, this.tickTimeLogger);
+        this.pingChart = new PingDebugChart(this.font, this.pingLogger);
+        this.bandwidthChart = new BandwidthDebugChart(this.font, this.bandwidthLogger);
     }
 
     public void clearChunkCache() {
@@ -120,44 +129,29 @@ public class DebugScreenOverlay {
         param0.drawManaged(() -> {
             this.drawGameInformation(param0);
             this.drawSystemInformation(param0);
-            if (this.minecraft.options.renderFpsChart) {
+            if (this.renderFpsCharts) {
                 int var0x = param0.guiWidth();
                 int var1 = var0x / 2;
                 this.fpsChart.drawChart(param0, 0, this.fpsChart.getWidth(var1));
-                TpsDebugChart var2 = this.getTpsChart();
-                if (var2 != null) {
-                    int var3 = var2.getWidth(var1);
-                    var2.drawChart(param0, var0x - var3, var3);
+                if (this.minecraft.getSingleplayerServer() != null) {
+                    int var2 = this.tpsChart.getWidth(var1);
+                    this.tpsChart.drawChart(param0, var0x - var2, var2);
                 }
             }
 
-            if (this.minecraft.options.renderNetworkChart) {
-                int var4 = param0.guiWidth();
-                int var5 = var4 / 2;
+            if (this.renderNetworkCharts) {
+                int var3 = param0.guiWidth();
+                int var4 = var3 / 2;
                 if (!this.minecraft.isLocalServer()) {
-                    this.bandwidthChart.drawChart(param0, 0, this.bandwidthChart.getWidth(var5));
+                    this.bandwidthChart.drawChart(param0, 0, this.bandwidthChart.getWidth(var4));
                 }
 
-                int var6 = this.pingChart.getWidth(var5);
-                this.pingChart.drawChart(param0, var4 - var6, var6);
+                int var5 = this.pingChart.getWidth(var4);
+                this.pingChart.drawChart(param0, var3 - var5, var5);
             }
 
         });
         this.minecraft.getProfiler().pop();
-    }
-
-    @Nullable
-    private TpsDebugChart getTpsChart() {
-        if (this.tpsChart != null) {
-            return this.tpsChart;
-        } else {
-            IntegratedServer var0 = this.minecraft.getSingleplayerServer();
-            if (var0 != null) {
-                this.tpsChart = new TpsDebugChart(this.font, var0.getTickTimeLogger());
-            }
-
-            return this.tpsChart;
-        }
     }
 
     protected void drawGameInformation(GuiGraphics param0) {
@@ -165,11 +159,14 @@ public class DebugScreenOverlay {
         var0.add("");
         boolean var1 = this.minecraft.getSingleplayerServer() != null;
         var0.add(
-            "Debug: Pie [shift]: "
-                + (this.minecraft.options.renderDebugCharts ? "visible" : "hidden")
-                + (var1 ? " FPS + TPS" : " FPS")
-                + " [alt]: "
-                + (this.minecraft.options.renderFpsChart ? "visible" : "hidden")
+            "Debug charts: [F3+1] Profiler "
+                + (this.renderProfilerChart ? "visible" : "hidden")
+                + "; [F3+2] "
+                + (var1 ? "FPS + TPS " : "FPS ")
+                + (this.renderFpsCharts ? "visible" : "hidden")
+                + "; [F3+3] "
+                + (!this.minecraft.isLocalServer() ? "Bandwidth + Ping" : "Ping")
+                + (this.renderNetworkCharts ? " visible" : " hidden")
         );
         var0.add("For help: press F3 + Q");
         this.renderLines(param0, var0, true);
@@ -534,6 +531,71 @@ public class DebugScreenOverlay {
 
     private static long bytesToMegabytes(long param0) {
         return param0 / 1024L / 1024L;
+    }
+
+    public boolean showDebugScreen() {
+        return this.renderDebug && !this.minecraft.options.hideGui;
+    }
+
+    public boolean showProfilerChart() {
+        return this.showDebugScreen() && this.renderProfilerChart;
+    }
+
+    public boolean showNetworkCharts() {
+        return this.showDebugScreen() && this.renderNetworkCharts;
+    }
+
+    public void toggleOverlay() {
+        this.renderDebug = !this.renderDebug;
+    }
+
+    public void toggleNetworkCharts() {
+        this.renderNetworkCharts = !this.renderDebug || !this.renderNetworkCharts;
+        if (this.renderNetworkCharts) {
+            this.renderDebug = true;
+            this.renderFpsCharts = false;
+        }
+
+    }
+
+    public void toggleFpsCharts() {
+        this.renderFpsCharts = !this.renderDebug || !this.renderFpsCharts;
+        if (this.renderFpsCharts) {
+            this.renderDebug = true;
+            this.renderNetworkCharts = false;
+        }
+
+    }
+
+    public void toggleProfilerChart() {
+        this.renderProfilerChart = !this.renderDebug || !this.renderProfilerChart;
+        if (this.renderProfilerChart) {
+            this.renderDebug = true;
+        }
+
+    }
+
+    public void logFrameDuration(long param0) {
+        this.frameTimeLogger.logSample(param0);
+    }
+
+    public void logTickDuration(long param0) {
+        this.tickTimeLogger.logSample(param0);
+    }
+
+    public SampleLogger getPingLogger() {
+        return this.pingLogger;
+    }
+
+    public SampleLogger getBandwidthLogger() {
+        return this.bandwidthLogger;
+    }
+
+    public void reset() {
+        this.renderDebug = false;
+        this.tickTimeLogger.reset();
+        this.pingLogger.reset();
+        this.bandwidthLogger.reset();
     }
 
     @OnlyIn(Dist.CLIENT)

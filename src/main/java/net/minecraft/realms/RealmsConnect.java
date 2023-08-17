@@ -47,7 +47,9 @@ public class RealmsConnect {
                             return;
                         }
     
-                        RealmsConnect.this.connection = Connection.connectToServer(var0, var0.options.useNativeTransport(), var0.bandwidthLogger);
+                        RealmsConnect.this.connection = Connection.connectToServer(
+                            var0, var0.options.useNativeTransport(), var0.getDebugOverlay().getBandwidthLogger()
+                        );
                         if (RealmsConnect.this.aborted) {
                             return;
                         }

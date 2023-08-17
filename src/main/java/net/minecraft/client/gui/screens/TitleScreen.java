@@ -192,6 +192,8 @@ public class TitleScreen extends Screen {
     private Component getMultiplayerDisabledReason() {
         if (this.minecraft.allowsMultiplayer()) {
             return null;
+        } else if (this.minecraft.isNameBanned()) {
+            return Component.translatable("title.multiplayer.disabled.banned.name");
         } else {
             BanDetails var0 = this.minecraft.multiplayerBan();
             if (var0 != null) {

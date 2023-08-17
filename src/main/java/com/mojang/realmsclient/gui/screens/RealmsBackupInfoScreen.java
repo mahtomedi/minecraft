@@ -6,6 +6,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ObjectSelectionList;
+import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -15,48 +17,39 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class RealmsBackupInfoScreen extends RealmsScreen {
+    private static final Component TITLE = Component.translatable("mco.backup.info.title");
     private static final Component UNKNOWN = Component.translatable("mco.backup.unknown");
     private final Screen lastScreen;
     final Backup backup;
+    final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private RealmsBackupInfoScreen.BackupInfoList backupInfoList;
 
     public RealmsBackupInfoScreen(Screen param0, Backup param1) {
-        super(Component.translatable("mco.backup.info.title"));
+        super(TITLE);
         this.lastScreen = param0;
         this.backup = param1;
     }
 
     @Override
-    public void tick() {
-    }
-
-    @Override
     public void init() {
-        this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
-                .bounds(this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20)
-                .build()
-        );
+        this.layout.addToHeader(new StringWidget(TITLE, this.font));
         this.backupInfoList = new RealmsBackupInfoScreen.BackupInfoList(this.minecraft);
-        this.addWidget(this.backupInfoList);
-        this.magicalSpecialHackyFocus(this.backupInfoList);
+        this.addRenderableWidget(this.backupInfoList);
+        this.layout.addToFooter(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).build());
+        this.layout.arrangeElements();
+        this.layout.visitWidgets(param1 -> {
+        });
     }
 
     @Override
-    public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 == 256) {
-            this.minecraft.setScreen(this.lastScreen);
-            return true;
-        } else {
-            return super.keyPressed(param0, param1, param2);
-        }
+    protected void repositionElements() {
+        this.layout.arrangeElements();
+        this.backupInfoList.updateSize(this.width, this.height, this.layout.getHeaderHeight(), this.height - this.layout.getFooterHeight());
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        super.render(param0, param1, param2, param3);
-        this.backupInfoList.render(param0, param1, param2, param3);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
+    public void onClose() {
+        this.minecraft.setScreen(this.lastScreen);
     }
 
     Component checkForSpecificMetadata(String param0, String param1) {
@@ -87,8 +80,14 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class BackupInfoList extends ObjectSelectionList<RealmsBackupInfoScreen.BackupInfoListEntry> {
         public BackupInfoList(Minecraft param0) {
-            super(param0, RealmsBackupInfoScreen.this.width, RealmsBackupInfoScreen.this.height, 32, RealmsBackupInfoScreen.this.height - 64, 36);
-            this.setRenderSelection(false);
+            super(
+                param0,
+                RealmsBackupInfoScreen.this.width,
+                RealmsBackupInfoScreen.this.height,
+                RealmsBackupInfoScreen.this.layout.getHeaderHeight(),
+                RealmsBackupInfoScreen.this.height - RealmsBackupInfoScreen.this.layout.getFooterHeight(),
+                36
+            );
             if (RealmsBackupInfoScreen.this.backup.changeList != null) {
                 RealmsBackupInfoScreen.this.backup
                     .changeList

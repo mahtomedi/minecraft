@@ -342,7 +342,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         this.enabledFeatures = param2.enabledFeatures();
         this.advancements = new ClientAdvancements(param0, this.telemetryManager);
         this.suggestionsProvider = new ClientSuggestionProvider(this, param0);
-        this.pingDebugMonitor = new PingDebugMonitor(this, param0.pingLogger);
+        this.pingDebugMonitor = new PingDebugMonitor(this, param0.getDebugOverlay().getPingLogger());
     }
 
     public ClientSuggestionProvider getSuggestionsProvider() {
@@ -2346,7 +2346,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         }
 
         this.sendDeferredPackets();
-        if (this.minecraft.options.renderNetworkChart) {
+        if (this.minecraft.getDebugOverlay().showNetworkCharts()) {
             this.pingDebugMonitor.tick();
         }
 

@@ -3,6 +3,7 @@ package net.minecraft.server.network;
 import com.google.common.primitives.Ints;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.exceptions.AuthenticationUnavailableException;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import com.mojang.logging.LogUtils;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -191,10 +192,11 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
                 String var0 = Objects.requireNonNull(ServerLoginPacketListenerImpl.this.requestedUsername, "Player name not initialized");
 
                 try {
-                    GameProfile var1 = ServerLoginPacketListenerImpl.this.server.getSessionService().hasJoinedServer(var0, var4, this.getAddress());
+                    ProfileResult var1 = ServerLoginPacketListenerImpl.this.server.getSessionService().hasJoinedServer(var0, var4, this.getAddress());
                     if (var1 != null) {
-                        ServerLoginPacketListenerImpl.LOGGER.info("UUID of player {} is {}", var1.getName(), var1.getId());
-                        ServerLoginPacketListenerImpl.this.startClientVerification(var1);
+                        GameProfile var2 = var1.profile();
+                        ServerLoginPacketListenerImpl.LOGGER.info("UUID of player {} is {}", var2.getName(), var2.getId());
+                        ServerLoginPacketListenerImpl.this.startClientVerification(var2);
                     } else if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
                         ServerLoginPacketListenerImpl.LOGGER.warn("Failed to verify username but will let them in anyway!");
                         ServerLoginPacketListenerImpl.this.startClientVerification(ServerLoginPacketListenerImpl.createOfflineProfile(var0));
@@ -202,7 +204,7 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
                         ServerLoginPacketListenerImpl.this.disconnect(Component.translatable("multiplayer.disconnect.unverified_username"));
                         ServerLoginPacketListenerImpl.LOGGER.error("Username '{}' tried to join with an invalid session", var0);
                     }
-                } catch (AuthenticationUnavailableException var3) {
+                } catch (AuthenticationUnavailableException var4) {
                     if (ServerLoginPacketListenerImpl.this.server.isSingleplayer()) {
                         ServerLoginPacketListenerImpl.LOGGER.warn("Authentication servers are down but will let them in anyway!");
                         ServerLoginPacketListenerImpl.this.startClientVerification(ServerLoginPacketListenerImpl.createOfflineProfile(var0));

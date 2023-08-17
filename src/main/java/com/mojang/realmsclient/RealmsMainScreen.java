@@ -274,7 +274,6 @@ public class RealmsMainScreen extends RealmsScreen {
         var0.addChild(ImageWidget.texture(130, 64, NO_REALMS_LOCATION, 130, 64));
         FocusableTextWidget var1 = new FocusableTextWidget(308, NO_REALMS_TEXT, this.font, false);
         var0.addChild(var1);
-        this.setFocused(var1);
         return var0;
     }
 
@@ -542,9 +541,11 @@ public class RealmsMainScreen extends RealmsScreen {
 
     @Override
     public Component getNarrationMessage() {
-        return (Component)(this.activeLayout == RealmsMainScreen.LayoutState.LOADING
-            ? CommonComponents.joinForNarration(super.getNarrationMessage(), LOADING_TEXT)
-            : super.getNarrationMessage());
+        return (Component)(switch(this.activeLayout) {
+            case LOADING -> CommonComponents.joinForNarration(super.getNarrationMessage(), LOADING_TEXT);
+            case NO_REALMS -> CommonComponents.joinForNarration(super.getNarrationMessage(), NO_REALMS_TEXT);
+            case LIST -> super.getNarrationMessage();
+        });
     }
 
     @Override

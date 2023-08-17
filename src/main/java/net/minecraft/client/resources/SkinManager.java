@@ -20,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
+import net.minecraft.Optionull;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -87,11 +88,13 @@ public class SkinManager {
             var2 = var3.model();
         }
 
-        MinecraftProfileTexture var6 = param1.cape();
-        CompletableFuture<ResourceLocation> var7 = var6 != null ? this.capeTextures.getOrLoad(var6) : CompletableFuture.completedFuture(null);
-        MinecraftProfileTexture var8 = param1.elytra();
-        CompletableFuture<ResourceLocation> var9 = var8 != null ? this.elytraTextures.getOrLoad(var8) : CompletableFuture.completedFuture(null);
-        return CompletableFuture.allOf(var1, var7, var9).thenApply(param5 -> new PlayerSkin(var1.join(), var7.join(), var9.join(), var2, param1.secure()));
+        String var6 = Optionull.map(var0, MinecraftProfileTexture::getUrl);
+        MinecraftProfileTexture var7 = param1.cape();
+        CompletableFuture<ResourceLocation> var8 = var7 != null ? this.capeTextures.getOrLoad(var7) : CompletableFuture.completedFuture(null);
+        MinecraftProfileTexture var9 = param1.elytra();
+        CompletableFuture<ResourceLocation> var10 = var9 != null ? this.elytraTextures.getOrLoad(var9) : CompletableFuture.completedFuture(null);
+        return CompletableFuture.allOf(var1, var8, var10)
+            .thenApply(param6 -> new PlayerSkin(var1.join(), var6, var8.join(), var10.join(), var2, param1.secure()));
     }
 
     @Nullable

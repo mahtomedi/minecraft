@@ -29,12 +29,14 @@ public class AccessibilityOnboardingScreen extends Screen {
     private final boolean narratorAvailable;
     private boolean hasNarrated;
     private float timer;
+    private final Runnable onClose;
     @Nullable
     private FocusableTextWidget textWidget;
 
-    public AccessibilityOnboardingScreen(Options param0) {
+    public AccessibilityOnboardingScreen(Options param0, Runnable param1) {
         super(Component.translatable("accessibility.onboarding.screen.title"));
         this.options = param0;
+        this.onClose = param1;
         this.logoRenderer = new LogoRenderer(true);
         this.narratorAvailable = Minecraft.getInstance().getNarrator().isActive();
     }
@@ -75,14 +77,18 @@ public class AccessibilityOnboardingScreen extends Screen {
 
     @Override
     public void onClose() {
-        this.closeAndSetScreen(new TitleScreen(true, this.logoRenderer));
+        this.close(this.onClose);
     }
 
     private void closeAndSetScreen(Screen param0) {
+        this.close(() -> this.minecraft.setScreen(param0));
+    }
+
+    private void close(Runnable param0) {
         this.options.onboardAccessibility = false;
         this.options.save();
         Narrator.getNarrator().clear();
-        this.minecraft.setScreen(param0);
+        param0.run();
     }
 
     @Override

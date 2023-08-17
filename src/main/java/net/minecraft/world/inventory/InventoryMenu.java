@@ -55,9 +55,9 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
             final EquipmentSlot var3 = SLOT_IDS[var2];
             this.addSlot(new Slot(param0, 39 - var2, 8, 8 + var2 * 18) {
                 @Override
-                public void setByPlayer(ItemStack param0) {
-                    InventoryMenu.onEquipItem(param2, var3, param0, this.getItem());
-                    super.setByPlayer(param0);
+                public void setByPlayer(ItemStack param0, ItemStack param1) {
+                    InventoryMenu.onEquipItem(param2, var3, param0, param1);
+                    super.setByPlayer(param0, param1);
                 }
 
                 @Override
@@ -95,9 +95,9 @@ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
 
         this.addSlot(new Slot(param0, 40, 77, 62) {
             @Override
-            public void setByPlayer(ItemStack param0) {
-                InventoryMenu.onEquipItem(param2, EquipmentSlot.OFFHAND, param0, this.getItem());
-                super.setByPlayer(param0);
+            public void setByPlayer(ItemStack param0, ItemStack param1) {
+                InventoryMenu.onEquipItem(param2, EquipmentSlot.OFFHAND, param0, param1);
+                super.setByPlayer(param0, param1);
             }
 
             @Override

@@ -27,7 +27,7 @@ public class BandwidthDebugChart extends AbstractDebugChart {
         this.drawLabeledLineAtValue(param0, param1, param2, param3, 64);
         this.drawLabeledLineAtValue(param0, param1, param2, param3, 1024);
         this.drawLabeledLineAtValue(param0, param1, param2, param3, 16384);
-        this.drawStringWithShade(param0, this.toDisplayString(1048576.0), param1 + 1, param3 - this.getSampleHeight(1048576.0) + 1);
+        this.drawStringWithShade(param0, toDisplayStringInternal(1048576.0), param1 + 1, param3 - getSampleHeightInternal(1048576.0) + 1);
     }
 
     private void drawLabeledLineAtValue(GuiGraphics param0, int param1, int param2, int param3, int param4) {

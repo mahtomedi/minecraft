@@ -1,6 +1,6 @@
 package com.mojang.realmsclient.util;
 
-import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.yggdrasil.ProfileResult;
 import java.util.Date;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -45,8 +45,8 @@ public class RealmsUtil {
 
     public static void renderPlayerFace(GuiGraphics param0, int param1, int param2, int param3, UUID param4) {
         Minecraft var0 = Minecraft.getInstance();
-        GameProfile var1 = var0.getMinecraftSessionService().fetchProfile(param4, false);
-        PlayerSkin var2 = var1 != null ? var0.getSkinManager().getInsecureSkin(var1) : DefaultPlayerSkin.get(param4);
+        ProfileResult var1 = var0.getMinecraftSessionService().fetchProfile(param4, false);
+        PlayerSkin var2 = var1 != null ? var0.getSkinManager().getInsecureSkin(var1.profile()) : DefaultPlayerSkin.get(param4);
         PlayerFaceRenderer.draw(param0, var2.texture(), param1, param2, param3);
     }
 }

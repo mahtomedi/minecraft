@@ -44,7 +44,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected int x0;
     protected boolean centerListVertically = true;
     private double scrollAmount;
-    private boolean renderSelection = true;
     private boolean renderHeader;
     protected int headerHeight;
     private boolean scrolling;
@@ -63,10 +62,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.itemHeight = param5;
         this.x0 = 0;
         this.x1 = param1;
-    }
-
-    public void setRenderSelection(boolean param0) {
-        this.renderSelection = param0;
     }
 
     protected void setRenderHeader(boolean param0, int param1) {
@@ -436,7 +431,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     protected void renderItem(GuiGraphics param0, int param1, int param2, float param3, int param4, int param5, int param6, int param7, int param8) {
         E var0 = this.getEntry(param4);
         var0.renderBack(param0, param4, param6, param5, param7, param8, param1, param2, Objects.equals(this.hovered, var0), param3);
-        if (this.renderSelection && this.isSelectedItem(param4)) {
+        if (this.isSelectedItem(param4)) {
             int var1 = this.isFocused() ? -1 : -8355712;
             this.renderSelection(param0, param6, param7, param8, var1, -16777216);
         }

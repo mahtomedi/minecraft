@@ -72,6 +72,10 @@ public class FittingMultiLineTextWidget extends AbstractScrollWidget {
         }
     }
 
+    public boolean showingScrollBar() {
+        return super.scrollbarVisible();
+    }
+
     @Override
     protected void renderContents(GuiGraphics param0, int param1, int param2, float param3) {
         param0.pose().pushPose();

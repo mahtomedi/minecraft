@@ -7,8 +7,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StringWidget;
+import net.minecraft.client.gui.layouts.CommonLayouts;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
-import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -41,10 +41,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
         this.setInitialFocus(this.seedEdit);
         this.layout.addToHeader(new StringWidget(this.title, this.font));
         LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical()).spacing(10);
-        var0.defaultCellSetting().alignHorizontallyCenter();
-        LinearLayout var1 = var0.addChild(LinearLayout.vertical().spacing(4));
-        var1.addChild(new StringWidget(SEED_LABEL, this.font), LayoutSettings::alignHorizontallyLeft);
-        var1.addChild(this.seedEdit);
+        var0.addChild(CommonLayouts.labeledElement(this.font, this.seedEdit, SEED_LABEL));
         var0.addChild(
             CycleButton.builder(LevelType::getName)
                 .withValues(LevelType.values())
@@ -55,9 +52,9 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
             CycleButton.onOffBuilder(this.generateStructures)
                 .create(0, 0, 210, 20, Component.translatable("selectWorld.mapFeatures"), (param0, param1) -> this.generateStructures = param1)
         );
-        LinearLayout var2 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
-        var2.addChild(Button.builder(this.buttonTitle, param0 -> this.callback.accept(this.createWorldGenerationInfo())).build());
-        var2.addChild(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).build());
+        LinearLayout var1 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
+        var1.addChild(Button.builder(this.buttonTitle, param0 -> this.callback.accept(this.createWorldGenerationInfo())).build());
+        var1.addChild(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).build());
         this.layout.visitWidgets(param1 -> {
         });
         this.repositionElements();
