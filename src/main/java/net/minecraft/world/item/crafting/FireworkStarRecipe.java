@@ -7,7 +7,6 @@ import java.util.Map;
 import net.minecraft.Util;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.FireworkRocketItem;
@@ -45,8 +44,8 @@ public class FireworkStarRecipe extends CustomRecipe {
     });
     private static final Ingredient GUNPOWDER_INGREDIENT = Ingredient.of(Items.GUNPOWDER);
 
-    public FireworkStarRecipe(ResourceLocation param0, CraftingBookCategory param1) {
-        super(param0, param1);
+    public FireworkStarRecipe(CraftingBookCategory param0) {
+        super(param0);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

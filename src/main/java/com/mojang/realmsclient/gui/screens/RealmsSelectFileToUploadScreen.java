@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Component TITLE = Component.translatable("mco.upload.select.world.title");
     private static final Component UNABLE_TO_LOAD_WORLD = Component.translatable("selectWorld.unable_to_load");
     static final Component WORLD_TEXT = Component.translatable("selectWorld.world");
     static final Component HARDCORE_TEXT = Component.translatable("mco.upload.hardcore").withStyle(param0 -> param0.withColor(-65536));
@@ -37,14 +38,12 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     List<LevelSummary> levelList = Lists.newArrayList();
     int selectedWorld = -1;
     RealmsSelectFileToUploadScreen.WorldSelectionList worldSelectionList;
-    private final Runnable callback;
 
-    public RealmsSelectFileToUploadScreen(long param0, int param1, RealmsResetWorldScreen param2, Runnable param3) {
-        super(Component.translatable("mco.upload.select.world.title"));
+    public RealmsSelectFileToUploadScreen(long param0, int param1, RealmsResetWorldScreen param2) {
+        super(TITLE);
         this.lastScreen = param2;
         this.worldId = param0;
         this.slotId = param1;
-        this.callback = param3;
     }
 
     private void loadLevelList() throws Exception {
@@ -102,7 +101,7 @@ public class RealmsSelectFileToUploadScreen extends RealmsScreen {
     private void upload() {
         if (this.selectedWorld != -1 && !this.levelList.get(this.selectedWorld).isHardcore()) {
             LevelSummary var0 = this.levelList.get(this.selectedWorld);
-            this.minecraft.setScreen(new RealmsUploadScreen(this.worldId, this.slotId, this.lastScreen, var0, this.callback));
+            this.minecraft.setScreen(new RealmsUploadScreen(this.worldId, this.slotId, this.lastScreen, var0));
         }
 
     }

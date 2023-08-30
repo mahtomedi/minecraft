@@ -11,6 +11,7 @@ import com.mojang.realmsclient.gui.screens.RealmsBrokenWorldScreen;
 import com.mojang.realmsclient.gui.screens.RealmsGenericErrorScreen;
 import com.mojang.realmsclient.gui.screens.RealmsLongConfirmationScreen;
 import com.mojang.realmsclient.gui.screens.RealmsLongRunningMcoTaskScreen;
+import com.mojang.realmsclient.gui.screens.RealmsLongRunningMcoTickTaskScreen;
 import com.mojang.realmsclient.gui.screens.RealmsTermsScreen;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.net.URL;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class GetServerDetailsTask extends LongRunningTask {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Component TITLE = Component.translatable("mco.connect.connecting");
     private final RealmsServer server;
     private final Screen lastScreen;
     private final RealmsMainScreen mainScreen;
@@ -43,8 +45,6 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(Component.translatable("mco.connect.connecting"));
-
         RealmsServerAddress var0;
         try {
             var0 = this.fetchServerAddress();
@@ -89,6 +89,11 @@ public class GetServerDetailsTask extends LongRunningTask {
         setScreen(var8);
     }
 
+    @Override
+    public Component getTitle() {
+        return TITLE;
+    }
+
     private RealmsServerAddress fetchServerAddress() throws RealmsServiceException, TimeoutException, CancellationException {
         RealmsClient var0 = RealmsClient.create();
 
@@ -108,7 +113,7 @@ public class GetServerDetailsTask extends LongRunningTask {
     }
 
     public RealmsLongRunningMcoTaskScreen connectScreen(RealmsServerAddress param0) {
-        return new RealmsLongRunningMcoTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, this.server, param0));
+        return new RealmsLongRunningMcoTickTaskScreen(this.lastScreen, new ConnectTask(this.lastScreen, this.server, param0));
     }
 
     private RealmsLongConfirmationScreen resourcePackDownloadConfirmationScreen(RealmsServerAddress param0, Function<RealmsServerAddress, Screen> param1) {

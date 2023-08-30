@@ -5,19 +5,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 
 public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("recipe_crafted");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     protected RecipeCraftedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "recipe_id"));
         List<ItemPredicate> var1 = ItemPredicate.fromJsonArray(param0.get("ingredients"));
@@ -33,17 +28,18 @@ public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTr
         private final List<ItemPredicate> predicates;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, ResourceLocation param1, List<ItemPredicate> param2) {
-            super(RecipeCraftedTrigger.ID, param0);
+            super(param0);
             this.recipeId = param1;
             this.predicates = param2;
         }
 
-        public static RecipeCraftedTrigger.TriggerInstance craftedItem(ResourceLocation param0, List<ItemPredicate.Builder> param1) {
-            return new RecipeCraftedTrigger.TriggerInstance(Optional.empty(), param0, param1.stream().flatMap(param0x -> param0x.build().stream()).toList());
+        public static Criterion<RecipeCraftedTrigger.TriggerInstance> craftedItem(ResourceLocation param0, List<ItemPredicate.Builder> param1) {
+            return CriteriaTriggers.RECIPE_CRAFTED
+                .createCriterion(new RecipeCraftedTrigger.TriggerInstance(Optional.empty(), param0, param1.stream().map(ItemPredicate.Builder::build).toList()));
         }
 
-        public static RecipeCraftedTrigger.TriggerInstance craftedItem(ResourceLocation param0) {
-            return new RecipeCraftedTrigger.TriggerInstance(Optional.empty(), param0, List.of());
+        public static Criterion<RecipeCraftedTrigger.TriggerInstance> craftedItem(ResourceLocation param0) {
+            return CriteriaTriggers.RECIPE_CRAFTED.createCriterion(new RecipeCraftedTrigger.TriggerInstance(Optional.empty(), param0, List.of()));
         }
 
         boolean matches(ResourceLocation param0, List<ItemStack> param1) {

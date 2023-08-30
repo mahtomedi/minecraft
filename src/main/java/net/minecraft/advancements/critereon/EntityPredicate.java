@@ -66,38 +66,6 @@ public record EntityPredicate(
             )
     );
 
-    public static Optional<EntityPredicate> of(
-        Optional<EntityTypePredicate> param0,
-        Optional<DistancePredicate> param1,
-        Optional<LocationPredicate> param2,
-        Optional<LocationPredicate> param3,
-        Optional<MobEffectsPredicate> param4,
-        Optional<NbtPredicate> param5,
-        Optional<EntityFlagsPredicate> param6,
-        Optional<EntityEquipmentPredicate> param7,
-        Optional<EntitySubPredicate> param8,
-        Optional<EntityPredicate> param9,
-        Optional<EntityPredicate> param10,
-        Optional<EntityPredicate> param11,
-        Optional<String> param12
-    ) {
-        return param0.isEmpty()
-                && param1.isEmpty()
-                && param2.isEmpty()
-                && param3.isEmpty()
-                && param4.isEmpty()
-                && param5.isEmpty()
-                && param6.isEmpty()
-                && param7.isEmpty()
-                && param8.isEmpty()
-                && param9.isEmpty()
-                && param10.isEmpty()
-                && param11.isEmpty()
-                && param12.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new EntityPredicate(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12));
-    }
-
     public static Optional<ContextAwarePredicate> fromJson(JsonObject param0, String param1, DeserializationContext param2) {
         JsonElement var0 = param0.get(param1);
         return fromElement(param1, param2, var0);
@@ -129,7 +97,7 @@ public record EntityPredicate(
         }
     }
 
-    public static Optional<ContextAwarePredicate> wrap(EntityPredicate.Builder param0) {
+    public static ContextAwarePredicate wrap(EntityPredicate.Builder param0) {
         return wrap(param0.build());
     }
 
@@ -138,7 +106,7 @@ public record EntityPredicate(
     }
 
     public static List<ContextAwarePredicate> wrap(EntityPredicate.Builder... param0) {
-        return Stream.of(param0).flatMap(param0x -> wrap(param0x).stream()).toList();
+        return Stream.of(param0).map(EntityPredicate::wrap).toList();
     }
 
     public static ContextAwarePredicate wrap(EntityPredicate param0x) {
@@ -265,12 +233,12 @@ public record EntityPredicate(
         }
 
         public EntityPredicate.Builder located(LocationPredicate.Builder param0) {
-            this.location = param0.build();
+            this.location = Optional.of(param0.build());
             return this;
         }
 
         public EntityPredicate.Builder steppingOn(LocationPredicate.Builder param0) {
-            this.steppingOnLocation = param0.build();
+            this.steppingOnLocation = Optional.of(param0.build());
             return this;
         }
 
@@ -285,12 +253,12 @@ public record EntityPredicate(
         }
 
         public EntityPredicate.Builder flags(EntityFlagsPredicate.Builder param0) {
-            this.flags = param0.build();
+            this.flags = Optional.of(param0.build());
             return this;
         }
 
         public EntityPredicate.Builder equipment(EntityEquipmentPredicate.Builder param0) {
-            this.equipment = param0.build();
+            this.equipment = Optional.of(param0.build());
             return this;
         }
 
@@ -305,17 +273,17 @@ public record EntityPredicate(
         }
 
         public EntityPredicate.Builder vehicle(EntityPredicate.Builder param0) {
-            this.vehicle = param0.build();
+            this.vehicle = Optional.of(param0.build());
             return this;
         }
 
         public EntityPredicate.Builder passenger(EntityPredicate.Builder param0) {
-            this.passenger = param0.build();
+            this.passenger = Optional.of(param0.build());
             return this;
         }
 
         public EntityPredicate.Builder targetedEntity(EntityPredicate.Builder param0) {
-            this.targetedEntity = param0.build();
+            this.targetedEntity = Optional.of(param0.build());
             return this;
         }
 
@@ -324,8 +292,8 @@ public record EntityPredicate(
             return this;
         }
 
-        public Optional<EntityPredicate> build() {
-            return EntityPredicate.of(
+        public EntityPredicate build() {
+            return new EntityPredicate(
                 this.entityType,
                 this.distanceToPlayer,
                 this.location,

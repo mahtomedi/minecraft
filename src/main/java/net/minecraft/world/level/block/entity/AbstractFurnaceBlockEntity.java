@@ -29,13 +29,13 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.RecipeHolder;
+import net.minecraft.world.inventory.RecipeCraftingHolder;
 import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
@@ -45,7 +45,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeHolder, StackedContentsCompatible {
+public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible {
     protected static final int SLOT_INPUT = 0;
     protected static final int SLOT_FUEL = 1;
     protected static final int SLOT_RESULT = 2;
@@ -248,9 +248,9 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         boolean var3 = !param3.items.get(0).isEmpty();
         boolean var4 = !var2.isEmpty();
         if (param3.isLit() || var4 && var3) {
-            Recipe<?> var5;
+            RecipeHolder<?> var5;
             if (var3) {
-                var5 = (Recipe)param3.quickCheck.getRecipeFor(param3, param0).orElse(null);
+                var5 = param3.quickCheck.getRecipeFor(param3, param0).orElse(null);
             } else {
                 var5 = null;
             }
@@ -302,9 +302,9 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
 
     }
 
-    private static boolean canBurn(RegistryAccess param0, @Nullable Recipe<?> param1, NonNullList<ItemStack> param2, int param3) {
+    private static boolean canBurn(RegistryAccess param0, @Nullable RecipeHolder<?> param1, NonNullList<ItemStack> param2, int param3) {
         if (!param2.get(0).isEmpty() && param1 != null) {
-            ItemStack var0 = param1.getResultItem(param0);
+            ItemStack var0 = param1.value().getResultItem(param0);
             if (var0.isEmpty()) {
                 return false;
             } else {
@@ -324,10 +324,10 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         }
     }
 
-    private static boolean burn(RegistryAccess param0, @Nullable Recipe<?> param1, NonNullList<ItemStack> param2, int param3) {
+    private static boolean burn(RegistryAccess param0, @Nullable RecipeHolder<?> param1, NonNullList<ItemStack> param2, int param3) {
         if (param1 != null && canBurn(param0, param1, param2, param3)) {
             ItemStack var0 = param2.get(0);
-            ItemStack var1 = param1.getResultItem(param0);
+            ItemStack var1 = param1.value().getResultItem(param0);
             ItemStack var2 = param2.get(2);
             if (var2.isEmpty()) {
                 param2.set(2, var1.copy());
@@ -356,7 +356,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     private static int getTotalCookTime(Level param0, AbstractFurnaceBlockEntity param1) {
-        return param1.quickCheck.getRecipeFor(param1, param0).map(AbstractCookingRecipe::getCookingTime).orElse(200);
+        return param1.quickCheck.getRecipeFor(param1, param0).map(param0x -> param0x.value().getCookingTime()).orElse(200);
     }
 
     public static boolean isFuel(ItemStack param0) {
@@ -457,9 +457,9 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     @Override
-    public void setRecipeUsed(@Nullable Recipe<?> param0) {
+    public void setRecipeUsed(@Nullable RecipeHolder<?> param0) {
         if (param0 != null) {
-            ResourceLocation var0 = param0.getId();
+            ResourceLocation var0 = param0.id();
             this.recipesUsed.addTo(var0, 1);
         }
 
@@ -467,7 +467,7 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
 
     @Nullable
     @Override
-    public Recipe<?> getRecipeUsed() {
+    public RecipeHolder<?> getRecipeUsed() {
         return null;
     }
 
@@ -476,10 +476,10 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
     }
 
     public void awardUsedRecipesAndPopExperience(ServerPlayer param0) {
-        List<Recipe<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.serverLevel(), param0.position());
+        List<RecipeHolder<?>> var0 = this.getRecipesToAwardAndPopExperience(param0.serverLevel(), param0.position());
         param0.awardRecipes(var0);
 
-        for(Recipe<?> var1 : var0) {
+        for(RecipeHolder<?> var1 : var0) {
             if (var1 != null) {
                 param0.triggerRecipeCrafted(var1, this.items);
             }
@@ -488,13 +488,13 @@ public abstract class AbstractFurnaceBlockEntity extends BaseContainerBlockEntit
         this.recipesUsed.clear();
     }
 
-    public List<Recipe<?>> getRecipesToAwardAndPopExperience(ServerLevel param0, Vec3 param1) {
-        List<Recipe<?>> var0 = Lists.newArrayList();
+    public List<RecipeHolder<?>> getRecipesToAwardAndPopExperience(ServerLevel param0, Vec3 param1) {
+        List<RecipeHolder<?>> var0 = Lists.newArrayList();
 
         for(Entry<ResourceLocation> var1 : this.recipesUsed.object2IntEntrySet()) {
             param0.getRecipeManager().byKey(var1.getKey()).ifPresent(param4 -> {
                 var0.add(param4);
-                createExperience(param0, param1, var1.getIntValue(), ((AbstractCookingRecipe)param4).getExperience());
+                createExperience(param0, param1, var1.getIntValue(), ((AbstractCookingRecipe)param4.value()).getExperience());
             });
         }
 

@@ -138,12 +138,8 @@ public class CreateBuffetWorldScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double param0, double param1, int param2) {
-                if (param2 == 0) {
-                    BiomeList.this.setSelected(this);
-                    return true;
-                } else {
-                    return false;
-                }
+                BiomeList.this.setSelected(this);
+                return true;
             }
         }
     }

@@ -89,18 +89,20 @@ public class PlayerChunkSender {
                 .collect(Comparators.least(var0, Comparator.comparingInt(param1::distanceSquared)))
                 .stream()
                 .mapToLong(Long::longValue)
-                .peek(this.pendingChunks::remove)
-                .mapToObj(param0::getTickingChunkIfPresent)
+                .mapToObj(param0::getChunkToSend)
                 .filter(Objects::nonNull)
                 .toList();
         } else {
             var2 = this.pendingChunks
                 .longStream()
-                .mapToObj(param0::getTickingChunkIfPresent)
+                .mapToObj(param0::getChunkToSend)
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparingInt(param1x -> param1.distanceSquared(param1x.getPos())))
                 .toList();
-            this.pendingChunks.clear();
+        }
+
+        for(LevelChunk var3 : var2) {
+            this.pendingChunks.remove(var3.getPos().toLong());
         }
 
         return var2;

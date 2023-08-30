@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class GhostRecipe {
     @Nullable
-    private Recipe<?> recipe;
+    private RecipeHolder<?> recipe;
     private final List<GhostRecipe.GhostIngredient> ingredients = Lists.newArrayList();
     float time;
 
@@ -40,11 +40,11 @@ public class GhostRecipe {
     }
 
     @Nullable
-    public Recipe<?> getRecipe() {
+    public RecipeHolder<?> getRecipe() {
         return this.recipe;
     }
 
-    public void setRecipe(Recipe<?> param0) {
+    public void setRecipe(RecipeHolder<?> param0) {
         this.recipe = param0;
     }
 

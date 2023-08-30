@@ -128,7 +128,7 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
         public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             PackCompatibility var0 = this.pack.getCompatibility();
             if (!var0.isCompatible()) {
-                param0.fill(param3 - 1, param2 - 1, param3 + param4 - 9, param2 + param5 + 1, -8978432);
+                param0.fill(param3 - 1, param2 - 1, param3 + param4 - 3, param2 + param5 + 1, -8978432);
             }
 
             param0.blit(this.pack.getIconTexture(), param3, param2, 0.0F, 0.0F, 32, 32, 32, 32);
@@ -232,36 +232,32 @@ public class TransferableSelectionList extends ObjectSelectionList<TransferableS
 
         @Override
         public boolean mouseClicked(double param0, double param1, int param2) {
-            if (param2 != 0) {
-                return false;
-            } else {
-                double var0 = param0 - (double)this.parent.getRowLeft();
-                double var1 = param1 - (double)this.parent.getRowTop(this.parent.children().indexOf(this));
-                if (this.showHoverOverlay() && var0 <= 32.0) {
-                    this.parent.screen.clearSelected();
-                    if (this.pack.canSelect()) {
-                        this.handlePackSelection();
-                        return true;
-                    }
-
-                    if (var0 < 16.0 && this.pack.canUnselect()) {
-                        this.pack.unselect();
-                        return true;
-                    }
-
-                    if (var0 > 16.0 && var1 < 16.0 && this.pack.canMoveUp()) {
-                        this.pack.moveUp();
-                        return true;
-                    }
-
-                    if (var0 > 16.0 && var1 > 16.0 && this.pack.canMoveDown()) {
-                        this.pack.moveDown();
-                        return true;
-                    }
+            double var0 = param0 - (double)this.parent.getRowLeft();
+            double var1 = param1 - (double)this.parent.getRowTop(this.parent.children().indexOf(this));
+            if (this.showHoverOverlay() && var0 <= 32.0) {
+                this.parent.screen.clearSelected();
+                if (this.pack.canSelect()) {
+                    this.handlePackSelection();
+                    return true;
                 }
 
-                return false;
+                if (var0 < 16.0 && this.pack.canUnselect()) {
+                    this.pack.unselect();
+                    return true;
+                }
+
+                if (var0 > 16.0 && var1 < 16.0 && this.pack.canMoveUp()) {
+                    this.pack.moveUp();
+                    return true;
+                }
+
+                if (var0 > 16.0 && var1 > 16.0 && this.pack.canMoveDown()) {
+                    this.pack.moveDown();
+                    return true;
+                }
             }
+
+            return false;
         }
     }
 }

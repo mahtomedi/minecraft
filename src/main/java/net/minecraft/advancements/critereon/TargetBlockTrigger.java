@@ -2,20 +2,14 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.Vec3;
 
 public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("target_hit");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public TargetBlockTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         MinMaxBounds.Ints var0 = MinMaxBounds.Ints.fromJson(param0.get("signal_strength"));
         Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "projectile", param2);
@@ -32,13 +26,13 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
         private final Optional<ContextAwarePredicate> projectile;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, MinMaxBounds.Ints param1, Optional<ContextAwarePredicate> param2) {
-            super(TargetBlockTrigger.ID, param0);
+            super(param0);
             this.signalStrength = param1;
             this.projectile = param2;
         }
 
-        public static TargetBlockTrigger.TriggerInstance targetHit(MinMaxBounds.Ints param0, Optional<ContextAwarePredicate> param1) {
-            return new TargetBlockTrigger.TriggerInstance(Optional.empty(), param0, param1);
+        public static Criterion<TargetBlockTrigger.TriggerInstance> targetHit(MinMaxBounds.Ints param0, Optional<ContextAwarePredicate> param1) {
+            return CriteriaTriggers.TARGET_BLOCK_HIT.createCriterion(new TargetBlockTrigger.TriggerInstance(Optional.empty(), param0, param1));
         }
 
         @Override

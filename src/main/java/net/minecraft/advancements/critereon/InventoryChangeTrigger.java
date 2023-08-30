@@ -2,11 +2,12 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderSet;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,13 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChangeTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("inventory_changed");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public InventoryChangeTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         JsonObject var0 = GsonHelper.getAsJsonObject(param0, "slots", new JsonObject());
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(var0.get("occupied"));
@@ -63,24 +57,27 @@ public class InventoryChangeTrigger extends SimpleCriterionTrigger<InventoryChan
         public TriggerInstance(
             Optional<ContextAwarePredicate> param0, MinMaxBounds.Ints param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3, List<ItemPredicate> param4
         ) {
-            super(InventoryChangeTrigger.ID, param0);
+            super(param0);
             this.slotsOccupied = param1;
             this.slotsFull = param2;
             this.slotsEmpty = param3;
             this.predicates = param4;
         }
 
-        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate.Builder... param0) {
-            return hasItems(Arrays.stream(param0).flatMap(param0x -> param0x.build().stream()).toArray(param0x -> new ItemPredicate[param0x]));
+        public static Criterion<InventoryChangeTrigger.TriggerInstance> hasItems(ItemPredicate.Builder... param0) {
+            return hasItems(Stream.of(param0).map(ItemPredicate.Builder::build).toArray(param0x -> new ItemPredicate[param0x]));
         }
 
-        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemPredicate... param0) {
-            return new InventoryChangeTrigger.TriggerInstance(
-                Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
-            );
+        public static Criterion<InventoryChangeTrigger.TriggerInstance> hasItems(ItemPredicate... param0) {
+            return CriteriaTriggers.INVENTORY_CHANGED
+                .createCriterion(
+                    new InventoryChangeTrigger.TriggerInstance(
+                        Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
+                    )
+                );
         }
 
-        public static InventoryChangeTrigger.TriggerInstance hasItems(ItemLike... param0) {
+        public static Criterion<InventoryChangeTrigger.TriggerInstance> hasItems(ItemLike... param0) {
             ItemPredicate[] var0 = new ItemPredicate[param0.length];
 
             for(int var1 = 0; var1 < param0.length; ++var1) {

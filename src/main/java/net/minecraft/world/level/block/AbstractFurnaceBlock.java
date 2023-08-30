@@ -73,10 +73,12 @@ public abstract class AbstractFurnaceBlock extends BaseEntityBlock {
                     ((AbstractFurnaceBlockEntity)var0).getRecipesToAwardAndPopExperience((ServerLevel)param1, Vec3.atCenterOf(param2));
                 }
 
+                super.onRemove(param0, param1, param2, param3, param4);
                 param1.updateNeighbourForOutputSignal(param2, this);
+            } else {
+                super.onRemove(param0, param1, param2, param3, param4);
             }
 
-            super.onRemove(param0, param1, param2, param3, param4);
         }
     }
 

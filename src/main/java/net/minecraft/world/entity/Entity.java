@@ -990,6 +990,10 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
             for(int var4 = var1.getX(); var4 <= var2.getX(); ++var4) {
                 for(int var5 = var1.getY(); var5 <= var2.getY(); ++var5) {
                     for(int var6 = var1.getZ(); var6 <= var2.getZ(); ++var6) {
+                        if (!this.isAlive()) {
+                            return;
+                        }
+
                         var3.set(var4, var5, var6);
                         BlockState var7 = this.level().getBlockState(var3);
 

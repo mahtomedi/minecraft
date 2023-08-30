@@ -207,20 +207,23 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 32
             );
             param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-            int var1 = 4;
-            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
-            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
         }
 
-        int var2 = this.getRowLeft();
-        int var3 = this.y0 + 4 - (int)this.getScrollAmount();
         this.enableScissor(param0);
         if (this.renderHeader) {
-            this.renderHeader(param0, var2, var3);
+            int var1 = this.getRowLeft();
+            int var2 = this.y0 + 4 - (int)this.getScrollAmount();
+            this.renderHeader(param0, var1, var2);
         }
 
         this.renderList(param0, param1, param2, param3);
         param0.disableScissor();
+        if (this.renderBackground) {
+            int var3 = 4;
+            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
+            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
+        }
+
         int var4 = this.getMaxScroll();
         if (var4 > 0) {
             int var5 = this.getScrollbarPosition();
@@ -289,33 +292,41 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return this.width / 2 + 124;
     }
 
+    protected boolean isValidMouseClick(int param0) {
+        return param0 == 0;
+    }
+
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
-        this.updateScrollingState(param0, param1, param2);
-        if (!this.isMouseOver(param0, param1)) {
+        if (!this.isValidMouseClick(param2)) {
             return false;
         } else {
-            E var0 = this.getEntryAtPosition(param0, param1);
-            if (var0 != null) {
-                if (var0.mouseClicked(param0, param1, param2)) {
-                    E var1 = this.getFocused();
-                    if (var1 != var0 && var1 instanceof ContainerEventHandler var2) {
-                        var2.setFocused(null);
-                    }
+            this.updateScrollingState(param0, param1, param2);
+            if (!this.isMouseOver(param0, param1)) {
+                return false;
+            } else {
+                E var0 = this.getEntryAtPosition(param0, param1);
+                if (var0 != null) {
+                    if (var0.mouseClicked(param0, param1, param2)) {
+                        E var1 = this.getFocused();
+                        if (var1 != var0 && var1 instanceof ContainerEventHandler var2) {
+                            var2.setFocused(null);
+                        }
 
-                    this.setFocused(var0);
-                    this.setDragging(true);
+                        this.setFocused(var0);
+                        this.setDragging(true);
+                        return true;
+                    } else {
+                        return this.scrolling;
+                    }
+                } else {
+                    this.clickedHeader(
+                        (int)(param0 - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)),
+                        (int)(param1 - (double)this.y0) + (int)this.getScrollAmount() - 4
+                    );
                     return true;
                 }
-            } else if (param2 == 0) {
-                this.clickedHeader(
-                    (int)(param0 - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)),
-                    (int)(param1 - (double)this.y0) + (int)this.getScrollAmount() - 4
-                );
-                return true;
             }
-
-            return this.scrolling;
         }
     }
 

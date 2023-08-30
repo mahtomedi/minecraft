@@ -51,10 +51,10 @@ public record LocationCheck(Optional<LocationPredicate> predicate, BlockPos offs
     }
 
     public static LootItemCondition.Builder checkLocation(LocationPredicate.Builder param0) {
-        return () -> new LocationCheck(param0.build(), BlockPos.ZERO);
+        return () -> new LocationCheck(Optional.of(param0.build()), BlockPos.ZERO);
     }
 
     public static LootItemCondition.Builder checkLocation(LocationPredicate.Builder param0, BlockPos param1) {
-        return () -> new LocationCheck(param0.build(), param1);
+        return () -> new LocationCheck(Optional.of(param0.build()), param1);
     }
 }

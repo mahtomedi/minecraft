@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class StackedContents {
     private static final int EMPTY = 0;
@@ -71,12 +72,12 @@ public class StackedContents {
         return new StackedContents.RecipePicker(param0).tryPick(param2, param1);
     }
 
-    public int getBiggestCraftableStack(Recipe<?> param0, @Nullable IntList param1) {
+    public int getBiggestCraftableStack(RecipeHolder<?> param0, @Nullable IntList param1) {
         return this.getBiggestCraftableStack(param0, Integer.MAX_VALUE, param1);
     }
 
-    public int getBiggestCraftableStack(Recipe<?> param0, int param1, @Nullable IntList param2) {
-        return new StackedContents.RecipePicker(param0).tryPickAll(param1, param2);
+    public int getBiggestCraftableStack(RecipeHolder<?> param0, int param1, @Nullable IntList param2) {
+        return new StackedContents.RecipePicker(param0.value()).tryPickAll(param1, param2);
     }
 
     public static ItemStack fromStackingIndex(int param0) {

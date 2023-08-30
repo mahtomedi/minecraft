@@ -20,7 +20,7 @@ import net.minecraft.world.inventory.AbstractFurnaceMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -46,7 +46,7 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
     private Minecraft minecraft;
     private RecipeCollection collection;
     @Nullable
-    private Recipe<?> lastRecipeClicked;
+    private RecipeHolder<?> lastRecipeClicked;
     float time;
     boolean isFurnaceMenu;
 
@@ -58,8 +58,8 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
         }
 
         boolean var0 = param0.player.getRecipeBook().isFiltering((RecipeBookMenu<?>)param0.player.containerMenu);
-        List<Recipe<?>> var1 = param1.getDisplayRecipes(true);
-        List<Recipe<?>> var2 = var0 ? Collections.emptyList() : param1.getDisplayRecipes(false);
+        List<RecipeHolder<?>> var1 = param1.getDisplayRecipes(true);
+        List<RecipeHolder<?>> var2 = var0 ? Collections.emptyList() : param1.getDisplayRecipes(false);
         int var3 = var1.size();
         int var4 = var3 + var2.size();
         int var5 = var4 <= 16 ? 4 : 5;
@@ -89,7 +89,7 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
 
         for(int var13 = 0; var13 < var4; ++var13) {
             boolean var14 = var13 < var3;
-            Recipe<?> var15 = var14 ? var1.get(var13) : var2.get(var13 - var3);
+            RecipeHolder<?> var15 = var14 ? var1.get(var13) : var2.get(var13 - var3);
             int var16 = this.x + 4 + 25 * (var13 % var5);
             int var17 = this.y + 5 + 25 * (var13 / var5);
             if (this.isFurnaceMenu) {
@@ -107,7 +107,7 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
     }
 
     @Nullable
-    public Recipe<?> getLastRecipeClicked() {
+    public RecipeHolder<?> getLastRecipeClicked() {
         return this.lastRecipeClicked;
     }
 
@@ -173,11 +173,11 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
 
     @OnlyIn(Dist.CLIENT)
     class OverlayRecipeButton extends AbstractWidget implements PlaceRecipe<Ingredient> {
-        final Recipe<?> recipe;
+        final RecipeHolder<?> recipe;
         private final boolean isCraftable;
         protected final List<OverlayRecipeComponent.OverlayRecipeButton.Pos> ingredientPos = Lists.newArrayList();
 
-        public OverlayRecipeButton(int param0, int param1, Recipe<?> param2, boolean param3) {
+        public OverlayRecipeButton(int param0, int param1, RecipeHolder<?> param2, boolean param3) {
             super(param0, param1, 200, 20, CommonComponents.EMPTY);
             this.width = 24;
             this.height = 24;
@@ -186,8 +186,8 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
             this.calculateIngredientsPositions(param2);
         }
 
-        protected void calculateIngredientsPositions(Recipe<?> param0) {
-            this.placeRecipe(3, 3, -1, param0, param0.getIngredients().iterator(), 0);
+        protected void calculateIngredientsPositions(RecipeHolder<?> param0) {
+            this.placeRecipe(3, 3, -1, param0, param0.value().getIngredients().iterator(), 0);
         }
 
         @Override
@@ -262,14 +262,15 @@ public class OverlayRecipeComponent implements Renderable, GuiEventListener {
 
     @OnlyIn(Dist.CLIENT)
     class OverlaySmeltingRecipeButton extends OverlayRecipeComponent.OverlayRecipeButton {
-        public OverlaySmeltingRecipeButton(int param0, int param1, Recipe<?> param2, boolean param3) {
+        public OverlaySmeltingRecipeButton(int param0, int param1, RecipeHolder<?> param2, boolean param3) {
             super(param0, param1, param2, param3);
         }
 
         @Override
-        protected void calculateIngredientsPositions(Recipe<?> param0) {
-            ItemStack[] var0 = param0.getIngredients().get(0).getItems();
-            this.ingredientPos.add(new OverlayRecipeComponent.OverlayRecipeButton.Pos(10, 10, var0));
+        protected void calculateIngredientsPositions(RecipeHolder<?> param0) {
+            Ingredient var0 = param0.value().getIngredients().get(0);
+            ItemStack[] var1 = var0.getItems();
+            this.ingredientPos.add(new OverlayRecipeComponent.OverlayRecipeButton.Pos(10, 10, var1));
         }
     }
 }

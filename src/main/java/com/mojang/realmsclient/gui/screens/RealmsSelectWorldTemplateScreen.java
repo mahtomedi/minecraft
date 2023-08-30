@@ -395,7 +395,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
         @Override
         public boolean mouseClicked(double param0, double param1, int param2) {
-            if (param2 == 0 && RealmsSelectWorldTemplateScreen.this.currentLink != null) {
+            if (RealmsSelectWorldTemplateScreen.this.currentLink != null) {
                 ConfirmLinkScreen.confirmLinkNow(RealmsSelectWorldTemplateScreen.this.currentLink, RealmsSelectWorldTemplateScreen.this, true);
                 return true;
             } else {

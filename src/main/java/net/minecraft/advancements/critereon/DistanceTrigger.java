@@ -3,27 +3,16 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonObject;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
 
 public class DistanceTrigger extends SimpleCriterionTrigger<DistanceTrigger.TriggerInstance> {
-    final ResourceLocation id;
-
-    public DistanceTrigger(ResourceLocation param0) {
-        this.id = param0;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
     public DistanceTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<LocationPredicate> var0 = LocationPredicate.fromJson(param0.get("start_position"));
         Optional<DistancePredicate> var1 = DistancePredicate.fromJson(param0.get("distance"));
-        return new DistanceTrigger.TriggerInstance(this.id, param1, var0, var1);
+        return new DistanceTrigger.TriggerInstance(param1, var0, var1);
     }
 
     public void trigger(ServerPlayer param0, Vec3 param1) {
@@ -35,26 +24,28 @@ public class DistanceTrigger extends SimpleCriterionTrigger<DistanceTrigger.Trig
         private final Optional<LocationPredicate> startPosition;
         private final Optional<DistancePredicate> distance;
 
-        public TriggerInstance(
-            ResourceLocation param0, Optional<ContextAwarePredicate> param1, Optional<LocationPredicate> param2, Optional<DistancePredicate> param3
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<LocationPredicate> param1, Optional<DistancePredicate> param2) {
+            super(param0);
+            this.startPosition = param1;
+            this.distance = param2;
+        }
+
+        public static Criterion<DistanceTrigger.TriggerInstance> fallFromHeight(
+            EntityPredicate.Builder param0, DistancePredicate param1, LocationPredicate.Builder param2
         ) {
-            super(param0, param1);
-            this.startPosition = param2;
-            this.distance = param3;
+            return CriteriaTriggers.FALL_FROM_HEIGHT
+                .createCriterion(
+                    new DistanceTrigger.TriggerInstance(Optional.of(EntityPredicate.wrap(param0)), Optional.of(param2.build()), Optional.of(param1))
+                );
         }
 
-        public static DistanceTrigger.TriggerInstance fallFromHeight(EntityPredicate.Builder param0, DistancePredicate param1, LocationPredicate.Builder param2) {
-            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.FALL_FROM_HEIGHT.id, EntityPredicate.wrap(param0), param2.build(), Optional.of(param1));
+        public static Criterion<DistanceTrigger.TriggerInstance> rideEntityInLava(EntityPredicate.Builder param0, DistancePredicate param1) {
+            return CriteriaTriggers.RIDE_ENTITY_IN_LAVA_TRIGGER
+                .createCriterion(new DistanceTrigger.TriggerInstance(Optional.of(EntityPredicate.wrap(param0)), Optional.empty(), Optional.of(param1)));
         }
 
-        public static DistanceTrigger.TriggerInstance rideEntityInLava(EntityPredicate.Builder param0, DistancePredicate param1) {
-            return new DistanceTrigger.TriggerInstance(
-                CriteriaTriggers.RIDE_ENTITY_IN_LAVA_TRIGGER.id, EntityPredicate.wrap(param0), Optional.empty(), Optional.of(param1)
-            );
-        }
-
-        public static DistanceTrigger.TriggerInstance travelledThroughNether(DistancePredicate param0) {
-            return new DistanceTrigger.TriggerInstance(CriteriaTriggers.NETHER_TRAVEL.id, Optional.empty(), Optional.empty(), Optional.of(param0));
+        public static Criterion<DistanceTrigger.TriggerInstance> travelledThroughNether(DistancePredicate param0) {
+            return CriteriaTriggers.NETHER_TRAVEL.createCriterion(new DistanceTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.of(param0)));
         }
 
         @Override

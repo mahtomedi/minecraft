@@ -34,7 +34,7 @@ import net.minecraft.world.inventory.RecipeBookType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -307,7 +307,7 @@ public class RecipeBookComponent implements PlaceRecipe<Ingredient>, Renderable,
     public boolean mouseClicked(double param0, double param1, int param2) {
         if (this.isVisible() && !this.minecraft.player.isSpectator()) {
             if (this.recipeBookPage.mouseClicked(param0, param1, param2, (this.width - 147) / 2 - this.xOffset, (this.height - 166) / 2, 147, 166)) {
-                Recipe<?> var0 = this.recipeBookPage.getLastClickedRecipe();
+                RecipeHolder<?> var0 = this.recipeBookPage.getLastClickedRecipe();
                 RecipeCollection var1 = this.recipeBookPage.getLastClickedRecipeCollection();
                 if (var0 != null && var1 != null) {
                     if (!var1.isCraftable(var0) && this.ghostRecipe.getRecipe() == var0) {
@@ -472,18 +472,20 @@ public class RecipeBookComponent implements PlaceRecipe<Ingredient>, Renderable,
     }
 
     @Override
-    public void recipesShown(List<Recipe<?>> param0) {
-        for(Recipe<?> var0 : param0) {
+    public void recipesShown(List<RecipeHolder<?>> param0) {
+        for(RecipeHolder<?> var0 : param0) {
             this.minecraft.player.removeRecipeHighlight(var0);
         }
 
     }
 
-    public void setupGhostRecipe(Recipe<?> param0, List<Slot> param1) {
-        ItemStack var0 = param0.getResultItem(this.minecraft.level.registryAccess());
+    public void setupGhostRecipe(RecipeHolder<?> param0, List<Slot> param1) {
+        ItemStack var0 = param0.value().getResultItem(this.minecraft.level.registryAccess());
         this.ghostRecipe.setRecipe(param0);
         this.ghostRecipe.addIngredient(Ingredient.of(var0), param1.get(0).x, param1.get(0).y);
-        this.placeRecipe(this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), param0, param0.getIngredients().iterator(), 0);
+        this.placeRecipe(
+            this.menu.getGridWidth(), this.menu.getGridHeight(), this.menu.getResultSlotIndex(), param0, param0.value().getIngredients().iterator(), 0
+        );
     }
 
     @Override

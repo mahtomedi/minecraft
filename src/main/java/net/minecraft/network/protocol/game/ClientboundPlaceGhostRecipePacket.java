@@ -3,15 +3,15 @@ package net.minecraft.network.protocol.game;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class ClientboundPlaceGhostRecipePacket implements Packet<ClientGamePacketListener> {
     private final int containerId;
     private final ResourceLocation recipe;
 
-    public ClientboundPlaceGhostRecipePacket(int param0, Recipe<?> param1) {
+    public ClientboundPlaceGhostRecipePacket(int param0, RecipeHolder<?> param1) {
         this.containerId = param0;
-        this.recipe = param1.getId();
+        this.recipe = param1.id();
     }
 
     public ClientboundPlaceGhostRecipePacket(FriendlyByteBuf param0) {

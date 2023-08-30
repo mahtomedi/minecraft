@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,13 +14,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SlideDownBlockTrigger extends SimpleCriterionTrigger<SlideDownBlockTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("slide_down_block");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public SlideDownBlockTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
         Optional<StatePropertiesPredicate> var1 = StatePropertiesPredicate.fromJson(param0.get("state"));
@@ -51,13 +46,13 @@ public class SlideDownBlockTrigger extends SimpleCriterionTrigger<SlideDownBlock
         private final Optional<StatePropertiesPredicate> state;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Block param1, Optional<StatePropertiesPredicate> param2) {
-            super(SlideDownBlockTrigger.ID, param0);
+            super(param0);
             this.block = param1;
             this.state = param2;
         }
 
-        public static SlideDownBlockTrigger.TriggerInstance slidesDownBlock(Block param0) {
-            return new SlideDownBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty());
+        public static Criterion<SlideDownBlockTrigger.TriggerInstance> slidesDownBlock(Block param0) {
+            return CriteriaTriggers.HONEY_BLOCK_SLIDE.createCriterion(new SlideDownBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty()));
         }
 
         @Override

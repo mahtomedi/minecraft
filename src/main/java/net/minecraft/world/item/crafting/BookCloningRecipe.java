@@ -3,7 +3,6 @@ package net.minecraft.world.item.crafting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -11,8 +10,8 @@ import net.minecraft.world.item.WrittenBookItem;
 import net.minecraft.world.level.Level;
 
 public class BookCloningRecipe extends CustomRecipe {
-    public BookCloningRecipe(ResourceLocation param0, CraftingBookCategory param1) {
-        super(param0, param1);
+    public BookCloningRecipe(CraftingBookCategory param0) {
+        super(param0);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

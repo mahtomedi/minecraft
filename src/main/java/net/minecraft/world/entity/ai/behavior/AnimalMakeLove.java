@@ -27,7 +27,9 @@ public class AnimalMakeLove extends Behavior<Animal> {
                 MemoryModuleType.WALK_TARGET,
                 MemoryStatus.REGISTERED,
                 MemoryModuleType.LOOK_TARGET,
-                MemoryStatus.REGISTERED
+                MemoryStatus.REGISTERED,
+                MemoryModuleType.IS_PANICKING,
+                MemoryStatus.VALUE_ABSENT
             ),
             110
         );
@@ -53,7 +55,12 @@ public class AnimalMakeLove extends Behavior<Animal> {
             return false;
         } else {
             Animal var0 = this.getBreedTarget(param1);
-            return var0.isAlive() && param1.canMate(var0) && BehaviorUtils.entityIsVisible(param1.getBrain(), var0) && param2 <= this.spawnChildAtTime;
+            return var0.isAlive()
+                && param1.canMate(var0)
+                && BehaviorUtils.entityIsVisible(param1.getBrain(), var0)
+                && param2 <= this.spawnChildAtTime
+                && !param1.isPanicking()
+                && !var0.isPanicking();
         }
     }
 
@@ -88,7 +95,7 @@ public class AnimalMakeLove extends Behavior<Animal> {
 
     private Optional<? extends Animal> findValidBreedPartner(Animal param0) {
         return param0.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findClosest(param1 -> {
-            if (param1.getType() == this.partnerType && param1 instanceof Animal var0 && param0.canMate(var0)) {
+            if (param1.getType() == this.partnerType && param1 instanceof Animal var0 && param0.canMate(var0) && !var0.isPanicking()) {
                 return true;
             }
 

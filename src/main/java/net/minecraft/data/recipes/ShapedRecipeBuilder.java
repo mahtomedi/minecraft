@@ -5,16 +5,17 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +32,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
     private final int count;
     private final List<String> rows = Lists.newArrayList();
     private final Map<Character, Ingredient> key = Maps.newLinkedHashMap();
-    private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
+    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
     private String group;
     private boolean showNotification = true;
@@ -78,8 +79,8 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
         }
     }
 
-    public ShapedRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
-        this.advancement.addCriterion(param0, param1);
+    public ShapedRecipeBuilder unlockedBy(String param0, Criterion<?> param1) {
+        this.criteria.put(param0, param1);
         return this;
     }
 
@@ -99,13 +100,13 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
+    public void save(RecipeOutput param0, ResourceLocation param1) {
         this.ensureValid(param1);
-        this.advancement
-            .parent(ROOT_RECIPE_ADVANCEMENT)
+        Advancement.Builder var0 = param0.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(param1))
             .rewards(AdvancementRewards.Builder.recipe(param1))
-            .requirements(RequirementsStrategy.OR);
+            .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(var0::addCriterion);
         param0.accept(
             new ShapedRecipeBuilder.Result(
                 param1,
@@ -115,8 +116,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
                 determineBookCategory(this.category),
                 this.rows,
                 this.key,
-                this.advancement,
-                param1.withPrefix("recipes/" + this.category.getFolderName() + "/"),
+                var0.build(param1.withPrefix("recipes/" + this.category.getFolderName() + "/")),
                 this.showNotification
             )
         );
@@ -144,7 +144,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
                 throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + param0);
             } else if (this.rows.size() == 1 && this.rows.get(0).length() == 1) {
                 throw new IllegalStateException("Shaped recipe " + param0 + " only takes in a single item - should it be a shapeless recipe instead?");
-            } else if (this.advancement.getCriteria().isEmpty()) {
+            } else if (this.criteria.isEmpty()) {
                 throw new IllegalStateException("No way of obtaining recipe " + param0);
             }
         }
@@ -157,8 +157,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
         private final String group;
         private final List<String> pattern;
         private final Map<Character, Ingredient> key;
-        private final Advancement.Builder advancement;
-        private final ResourceLocation advancementId;
+        private final AdvancementHolder advancement;
         private final boolean showNotification;
 
         public Result(
@@ -169,9 +168,8 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
             CraftingBookCategory param4,
             List<String> param5,
             Map<Character, Ingredient> param6,
-            Advancement.Builder param7,
-            ResourceLocation param8,
-            boolean param9
+            AdvancementHolder param7,
+            boolean param8
         ) {
             super(param4);
             this.id = param0;
@@ -181,8 +179,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
             this.pattern = param5;
             this.key = param6;
             this.advancement = param7;
-            this.advancementId = param8;
-            this.showNotification = param9;
+            this.showNotification = param8;
         }
 
         @Override
@@ -202,7 +199,7 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
             JsonObject var2 = new JsonObject();
 
             for(Entry<Character, Ingredient> var3 : this.key.entrySet()) {
-                var2.add(String.valueOf(var3.getKey()), var3.getValue().toJson());
+                var2.add(String.valueOf(var3.getKey()), var3.getValue().toJson(false));
             }
 
             param0.add("key", var2);
@@ -217,25 +214,18 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
         }
 
         @Override
-        public RecipeSerializer<?> getType() {
+        public RecipeSerializer<?> type() {
             return RecipeSerializer.SHAPED_RECIPE;
         }
 
         @Override
-        public ResourceLocation getId() {
+        public ResourceLocation id() {
             return this.id;
         }
 
-        @Nullable
         @Override
-        public JsonObject serializeAdvancement() {
-            return this.advancement.serializeToJson();
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return this.advancementId;
+        public AdvancementHolder advancement() {
+            return this.advancement;
         }
     }
 }

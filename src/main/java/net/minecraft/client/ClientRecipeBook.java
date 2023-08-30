@@ -19,6 +19,7 @@ import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -30,8 +31,8 @@ public class ClientRecipeBook extends RecipeBook {
     private Map<RecipeBookCategories, List<RecipeCollection>> collectionsByTab = ImmutableMap.of();
     private List<RecipeCollection> allCollections = ImmutableList.of();
 
-    public void setupCollections(Iterable<Recipe<?>> param0, RegistryAccess param1) {
-        Map<RecipeBookCategories, List<List<Recipe<?>>>> var0 = categorizeAndGroupRecipes(param0);
+    public void setupCollections(Iterable<RecipeHolder<?>> param0, RegistryAccess param1) {
+        Map<RecipeBookCategories, List<List<RecipeHolder<?>>>> var0 = categorizeAndGroupRecipes(param0);
         Map<RecipeBookCategories, List<RecipeCollection>> var1 = Maps.newHashMap();
         Builder<RecipeCollection> var2 = ImmutableList.builder();
         var0.forEach(
@@ -50,25 +51,26 @@ public class ClientRecipeBook extends RecipeBook {
         this.allCollections = var2.build();
     }
 
-    private static Map<RecipeBookCategories, List<List<Recipe<?>>>> categorizeAndGroupRecipes(Iterable<Recipe<?>> param0) {
-        Map<RecipeBookCategories, List<List<Recipe<?>>>> var0 = Maps.newHashMap();
-        Table<RecipeBookCategories, String, List<Recipe<?>>> var1 = HashBasedTable.create();
+    private static Map<RecipeBookCategories, List<List<RecipeHolder<?>>>> categorizeAndGroupRecipes(Iterable<RecipeHolder<?>> param0) {
+        Map<RecipeBookCategories, List<List<RecipeHolder<?>>>> var0 = Maps.newHashMap();
+        Table<RecipeBookCategories, String, List<RecipeHolder<?>>> var1 = HashBasedTable.create();
 
-        for(Recipe<?> var2 : param0) {
-            if (!var2.isSpecial() && !var2.isIncomplete()) {
-                RecipeBookCategories var3 = getCategory(var2);
-                String var4 = var2.getGroup();
-                if (var4.isEmpty()) {
-                    var0.computeIfAbsent(var3, param0x -> Lists.newArrayList()).add(ImmutableList.of(var2));
+        for(RecipeHolder<?> var2 : param0) {
+            Recipe<?> var3 = var2.value();
+            if (!var3.isSpecial() && !var3.isIncomplete()) {
+                RecipeBookCategories var4 = getCategory(var2);
+                String var5 = var3.getGroup();
+                if (var5.isEmpty()) {
+                    var0.computeIfAbsent(var4, param0x -> Lists.newArrayList()).add(ImmutableList.of(var2));
                 } else {
-                    List<Recipe<?>> var5 = var1.get(var3, var4);
-                    if (var5 == null) {
-                        var5 = Lists.newArrayList();
-                        var1.put(var3, var4, var5);
-                        var0.computeIfAbsent(var3, param0x -> Lists.newArrayList()).add(var5);
+                    List<RecipeHolder<?>> var6 = var1.get(var4, var5);
+                    if (var6 == null) {
+                        var6 = Lists.newArrayList();
+                        var1.put(var4, var5, var6);
+                        var0.computeIfAbsent(var4, param0x -> Lists.newArrayList()).add(var6);
                     }
 
-                    var5.add(var2);
+                    var6.add(var2);
                 }
             }
         }
@@ -76,48 +78,47 @@ public class ClientRecipeBook extends RecipeBook {
         return var0;
     }
 
-    private static RecipeBookCategories getCategory(Recipe<?> param0) {
-        if (param0 instanceof CraftingRecipe var0) {
-            return switch(var0.category()) {
+    private static RecipeBookCategories getCategory(RecipeHolder<?> param0) {
+        Recipe<?> var0 = param0.value();
+        if (var0 instanceof CraftingRecipe var1) {
+            return switch(var1.category()) {
                 case BUILDING -> RecipeBookCategories.CRAFTING_BUILDING_BLOCKS;
                 case EQUIPMENT -> RecipeBookCategories.CRAFTING_EQUIPMENT;
                 case REDSTONE -> RecipeBookCategories.CRAFTING_REDSTONE;
                 case MISC -> RecipeBookCategories.CRAFTING_MISC;
             };
         } else {
-            RecipeType<?> var1 = param0.getType();
-            if (param0 instanceof AbstractCookingRecipe var2) {
-                CookingBookCategory var3 = var2.category();
-                if (var1 == RecipeType.SMELTING) {
-                    return switch(var3) {
+            RecipeType<?> var2 = var0.getType();
+            if (var0 instanceof AbstractCookingRecipe var3) {
+                CookingBookCategory var4 = var3.category();
+                if (var2 == RecipeType.SMELTING) {
+                    return switch(var4) {
                         case BLOCKS -> RecipeBookCategories.FURNACE_BLOCKS;
                         case FOOD -> RecipeBookCategories.FURNACE_FOOD;
                         case MISC -> RecipeBookCategories.FURNACE_MISC;
                     };
                 }
 
-                if (var1 == RecipeType.BLASTING) {
-                    return var3 == CookingBookCategory.BLOCKS ? RecipeBookCategories.BLAST_FURNACE_BLOCKS : RecipeBookCategories.BLAST_FURNACE_MISC;
+                if (var2 == RecipeType.BLASTING) {
+                    return var4 == CookingBookCategory.BLOCKS ? RecipeBookCategories.BLAST_FURNACE_BLOCKS : RecipeBookCategories.BLAST_FURNACE_MISC;
                 }
 
-                if (var1 == RecipeType.SMOKING) {
+                if (var2 == RecipeType.SMOKING) {
                     return RecipeBookCategories.SMOKER_FOOD;
                 }
 
-                if (var1 == RecipeType.CAMPFIRE_COOKING) {
+                if (var2 == RecipeType.CAMPFIRE_COOKING) {
                     return RecipeBookCategories.CAMPFIRE;
                 }
             }
 
-            if (var1 == RecipeType.STONECUTTING) {
+            if (var2 == RecipeType.STONECUTTING) {
                 return RecipeBookCategories.STONECUTTER;
-            } else if (var1 == RecipeType.SMITHING) {
+            } else if (var2 == RecipeType.SMITHING) {
                 return RecipeBookCategories.SMITHING;
             } else {
                 LOGGER.warn(
-                    "Unknown recipe category: {}/{}",
-                    LogUtils.defer(() -> BuiltInRegistries.RECIPE_TYPE.getKey(param0.getType())),
-                    LogUtils.defer(param0::getId)
+                    "Unknown recipe category: {}/{}", LogUtils.defer(() -> BuiltInRegistries.RECIPE_TYPE.getKey(var0.getType())), LogUtils.defer(param0::id)
                 );
                 return RecipeBookCategories.UNKNOWN;
             }

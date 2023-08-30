@@ -18,6 +18,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -47,7 +48,10 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
                 param3.cookingProgress[var1]++;
                 if (param3.cookingProgress[var1] >= param3.cookingTime[var1]) {
                     Container var3 = new SimpleContainer(var2);
-                    ItemStack var4 = param3.quickCheck.getRecipeFor(var3, param0).map(param2x -> param2x.assemble(var3, param0.registryAccess())).orElse(var2);
+                    ItemStack var4 = param3.quickCheck
+                        .getRecipeFor(var3, param0)
+                        .map(param2x -> param2x.value().assemble(var3, param0.registryAccess()))
+                        .orElse(var2);
                     if (var4.isItemEnabled(param0.enabledFeatures())) {
                         Containers.dropItemStack(param0, (double)param1.getX(), (double)param1.getY(), (double)param1.getZ(), var4);
                         param3.items.set(var1, ItemStack.EMPTY);
@@ -152,7 +156,7 @@ public class CampfireBlockEntity extends BlockEntity implements Clearable {
         return var0;
     }
 
-    public Optional<CampfireCookingRecipe> getCookableRecipe(ItemStack param0) {
+    public Optional<RecipeHolder<CampfireCookingRecipe>> getCookableRecipe(ItemStack param0) {
         return this.items.stream().noneMatch(ItemStack::isEmpty) ? Optional.empty() : this.quickCheck.getRecipeFor(new SimpleContainer(param0), this.level);
     }
 

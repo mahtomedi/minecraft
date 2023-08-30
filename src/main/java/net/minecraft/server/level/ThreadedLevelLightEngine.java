@@ -223,6 +223,11 @@ public class ThreadedLevelLightEngine extends LevelLightEngine implements AutoCl
 
     }
 
+    public CompletableFuture<?> waitForPendingTasks(int param0, int param1) {
+        return CompletableFuture.runAsync(() -> {
+        }, param2 -> this.addTask(param0, param1, ThreadedLevelLightEngine.TaskType.POST_UPDATE, param2));
+    }
+
     static enum TaskType {
         PRE_UPDATE,
         POST_UPDATE;

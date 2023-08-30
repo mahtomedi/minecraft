@@ -15,7 +15,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import org.slf4j.Logger;
 
@@ -23,13 +23,13 @@ public class ServerRecipeBook extends RecipeBook {
     public static final String RECIPE_BOOK_TAG = "recipeBook";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public int addRecipes(Collection<Recipe<?>> param0, ServerPlayer param1) {
+    public int addRecipes(Collection<RecipeHolder<?>> param0, ServerPlayer param1) {
         List<ResourceLocation> var0 = Lists.newArrayList();
         int var1 = 0;
 
-        for(Recipe<?> var2 : param0) {
-            ResourceLocation var3 = var2.getId();
-            if (!this.known.contains(var3) && !var2.isSpecial()) {
+        for(RecipeHolder<?> var2 : param0) {
+            ResourceLocation var3 = var2.id();
+            if (!this.known.contains(var3) && !var2.value().isSpecial()) {
                 this.add(var3);
                 this.addHighlight(var3);
                 var0.add(var3);
@@ -45,12 +45,12 @@ public class ServerRecipeBook extends RecipeBook {
         return var1;
     }
 
-    public int removeRecipes(Collection<Recipe<?>> param0, ServerPlayer param1) {
+    public int removeRecipes(Collection<RecipeHolder<?>> param0, ServerPlayer param1) {
         List<ResourceLocation> var0 = Lists.newArrayList();
         int var1 = 0;
 
-        for(Recipe<?> var2 : param0) {
-            ResourceLocation var3 = var2.getId();
+        for(RecipeHolder<?> var2 : param0) {
+            ResourceLocation var3 = var2.id();
             if (this.known.contains(var3)) {
                 this.remove(var3);
                 var0.add(var3);
@@ -94,13 +94,13 @@ public class ServerRecipeBook extends RecipeBook {
         this.loadRecipes(var1, this::addHighlight, param1);
     }
 
-    private void loadRecipes(ListTag param0, Consumer<Recipe<?>> param1, RecipeManager param2) {
+    private void loadRecipes(ListTag param0, Consumer<RecipeHolder<?>> param1, RecipeManager param2) {
         for(int var0 = 0; var0 < param0.size(); ++var0) {
             String var1 = param0.getString(var0);
 
             try {
                 ResourceLocation var2 = new ResourceLocation(var1);
-                Optional<? extends Recipe<?>> var3 = param2.byKey(var2);
+                Optional<RecipeHolder<?>> var3 = param2.byKey(var2);
                 if (var3.isEmpty()) {
                     LOGGER.error("Tried to load unrecognized recipe: {} removed now.", var2);
                 } else {

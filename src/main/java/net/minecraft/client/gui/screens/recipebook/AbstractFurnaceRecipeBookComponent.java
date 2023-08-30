@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -41,11 +41,11 @@ public abstract class AbstractFurnaceRecipeBookComponent extends RecipeBookCompo
     }
 
     @Override
-    public void setupGhostRecipe(Recipe<?> param0, List<Slot> param1) {
-        ItemStack var0 = param0.getResultItem(this.minecraft.level.registryAccess());
+    public void setupGhostRecipe(RecipeHolder<?> param0, List<Slot> param1) {
+        ItemStack var0 = param0.value().getResultItem(this.minecraft.level.registryAccess());
         this.ghostRecipe.setRecipe(param0);
         this.ghostRecipe.addIngredient(Ingredient.of(var0), param1.get(2).x, param1.get(2).y);
-        NonNullList<Ingredient> var1 = param0.getIngredients();
+        NonNullList<Ingredient> var1 = param0.value().getIngredients();
         Slot var2 = param1.get(1);
         if (var2.getItem().isEmpty()) {
             if (this.fuels == null) {

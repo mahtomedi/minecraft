@@ -42,7 +42,7 @@ public record LocationPredicate(
                 .apply(param0, LocationPredicate::new)
     );
 
-    static Optional<LocationPredicate> of(
+    private static Optional<LocationPredicate> of(
         Optional<LocationPredicate.PositionPredicate> param0,
         Optional<ResourceKey<Biome>> param1,
         Optional<ResourceKey<Structure>> param2,
@@ -167,17 +167,17 @@ public record LocationPredicate(
         }
 
         public LocationPredicate.Builder setLight(LightPredicate.Builder param0) {
-            this.light = param0.build();
+            this.light = Optional.of(param0.build());
             return this;
         }
 
         public LocationPredicate.Builder setBlock(BlockPredicate.Builder param0) {
-            this.block = param0.build();
+            this.block = Optional.of(param0.build());
             return this;
         }
 
         public LocationPredicate.Builder setFluid(FluidPredicate.Builder param0) {
-            this.fluid = param0.build();
+            this.fluid = Optional.of(param0.build());
             return this;
         }
 
@@ -186,17 +186,9 @@ public record LocationPredicate(
             return this;
         }
 
-        public Optional<LocationPredicate> build() {
-            return LocationPredicate.of(
-                LocationPredicate.PositionPredicate.of(this.x, this.y, this.z),
-                this.biome,
-                this.structure,
-                this.dimension,
-                this.smokey,
-                this.light,
-                this.block,
-                this.fluid
-            );
+        public LocationPredicate build() {
+            Optional<LocationPredicate.PositionPredicate> var0 = LocationPredicate.PositionPredicate.of(this.x, this.y, this.z);
+            return new LocationPredicate(var0, this.biome, this.structure, this.dimension, this.smokey, this.light, this.block, this.fluid);
         }
     }
 

@@ -146,11 +146,8 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                     Component.translatable("mco.configure.world.buttons.resetworld"),
                     param0 -> this.minecraft
                             .setScreen(
-                                new RealmsResetWorldScreen(
-                                    this,
-                                    this.serverData.clone(),
-                                    () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen())),
-                                    () -> this.minecraft.setScreen(this.getNewScreen())
+                                RealmsResetWorldScreen.forResetSlot(
+                                    this, this.serverData.clone(), () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen()))
                                 )
                             )
                 )
@@ -373,18 +370,9 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 new RealmsLongConfirmationScreen(
                     param2 -> {
                         if (param2) {
-                            RealmsResetWorldScreen var0x = new RealmsResetWorldScreen(
-                                this,
-                                param1,
-                                Component.translatable("mco.configure.world.switch.slot"),
-                                Component.translatable("mco.configure.world.switch.slot.subtitle"),
-                                -6250336,
-                                CommonComponents.GUI_CANCEL,
-                                () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen())),
-                                () -> this.minecraft.setScreen(this.getNewScreen())
+                            RealmsResetWorldScreen var0x = RealmsResetWorldScreen.forEmptySlot(
+                                this, param0, param1, () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen()))
                             );
-                            var0x.setSlot(param0);
-                            var0x.setResetTitle(Component.translatable("mco.create.world.reset.title"));
                             this.minecraft.setScreen(var0x);
                         } else {
                             this.minecraft.setScreen(this);

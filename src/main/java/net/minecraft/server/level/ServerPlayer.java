@@ -124,7 +124,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ServerItemCooldowns;
 import net.minecraft.world.item.WrittenBookItem;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameRules;
@@ -1077,18 +1077,18 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    public int awardRecipes(Collection<Recipe<?>> param0) {
+    public int awardRecipes(Collection<RecipeHolder<?>> param0) {
         return this.recipeBook.addRecipes(param0, this);
     }
 
     @Override
-    public void triggerRecipeCrafted(Recipe<?> param0, List<ItemStack> param1) {
-        CriteriaTriggers.RECIPE_CRAFTED.trigger(this, param0.getId(), param1);
+    public void triggerRecipeCrafted(RecipeHolder<?> param0, List<ItemStack> param1) {
+        CriteriaTriggers.RECIPE_CRAFTED.trigger(this, param0.id(), param1);
     }
 
     @Override
     public void awardRecipesByKey(ResourceLocation[] param0) {
-        List<Recipe<?>> var0 = Lists.newArrayList();
+        List<RecipeHolder<?>> var0 = Lists.newArrayList();
 
         for(ResourceLocation var1 : param0) {
             this.server.getRecipeManager().byKey(var1).ifPresent(var0::add);
@@ -1098,7 +1098,7 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    public int resetRecipes(Collection<Recipe<?>> param0) {
+    public int resetRecipes(Collection<RecipeHolder<?>> param0) {
         return this.recipeBook.removeRecipes(param0, this);
     }
 

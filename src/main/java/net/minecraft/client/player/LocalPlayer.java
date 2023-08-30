@@ -68,7 +68,7 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameType;
@@ -391,7 +391,7 @@ public class LocalPlayer extends AbstractClientPlayer {
         return this.recipeBook;
     }
 
-    public void removeRecipeHighlight(Recipe<?> param0) {
+    public void removeRecipeHighlight(RecipeHolder<?> param0) {
         if (this.recipeBook.willHighlight(param0)) {
             this.recipeBook.removeHighlight(param0);
             this.connection.send(new ServerboundRecipeBookSeenRecipePacket(param0));

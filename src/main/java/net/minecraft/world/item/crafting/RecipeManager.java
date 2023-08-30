@@ -11,6 +11,8 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -36,8 +39,8 @@ import org.slf4j.Logger;
 public class RecipeManager extends SimpleJsonResourceReloadListener {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private static final Logger LOGGER = LogUtils.getLogger();
-    private Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes = ImmutableMap.of();
-    private Map<ResourceLocation, Recipe<?>> byName = ImmutableMap.of();
+    private Map<RecipeType<?>, Map<ResourceLocation, RecipeHolder<?>>> recipes = ImmutableMap.of();
+    private Map<ResourceLocation, RecipeHolder<?>> byName = ImmutableMap.of();
     private boolean hasErrors;
 
     public RecipeManager() {
@@ -46,15 +49,15 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
 
     protected void apply(Map<ResourceLocation, JsonElement> param0, ResourceManager param1, ProfilerFiller param2) {
         this.hasErrors = false;
-        Map<RecipeType<?>, Builder<ResourceLocation, Recipe<?>>> var0 = Maps.newHashMap();
-        Builder<ResourceLocation, Recipe<?>> var1 = ImmutableMap.builder();
+        Map<RecipeType<?>, Builder<ResourceLocation, RecipeHolder<?>>> var0 = Maps.newHashMap();
+        Builder<ResourceLocation, RecipeHolder<?>> var1 = ImmutableMap.builder();
 
         for(Entry<ResourceLocation, JsonElement> var2 : param0.entrySet()) {
             ResourceLocation var3 = var2.getKey();
 
             try {
-                Recipe<?> var4 = fromJson(var3, GsonHelper.convertToJsonObject(var2.getValue(), "top element"));
-                var0.computeIfAbsent(var4.getType(), param0x -> ImmutableMap.builder()).put(var3, var4);
+                RecipeHolder<?> var4 = fromJson(var3, GsonHelper.convertToJsonObject(var2.getValue(), "top element"));
+                var0.computeIfAbsent(var4.value().getType(), param0x -> ImmutableMap.builder()).put(var3, var4);
                 var1.put(var3, var4);
             } catch (IllegalArgumentException | JsonParseException var10) {
                 LOGGER.error("Parsing error loading recipe {}", var3, var10);
@@ -70,49 +73,49 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
         return this.hasErrors;
     }
 
-    public <C extends Container, T extends Recipe<C>> Optional<T> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
-        return this.byType(param0).values().stream().filter(param2x -> param2x.matches(param1, param2)).findFirst();
+    public <C extends Container, T extends Recipe<C>> Optional<RecipeHolder<T>> getRecipeFor(RecipeType<T> param0, C param1, Level param2) {
+        return this.byType(param0).values().stream().filter(param2x -> param2x.value().matches(param1, param2)).findFirst();
     }
 
-    public <C extends Container, T extends Recipe<C>> Optional<Pair<ResourceLocation, T>> getRecipeFor(
+    public <C extends Container, T extends Recipe<C>> Optional<Pair<ResourceLocation, RecipeHolder<T>>> getRecipeFor(
         RecipeType<T> param0, C param1, Level param2, @Nullable ResourceLocation param3
     ) {
-        Map<ResourceLocation, T> var0 = this.byType(param0);
+        Map<ResourceLocation, RecipeHolder<T>> var0 = this.byType(param0);
         if (param3 != null) {
-            T var1 = var0.get(param3);
-            if (var1 != null && var1.matches(param1, param2)) {
+            RecipeHolder<T> var1 = var0.get(param3);
+            if (var1 != null && var1.value().matches(param1, param2)) {
                 return Optional.of(Pair.of(param3, var1));
             }
         }
 
         return var0.entrySet()
             .stream()
-            .filter(param2x -> param2x.getValue().matches(param1, param2))
+            .filter(param2x -> param2x.getValue().value().matches(param1, param2))
             .findFirst()
             .map(param0x -> Pair.of(param0x.getKey(), param0x.getValue()));
     }
 
-    public <C extends Container, T extends Recipe<C>> List<T> getAllRecipesFor(RecipeType<T> param0) {
+    public <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getAllRecipesFor(RecipeType<T> param0) {
         return List.copyOf(this.byType(param0).values());
     }
 
-    public <C extends Container, T extends Recipe<C>> List<T> getRecipesFor(RecipeType<T> param0, C param1, Level param2) {
+    public <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getRecipesFor(RecipeType<T> param0, C param1, Level param2) {
         return this.byType(param0)
             .values()
             .stream()
-            .filter(param2x -> param2x.matches(param1, param2))
-            .sorted(Comparator.comparing(param1x -> param1x.getResultItem(param2.registryAccess()).getDescriptionId()))
+            .filter(param2x -> param2x.value().matches(param1, param2))
+            .sorted(Comparator.comparing(param1x -> param1x.value().getResultItem(param2.registryAccess()).getDescriptionId()))
             .collect(Collectors.toList());
     }
 
-    private <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> byType(RecipeType<T> param0) {
+    private <C extends Container, T extends Recipe<C>> Map<ResourceLocation, RecipeHolder<T>> byType(RecipeType<T> param0) {
         return this.recipes.getOrDefault(param0, Collections.emptyMap());
     }
 
     public <C extends Container, T extends Recipe<C>> NonNullList<ItemStack> getRemainingItemsFor(RecipeType<T> param0, C param1, Level param2) {
-        Optional<T> var0 = this.getRecipeFor(param0, param1, param2);
+        Optional<RecipeHolder<T>> var0 = this.getRecipeFor(param0, param1, param2);
         if (var0.isPresent()) {
-            return var0.get().getRemainingItems(param1);
+            return var0.get().value().getRemainingItems(param1);
         } else {
             NonNullList<ItemStack> var1 = NonNullList.withSize(param1.getContainerSize(), ItemStack.EMPTY);
 
@@ -124,11 +127,11 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
         }
     }
 
-    public Optional<? extends Recipe<?>> byKey(ResourceLocation param0) {
+    public Optional<RecipeHolder<?>> byKey(ResourceLocation param0) {
         return Optional.ofNullable(this.byName.get(param0));
     }
 
-    public Collection<Recipe<?>> getRecipes() {
+    public Collection<RecipeHolder<?>> getRecipes() {
         return this.recipes.values().stream().flatMap(param0 -> param0.values().stream()).collect(Collectors.toSet());
     }
 
@@ -136,22 +139,24 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
         return this.recipes.values().stream().flatMap(param0 -> param0.keySet().stream());
     }
 
-    public static Recipe<?> fromJson(ResourceLocation param0, JsonObject param1) {
+    protected static RecipeHolder<?> fromJson(ResourceLocation param0, JsonObject param1) {
         String var0 = GsonHelper.getAsString(param1, "type");
-        return BuiltInRegistries.RECIPE_SERIALIZER
+        Codec<? extends Recipe<?>> var1 = BuiltInRegistries.RECIPE_SERIALIZER
             .getOptional(new ResourceLocation(var0))
             .orElseThrow(() -> new JsonSyntaxException("Invalid or unsupported recipe type '" + var0 + "'"))
-            .fromJson(param0, param1);
+            .codec();
+        Recipe<?> var2 = Util.getOrThrow(var1.parse(JsonOps.INSTANCE, param1), JsonParseException::new);
+        return new RecipeHolder<>(param0, var2);
     }
 
-    public void replaceRecipes(Iterable<Recipe<?>> param0) {
+    public void replaceRecipes(Iterable<RecipeHolder<?>> param0) {
         this.hasErrors = false;
-        Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> var0 = Maps.newHashMap();
-        Builder<ResourceLocation, Recipe<?>> var1 = ImmutableMap.builder();
+        Map<RecipeType<?>, Map<ResourceLocation, RecipeHolder<?>>> var0 = Maps.newHashMap();
+        Builder<ResourceLocation, RecipeHolder<?>> var1 = ImmutableMap.builder();
         param0.forEach(param2 -> {
-            Map<ResourceLocation, Recipe<?>> var0x = var0.computeIfAbsent(param2.getType(), param0x -> Maps.newHashMap());
-            ResourceLocation var1x = param2.getId();
-            Recipe<?> var2x = var0x.put(var1x, param2);
+            Map<ResourceLocation, RecipeHolder<?>> var0x = var0.computeIfAbsent(param2.value().getType(), param0x -> Maps.newHashMap());
+            ResourceLocation var1x = param2.id();
+            RecipeHolder<?> var2x = var0x.put(var1x, param2);
             var1.put(var1x, param2);
             if (var2x != null) {
                 throw new IllegalStateException("Duplicate recipe ignored with ID " + var1x);
@@ -167,11 +172,11 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
             private ResourceLocation lastRecipe;
 
             @Override
-            public Optional<T> getRecipeFor(C param0x, Level param1) {
+            public Optional<RecipeHolder<T>> getRecipeFor(C param0x, Level param1) {
                 RecipeManager var0 = param1.getRecipeManager();
-                Optional<Pair<ResourceLocation, T>> var1 = var0.getRecipeFor(param0, param0, param1, this.lastRecipe);
+                Optional<Pair<ResourceLocation, RecipeHolder<T>>> var1 = var0.getRecipeFor(param0, param0, param1, this.lastRecipe);
                 if (var1.isPresent()) {
-                    Pair<ResourceLocation, T> var2 = var1.get();
+                    Pair<ResourceLocation, RecipeHolder<T>> var2 = var1.get();
                     this.lastRecipe = var2.getFirst();
                     return Optional.of(var2.getSecond());
                 } else {
@@ -182,6 +187,6 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
     }
 
     public interface CachedCheck<C extends Container, T extends Recipe<C>> {
-        Optional<T> getRecipeFor(C var1, Level var2);
+        Optional<RecipeHolder<T>> getRecipeFor(C var1, Level var2);
     }
 }

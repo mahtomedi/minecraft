@@ -3,7 +3,7 @@ package net.minecraft.client.telemetry;
 import java.time.Duration;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.telemetry.events.PerformanceMetricsEvent;
 import net.minecraft.client.telemetry.events.WorldLoadEvent;
 import net.minecraft.client.telemetry.events.WorldLoadTimesEvent;
@@ -66,9 +66,9 @@ public class WorldSessionTelemetryManager {
         this.worldUnloadEvent.send(this.eventSender);
     }
 
-    public void onAdvancementDone(Level param0, Advancement param1) {
-        ResourceLocation var0 = param1.getId();
-        if (param1.sendsTelemetryEvent() && "minecraft".equals(var0.getNamespace())) {
+    public void onAdvancementDone(Level param0, AdvancementHolder param1) {
+        ResourceLocation var0 = param1.id();
+        if (param1.value().sendsTelemetryEvent() && "minecraft".equals(var0.getNamespace())) {
             long var1 = param0.getGameTime();
             this.eventSender.send(TelemetryEventType.ADVANCEMENT_MADE, param2 -> {
                 param2.put(TelemetryProperty.ADVANCEMENT_ID, var0.toString());

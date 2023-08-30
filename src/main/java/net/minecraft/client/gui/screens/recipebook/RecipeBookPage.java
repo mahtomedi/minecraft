@@ -12,7 +12,7 @@ import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.RecipeBook;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -38,7 +38,7 @@ public class RecipeBookPage {
     private int currentPage;
     private RecipeBook recipeBook;
     @Nullable
-    private Recipe<?> lastClickedRecipe;
+    private RecipeHolder<?> lastClickedRecipe;
     @Nullable
     private RecipeCollection lastClickedRecipeCollection;
 
@@ -129,7 +129,7 @@ public class RecipeBookPage {
     }
 
     @Nullable
-    public Recipe<?> getLastClickedRecipe() {
+    public RecipeHolder<?> getLastClickedRecipe() {
         return this.lastClickedRecipe;
     }
 
@@ -189,7 +189,7 @@ public class RecipeBookPage {
         }
     }
 
-    public void recipesShown(List<Recipe<?>> param0) {
+    public void recipesShown(List<RecipeHolder<?>> param0) {
         for(RecipeShownListener var0 : this.showListeners) {
             var0.recipesShown(param0);
         }

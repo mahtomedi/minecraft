@@ -2,18 +2,12 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 public class EnchantedItemTrigger extends SimpleCriterionTrigger<EnchantedItemTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("enchanted_item");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public EnchantedItemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("levels"));
@@ -29,13 +23,14 @@ public class EnchantedItemTrigger extends SimpleCriterionTrigger<EnchantedItemTr
         private final MinMaxBounds.Ints levels;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, MinMaxBounds.Ints param2) {
-            super(EnchantedItemTrigger.ID, param0);
+            super(param0);
             this.item = param1;
             this.levels = param2;
         }
 
-        public static EnchantedItemTrigger.TriggerInstance enchantedItem() {
-            return new EnchantedItemTrigger.TriggerInstance(Optional.empty(), Optional.empty(), MinMaxBounds.Ints.ANY);
+        public static Criterion<EnchantedItemTrigger.TriggerInstance> enchantedItem() {
+            return CriteriaTriggers.ENCHANTED_ITEM
+                .createCriterion(new EnchantedItemTrigger.TriggerInstance(Optional.empty(), Optional.empty(), MinMaxBounds.Ints.ANY));
         }
 
         public boolean matches(ItemStack param0, int param1) {

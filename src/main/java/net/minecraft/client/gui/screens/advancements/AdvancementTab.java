@@ -3,8 +3,10 @@ package net.minecraft.client.gui.screens.advancements;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,12 +24,12 @@ public class AdvancementTab {
     private final AdvancementsScreen screen;
     private final AdvancementTabType type;
     private final int index;
-    private final Advancement advancement;
+    private final AdvancementNode rootNode;
     private final DisplayInfo display;
     private final ItemStack icon;
     private final Component title;
     private final AdvancementWidget root;
-    private final Map<Advancement, AdvancementWidget> widgets = Maps.newLinkedHashMap();
+    private final Map<AdvancementHolder, AdvancementWidget> widgets = Maps.newLinkedHashMap();
     private double scrollX;
     private double scrollY;
     private int minX = Integer.MAX_VALUE;
@@ -37,17 +39,17 @@ public class AdvancementTab {
     private float fade;
     private boolean centered;
 
-    public AdvancementTab(Minecraft param0, AdvancementsScreen param1, AdvancementTabType param2, int param3, Advancement param4, DisplayInfo param5) {
+    public AdvancementTab(Minecraft param0, AdvancementsScreen param1, AdvancementTabType param2, int param3, AdvancementNode param4, DisplayInfo param5) {
         this.minecraft = param0;
         this.screen = param1;
         this.type = param2;
         this.index = param3;
-        this.advancement = param4;
+        this.rootNode = param4;
         this.display = param5;
         this.icon = param5.getIcon();
         this.title = param5.getTitle();
         this.root = new AdvancementWidget(this, param0, param4, param5);
-        this.addWidget(this.root, param4);
+        this.addWidget(this.root, param4.holder());
     }
 
     public AdvancementTabType getType() {
@@ -58,8 +60,8 @@ public class AdvancementTab {
         return this.index;
     }
 
-    public Advancement getAdvancement() {
-        return this.advancement;
+    public AdvancementNode getRootNode() {
+        return this.rootNode;
     }
 
     public Component getTitle() {
@@ -138,16 +140,17 @@ public class AdvancementTab {
     }
 
     @Nullable
-    public static AdvancementTab create(Minecraft param0, AdvancementsScreen param1, int param2, Advancement param3) {
-        if (param3.getDisplay() == null) {
+    public static AdvancementTab create(Minecraft param0, AdvancementsScreen param1, int param2, AdvancementNode param3) {
+        Optional<DisplayInfo> var0 = param3.advancement().display();
+        if (var0.isEmpty()) {
             return null;
         } else {
-            for(AdvancementTabType var0 : AdvancementTabType.values()) {
-                if (param2 < var0.getMax()) {
-                    return new AdvancementTab(param0, param1, var0, param2, param3, param3.getDisplay());
+            for(AdvancementTabType var1 : AdvancementTabType.values()) {
+                if (param2 < var1.getMax()) {
+                    return new AdvancementTab(param0, param1, var1, param2, param3, var0.get());
                 }
 
-                param2 -= var0.getMax();
+                param2 -= var1.getMax();
             }
 
             return null;
@@ -165,14 +168,15 @@ public class AdvancementTab {
 
     }
 
-    public void addAdvancement(Advancement param0) {
-        if (param0.getDisplay() != null) {
-            AdvancementWidget var0 = new AdvancementWidget(this, this.minecraft, param0, param0.getDisplay());
-            this.addWidget(var0, param0);
+    public void addAdvancement(AdvancementNode param0) {
+        Optional<DisplayInfo> var0 = param0.advancement().display();
+        if (!var0.isEmpty()) {
+            AdvancementWidget var1 = new AdvancementWidget(this, this.minecraft, param0, var0.get());
+            this.addWidget(var1, param0.holder());
         }
     }
 
-    private void addWidget(AdvancementWidget param0, Advancement param1) {
+    private void addWidget(AdvancementWidget param0, AdvancementHolder param1) {
         this.widgets.put(param1, param0);
         int var0 = param0.getX();
         int var1 = var0 + 28;
@@ -190,7 +194,7 @@ public class AdvancementTab {
     }
 
     @Nullable
-    public AdvancementWidget getWidget(Advancement param0) {
+    public AdvancementWidget getWidget(AdvancementHolder param0) {
         return this.widgets.get(param0);
     }
 

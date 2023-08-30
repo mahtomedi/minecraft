@@ -6,7 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -16,11 +16,11 @@ public class RecipeToast implements Toast {
     private static final long DISPLAY_TIME = 5000L;
     private static final Component TITLE_TEXT = Component.translatable("recipe.toast.title");
     private static final Component DESCRIPTION_TEXT = Component.translatable("recipe.toast.description");
-    private final List<Recipe<?>> recipes = Lists.newArrayList();
+    private final List<RecipeHolder<?>> recipes = Lists.newArrayList();
     private long lastChanged;
     private boolean changed;
 
-    public RecipeToast(Recipe<?> param0) {
+    public RecipeToast(RecipeHolder<?> param0) {
         this.recipes.add(param0);
     }
 
@@ -37,7 +37,7 @@ public class RecipeToast implements Toast {
             param0.blitSprite(BACKGROUND_SPRITE, 0, 0, this.width(), this.height());
             param0.drawString(param1.getMinecraft().font, TITLE_TEXT, 30, 7, -11534256, false);
             param0.drawString(param1.getMinecraft().font, DESCRIPTION_TEXT, 30, 18, -16777216, false);
-            Recipe<?> var0 = this.recipes
+            RecipeHolder<?> var0 = this.recipes
                 .get(
                     (int)(
                         (double)param2
@@ -45,24 +45,24 @@ public class RecipeToast implements Toast {
                             % (double)this.recipes.size()
                     )
                 );
-            ItemStack var1 = var0.getToastSymbol();
+            ItemStack var1 = var0.value().getToastSymbol();
             param0.pose().pushPose();
             param0.pose().scale(0.6F, 0.6F, 1.0F);
             param0.renderFakeItem(var1, 3, 3);
             param0.pose().popPose();
-            param0.renderFakeItem(var0.getResultItem(param1.getMinecraft().level.registryAccess()), 8, 8);
+            param0.renderFakeItem(var0.value().getResultItem(param1.getMinecraft().level.registryAccess()), 8, 8);
             return (double)(param2 - this.lastChanged) >= 5000.0 * param1.getNotificationDisplayTimeMultiplier()
                 ? Toast.Visibility.HIDE
                 : Toast.Visibility.SHOW;
         }
     }
 
-    private void addItem(Recipe<?> param0) {
+    private void addItem(RecipeHolder<?> param0) {
         this.recipes.add(param0);
         this.changed = true;
     }
 
-    public static void addOrUpdate(ToastComponent param0, Recipe<?> param1) {
+    public static void addOrUpdate(ToastComponent param0, RecipeHolder<?> param1) {
         RecipeToast var0 = param0.getToast(RecipeToast.class, NO_TOKEN);
         if (var0 == null) {
             param0.addToast(new RecipeToast(param1));

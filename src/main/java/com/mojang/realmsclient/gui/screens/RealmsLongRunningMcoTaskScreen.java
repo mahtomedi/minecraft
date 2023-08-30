@@ -2,13 +2,14 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.logging.LogUtils;
 import com.mojang.realmsclient.exception.RealmsDefaultUncaughtExceptionHandler;
-import com.mojang.realmsclient.gui.ErrorCallback;
 import com.mojang.realmsclient.util.task.LongRunningTask;
 import java.time.Duration;
 import javax.annotation.Nullable;
 import net.minecraft.client.GameNarrator;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.LoadingDotsWidget;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -19,46 +20,21 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
-public class RealmsLongRunningMcoTaskScreen extends RealmsScreen implements ErrorCallback {
-    private static final RepeatedNarrator REPEATED_NARRATOR = new RepeatedNarrator(Duration.ofSeconds(5L));
+public class RealmsLongRunningMcoTaskScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final RepeatedNarrator REPEATED_NARRATOR = new RepeatedNarrator(Duration.ofSeconds(5L));
+    private LongRunningTask task;
     private final Screen lastScreen;
     private volatile Component title = CommonComponents.EMPTY;
+    private final LinearLayout layout = LinearLayout.vertical();
     @Nullable
-    private volatile Component errorMessage;
-    private volatile boolean aborted;
-    private int animTicks;
-    private final LongRunningTask task;
-    private final int buttonLength = 212;
-    private Button cancelOrBackButton;
-    public static final String[] SYMBOLS = new String[]{
-        "\u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583",
-        "_ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584",
-        "_ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585",
-        "_ _ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586",
-        "_ _ _ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587",
-        "_ _ _ _ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588",
-        "_ _ _ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587",
-        "_ _ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586",
-        "_ _ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585",
-        "_ \u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584",
-        "\u2583 \u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583",
-        "\u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _",
-        "\u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _",
-        "\u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _ _",
-        "\u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _ _ _",
-        "\u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _ _ _ _",
-        "\u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _ _ _",
-        "\u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _ _",
-        "\u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _ _",
-        "\u2584 \u2585 \u2586 \u2587 \u2588 \u2587 \u2586 \u2585 \u2584 \u2583 _"
-    };
+    private LoadingDotsWidget loadingDotsWidget;
 
     public RealmsLongRunningMcoTaskScreen(Screen param0, LongRunningTask param1) {
         super(GameNarrator.NO_TITLE);
         this.lastScreen = param0;
         this.task = param1;
-        param1.setScreen(this);
+        this.setTitle(param1.getTitle());
         Thread var0 = new Thread(param1, "Realms-long-running-task");
         var0.setUncaughtExceptionHandler(new RealmsDefaultUncaughtExceptionHandler(LOGGER));
         var0.start();
@@ -67,15 +43,13 @@ public class RealmsLongRunningMcoTaskScreen extends RealmsScreen implements Erro
     @Override
     public void tick() {
         super.tick();
-        REPEATED_NARRATOR.narrate(this.minecraft.getNarrator(), this.title);
-        ++this.animTicks;
-        this.task.tick();
+        REPEATED_NARRATOR.narrate(this.minecraft.getNarrator(), this.loadingDotsWidget.getMessage());
     }
 
     @Override
     public boolean keyPressed(int param0, int param1, int param2) {
         if (param0 == 256) {
-            this.cancelOrBackButtonClicked();
+            this.cancel();
             return true;
         } else {
             return super.keyPressed(param0, param1, param2);
@@ -84,53 +58,31 @@ public class RealmsLongRunningMcoTaskScreen extends RealmsScreen implements Erro
 
     @Override
     public void init() {
-        this.task.init();
-        this.cancelOrBackButton = this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.cancelOrBackButtonClicked()).bounds(this.width / 2 - 106, row(12), 212, 20).build()
-        );
+        this.layout.defaultCellSetting().alignHorizontallyCenter();
+        this.loadingDotsWidget = new LoadingDotsWidget(this.font, this.title);
+        this.layout.addChild(this.loadingDotsWidget, param0 -> param0.paddingBottom(30));
+        this.layout.addChild(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.cancel()).build());
+        this.layout.visitWidgets(param1 -> {
+        });
+        this.repositionElements();
     }
 
-    private void cancelOrBackButtonClicked() {
-        this.aborted = true;
+    @Override
+    protected void repositionElements() {
+        this.layout.arrangeElements();
+        FrameLayout.centerInRectangle(this.layout, this.getRectangle());
+    }
+
+    protected void cancel() {
         this.task.abortTask();
         this.minecraft.setScreen(this.lastScreen);
     }
 
-    @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        super.render(param0, param1, param2, param3);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, row(3), 16777215);
-        Component var0 = this.errorMessage;
-        if (var0 == null) {
-            param0.drawCenteredString(this.font, SYMBOLS[this.animTicks % SYMBOLS.length], this.width / 2, row(8), -8355712);
-        } else {
-            param0.drawCenteredString(this.font, var0, this.width / 2, row(8), 16711680);
+    public void setTitle(Component param0) {
+        if (this.loadingDotsWidget != null) {
+            this.loadingDotsWidget.setMessage(param0);
         }
 
-    }
-
-    @Override
-    public void error(Component param0) {
-        this.errorMessage = param0;
-        this.minecraft.getNarrator().sayNow(param0);
-        this.minecraft
-            .execute(
-                () -> {
-                    this.removeWidget(this.cancelOrBackButton);
-                    this.cancelOrBackButton = this.addRenderableWidget(
-                        Button.builder(CommonComponents.GUI_BACK, param0x -> this.cancelOrBackButtonClicked())
-                            .bounds(this.width / 2 - 106, this.height / 4 + 120 + 12, 200, 20)
-                            .build()
-                    );
-                }
-            );
-    }
-
-    public void setTitle(Component param0) {
         this.title = param0;
-    }
-
-    public boolean aborted() {
-        return this.aborted;
     }
 }

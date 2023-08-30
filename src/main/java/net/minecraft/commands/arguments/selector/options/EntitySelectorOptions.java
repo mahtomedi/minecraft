@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.CriterionProgress;
 import net.minecraft.advancements.critereon.MinMaxBounds;
@@ -468,12 +468,12 @@ public class EntitySelectorOptions {
                             return false;
                         } else {
                             ServerPlayer var0x = (ServerPlayer)param1;
-                            PlayerAdvancements var1x = var0x.getAdvancements();
-                            ServerAdvancementManager var2x = var0x.getServer().getAdvancements();
+                            PlayerAdvancements var2x = var0x.getAdvancements();
+                            ServerAdvancementManager var3x = var0x.getServer().getAdvancements();
 
-                            for(Entry<ResourceLocation, Predicate<AdvancementProgress>> var3x : var1.entrySet()) {
-                                Advancement var4x = var2x.getAdvancement(var3x.getKey());
-                                if (var4x == null || !var3x.getValue().test(var1x.getOrStartProgress(var4x))) {
+                            for(Entry<ResourceLocation, Predicate<AdvancementProgress>> var4x : var1.entrySet()) {
+                                AdvancementHolder var5x = var3x.get(var4x.getKey());
+                                if (var5x == null || !var4x.getValue().test(var2x.getOrStartProgress(var5x))) {
                                     return false;
                                 }
                             }

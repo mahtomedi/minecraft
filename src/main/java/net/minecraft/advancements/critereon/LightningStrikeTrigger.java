@@ -4,20 +4,14 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class LightningStrikeTrigger extends SimpleCriterionTrigger<LightningStrikeTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("lightning_strike");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public LightningStrikeTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "lightning", param2);
         Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "bystander", param2);
@@ -35,13 +29,14 @@ public class LightningStrikeTrigger extends SimpleCriterionTrigger<LightningStri
         private final Optional<ContextAwarePredicate> bystander;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1, Optional<ContextAwarePredicate> param2) {
-            super(LightningStrikeTrigger.ID, param0);
+            super(param0);
             this.lightning = param1;
             this.bystander = param2;
         }
 
-        public static LightningStrikeTrigger.TriggerInstance lighthingStrike(Optional<EntityPredicate> param0, Optional<EntityPredicate> param1) {
-            return new LightningStrikeTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), EntityPredicate.wrap(param1));
+        public static Criterion<LightningStrikeTrigger.TriggerInstance> lightningStrike(Optional<EntityPredicate> param0, Optional<EntityPredicate> param1) {
+            return CriteriaTriggers.LIGHTNING_STRIKE
+                .createCriterion(new LightningStrikeTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), EntityPredicate.wrap(param1)));
         }
 
         public boolean matches(LootContext param0, List<LootContext> param1) {

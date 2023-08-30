@@ -2,19 +2,13 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 public class UsedTotemTrigger extends SimpleCriterionTrigger<UsedTotemTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("used_totem");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public UsedTotemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         return new UsedTotemTrigger.TriggerInstance(param1, var0);
@@ -28,16 +22,17 @@ public class UsedTotemTrigger extends SimpleCriterionTrigger<UsedTotemTrigger.Tr
         private final Optional<ItemPredicate> item;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1) {
-            super(UsedTotemTrigger.ID, param0);
+            super(param0);
             this.item = param1;
         }
 
-        public static UsedTotemTrigger.TriggerInstance usedTotem(ItemPredicate param0) {
-            return new UsedTotemTrigger.TriggerInstance(Optional.empty(), Optional.of(param0));
+        public static Criterion<UsedTotemTrigger.TriggerInstance> usedTotem(ItemPredicate param0) {
+            return CriteriaTriggers.USED_TOTEM.createCriterion(new UsedTotemTrigger.TriggerInstance(Optional.empty(), Optional.of(param0)));
         }
 
-        public static UsedTotemTrigger.TriggerInstance usedTotem(ItemLike param0) {
-            return new UsedTotemTrigger.TriggerInstance(Optional.empty(), ItemPredicate.Builder.item().of(param0).build());
+        public static Criterion<UsedTotemTrigger.TriggerInstance> usedTotem(ItemLike param0) {
+            return CriteriaTriggers.USED_TOTEM
+                .createCriterion(new UsedTotemTrigger.TriggerInstance(Optional.empty(), Optional.of(ItemPredicate.Builder.item().of(param0).build())));
         }
 
         public boolean matches(ItemStack param0) {

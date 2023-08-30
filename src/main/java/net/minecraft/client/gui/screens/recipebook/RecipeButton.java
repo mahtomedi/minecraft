@@ -15,7 +15,7 @@ import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -44,9 +44,9 @@ public class RecipeButton extends AbstractWidget {
         this.collection = param0;
         this.menu = (RecipeBookMenu)param1.getMinecraft().player.containerMenu;
         this.book = param1.getRecipeBook();
-        List<Recipe<?>> var0 = param0.getRecipes(this.book.isFiltering(this.menu));
+        List<RecipeHolder<?>> var0 = param0.getRecipes(this.book.isFiltering(this.menu));
 
-        for(Recipe<?> var1 : var0) {
+        for(RecipeHolder<?> var1 : var0) {
             if (this.book.willHighlight(var1)) {
                 param1.recipesShown(var0);
                 this.animationTime = 15.0F;
@@ -90,9 +90,9 @@ public class RecipeButton extends AbstractWidget {
         }
 
         param0.blitSprite(var0, this.getX(), this.getY(), this.width, this.height);
-        List<Recipe<?>> var6 = this.getOrderedRecipes();
+        List<RecipeHolder<?>> var6 = this.getOrderedRecipes();
         this.currentIndex = Mth.floor(this.time / 30.0F) % var6.size();
-        ItemStack var7 = var6.get(this.currentIndex).getResultItem(this.collection.registryAccess());
+        ItemStack var7 = var6.get(this.currentIndex).value().getResultItem(this.collection.registryAccess());
         int var8 = 4;
         if (this.collection.hasSingleResultItem() && this.getOrderedRecipes().size() > 1) {
             param0.renderItem(var7, this.getX() + var8 + 1, this.getY() + var8 + 1, 0, 10);
@@ -106,8 +106,8 @@ public class RecipeButton extends AbstractWidget {
 
     }
 
-    private List<Recipe<?>> getOrderedRecipes() {
-        List<Recipe<?>> var0 = this.collection.getDisplayRecipes(true);
+    private List<RecipeHolder<?>> getOrderedRecipes() {
+        List<RecipeHolder<?>> var0 = this.collection.getDisplayRecipes(true);
         if (!this.book.isFiltering(this.menu)) {
             var0.addAll(this.collection.getDisplayRecipes(false));
         }
@@ -119,13 +119,13 @@ public class RecipeButton extends AbstractWidget {
         return this.getOrderedRecipes().size() == 1;
     }
 
-    public Recipe<?> getRecipe() {
-        List<Recipe<?>> var0 = this.getOrderedRecipes();
+    public RecipeHolder<?> getRecipe() {
+        List<RecipeHolder<?>> var0 = this.getOrderedRecipes();
         return var0.get(this.currentIndex);
     }
 
     public List<Component> getTooltipText() {
-        ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem(this.collection.registryAccess());
+        ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).value().getResultItem(this.collection.registryAccess());
         List<Component> var1 = Lists.newArrayList(Screen.getTooltipFromItem(Minecraft.getInstance(), var0));
         if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
             var1.add(MORE_RECIPES_TOOLTIP);
@@ -136,7 +136,7 @@ public class RecipeButton extends AbstractWidget {
 
     @Override
     public void updateWidgetNarration(NarrationElementOutput param0) {
-        ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).getResultItem(this.collection.registryAccess());
+        ItemStack var0 = this.getOrderedRecipes().get(this.currentIndex).value().getResultItem(this.collection.registryAccess());
         param0.add(NarratedElementType.TITLE, (Component)Component.translatable("narration.recipe", var0.getHoverName()));
         if (this.collection.getRecipes(this.book.isFiltering(this.menu)).size() > 1) {
             param0.add(

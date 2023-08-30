@@ -33,14 +33,6 @@ public record BlockPredicate(
                 .apply(param0, BlockPredicate::new)
     );
 
-    static Optional<BlockPredicate> of(
-        Optional<TagKey<Block>> param0, Optional<HolderSet<Block>> param1, Optional<StatePropertiesPredicate> param2, Optional<NbtPredicate> param3
-    ) {
-        return param0.isEmpty() && param1.isEmpty() && param2.isEmpty() && param3.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new BlockPredicate(param0, param1, param2, param3));
-    }
-
     public boolean matches(ServerLevel param0, BlockPos param1) {
         if (!param0.isLoaded(param1)) {
             return false;
@@ -103,8 +95,8 @@ public record BlockPredicate(
             return this;
         }
 
-        public Optional<BlockPredicate> build() {
-            return BlockPredicate.of(this.tag, this.blocks, this.properties, this.nbt);
+        public BlockPredicate build() {
+            return new BlockPredicate(this.tag, this.blocks, this.properties, this.nbt);
         }
     }
 }

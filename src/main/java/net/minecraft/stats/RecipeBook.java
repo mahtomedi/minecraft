@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.inventory.RecipeBookType;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class RecipeBook {
     protected final Set<ResourceLocation> known = Sets.newHashSet();
@@ -21,9 +21,9 @@ public class RecipeBook {
         this.highlight.addAll(param0.highlight);
     }
 
-    public void add(Recipe<?> param0) {
-        if (!param0.isSpecial()) {
-            this.add(param0.getId());
+    public void add(RecipeHolder<?> param0) {
+        if (!param0.value().isSpecial()) {
+            this.add(param0.id());
         }
 
     }
@@ -32,16 +32,16 @@ public class RecipeBook {
         this.known.add(param0);
     }
 
-    public boolean contains(@Nullable Recipe<?> param0) {
-        return param0 == null ? false : this.known.contains(param0.getId());
+    public boolean contains(@Nullable RecipeHolder<?> param0) {
+        return param0 == null ? false : this.known.contains(param0.id());
     }
 
     public boolean contains(ResourceLocation param0) {
         return this.known.contains(param0);
     }
 
-    public void remove(Recipe<?> param0) {
-        this.remove(param0.getId());
+    public void remove(RecipeHolder<?> param0) {
+        this.remove(param0.id());
     }
 
     protected void remove(ResourceLocation param0) {
@@ -49,16 +49,16 @@ public class RecipeBook {
         this.highlight.remove(param0);
     }
 
-    public boolean willHighlight(Recipe<?> param0) {
-        return this.highlight.contains(param0.getId());
+    public boolean willHighlight(RecipeHolder<?> param0) {
+        return this.highlight.contains(param0.id());
     }
 
-    public void removeHighlight(Recipe<?> param0) {
-        this.highlight.remove(param0.getId());
+    public void removeHighlight(RecipeHolder<?> param0) {
+        this.highlight.remove(param0.id());
     }
 
-    public void addHighlight(Recipe<?> param0) {
-        this.addHighlight(param0.getId());
+    public void addHighlight(RecipeHolder<?> param0) {
+        this.addHighlight(param0.id());
     }
 
     protected void addHighlight(ResourceLocation param0) {

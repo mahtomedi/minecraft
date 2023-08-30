@@ -1,14 +1,14 @@
 package net.minecraft.world.item.crafting;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 
 public class StonecutterRecipe extends SingleItemRecipe {
-    public StonecutterRecipe(ResourceLocation param0, String param1, Ingredient param2, ItemStack param3) {
-        super(RecipeType.STONECUTTING, RecipeSerializer.STONECUTTER, param0, param1, param2, param3);
+    public StonecutterRecipe(String param0, Ingredient param1, Item param2, int param3) {
+        super(RecipeType.STONECUTTING, RecipeSerializer.STONECUTTER, param0, param1, new ItemStack(param2, param3));
     }
 
     @Override

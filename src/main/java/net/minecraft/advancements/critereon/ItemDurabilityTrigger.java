@@ -2,18 +2,12 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurabilityTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("item_durability_changed");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public ItemDurabilityTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("durability"));
@@ -31,20 +25,21 @@ public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurability
         private final MinMaxBounds.Ints delta;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3) {
-            super(ItemDurabilityTrigger.ID, param0);
+            super(param0);
             this.item = param1;
             this.durability = param2;
             this.delta = param3;
         }
 
-        public static ItemDurabilityTrigger.TriggerInstance changedDurability(Optional<ItemPredicate> param0, MinMaxBounds.Ints param1) {
+        public static Criterion<ItemDurabilityTrigger.TriggerInstance> changedDurability(Optional<ItemPredicate> param0, MinMaxBounds.Ints param1) {
             return changedDurability(Optional.empty(), param0, param1);
         }
 
-        public static ItemDurabilityTrigger.TriggerInstance changedDurability(
+        public static Criterion<ItemDurabilityTrigger.TriggerInstance> changedDurability(
             Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, MinMaxBounds.Ints param2
         ) {
-            return new ItemDurabilityTrigger.TriggerInstance(param0, param1, param2, MinMaxBounds.Ints.ANY);
+            return CriteriaTriggers.ITEM_DURABILITY_CHANGED
+                .createCriterion(new ItemDurabilityTrigger.TriggerInstance(param0, param1, param2, MinMaxBounds.Ints.ANY));
         }
 
         public boolean matches(ItemStack param0, int param1) {

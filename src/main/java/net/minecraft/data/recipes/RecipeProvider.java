@@ -11,9 +11,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.EnterBlockTrigger;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -40,8 +42,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 public abstract class RecipeProvider implements DataProvider {
-    private final PackOutput.PathProvider recipePathProvider;
-    private final PackOutput.PathProvider advancementPathProvider;
+    final PackOutput.PathProvider recipePathProvider;
+    final PackOutput.PathProvider advancementPathProvider;
     private static final Map<BlockFamily.Variant, BiFunction<ItemLike, ItemLike, RecipeBuilder>> SHAPE_BUILDERS = ImmutableMap.<BlockFamily.Variant, BiFunction<ItemLike, ItemLike, RecipeBuilder>>builder(
             
         )
@@ -68,39 +70,48 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     @Override
-    public CompletableFuture<?> run(CachedOutput param0) {
-        Set<ResourceLocation> var0 = Sets.newHashSet();
-        List<CompletableFuture<?>> var1 = new ArrayList<>();
-        this.buildRecipes(param3 -> {
-            if (!var0.add(param3.getId())) {
-                throw new IllegalStateException("Duplicate recipe " + param3.getId());
-            } else {
-                var1.add(DataProvider.saveStable(param0, param3.serializeRecipe(), this.recipePathProvider.json(param3.getId())));
-                JsonObject var0x = param3.serializeAdvancement();
-                if (var0x != null) {
-                    var1.add(DataProvider.saveStable(param0, var0x, this.advancementPathProvider.json(param3.getAdvancementId())));
-                }
+    public CompletableFuture<?> run(final CachedOutput param0) {
+        final Set<ResourceLocation> var0 = Sets.newHashSet();
+        final List<CompletableFuture<?>> var1 = new ArrayList<>();
+        this.buildRecipes(new RecipeOutput() {
+            @Override
+            public void accept(FinishedRecipe param0x) {
+                if (!var0.add(param0.id())) {
+                    throw new IllegalStateException("Duplicate recipe " + param0.id());
+                } else {
+                    var1.add(DataProvider.saveStable(param0, param0.serializeRecipe(), RecipeProvider.this.recipePathProvider.json(param0.id())));
+                    AdvancementHolder var0 = param0.advancement();
+                    if (var0 != null) {
+                        JsonObject var1 = var0.value().serializeToJson();
+                        var1.add(DataProvider.saveStable(param0, var1, RecipeProvider.this.advancementPathProvider.json(var0.id())));
+                    }
 
+                }
+            }
+
+            @Override
+            public Advancement.Builder advancement() {
+                return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
             }
         });
         return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
-    protected CompletableFuture<?> buildAdvancement(CachedOutput param0, ResourceLocation param1, Advancement.Builder param2) {
-        return DataProvider.saveStable(param0, param2.serializeToJson(), this.advancementPathProvider.json(param1));
+    protected CompletableFuture<?> buildAdvancement(CachedOutput param0, AdvancementHolder param1) {
+        return DataProvider.saveStable(param0, param1.value().serializeToJson(), this.advancementPathProvider.json(param1.id()));
     }
 
-    protected abstract void buildRecipes(Consumer<FinishedRecipe> var1);
+    protected abstract void buildRecipes(RecipeOutput var1);
 
-    protected static void generateForEnabledBlockFamilies(Consumer<FinishedRecipe> param0, FeatureFlagSet param1) {
+    protected static void generateForEnabledBlockFamilies(RecipeOutput param0, FeatureFlagSet param1) {
         BlockFamilies.getAllFamilies().filter(param1x -> param1x.shouldGenerateRecipe(param1)).forEach(param1x -> generateRecipes(param0, param1x));
     }
 
-    protected static void oneToOneConversionRecipe(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2, @Nullable String param3) {
+    protected static void oneToOneConversionRecipe(RecipeOutput param0, ItemLike param1, ItemLike param2, @Nullable String param3) {
         oneToOneConversionRecipe(param0, param1, param2, param3, 1);
     }
 
-    protected static void oneToOneConversionRecipe(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2, @Nullable String param3, int param4) {
+    protected static void oneToOneConversionRecipe(RecipeOutput param0, ItemLike param1, ItemLike param2, @Nullable String param3, int param4) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, param1, param4)
             .requires(param2)
             .group(param3)
@@ -109,19 +120,19 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     protected static void oreSmelting(
-        Consumer<FinishedRecipe> param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
+        RecipeOutput param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
     ) {
         oreCooking(param0, RecipeSerializer.SMELTING_RECIPE, param1, param2, param3, param4, param5, param6, "_from_smelting");
     }
 
     protected static void oreBlasting(
-        Consumer<FinishedRecipe> param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
+        RecipeOutput param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
     ) {
         oreCooking(param0, RecipeSerializer.BLASTING_RECIPE, param1, param2, param3, param4, param5, param6, "_from_blasting");
     }
 
     private static void oreCooking(
-        Consumer<FinishedRecipe> param0,
+        RecipeOutput param0,
         RecipeSerializer<? extends AbstractCookingRecipe> param1,
         List<ItemLike> param2,
         RecipeCategory param3,
@@ -140,7 +151,7 @@ public abstract class RecipeProvider implements DataProvider {
 
     }
 
-    protected static void netheriteSmithing(Consumer<FinishedRecipe> param0, Item param1, RecipeCategory param2, Item param3) {
+    protected static void netheriteSmithing(RecipeOutput param0, Item param1, RecipeCategory param2, Item param3) {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE), Ingredient.of(param1), Ingredient.of(Items.NETHERITE_INGOT), param2, param3
             )
@@ -148,7 +159,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, getItemName(param3) + "_smithing");
     }
 
-    protected static void trimSmithing(Consumer<FinishedRecipe> param0, Item param1, ResourceLocation param2) {
+    protected static void trimSmithing(RecipeOutput param0, Item param1, ResourceLocation param2) {
         SmithingTrimRecipeBuilder.smithingTrim(
                 Ingredient.of(param1), Ingredient.of(ItemTags.TRIMMABLE_ARMOR), Ingredient.of(ItemTags.TRIM_MATERIALS), RecipeCategory.MISC
             )
@@ -156,19 +167,19 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, param2);
     }
 
-    protected static void twoByTwoPacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void twoByTwoPacker(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         ShapedRecipeBuilder.shaped(param1, param2, 1).define('#', param3).pattern("##").pattern("##").unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
-    protected static void threeByThreePacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3, String param4) {
+    protected static void threeByThreePacker(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3, String param4) {
         ShapelessRecipeBuilder.shapeless(param1, param2).requires(param3, 9).unlockedBy(param4, has(param3)).save(param0);
     }
 
-    protected static void threeByThreePacker(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void threeByThreePacker(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         threeByThreePacker(param0, param1, param2, param3, getHasName(param3));
     }
 
-    protected static void planksFromLog(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2, int param3) {
+    protected static void planksFromLog(RecipeOutput param0, ItemLike param1, TagKey<Item> param2, int param3) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, param3)
             .requires(param2)
             .group("planks")
@@ -176,7 +187,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void planksFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2, int param3) {
+    protected static void planksFromLogs(RecipeOutput param0, ItemLike param1, TagKey<Item> param2, int param3) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, param3)
             .requires(param2)
             .group("planks")
@@ -184,7 +195,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void woodFromLogs(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void woodFromLogs(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, param1, 3)
             .define('#', param2)
             .pattern("##")
@@ -194,7 +205,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void woodenBoat(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void woodenBoat(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TRANSPORTATION, param1)
             .define('#', param2)
             .pattern("# #")
@@ -204,7 +215,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void chestBoat(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void chestBoat(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.TRANSPORTATION, param1)
             .requires(Blocks.CHEST)
             .requires(param2)
@@ -231,7 +242,7 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, param0).define('#', Items.STICK).define('W', param1).pattern("#W#").pattern("#W#");
     }
 
-    protected static void pressurePlate(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void pressurePlate(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         pressurePlateBuilder(RecipeCategory.REDSTONE, param1, Ingredient.of(param2)).unlockedBy(getHasName(param2), has(param2)).save(param0);
     }
 
@@ -239,7 +250,7 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, param1).define('#', param2).pattern("##");
     }
 
-    protected static void slab(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void slab(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         slabBuilder(param1, param2, Ingredient.of(param3)).unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
@@ -265,7 +276,7 @@ public abstract class RecipeProvider implements DataProvider {
             .pattern(" X ");
     }
 
-    protected static void hangingSign(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void hangingSign(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 6)
             .group("hanging_sign")
             .define('#', param2)
@@ -277,7 +288,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void colorBlockWithDye(Consumer<FinishedRecipe> param0, List<Item> param1, List<Item> param2, String param3) {
+    protected static void colorBlockWithDye(RecipeOutput param0, List<Item> param1, List<Item> param2, String param3) {
         for(int var0 = 0; var0 < param1.size(); ++var0) {
             Item var1 = param1.get(var0);
             Item var2 = param2.get(var0);
@@ -291,7 +302,7 @@ public abstract class RecipeProvider implements DataProvider {
 
     }
 
-    protected static void carpet(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void carpet(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 3)
             .define('#', param2)
             .pattern("##")
@@ -300,7 +311,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void bedFromPlanksAndWool(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void bedFromPlanksAndWool(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1)
             .define('#', param2)
             .define('X', ItemTags.PLANKS)
@@ -311,7 +322,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void banner(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void banner(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1)
             .define('#', param2)
             .define('|', Items.STICK)
@@ -323,7 +334,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void stainedGlassFromGlassAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void stainedGlassFromGlassAndDye(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, param1, 8)
             .define('#', Blocks.GLASS)
             .define('X', param2)
@@ -335,7 +346,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void stainedGlassPaneFromStainedGlass(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void stainedGlassPaneFromStainedGlass(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 16)
             .define('#', param2)
             .pattern("###")
@@ -345,7 +356,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void stainedGlassPaneFromGlassPaneAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void stainedGlassPaneFromGlassPaneAndDye(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, param1, 8)
             .define('#', Blocks.GLASS_PANE)
             .define('$', param2)
@@ -358,7 +369,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, getConversionRecipeName(param1, Blocks.GLASS_PANE));
     }
 
-    protected static void coloredTerracottaFromTerracottaAndDye(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void coloredTerracottaFromTerracottaAndDye(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, param1, 8)
             .define('#', Blocks.TERRACOTTA)
             .define('X', param2)
@@ -370,7 +381,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void concretePowder(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void concretePowder(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param1, 8)
             .requires(param2)
             .requires(Blocks.SAND, 4)
@@ -381,7 +392,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void candle(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void candle(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.DECORATIONS, param1)
             .requires(Blocks.CANDLE)
             .requires(param2)
@@ -390,7 +401,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void wall(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void wall(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         wallBuilder(param1, param2, Ingredient.of(param3)).unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
@@ -398,7 +409,7 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, param1, 6).define('#', param2).pattern("###").pattern("###");
     }
 
-    protected static void polished(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void polished(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         polishedBuilder(param1, param2, Ingredient.of(param3)).unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
@@ -406,7 +417,7 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, param1, 4).define('S', param2).pattern("SS").pattern("SS");
     }
 
-    protected static void cut(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void cut(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         cutBuilder(param1, param2, Ingredient.of(param3)).unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
@@ -414,11 +425,11 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, param1, 4).define('#', param2).pattern("##").pattern("##");
     }
 
-    protected static void chiseled(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void chiseled(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         chiseledBuilder(param1, param2, Ingredient.of(param3)).unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
-    protected static void mosaicBuilder(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void mosaicBuilder(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         ShapedRecipeBuilder.shaped(param1, param2).define('#', param3).pattern("#").pattern("#").unlockedBy(getHasName(param3), has(param3)).save(param0);
     }
 
@@ -426,42 +437,40 @@ public abstract class RecipeProvider implements DataProvider {
         return ShapedRecipeBuilder.shaped(param0, param1).define('#', param2).pattern("#").pattern("#");
     }
 
-    protected static void stonecutterResultFromBase(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
+    protected static void stonecutterResultFromBase(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3) {
         stonecutterResultFromBase(param0, param1, param2, param3, 1);
     }
 
-    protected static void stonecutterResultFromBase(Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, ItemLike param3, int param4) {
+    protected static void stonecutterResultFromBase(RecipeOutput param0, RecipeCategory param1, ItemLike param2, ItemLike param3, int param4) {
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(param3), param1, param2, param4)
             .unlockedBy(getHasName(param3), has(param3))
             .save(param0, getConversionRecipeName(param2, param3) + "_stonecutting");
     }
 
-    private static void smeltingResultFromBase(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    private static void smeltingResultFromBase(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(param2), RecipeCategory.BUILDING_BLOCKS, param1, 0.1F, 200)
             .unlockedBy(getHasName(param2), has(param2))
             .save(param0);
     }
 
-    protected static void nineBlockStorageRecipes(
-        Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4
-    ) {
+    protected static void nineBlockStorageRecipes(RecipeOutput param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4) {
         nineBlockStorageRecipes(param0, param1, param2, param3, param4, getSimpleRecipeName(param4), null, getSimpleRecipeName(param2), null);
     }
 
     protected static void nineBlockStorageRecipesWithCustomPacking(
-        Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4, String param5, String param6
+        RecipeOutput param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4, String param5, String param6
     ) {
         nineBlockStorageRecipes(param0, param1, param2, param3, param4, param5, param6, getSimpleRecipeName(param2), null);
     }
 
     protected static void nineBlockStorageRecipesRecipesWithCustomUnpacking(
-        Consumer<FinishedRecipe> param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4, String param5, String param6
+        RecipeOutput param0, RecipeCategory param1, ItemLike param2, RecipeCategory param3, ItemLike param4, String param5, String param6
     ) {
         nineBlockStorageRecipes(param0, param1, param2, param3, param4, getSimpleRecipeName(param4), null, param5, param6);
     }
 
     private static void nineBlockStorageRecipes(
-        Consumer<FinishedRecipe> param0,
+        RecipeOutput param0,
         RecipeCategory param1,
         ItemLike param2,
         RecipeCategory param3,
@@ -486,7 +495,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, new ResourceLocation(param5));
     }
 
-    protected static void copySmithingTemplate(Consumer<FinishedRecipe> param0, ItemLike param1, TagKey<Item> param2) {
+    protected static void copySmithingTemplate(RecipeOutput param0, ItemLike param1, TagKey<Item> param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, param1, 2)
             .define('#', Items.DIAMOND)
             .define('C', param2)
@@ -498,7 +507,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void copySmithingTemplate(Consumer<FinishedRecipe> param0, ItemLike param1, ItemLike param2) {
+    protected static void copySmithingTemplate(RecipeOutput param0, ItemLike param1, ItemLike param2) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, param1, 2)
             .define('#', Items.DIAMOND)
             .define('C', param2)
@@ -510,7 +519,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void cookRecipes(Consumer<FinishedRecipe> param0, String param1, RecipeSerializer<? extends AbstractCookingRecipe> param2, int param3) {
+    protected static void cookRecipes(RecipeOutput param0, String param1, RecipeSerializer<? extends AbstractCookingRecipe> param2, int param3) {
         simpleCookingRecipe(param0, param1, param2, param3, Items.BEEF, Items.COOKED_BEEF, 0.35F);
         simpleCookingRecipe(param0, param1, param2, param3, Items.CHICKEN, Items.COOKED_CHICKEN, 0.35F);
         simpleCookingRecipe(param0, param1, param2, param3, Items.COD, Items.COOKED_COD, 0.35F);
@@ -523,7 +532,7 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     private static void simpleCookingRecipe(
-        Consumer<FinishedRecipe> param0,
+        RecipeOutput param0,
         String param1,
         RecipeSerializer<? extends AbstractCookingRecipe> param2,
         int param3,
@@ -536,7 +545,7 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, getItemName(param5) + "_from_" + param1);
     }
 
-    protected static void waxRecipes(Consumer<FinishedRecipe> param0) {
+    protected static void waxRecipes(RecipeOutput param0) {
         HoneycombItem.WAXABLES
             .get()
             .forEach(
@@ -549,7 +558,7 @@ public abstract class RecipeProvider implements DataProvider {
             );
     }
 
-    protected static void generateRecipes(Consumer<FinishedRecipe> param0, BlockFamily param1) {
+    protected static void generateRecipes(RecipeOutput param0, BlockFamily param1) {
         param1.getVariants()
             .forEach(
                 (param2, param3) -> {
@@ -583,30 +592,33 @@ public abstract class RecipeProvider implements DataProvider {
         }
     }
 
-    private static EnterBlockTrigger.TriggerInstance insideOf(Block param0) {
-        return new EnterBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty());
+    private static Criterion<EnterBlockTrigger.TriggerInstance> insideOf(Block param0) {
+        return CriteriaTriggers.ENTER_BLOCK.createCriterion(new EnterBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty()));
     }
 
-    private static InventoryChangeTrigger.TriggerInstance has(MinMaxBounds.Ints param0, ItemLike param1) {
+    private static Criterion<InventoryChangeTrigger.TriggerInstance> has(MinMaxBounds.Ints param0, ItemLike param1) {
         return inventoryTrigger(ItemPredicate.Builder.item().of(param1).withCount(param0));
     }
 
-    protected static InventoryChangeTrigger.TriggerInstance has(ItemLike param0) {
+    protected static Criterion<InventoryChangeTrigger.TriggerInstance> has(ItemLike param0) {
         return inventoryTrigger(ItemPredicate.Builder.item().of(param0));
     }
 
-    protected static InventoryChangeTrigger.TriggerInstance has(TagKey<Item> param0) {
+    protected static Criterion<InventoryChangeTrigger.TriggerInstance> has(TagKey<Item> param0) {
         return inventoryTrigger(ItemPredicate.Builder.item().of(param0));
     }
 
-    private static InventoryChangeTrigger.TriggerInstance inventoryTrigger(ItemPredicate.Builder... param0) {
-        return inventoryTrigger(Arrays.stream(param0).flatMap(param0x -> param0x.build().stream()).toArray(param0x -> new ItemPredicate[param0x]));
+    private static Criterion<InventoryChangeTrigger.TriggerInstance> inventoryTrigger(ItemPredicate.Builder... param0) {
+        return inventoryTrigger(Arrays.stream(param0).map(ItemPredicate.Builder::build).toArray(param0x -> new ItemPredicate[param0x]));
     }
 
-    private static InventoryChangeTrigger.TriggerInstance inventoryTrigger(ItemPredicate... param0) {
-        return new InventoryChangeTrigger.TriggerInstance(
-            Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
-        );
+    private static Criterion<InventoryChangeTrigger.TriggerInstance> inventoryTrigger(ItemPredicate... param0) {
+        return CriteriaTriggers.INVENTORY_CHANGED
+            .createCriterion(
+                new InventoryChangeTrigger.TriggerInstance(
+                    Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
+                )
+            );
     }
 
     protected static String getHasName(ItemLike param0) {

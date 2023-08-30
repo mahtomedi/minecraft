@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,13 +13,6 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.alchemy.Potion;
 
 public class BrewedPotionTrigger extends SimpleCriterionTrigger<BrewedPotionTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("brewed_potion");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public BrewedPotionTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Potion var0 = null;
         if (param0.has("potion")) {
@@ -37,12 +32,12 @@ public class BrewedPotionTrigger extends SimpleCriterionTrigger<BrewedPotionTrig
         private final Potion potion;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Potion param1) {
-            super(BrewedPotionTrigger.ID, param0);
+            super(param0);
             this.potion = param1;
         }
 
-        public static BrewedPotionTrigger.TriggerInstance brewedPotion() {
-            return new BrewedPotionTrigger.TriggerInstance(Optional.empty(), null);
+        public static Criterion<BrewedPotionTrigger.TriggerInstance> brewedPotion() {
+            return CriteriaTriggers.BREWED_POTION.createCriterion(new BrewedPotionTrigger.TriggerInstance(Optional.empty(), null));
         }
 
         public boolean matches(Potion param0) {

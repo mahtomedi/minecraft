@@ -56,28 +56,6 @@ public record ItemPredicate(
                 .apply(param0, ItemPredicate::new)
     );
 
-    static Optional<ItemPredicate> of(
-        Optional<TagKey<Item>> param0,
-        Optional<HolderSet<Item>> param1,
-        MinMaxBounds.Ints param2,
-        MinMaxBounds.Ints param3,
-        List<EnchantmentPredicate> param4,
-        List<EnchantmentPredicate> param5,
-        Optional<Holder<Potion>> param6,
-        Optional<NbtPredicate> param7
-    ) {
-        return param0.isEmpty()
-                && param1.isEmpty()
-                && param2.isAny()
-                && param3.isAny()
-                && param4.isEmpty()
-                && param5.isEmpty()
-                && param6.isEmpty()
-                && param7.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new ItemPredicate(param0, param1, param2, param3, param4, param5, param6, param7));
-    }
-
     public boolean matches(ItemStack param0) {
         if (this.tag.isPresent() && !param0.is(this.tag.get())) {
             return false;
@@ -191,10 +169,10 @@ public record ItemPredicate(
             return this;
         }
 
-        public Optional<ItemPredicate> build() {
-            return ItemPredicate.of(
-                this.tag, this.items, this.count, this.durability, this.enchantments.build(), this.storedEnchantments.build(), this.potion, this.nbt
-            );
+        public ItemPredicate build() {
+            List<EnchantmentPredicate> var0 = this.enchantments.build();
+            List<EnchantmentPredicate> var1 = this.storedEnchantments.build();
+            return new ItemPredicate(this.tag, this.items, this.count, this.durability, var0, var1, this.potion, this.nbt);
         }
     }
 }

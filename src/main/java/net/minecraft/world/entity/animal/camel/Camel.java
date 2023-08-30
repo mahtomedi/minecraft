@@ -35,6 +35,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.BodyRotationControl;
+import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.animal.Animal;
@@ -79,6 +80,7 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
         super(param0, param1);
         this.setMaxUpStep(1.5F);
         this.moveControl = new Camel.CamelMoveControl();
+        this.lookControl = new Camel.CamelLookControl();
         GroundPathNavigation var0 = (GroundPathNavigation)this.getNavigation();
         var0.setCanFloat(true);
         var0.setCanWalkOverFences(true);
@@ -464,12 +466,6 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
     }
 
     @Override
-    protected void positionRider(Entity param0, Entity.MoveFunction param1) {
-        super.positionRider(param0, param1);
-        this.clampRotation(param0);
-    }
-
-    @Override
     protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
         int var0 = Math.max(this.getPassengers().indexOf(param0), 0);
         boolean var1 = var0 == 0;
@@ -533,25 +529,6 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
         EntityDimensions var0 = this.getDimensions(this.getPose());
         float var1 = this.getScale();
         return new Vec3(0.0, this.getBodyAnchorAnimationYOffset(true, param0, var0, var1) - (double)(0.2F * var1), (double)(var0.width * 0.56F));
-    }
-
-    @Override
-    public void onPassengerTurned(Entity param0) {
-        if (this.getControllingPassenger() != param0) {
-            this.clampRotation(param0);
-        }
-
-    }
-
-    private void clampRotation(Entity param0) {
-        param0.setYBodyRot(this.getYRot());
-        float var0 = param0.getYRot();
-        float var1 = Mth.wrapDegrees(var0 - this.getYRot());
-        float var2 = Mth.clamp(var1, -160.0F, 160.0F);
-        param0.yRotO += var2 - var1;
-        float var3 = var0 + var2 - var1;
-        param0.setYRot(var3);
-        param0.setYHeadRot(var3);
     }
 
     private void clampHeadRotationToBody(Entity param0, float param1) {
@@ -647,11 +624,6 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
     }
 
     @Override
-    protected BodyRotationControl createBodyControl() {
-        return new Camel.CamelBodyRotationControl(this);
-    }
-
-    @Override
     public boolean isTamed() {
         return true;
     }
@@ -664,6 +636,11 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
 
     }
 
+    @Override
+    protected BodyRotationControl createBodyControl() {
+        return new Camel.CamelBodyRotationControl(this);
+    }
+
     class CamelBodyRotationControl extends BodyRotationControl {
         public CamelBodyRotationControl(Camel param0) {
             super(param0);
@@ -673,6 +650,20 @@ public class Camel extends AbstractHorse implements PlayerRideableJumping, Saddl
         public void clientTick() {
             if (!Camel.this.refuseToMove()) {
                 super.clientTick();
+            }
+
+        }
+    }
+
+    class CamelLookControl extends LookControl {
+        CamelLookControl() {
+            super(Camel.this);
+        }
+
+        @Override
+        public void tick() {
+            if (!Camel.this.hasControllingPassenger()) {
+                super.tick();
             }
 
         }

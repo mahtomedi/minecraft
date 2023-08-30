@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -13,13 +15,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestroyedTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("bee_nest_destroyed");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public BeeNestDestroyedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Block var0 = deserializeBlock(param0);
         Optional<ItemPredicate> var1 = ItemPredicate.fromJson(param0.get("item"));
@@ -48,14 +43,15 @@ public class BeeNestDestroyedTrigger extends SimpleCriterionTrigger<BeeNestDestr
         private final MinMaxBounds.Ints numBees;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, @Nullable Block param1, Optional<ItemPredicate> param2, MinMaxBounds.Ints param3) {
-            super(BeeNestDestroyedTrigger.ID, param0);
+            super(param0);
             this.block = param1;
             this.item = param2;
             this.numBees = param3;
         }
 
-        public static BeeNestDestroyedTrigger.TriggerInstance destroyedBeeNest(Block param0, ItemPredicate.Builder param1, MinMaxBounds.Ints param2) {
-            return new BeeNestDestroyedTrigger.TriggerInstance(Optional.empty(), param0, param1.build(), param2);
+        public static Criterion<BeeNestDestroyedTrigger.TriggerInstance> destroyedBeeNest(Block param0, ItemPredicate.Builder param1, MinMaxBounds.Ints param2) {
+            return CriteriaTriggers.BEE_NEST_DESTROYED
+                .createCriterion(new BeeNestDestroyedTrigger.TriggerInstance(Optional.empty(), param0, Optional.of(param1.build()), param2));
         }
 
         public boolean matches(BlockState param0, ItemStack param1, int param2) {

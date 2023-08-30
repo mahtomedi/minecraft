@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.StonecutterMenu;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -70,14 +71,14 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
             int var0 = this.leftPos + 52;
             int var1 = this.topPos + 14;
             int var2 = this.startIndex + 12;
-            List<StonecutterRecipe> var3 = this.menu.getRecipes();
+            List<RecipeHolder<StonecutterRecipe>> var3 = this.menu.getRecipes();
 
             for(int var4 = this.startIndex; var4 < var2 && var4 < this.menu.getNumRecipes(); ++var4) {
                 int var5 = var4 - this.startIndex;
                 int var6 = var0 + var5 % 4 * 16;
                 int var7 = var1 + var5 / 4 * 18 + 2;
                 if (param1 >= var6 && param1 < var6 + 16 && param2 >= var7 && param2 < var7 + 18) {
-                    param0.renderTooltip(this.font, var3.get(var4).getResultItem(this.minecraft.level.registryAccess()), param1, param2);
+                    param0.renderTooltip(this.font, var3.get(var4).value().getResultItem(this.minecraft.level.registryAccess()), param1, param2);
                 }
             }
         }
@@ -105,14 +106,14 @@ public class StonecutterScreen extends AbstractContainerScreen<StonecutterMenu> 
     }
 
     private void renderRecipes(GuiGraphics param0, int param1, int param2, int param3) {
-        List<StonecutterRecipe> var0 = this.menu.getRecipes();
+        List<RecipeHolder<StonecutterRecipe>> var0 = this.menu.getRecipes();
 
         for(int var1 = this.startIndex; var1 < param3 && var1 < this.menu.getNumRecipes(); ++var1) {
             int var2 = var1 - this.startIndex;
             int var3 = param1 + var2 % 4 * 16;
             int var4 = var2 / 4;
             int var5 = param2 + var4 * 18 + 2;
-            param0.renderItem(var0.get(var1).getResultItem(this.minecraft.level.registryAccess()), var3, var5);
+            param0.renderItem(var0.get(var1).value().getResultItem(this.minecraft.level.registryAccess()), var3, var5);
         }
 
     }

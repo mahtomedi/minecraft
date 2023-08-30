@@ -1,12 +1,14 @@
 package net.minecraft.data.recipes;
 
 import com.google.gson.JsonObject;
-import java.util.function.Consumer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.advancements.RequirementsStrategy;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +27,7 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
     private final Ingredient ingredient;
     private final float experience;
     private final int cookingTime;
-    private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
+    private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
     @Nullable
     private String group;
     private final RecipeSerializer<? extends AbstractCookingRecipe> serializer;
@@ -70,8 +72,8 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
         return new SimpleCookingRecipeBuilder(param1, CookingBookCategory.FOOD, param2, param0, param3, param4, RecipeSerializer.SMOKING_RECIPE);
     }
 
-    public SimpleCookingRecipeBuilder unlockedBy(String param0, CriterionTriggerInstance param1) {
-        this.advancement.addCriterion(param0, param1);
+    public SimpleCookingRecipeBuilder unlockedBy(String param0, Criterion<?> param1) {
+        this.criteria.put(param0, param1);
         return this;
     }
 
@@ -86,13 +88,13 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> param0, ResourceLocation param1) {
+    public void save(RecipeOutput param0, ResourceLocation param1) {
         this.ensureValid(param1);
-        this.advancement
-            .parent(ROOT_RECIPE_ADVANCEMENT)
+        Advancement.Builder var0 = param0.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(param1))
             .rewards(AdvancementRewards.Builder.recipe(param1))
-            .requirements(RequirementsStrategy.OR);
+            .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(var0::addCriterion);
         param0.accept(
             new SimpleCookingRecipeBuilder.Result(
                 param1,
@@ -102,8 +104,7 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
                 this.result,
                 this.experience,
                 this.cookingTime,
-                this.advancement,
-                param1.withPrefix("recipes/" + this.category.getFolderName() + "/"),
+                var0.build(param1.withPrefix("recipes/" + this.category.getFolderName() + "/")),
                 this.serializer
             )
         );
@@ -134,47 +135,22 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
     }
 
     private void ensureValid(ResourceLocation param0) {
-        if (this.advancement.getCriteria().isEmpty()) {
+        if (this.criteria.isEmpty()) {
             throw new IllegalStateException("No way of obtaining recipe " + param0);
         }
     }
 
-    static class Result implements FinishedRecipe {
-        private final ResourceLocation id;
-        private final String group;
-        private final CookingBookCategory category;
-        private final Ingredient ingredient;
-        private final Item result;
-        private final float experience;
-        private final int cookingTime;
-        private final Advancement.Builder advancement;
-        private final ResourceLocation advancementId;
-        private final RecipeSerializer<? extends AbstractCookingRecipe> serializer;
-
-        public Result(
-            ResourceLocation param0,
-            String param1,
-            CookingBookCategory param2,
-            Ingredient param3,
-            Item param4,
-            float param5,
-            int param6,
-            Advancement.Builder param7,
-            ResourceLocation param8,
-            RecipeSerializer<? extends AbstractCookingRecipe> param9
-        ) {
-            this.id = param0;
-            this.group = param1;
-            this.category = param2;
-            this.ingredient = param3;
-            this.result = param4;
-            this.experience = param5;
-            this.cookingTime = param6;
-            this.advancement = param7;
-            this.advancementId = param8;
-            this.serializer = param9;
-        }
-
+    static record Result(
+        ResourceLocation id,
+        String group,
+        CookingBookCategory category,
+        Ingredient ingredient,
+        Item result,
+        float experience,
+        int cookingTime,
+        AdvancementHolder advancement,
+        RecipeSerializer<? extends AbstractCookingRecipe> type
+    ) implements FinishedRecipe {
         @Override
         public void serializeRecipeData(JsonObject param0) {
             if (!this.group.isEmpty()) {
@@ -182,32 +158,10 @@ public class SimpleCookingRecipeBuilder implements RecipeBuilder {
             }
 
             param0.addProperty("category", this.category.getSerializedName());
-            param0.add("ingredient", this.ingredient.toJson());
+            param0.add("ingredient", this.ingredient.toJson(false));
             param0.addProperty("result", BuiltInRegistries.ITEM.getKey(this.result).toString());
             param0.addProperty("experience", this.experience);
             param0.addProperty("cookingtime", this.cookingTime);
-        }
-
-        @Override
-        public RecipeSerializer<?> getType() {
-            return this.serializer;
-        }
-
-        @Override
-        public ResourceLocation getId() {
-            return this.id;
-        }
-
-        @Nullable
-        @Override
-        public JsonObject serializeAdvancement() {
-            return this.advancement.serializeToJson();
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return this.advancementId;
         }
     }
 }

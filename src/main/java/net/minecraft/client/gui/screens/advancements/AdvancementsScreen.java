@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
@@ -37,7 +38,7 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     private static final Component NO_ADVANCEMENTS_LABEL = Component.translatable("advancements.empty");
     private static final Component TITLE = Component.translatable("gui.advancements");
     private final ClientAdvancements advancements;
-    private final Map<Advancement, AdvancementTab> tabs = Maps.newLinkedHashMap();
+    private final Map<AdvancementHolder, AdvancementTab> tabs = Maps.newLinkedHashMap();
     @Nullable
     private AdvancementTab selectedTab;
     private boolean isScrolling;
@@ -53,9 +54,10 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
         this.selectedTab = null;
         this.advancements.setListener(this);
         if (this.selectedTab == null && !this.tabs.isEmpty()) {
-            this.advancements.setSelectedTab(this.tabs.values().iterator().next().getAdvancement(), true);
+            AdvancementTab var0 = this.tabs.values().iterator().next();
+            this.advancements.setSelectedTab(var0.getRootNode().holder(), true);
         } else {
-            this.advancements.setSelectedTab(this.selectedTab == null ? null : this.selectedTab.getAdvancement(), true);
+            this.advancements.setSelectedTab(this.selectedTab == null ? null : this.selectedTab.getRootNode().holder(), true);
         }
 
     }
@@ -78,7 +80,7 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
 
             for(AdvancementTab var2 : this.tabs.values()) {
                 if (var2.isMouseOver(var0, var1, param0, param1)) {
-                    this.advancements.setSelectedTab(var2.getAdvancement(), true);
+                    this.advancements.setSelectedTab(var2.getRootNode().holder(), true);
                     break;
                 }
             }
@@ -183,19 +185,19 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     }
 
     @Override
-    public void onAddAdvancementRoot(Advancement param0) {
+    public void onAddAdvancementRoot(AdvancementNode param0) {
         AdvancementTab var0 = AdvancementTab.create(this.minecraft, this, this.tabs.size(), param0);
         if (var0 != null) {
-            this.tabs.put(param0, var0);
+            this.tabs.put(param0.holder(), var0);
         }
     }
 
     @Override
-    public void onRemoveAdvancementRoot(Advancement param0) {
+    public void onRemoveAdvancementRoot(AdvancementNode param0) {
     }
 
     @Override
-    public void onAddAdvancementTask(Advancement param0) {
+    public void onAddAdvancementTask(AdvancementNode param0) {
         AdvancementTab var0 = this.getTab(param0);
         if (var0 != null) {
             var0.addAdvancement(param0);
@@ -204,11 +206,11 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     }
 
     @Override
-    public void onRemoveAdvancementTask(Advancement param0) {
+    public void onRemoveAdvancementTask(AdvancementNode param0) {
     }
 
     @Override
-    public void onUpdateAdvancementProgress(Advancement param0, AdvancementProgress param1) {
+    public void onUpdateAdvancementProgress(AdvancementNode param0, AdvancementProgress param1) {
         AdvancementWidget var0 = this.getAdvancementWidget(param0);
         if (var0 != null) {
             var0.setProgress(param1);
@@ -217,7 +219,7 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     }
 
     @Override
-    public void onSelectedTabChanged(@Nullable Advancement param0) {
+    public void onSelectedTabChanged(@Nullable AdvancementHolder param0) {
         this.selectedTab = this.tabs.get(param0);
     }
 
@@ -228,17 +230,14 @@ public class AdvancementsScreen extends Screen implements ClientAdvancements.Lis
     }
 
     @Nullable
-    public AdvancementWidget getAdvancementWidget(Advancement param0) {
+    public AdvancementWidget getAdvancementWidget(AdvancementNode param0) {
         AdvancementTab var0 = this.getTab(param0);
-        return var0 == null ? null : var0.getWidget(param0);
+        return var0 == null ? null : var0.getWidget(param0.holder());
     }
 
     @Nullable
-    private AdvancementTab getTab(Advancement param0) {
-        while(param0.getParent() != null) {
-            param0 = param0.getParent();
-        }
-
-        return this.tabs.get(param0);
+    private AdvancementTab getTab(AdvancementNode param0) {
+        AdvancementNode var0 = param0.root();
+        return this.tabs.get(var0.holder());
     }
 }

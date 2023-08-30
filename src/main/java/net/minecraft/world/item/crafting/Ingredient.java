@@ -1,11 +1,12 @@
 package net.minecraft.world.item.crafting;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparators;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -15,15 +16,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,9 +36,15 @@ public final class Ingredient implements Predicate<ItemStack> {
     private ItemStack[] itemStacks;
     @Nullable
     private IntList stackingIds;
+    public static final Codec<Ingredient> CODEC = codec(true);
+    public static final Codec<Ingredient> CODEC_NONEMPTY = codec(false);
 
     private Ingredient(Stream<? extends Ingredient.Value> param0) {
         this.values = param0.toArray(param0x -> new Ingredient.Value[param0x]);
+    }
+
+    private Ingredient(Ingredient.Value[] param0) {
+        this.values = param0;
     }
 
     public ItemStack[] getItems() {
@@ -84,22 +90,18 @@ public final class Ingredient implements Predicate<ItemStack> {
         param0.writeCollection(Arrays.asList(this.getItems()), FriendlyByteBuf::writeItem);
     }
 
-    public JsonElement toJson() {
-        if (this.values.length == 1) {
-            return this.values[0].serialize();
-        } else {
-            JsonArray var0 = new JsonArray();
-
-            for(Ingredient.Value var1 : this.values) {
-                var0.add(var1.serialize());
-            }
-
-            return var0;
-        }
+    public JsonElement toJson(boolean param0) {
+        Codec<Ingredient> var0 = param0 ? CODEC : CODEC_NONEMPTY;
+        return Util.getOrThrow(var0.encodeStart(JsonOps.INSTANCE, this), IllegalStateException::new);
     }
 
     public boolean isEmpty() {
         return this.values.length == 0;
+    }
+
+    @Override
+    public boolean equals(Object param0) {
+        return param0 instanceof Ingredient var0 ? Arrays.equals((Object[])this.values, (Object[])var0.values) : false;
     }
 
     private static Ingredient fromValues(Stream<? extends Ingredient.Value> param0) {
@@ -131,69 +133,59 @@ public final class Ingredient implements Predicate<ItemStack> {
         return fromValues(param0.<ItemStack>readList(FriendlyByteBuf::readItem).stream().map(Ingredient.ItemValue::new));
     }
 
-    public static Ingredient fromJson(@Nullable JsonElement param0) {
-        return fromJson(param0, true);
+    private static Codec<Ingredient> codec(boolean param0) {
+        Codec<Ingredient.Value[]> var0 = Codec.list(Ingredient.Value.CODEC)
+            .comapFlatMap(
+                param1 -> !param0 && param1.size() < 1
+                        ? DataResult.error(() -> "Item array cannot be empty, at least one item must be defined")
+                        : DataResult.success(param1.toArray(new Ingredient.Value[0])),
+                List::of
+            );
+        return ExtraCodecs.either(var0, Ingredient.Value.CODEC)
+            .flatComapMap(
+                param0x -> param0x.map(Ingredient::new, param0xx -> new Ingredient(new Ingredient.Value[]{param0xx})),
+                param1 -> {
+                    if (param1.values.length == 1) {
+                        return DataResult.success(Either.right(param1.values[0]));
+                    } else {
+                        return param1.values.length == 0 && !param0
+                            ? DataResult.error(() -> "Item array cannot be empty, at least one item must be defined")
+                            : DataResult.success(Either.left(param1.values));
+                    }
+                }
+            );
     }
 
-    public static Ingredient fromJson(@Nullable JsonElement param0, boolean param1) {
-        if (param0 == null || param0.isJsonNull()) {
-            throw new JsonSyntaxException("Item cannot be null");
-        } else if (param0.isJsonObject()) {
-            return fromValues(Stream.of(valueFromJson(param0.getAsJsonObject())));
-        } else if (param0.isJsonArray()) {
-            JsonArray var0 = param0.getAsJsonArray();
-            if (var0.size() == 0 && !param1) {
-                throw new JsonSyntaxException("Item array cannot be empty, at least one item must be defined");
+    static record ItemValue(ItemStack item) implements Ingredient.Value {
+        static final Codec<Ingredient.ItemValue> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(CraftingRecipeCodecs.ITEMSTACK_NONAIR_CODEC.fieldOf("item").forGetter(param0x -> param0x.item))
+                    .apply(param0, Ingredient.ItemValue::new)
+        );
+
+        @Override
+        public boolean equals(Object param0) {
+            if (!(param0 instanceof Ingredient.ItemValue)) {
+                return false;
             } else {
-                return fromValues(
-                    StreamSupport.stream(var0.spliterator(), false).map(param0x -> valueFromJson(GsonHelper.convertToJsonObject(param0x, "item")))
-                );
+                Ingredient.ItemValue var0 = (Ingredient.ItemValue)param0;
+                return var0.item.getItem().equals(this.item.getItem()) && var0.item.getCount() == this.item.getCount();
             }
-        } else {
-            throw new JsonSyntaxException("Expected item to be object or array of objects");
-        }
-    }
-
-    private static Ingredient.Value valueFromJson(JsonObject param0) {
-        if (param0.has("item") && param0.has("tag")) {
-            throw new JsonParseException("An ingredient entry is either a tag or an item, not both");
-        } else if (param0.has("item")) {
-            Item var0 = ShapedRecipe.itemFromJson(param0);
-            return new Ingredient.ItemValue(new ItemStack(var0));
-        } else if (param0.has("tag")) {
-            ResourceLocation var1 = new ResourceLocation(GsonHelper.getAsString(param0, "tag"));
-            TagKey<Item> var2 = TagKey.create(Registries.ITEM, var1);
-            return new Ingredient.TagValue(var2);
-        } else {
-            throw new JsonParseException("An ingredient entry needs either a tag or an item");
-        }
-    }
-
-    static class ItemValue implements Ingredient.Value {
-        private final ItemStack item;
-
-        ItemValue(ItemStack param0) {
-            this.item = param0;
         }
 
         @Override
         public Collection<ItemStack> getItems() {
             return Collections.singleton(this.item);
         }
-
-        @Override
-        public JsonObject serialize() {
-            JsonObject var0 = new JsonObject();
-            var0.addProperty("item", BuiltInRegistries.ITEM.getKey(this.item.getItem()).toString());
-            return var0;
-        }
     }
 
-    static class TagValue implements Ingredient.Value {
-        private final TagKey<Item> tag;
+    static record TagValue(TagKey<Item> tag) implements Ingredient.Value {
+        static final Codec<Ingredient.TagValue> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(TagKey.codec(Registries.ITEM).fieldOf("tag").forGetter(param0x -> param0x.tag)).apply(param0, Ingredient.TagValue::new)
+        );
 
-        TagValue(TagKey<Item> param0) {
-            this.tag = param0;
+        @Override
+        public boolean equals(Object param0) {
+            return param0 instanceof Ingredient.TagValue var0 ? var0.tag.location().equals(this.tag.location()) : false;
         }
 
         @Override
@@ -206,18 +198,20 @@ public final class Ingredient implements Predicate<ItemStack> {
 
             return var0;
         }
-
-        @Override
-        public JsonObject serialize() {
-            JsonObject var0 = new JsonObject();
-            var0.addProperty("tag", this.tag.location().toString());
-            return var0;
-        }
     }
 
     interface Value {
-        Collection<ItemStack> getItems();
+        Codec<Ingredient.Value> CODEC = ExtraCodecs.xor(Ingredient.ItemValue.CODEC, Ingredient.TagValue.CODEC)
+            .xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), param0 -> {
+                if (param0 instanceof Ingredient.TagValue var0) {
+                    return Either.right(var0);
+                } else if (param0 instanceof Ingredient.ItemValue var1) {
+                    return Either.left(var1);
+                } else {
+                    throw new UnsupportedOperationException("This is neither an item value nor a tag value.");
+                }
+            });
 
-        JsonObject serialize();
+        Collection<ItemStack> getItems();
     }
 }

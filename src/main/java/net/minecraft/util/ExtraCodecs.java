@@ -3,6 +3,8 @@ package net.minecraft.util;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.mojang.authlib.GameProfile;
@@ -21,7 +23,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 import com.mojang.serialization.Codec.ResultFunction;
+import com.mojang.serialization.DataResult.PartialResult;
 import com.mojang.serialization.MapCodec.MapCodecCodec;
+import com.mojang.serialization.codecs.BaseMapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
@@ -30,12 +34,14 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -122,7 +128,7 @@ public class ExtraCodecs {
             return DataResult.error(() -> "Invalid regex pattern '" + param0 + "': " + var2.getMessage());
         }
     }, Pattern::pattern);
-    public static final Codec<Instant> INSTANT_ISO8601 = instantCodec(DateTimeFormatter.ISO_INSTANT);
+    public static final Codec<Instant> INSTANT_ISO8601 = temporalCodec(DateTimeFormatter.ISO_INSTANT).xmap(Instant::from, Function.identity());
     public static final Codec<byte[]> BASE64_STRING = Codec.STRING.comapFlatMap(param0 -> {
         try {
             return DataResult.success(Base64.getDecoder().decode(param0));
@@ -324,6 +330,14 @@ public class ExtraCodecs {
         });
     }
 
+    public static <F, S> ExtraCodecs.EitherCodec<F, S> either(Codec<F> param0, Codec<S> param1) {
+        return new ExtraCodecs.EitherCodec<>(param0, param1);
+    }
+
+    public static <K, V> ExtraCodecs.StrictUnboundedMapCodec<K, V> strictUnboundedMap(Codec<K> param0, Codec<V> param1) {
+        return new ExtraCodecs.StrictUnboundedMapCodec<>(param0, param1);
+    }
+
     public static <T> Codec<T> validate(Codec<T> param0, Function<T, DataResult<T>> param1) {
         return param0 instanceof MapCodecCodec var0 ? validate(var0.codec(), param1).codec() : param0.flatXmap(param1, param1);
     }
@@ -440,10 +454,10 @@ public class ExtraCodecs {
         });
     }
 
-    public static Codec<Instant> instantCodec(DateTimeFormatter param0) {
+    public static Codec<TemporalAccessor> temporalCodec(DateTimeFormatter param0) {
         return Codec.STRING.comapFlatMap(param1 -> {
             try {
-                return DataResult.success(Instant.from(param0.parse(param1)));
+                return DataResult.success(param0.parse(param1));
             } catch (Exception var3) {
                 return DataResult.error(var3::getMessage);
             }
@@ -482,7 +496,7 @@ public class ExtraCodecs {
         return Codec.unboundedMap(param0, Codec.BOOL).xmap(Object2BooleanOpenHashMap::new, Object2ObjectOpenHashMap::new);
     }
 
-    static final class EitherCodec<F, S> implements Codec<Either<F, S>> {
+    public static final class EitherCodec<F, S> implements Codec<Either<F, S>> {
         private final Codec<F> first;
         private final Codec<S> second;
 
@@ -599,6 +613,59 @@ public class ExtraCodecs {
         }
     }
 
+    public static record StrictUnboundedMapCodec<K, V>(Codec<K> keyCodec, Codec<V> elementCodec) implements Codec<Map<K, V>>, BaseMapCodec<K, V> {
+        @Override
+        public <T> DataResult<Map<K, V>> decode(DynamicOps<T> param0, MapLike<T> param1) {
+            Builder<K, V> var0 = ImmutableMap.builder();
+
+            for(Pair<T, T> var1 : param1.entries().toList()) {
+                DataResult<K> var2 = this.keyCodec().parse(param0, var1.getFirst());
+                DataResult<V> var3 = this.elementCodec().parse(param0, var1.getSecond());
+                DataResult<Pair<K, V>> var4 = var2.apply2stable(Pair::of, var3);
+                if (var4.error().isPresent()) {
+                    return DataResult.error(() -> {
+                        PartialResult<Pair<K, V>> var0x = var4.error().get();
+                        String var1x;
+                        if (var2.result().isPresent()) {
+                            var1x = "Map entry '" + var2.result().get() + "' : " + var0x.message();
+                        } else {
+                            var1x = var0x.message();
+                        }
+
+                        return var1x;
+                    });
+                }
+
+                if (!var4.result().isPresent()) {
+                    return DataResult.error(() -> "Empty or invalid map contents are not allowed");
+                }
+
+                Pair<K, V> var5 = var4.result().get();
+                var0.put(var5.getFirst(), var5.getSecond());
+            }
+
+            Map<K, V> var6 = var0.build();
+            return DataResult.success(var6);
+        }
+
+        @Override
+        public <T> DataResult<Pair<Map<K, V>, T>> decode(DynamicOps<T> param0, T param1) {
+            return param0.getMap(param1)
+                .setLifecycle(Lifecycle.stable())
+                .flatMap(param1x -> this.decode(param0, param1x))
+                .map(param1x -> Pair.of(param1x, param1));
+        }
+
+        public <T> DataResult<T> encode(Map<K, V> param0, DynamicOps<T> param1, T param2) {
+            return this.encode(param0, param1, param1.mapBuilder()).build(param2);
+        }
+
+        @Override
+        public String toString() {
+            return "StrictUnboundedMapCodec[" + this.keyCodec + " -> " + this.elementCodec + "]";
+        }
+    }
+
     public static record TagOrElementLocation(ResourceLocation id, boolean tag) {
         @Override
         public String toString() {
@@ -610,15 +677,7 @@ public class ExtraCodecs {
         }
     }
 
-    static final class XorCodec<F, S> implements Codec<Either<F, S>> {
-        private final Codec<F> first;
-        private final Codec<S> second;
-
-        public XorCodec(Codec<F> param0, Codec<S> param1) {
-            this.first = param0;
-            this.second = param1;
-        }
-
+    static record XorCodec<F, S>(Codec<F> first, Codec<S> second) implements Codec<Either<F, S>> {
         @Override
         public <T> DataResult<Pair<Either<F, S>, T>> decode(DynamicOps<T> param0, T param1) {
             DataResult<Pair<Either<F, S>, T>> var0 = this.first.decode(param0, param1).map(param0x -> param0x.mapFirst(Either::left));
@@ -629,30 +688,15 @@ public class ExtraCodecs {
                 return DataResult.error(
                     () -> "Both alternatives read successfully, can not pick the correct one; first: " + var2.get() + " second: " + var3.get(), var2.get()
                 );
+            } else if (var2.isPresent()) {
+                return var0;
             } else {
-                return var2.isPresent() ? var0 : var1;
+                return var3.isPresent() ? var1 : var0.apply2((param0x, param1x) -> param1x, var1);
             }
         }
 
         public <T> DataResult<T> encode(Either<F, S> param0, DynamicOps<T> param1, T param2) {
             return param0.map(param2x -> this.first.encode(param2x, param1, param2), param2x -> this.second.encode(param2x, param1, param2));
-        }
-
-        @Override
-        public boolean equals(Object param0) {
-            if (this == param0) {
-                return true;
-            } else if (param0 != null && this.getClass() == param0.getClass()) {
-                ExtraCodecs.XorCodec<?, ?> var0 = (ExtraCodecs.XorCodec)param0;
-                return Objects.equals(this.first, var0.first) && Objects.equals(this.second, var0.second);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(this.first, this.second);
         }
 
         @Override

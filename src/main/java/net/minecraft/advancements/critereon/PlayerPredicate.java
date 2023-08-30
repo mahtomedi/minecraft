@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.CriterionProgress;
 import net.minecraft.core.Holder;
@@ -97,7 +97,7 @@ public record PlayerPredicate(
                     ServerAdvancementManager var7 = var0.getServer().getAdvancements();
 
                     for(java.util.Map.Entry<ResourceLocation, PlayerPredicate.AdvancementPredicate> var8 : this.advancements.entrySet()) {
-                        Advancement var9 = var7.getAdvancement(var8.getKey());
+                        AdvancementHolder var9 = var7.get(var8.getKey());
                         if (var9 == null || !var8.getValue().test(var6.getOrStartProgress(var9))) {
                             return false;
                         }
@@ -203,8 +203,8 @@ public record PlayerPredicate(
             return this;
         }
 
-        public PlayerPredicate.Builder setLookingAt(Optional<EntityPredicate> param0) {
-            this.lookingAt = param0;
+        public PlayerPredicate.Builder setLookingAt(EntityPredicate.Builder param0) {
+            this.lookingAt = Optional.of(param0.build());
             return this;
         }
 

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -30,12 +30,12 @@ public class AdvancementProvider implements DataProvider {
         return this.registries.thenCompose(param1 -> {
             Set<ResourceLocation> var0 = new HashSet<>();
             List<CompletableFuture<?>> var1x = new ArrayList();
-            Consumer<Advancement> var2 = param3 -> {
-                if (!var0.add(param3.getId())) {
-                    throw new IllegalStateException("Duplicate advancement " + param3.getId());
+            Consumer<AdvancementHolder> var2 = param3 -> {
+                if (!var0.add(param3.id())) {
+                    throw new IllegalStateException("Duplicate advancement " + param3.id());
                 } else {
-                    Path var0x = this.pathProvider.json(param3.getId());
-                    var1x.add(DataProvider.saveStable(param0, param3.deconstruct().serializeToJson(), var0x));
+                    Path var0x = this.pathProvider.json(param3.id());
+                    var1x.add(DataProvider.saveStable(param0, param3.value().serializeToJson(), var0x));
                 }
             };
 

@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.CommandSigningContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -499,8 +499,8 @@ public class ServerGamePacketListenerImpl
     public void handleSeenAdvancements(ServerboundSeenAdvancementsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.serverLevel());
         if (param0.getAction() == ServerboundSeenAdvancementsPacket.Action.OPENED_TAB) {
-            ResourceLocation var0 = param0.getTab();
-            Advancement var1 = this.server.getAdvancements().getAdvancement(var0);
+            ResourceLocation var0 = Objects.requireNonNull(param0.getTab());
+            AdvancementHolder var1 = this.server.getAdvancements().get(var0);
             if (var1 != null) {
                 this.player.getAdvancements().setSelectedTab(var1);
             }
@@ -1214,9 +1214,9 @@ public class ServerGamePacketListenerImpl
                     }
 
                     CompletableFuture<FilteredText> var3 = this.filterTextPacket(var2x.signedContent());
-                    CompletableFuture<Component> var4 = this.server.getChatDecorator().decorate(this.player, var2x.decoratedContent());
-                    this.chatMessageChain.append(param3 -> CompletableFuture.allOf(var3, var4).thenAcceptAsync(param3x -> {
-                            PlayerChatMessage var0x = var2x.withUnsignedContent(var4.join()).filter(var3.join().mask());
+                    Component var4 = this.server.getChatDecorator().decorate(this.player, var2x.decoratedContent());
+                    this.chatMessageChain.append(param3 -> var3.thenAcceptAsync(param2x -> {
+                            PlayerChatMessage var0x = var2x.withUnsignedContent(var4).filter(param2x.mask());
                             this.broadcastChatMessage(var0x);
                         }, param3));
                 });

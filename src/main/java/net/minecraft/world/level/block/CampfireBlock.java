@@ -21,6 +21,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -75,9 +76,9 @@ public class CampfireBlock extends BaseEntityBlock implements SimpleWaterloggedB
         BlockEntity var0 = param1.getBlockEntity(param2);
         if (var0 instanceof CampfireBlockEntity var1) {
             ItemStack var2 = param3.getItemInHand(param4);
-            Optional<CampfireCookingRecipe> var3 = var1.getCookableRecipe(var2);
+            Optional<RecipeHolder<CampfireCookingRecipe>> var3 = var1.getCookableRecipe(var2);
             if (var3.isPresent()) {
-                if (!param1.isClientSide && var1.placeFood(param3, param3.getAbilities().instabuild ? var2.copy() : var2, var3.get().getCookingTime())) {
+                if (!param1.isClientSide && var1.placeFood(param3, param3.getAbilities().instabuild ? var2.copy() : var2, var3.get().value().getCookingTime())) {
                     param3.awardStat(Stats.INTERACT_WITH_CAMPFIRE);
                     return InteractionResult.SUCCESS;
                 }

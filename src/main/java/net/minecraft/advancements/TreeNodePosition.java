@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class TreeNodePosition {
-    private final Advancement advancement;
+    private final AdvancementNode node;
     @Nullable
     private final TreeNodePosition parent;
     @Nullable
@@ -21,11 +21,11 @@ public class TreeNodePosition {
     private float change;
     private float shift;
 
-    public TreeNodePosition(Advancement param0, @Nullable TreeNodePosition param1, @Nullable TreeNodePosition param2, int param3, int param4) {
-        if (param0.getDisplay() == null) {
+    public TreeNodePosition(AdvancementNode param0, @Nullable TreeNodePosition param1, @Nullable TreeNodePosition param2, int param3, int param4) {
+        if (param0.advancement().display().isEmpty()) {
             throw new IllegalArgumentException("Can't position an invisible advancement!");
         } else {
-            this.advancement = param0;
+            this.node = param0;
             this.parent = param1;
             this.previousSibling = param2;
             this.childIndex = param3;
@@ -34,7 +34,7 @@ public class TreeNodePosition {
             this.y = -1.0F;
             TreeNodePosition var0 = null;
 
-            for(Advancement var1 : param0.getChildren()) {
+            for(AdvancementNode var1 : param0.children()) {
                 var0 = this.addChild(var1, var0);
             }
 
@@ -42,12 +42,12 @@ public class TreeNodePosition {
     }
 
     @Nullable
-    private TreeNodePosition addChild(Advancement param0, @Nullable TreeNodePosition param1) {
-        if (param0.getDisplay() != null) {
+    private TreeNodePosition addChild(AdvancementNode param0, @Nullable TreeNodePosition param1) {
+        if (param0.advancement().display().isPresent()) {
             param1 = new TreeNodePosition(param0, this, param1, this.children.size() + 1, this.x + 1);
             this.children.add(param1);
         } else {
-            for(Advancement var0 : param0.getChildren()) {
+            for(AdvancementNode var0 : param0.children()) {
                 param1 = this.addChild(var0, param1);
             }
         }
@@ -202,10 +202,7 @@ public class TreeNodePosition {
     }
 
     private void finalizePosition() {
-        if (this.advancement.getDisplay() != null) {
-            this.advancement.getDisplay().setLocation((float)this.x, this.y);
-        }
-
+        this.node.advancement().display().ifPresent(param0 -> param0.setLocation((float)this.x, this.y));
         if (!this.children.isEmpty()) {
             for(TreeNodePosition var0 : this.children) {
                 var0.finalizePosition();
@@ -214,8 +211,8 @@ public class TreeNodePosition {
 
     }
 
-    public static void run(Advancement param0) {
-        if (param0.getDisplay() == null) {
+    public static void run(AdvancementNode param0) {
+        if (param0.advancement().display().isEmpty()) {
             throw new IllegalArgumentException("Can't position children of an invisible root!");
         } else {
             TreeNodePosition var0 = new TreeNodePosition(param0, null, null, 1, 0);

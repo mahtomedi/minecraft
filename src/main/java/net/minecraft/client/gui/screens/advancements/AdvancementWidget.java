@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,7 @@ public class AdvancementWidget {
     private static final int TITLE_MAX_WIDTH = 163;
     private static final int[] TEST_SPLIT_OFFSETS = new int[]{0, 10, -10, 25, -25};
     private final AdvancementTab tab;
-    private final Advancement advancement;
+    private final AdvancementNode advancementNode;
     private final DisplayInfo display;
     private final FormattedCharSequence title;
     private final int width;
@@ -52,15 +52,15 @@ public class AdvancementWidget {
     private final int x;
     private final int y;
 
-    public AdvancementWidget(AdvancementTab param0, Minecraft param1, Advancement param2, DisplayInfo param3) {
+    public AdvancementWidget(AdvancementTab param0, Minecraft param1, AdvancementNode param2, DisplayInfo param3) {
         this.tab = param0;
-        this.advancement = param2;
+        this.advancementNode = param2;
         this.display = param3;
         this.minecraft = param1;
         this.title = Language.getInstance().getVisualOrder(param1.font.substrByWidth(param3.getTitle(), 163));
         this.x = Mth.floor(param3.getX() * 28.0F);
         this.y = Mth.floor(param3.getY() * 27.0F);
-        int var0 = param2.getMaxCriteraRequired();
+        int var0 = param2.advancement().requirements().size();
         int var1 = String.valueOf(var0).length();
         int var2 = var0 > 1 ? param1.font.width("  ") + param1.font.width("0") * var1 * 2 + param1.font.width("/") : 0;
         int var3 = 29 + param1.font.width(this.title) + var2;
@@ -102,12 +102,12 @@ public class AdvancementWidget {
     }
 
     @Nullable
-    private AdvancementWidget getFirstVisibleParent(Advancement param0) {
+    private AdvancementWidget getFirstVisibleParent(AdvancementNode param0) {
         do {
-            param0 = param0.getParent();
-        } while(param0 != null && param0.getDisplay() == null);
+            param0 = param0.parent();
+        } while(param0 != null && param0.advancement().display().isEmpty());
 
-        return param0 != null && param0.getDisplay() != null ? this.tab.getWidget(param0) : null;
+        return param0 != null && !param0.advancement().display().isEmpty() ? this.tab.getWidget(param0.holder()) : null;
     }
 
     public void drawConnectivity(GuiGraphics param0, int param1, int param2, boolean param3) {
@@ -263,8 +263,8 @@ public class AdvancementWidget {
     }
 
     public void attachToParent() {
-        if (this.parent == null && this.advancement.getParent() != null) {
-            this.parent = this.getFirstVisibleParent(this.advancement);
+        if (this.parent == null && this.advancementNode.parent() != null) {
+            this.parent = this.getFirstVisibleParent(this.advancementNode);
             if (this.parent != null) {
                 this.parent.addChild(this);
             }

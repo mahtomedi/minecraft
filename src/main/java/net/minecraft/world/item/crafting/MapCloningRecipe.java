@@ -1,15 +1,14 @@
 package net.minecraft.world.item.crafting;
 
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class MapCloningRecipe extends CustomRecipe {
-    public MapCloningRecipe(ResourceLocation param0, CraftingBookCategory param1) {
-        super(param0, param1);
+    public MapCloningRecipe(CraftingBookCategory param0) {
+        super(param0);
     }
 
     public boolean matches(CraftingContainer param0, Level param1) {

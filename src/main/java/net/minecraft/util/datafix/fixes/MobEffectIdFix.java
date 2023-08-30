@@ -166,6 +166,11 @@ public class MobEffectIdFix extends DataFix {
         });
     }
 
+    private TypeRewriteRule playerFixer() {
+        Type<?> var0 = this.getInputSchema().getType(References.PLAYER);
+        return this.fixTypeEverywhereTyped("PlayerMobEffectIdFix", var0, param0 -> param0.update(DSL.remainderFinder(), MobEffectIdFix::updateLivingEntityTag));
+    }
+
     private static <T> Dynamic<T> fixSuspiciousStewTag(Dynamic<T> param0) {
         Optional<Dynamic<T>> var0 = param0.get("Effects")
             .asStreamOpt()
@@ -206,6 +211,6 @@ public class MobEffectIdFix extends DataFix {
 
     @Override
     protected TypeRewriteRule makeRule() {
-        return TypeRewriteRule.seq(this.blockEntityFixer(), this.entityFixer(), this.itemStackFixer());
+        return TypeRewriteRule.seq(this.blockEntityFixer(), this.entityFixer(), this.playerFixer(), this.itemStackFixer());
     }
 }

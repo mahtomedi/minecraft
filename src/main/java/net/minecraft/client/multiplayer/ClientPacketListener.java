@@ -21,7 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.DebugQueryHandler;
 import net.minecraft.client.Minecraft;
@@ -307,7 +307,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     private static final Component UNSERURE_SERVER_TOAST = Component.translatable("multiplayer.unsecureserver.toast");
     private static final Component INVALID_PACKET = Component.translatable("multiplayer.disconnect.invalid_packet");
     private static final Component CHAT_VALIDATION_FAILED_ERROR = Component.translatable("multiplayer.disconnect.chat_validation_failed");
-    private static final Component RECONFIGURE_SCREEN_MESSAGE = Component.translatable("connect.reconfiging");
+    private static final Component RECONFIGURE_SCREEN_MESSAGE = Component.translatable("connect.reconfiguring");
     private static final int PENDING_OFFSET_THRESHOLD = 64;
     private final GameProfile localGameProfile;
     private ClientLevel level;
@@ -1393,7 +1393,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         if (var0 == null) {
             this.advancements.setSelectedTab(null, false);
         } else {
-            Advancement var1 = this.advancements.getAdvancements().get(var0);
+            AdvancementHolder var1 = this.advancements.get(var0);
             this.advancements.setSelectedTab(var1, false);
         }
 
@@ -1487,7 +1487,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
                     this.recipeManager.byKey(var5).ifPresent(param1 -> {
                         var0.add(param1);
                         var0.addHighlight(param1);
-                        if (param1.showNotification()) {
+                        if (param1.value().showNotification()) {
                             RecipeToast.addOrUpdate(this.minecraft.getToasts(), param1);
                         }
 

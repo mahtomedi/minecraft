@@ -3,7 +3,8 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonObject;
 import java.util.Collection;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -13,13 +14,6 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHookedTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("fishing_rod_hooked");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public FishingRodHookedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("rod"));
         Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "entity", param2);
@@ -40,16 +34,17 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         public TriggerInstance(
             Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, Optional<ContextAwarePredicate> param2, Optional<ItemPredicate> param3
         ) {
-            super(FishingRodHookedTrigger.ID, param0);
+            super(param0);
             this.rod = param1;
             this.entity = param2;
             this.item = param3;
         }
 
-        public static FishingRodHookedTrigger.TriggerInstance fishedItem(
+        public static Criterion<FishingRodHookedTrigger.TriggerInstance> fishedItem(
             Optional<ItemPredicate> param0, Optional<EntityPredicate> param1, Optional<ItemPredicate> param2
         ) {
-            return new FishingRodHookedTrigger.TriggerInstance(Optional.empty(), param0, EntityPredicate.wrap(param1), param2);
+            return CriteriaTriggers.FISHING_ROD_HOOKED
+                .createCriterion(new FishingRodHookedTrigger.TriggerInstance(Optional.empty(), param0, EntityPredicate.wrap(param1), param2));
         }
 
         public boolean matches(ItemStack param0, LootContext param1, Collection<ItemStack> param2) {

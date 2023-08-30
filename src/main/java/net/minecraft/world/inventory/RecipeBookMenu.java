@@ -5,13 +5,14 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public abstract class RecipeBookMenu<C extends Container> extends AbstractContainerMenu {
     public RecipeBookMenu(MenuType<?> param0, int param1) {
         super(param0, param1);
     }
 
-    public void handlePlacement(boolean param0, Recipe<?> param1, ServerPlayer param2) {
+    public void handlePlacement(boolean param0, RecipeHolder<?> param1, ServerPlayer param2) {
         new ServerPlaceRecipe<>(this).recipeClicked(param2, param1, param0);
     }
 
@@ -19,7 +20,7 @@ public abstract class RecipeBookMenu<C extends Container> extends AbstractContai
 
     public abstract void clearCraftingContent();
 
-    public abstract boolean recipeMatches(Recipe<? super C> var1);
+    public abstract boolean recipeMatches(RecipeHolder<? extends Recipe<C>> var1);
 
     public abstract int getResultSlotIndex();
 

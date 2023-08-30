@@ -1,29 +1,26 @@
 package net.minecraft.world.item.crafting;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.stream.Stream;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class SmithingTransformRecipe implements SmithingRecipe {
-    private final ResourceLocation id;
     final Ingredient template;
     final Ingredient base;
     final Ingredient addition;
     final ItemStack result;
 
-    public SmithingTransformRecipe(ResourceLocation param0, Ingredient param1, Ingredient param2, Ingredient param3, ItemStack param4) {
-        this.id = param0;
-        this.template = param1;
-        this.base = param2;
-        this.addition = param3;
-        this.result = param4;
+    public SmithingTransformRecipe(Ingredient param0, Ingredient param1, Ingredient param2, ItemStack param3) {
+        this.template = param0;
+        this.base = param1;
+        this.addition = param2;
+        this.result = param3;
     }
 
     @Override
@@ -63,11 +60,6 @@ public class SmithingTransformRecipe implements SmithingRecipe {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return RecipeSerializer.SMITHING_TRANSFORM;
     }
@@ -78,20 +70,27 @@ public class SmithingTransformRecipe implements SmithingRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<SmithingTransformRecipe> {
-        public SmithingTransformRecipe fromJson(ResourceLocation param0, JsonObject param1) {
-            Ingredient var0 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "template"));
-            Ingredient var1 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "base"));
-            Ingredient var2 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "addition"));
-            ItemStack var3 = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(param1, "result"));
-            return new SmithingTransformRecipe(param0, var0, var1, var2, var3);
+        private static final Codec<SmithingTransformRecipe> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Ingredient.CODEC.fieldOf("template").forGetter(param0x -> param0x.template),
+                        Ingredient.CODEC.fieldOf("base").forGetter(param0x -> param0x.base),
+                        Ingredient.CODEC.fieldOf("addition").forGetter(param0x -> param0x.addition),
+                        CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(param0x -> param0x.result)
+                    )
+                    .apply(param0, SmithingTransformRecipe::new)
+        );
+
+        @Override
+        public Codec<SmithingTransformRecipe> codec() {
+            return CODEC;
         }
 
-        public SmithingTransformRecipe fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-            Ingredient var0 = Ingredient.fromNetwork(param1);
-            Ingredient var1 = Ingredient.fromNetwork(param1);
-            Ingredient var2 = Ingredient.fromNetwork(param1);
-            ItemStack var3 = param1.readItem();
-            return new SmithingTransformRecipe(param0, var0, var1, var2, var3);
+        public SmithingTransformRecipe fromNetwork(FriendlyByteBuf param0) {
+            Ingredient var0 = Ingredient.fromNetwork(param0);
+            Ingredient var1 = Ingredient.fromNetwork(param0);
+            Ingredient var2 = Ingredient.fromNetwork(param0);
+            ItemStack var3 = param0.readItem();
+            return new SmithingTransformRecipe(var0, var1, var2, var3);
         }
 
         public void toNetwork(FriendlyByteBuf param0, SmithingTransformRecipe param1) {

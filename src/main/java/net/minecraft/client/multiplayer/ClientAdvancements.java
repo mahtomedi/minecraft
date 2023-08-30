@@ -1,13 +1,16 @@
 package net.minecraft.client.multiplayer;
 
-import com.google.common.collect.Maps;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import javax.annotation.Nullable;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementList;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.advancements.AdvancementTree;
+import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.AdvancementToast;
 import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
@@ -23,12 +26,12 @@ public class ClientAdvancements {
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Minecraft minecraft;
     private final WorldSessionTelemetryManager telemetryManager;
-    private final AdvancementList advancements = new AdvancementList();
-    private final Map<Advancement, AdvancementProgress> progress = Maps.newHashMap();
+    private final AdvancementTree tree = new AdvancementTree();
+    private final Map<AdvancementHolder, AdvancementProgress> progress = new Object2ObjectOpenHashMap<>();
     @Nullable
     private ClientAdvancements.Listener listener;
     @Nullable
-    private Advancement selectedTab;
+    private AdvancementHolder selectedTab;
 
     public ClientAdvancements(Minecraft param0, WorldSessionTelemetryManager param1) {
         this.minecraft = param0;
@@ -37,30 +40,31 @@ public class ClientAdvancements {
 
     public void update(ClientboundUpdateAdvancementsPacket param0) {
         if (param0.shouldReset()) {
-            this.advancements.clear();
+            this.tree.clear();
             this.progress.clear();
         }
 
-        this.advancements.remove(param0.getRemoved());
-        this.advancements.add(param0.getAdded());
+        this.tree.remove(param0.getRemoved());
+        this.tree.addAll(param0.getAdded());
 
         for(Entry<ResourceLocation, AdvancementProgress> var0 : param0.getProgress().entrySet()) {
-            Advancement var1 = this.advancements.get(var0.getKey());
+            AdvancementNode var1 = this.tree.get(var0.getKey());
             if (var1 != null) {
                 AdvancementProgress var2 = var0.getValue();
-                var2.update(var1.getCriteria(), var1.getRequirements());
-                this.progress.put(var1, var2);
+                var2.update(var1.advancement().requirements());
+                this.progress.put(var1.holder(), var2);
                 if (this.listener != null) {
                     this.listener.onUpdateAdvancementProgress(var1, var2);
                 }
 
                 if (!param0.shouldReset() && var2.isDone()) {
                     if (this.minecraft.level != null) {
-                        this.telemetryManager.onAdvancementDone(this.minecraft.level, var1);
+                        this.telemetryManager.onAdvancementDone(this.minecraft.level, var1.holder());
                     }
 
-                    if (var1.getDisplay() != null && var1.getDisplay().shouldShowToast()) {
-                        this.minecraft.getToasts().addToast(new AdvancementToast(var1));
+                    Optional<DisplayInfo> var3 = var1.advancement().display();
+                    if (var3.isPresent() && var3.get().shouldShowToast()) {
+                        this.minecraft.getToasts().addToast(new AdvancementToast(var1.holder()));
                     }
                 }
             } else {
@@ -70,11 +74,11 @@ public class ClientAdvancements {
 
     }
 
-    public AdvancementList getAdvancements() {
-        return this.advancements;
+    public AdvancementTree getTree() {
+        return this.tree;
     }
 
-    public void setSelectedTab(@Nullable Advancement param0, boolean param1) {
+    public void setSelectedTab(@Nullable AdvancementHolder param0, boolean param1) {
         ClientPacketListener var0 = this.minecraft.getConnection();
         if (var0 != null && param0 != null && param1) {
             var0.send(ServerboundSeenAdvancementsPacket.openedTab(param0));
@@ -91,21 +95,30 @@ public class ClientAdvancements {
 
     public void setListener(@Nullable ClientAdvancements.Listener param0) {
         this.listener = param0;
-        this.advancements.setListener(param0);
+        this.tree.setListener(param0);
         if (param0 != null) {
-            for(Entry<Advancement, AdvancementProgress> var0 : this.progress.entrySet()) {
-                param0.onUpdateAdvancementProgress(var0.getKey(), var0.getValue());
-            }
+            this.progress.forEach((param1, param2) -> {
+                AdvancementNode var0 = this.tree.get(param1);
+                if (var0 != null) {
+                    param0.onUpdateAdvancementProgress(var0, param2);
+                }
 
+            });
             param0.onSelectedTabChanged(this.selectedTab);
         }
 
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public interface Listener extends AdvancementList.Listener {
-        void onUpdateAdvancementProgress(Advancement var1, AdvancementProgress var2);
+    @Nullable
+    public AdvancementHolder get(ResourceLocation param0) {
+        AdvancementNode var0 = this.tree.get(param0);
+        return var0 != null ? var0.holder() : null;
+    }
 
-        void onSelectedTabChanged(@Nullable Advancement var1);
+    @OnlyIn(Dist.CLIENT)
+    public interface Listener extends AdvancementTree.Listener {
+        void onUpdateAdvancementProgress(AdvancementNode var1, AdvancementProgress var2);
+
+        void onSelectedTabChanged(@Nullable AdvancementHolder var1);
     }
 }

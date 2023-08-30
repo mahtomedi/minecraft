@@ -8,11 +8,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 public class ClientboundUpdateRecipesPacket implements Packet<ClientGamePacketListener> {
-    private final List<Recipe<?>> recipes;
+    private final List<RecipeHolder<?>> recipes;
 
-    public ClientboundUpdateRecipesPacket(Collection<Recipe<?>> param0) {
+    public ClientboundUpdateRecipesPacket(Collection<RecipeHolder<?>> param0) {
         this.recipes = Lists.newArrayList(param0);
     }
 
@@ -29,22 +30,23 @@ public class ClientboundUpdateRecipesPacket implements Packet<ClientGamePacketLi
         param0.handleUpdateRecipes(this);
     }
 
-    public List<Recipe<?>> getRecipes() {
+    public List<RecipeHolder<?>> getRecipes() {
         return this.recipes;
     }
 
-    public static Recipe<?> fromNetwork(FriendlyByteBuf param0x) {
+    private static RecipeHolder<?> fromNetwork(FriendlyByteBuf param0x) {
         ResourceLocation var0 = param0x.readResourceLocation();
         ResourceLocation var1 = param0x.readResourceLocation();
-        return BuiltInRegistries.RECIPE_SERIALIZER
+        Recipe<?> var2 = BuiltInRegistries.RECIPE_SERIALIZER
             .getOptional(var0)
             .orElseThrow(() -> new IllegalArgumentException("Unknown recipe serializer " + var0))
-            .fromNetwork(var1, param0x);
+            .fromNetwork(param0x);
+        return new RecipeHolder<>(var1, var2);
     }
 
-    public static <T extends Recipe<?>> void toNetwork(FriendlyByteBuf param0x, T param1) {
-        param0x.writeResourceLocation(BuiltInRegistries.RECIPE_SERIALIZER.getKey(param1.getSerializer()));
-        param0x.writeResourceLocation(param1.getId());
-        param1.getSerializer().toNetwork(param0x, param1);
+    public static <T extends Recipe<?>> void toNetwork(FriendlyByteBuf param0x, RecipeHolder<?> param1) {
+        param0x.writeResourceLocation(BuiltInRegistries.RECIPE_SERIALIZER.getKey(param1.value().getSerializer()));
+        param0x.writeResourceLocation(param1.id());
+        param1.value().getSerializer().toNetwork(param0x, param1.value());
     }
 }

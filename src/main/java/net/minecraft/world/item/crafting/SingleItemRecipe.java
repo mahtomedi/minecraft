@@ -1,13 +1,14 @@
 package net.minecraft.world.item.crafting;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.Container;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 public abstract class SingleItemRecipe implements Recipe<Container> {
@@ -15,16 +16,14 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
     protected final ItemStack result;
     private final RecipeType<?> type;
     private final RecipeSerializer<?> serializer;
-    protected final ResourceLocation id;
     protected final String group;
 
-    public SingleItemRecipe(RecipeType<?> param0, RecipeSerializer<?> param1, ResourceLocation param2, String param3, Ingredient param4, ItemStack param5) {
+    public SingleItemRecipe(RecipeType<?> param0, RecipeSerializer<?> param1, String param2, Ingredient param3, ItemStack param4) {
         this.type = param0;
         this.serializer = param1;
-        this.id = param2;
-        this.group = param3;
-        this.ingredient = param4;
-        this.result = param5;
+        this.group = param2;
+        this.ingredient = param3;
+        this.result = param4;
     }
 
     @Override
@@ -35,11 +34,6 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
     @Override
     public RecipeSerializer<?> getSerializer() {
         return this.serializer;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return this.id;
     }
 
     @Override
@@ -71,31 +65,31 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
 
     public static class Serializer<T extends SingleItemRecipe> implements RecipeSerializer<T> {
         final SingleItemRecipe.Serializer.SingleItemMaker<T> factory;
+        private final Codec<T> codec;
 
         protected Serializer(SingleItemRecipe.Serializer.SingleItemMaker<T> param0) {
             this.factory = param0;
+            this.codec = RecordCodecBuilder.create(
+                param1 -> param1.group(
+                            ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(param0x -> param0x.group),
+                            Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(param0x -> param0x.ingredient),
+                            BuiltInRegistries.ITEM.byNameCodec().fieldOf("result").forGetter(param0x -> param0x.result.getItem()),
+                            Codec.INT.fieldOf("count").forGetter(param0x -> param0x.result.getCount())
+                        )
+                        .apply(param1, param0::create)
+            );
         }
 
-        public T fromJson(ResourceLocation param0, JsonObject param1) {
-            String var0 = GsonHelper.getAsString(param1, "group", "");
-            Ingredient var1;
-            if (GsonHelper.isArrayNode(param1, "ingredient")) {
-                var1 = Ingredient.fromJson(GsonHelper.getAsJsonArray(param1, "ingredient"), false);
-            } else {
-                var1 = Ingredient.fromJson(GsonHelper.getAsJsonObject(param1, "ingredient"), false);
-            }
-
-            String var3 = GsonHelper.getAsString(param1, "result");
-            int var4 = GsonHelper.getAsInt(param1, "count");
-            ItemStack var5 = new ItemStack(BuiltInRegistries.ITEM.get(new ResourceLocation(var3)), var4);
-            return this.factory.create(param0, var0, var1, var5);
+        @Override
+        public Codec<T> codec() {
+            return this.codec;
         }
 
-        public T fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-            String var0 = param1.readUtf();
-            Ingredient var1 = Ingredient.fromNetwork(param1);
-            ItemStack var2 = param1.readItem();
-            return this.factory.create(param0, var0, var1, var2);
+        public T fromNetwork(FriendlyByteBuf param0) {
+            String var0 = param0.readUtf();
+            Ingredient var1 = Ingredient.fromNetwork(param0);
+            ItemStack var2 = param0.readItem();
+            return this.factory.create(var0, var1, var2.getItem(), var2.getCount());
         }
 
         public void toNetwork(FriendlyByteBuf param0, T param1) {
@@ -105,7 +99,7 @@ public abstract class SingleItemRecipe implements Recipe<Container> {
         }
 
         interface SingleItemMaker<T extends SingleItemRecipe> {
-            T create(ResourceLocation var1, String var2, Ingredient var3, ItemStack var4);
+            T create(String var1, Ingredient var2, Item var3, int var4);
         }
     }
 }

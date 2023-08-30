@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -31,11 +32,11 @@ public class SmeltItemFunction extends LootItemConditionalFunction {
         if (param0.isEmpty()) {
             return param0;
         } else {
-            Optional<SmeltingRecipe> var0 = param1.getLevel()
+            Optional<RecipeHolder<SmeltingRecipe>> var0 = param1.getLevel()
                 .getRecipeManager()
                 .getRecipeFor(RecipeType.SMELTING, new SimpleContainer(param0), param1.getLevel());
             if (var0.isPresent()) {
-                ItemStack var1 = var0.get().getResultItem(param1.getLevel().registryAccess());
+                ItemStack var1 = var0.get().value().getResultItem(param1.getLevel().registryAccess());
                 if (!var1.isEmpty()) {
                     return var1.copyWithCount(param0.getCount());
                 }

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class SwitchMinigameTask extends LongRunningTask {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Component TITLE = Component.translatable("mco.minigame.world.starting.screen.title");
     private final long worldId;
     private final WorldTemplate worldTemplate;
     private final RealmsConfigureWorldScreen lastScreen;
@@ -26,7 +27,6 @@ public class SwitchMinigameTask extends LongRunningTask {
     @Override
     public void run() {
         RealmsClient var0 = RealmsClient.create();
-        this.setTitle(Component.translatable("mco.minigame.world.starting.screen.title"));
 
         for(int var1 = 0; var1 < 25; ++var1) {
             try {
@@ -54,5 +54,10 @@ public class SwitchMinigameTask extends LongRunningTask {
             }
         }
 
+    }
+
+    @Override
+    public Component getTitle() {
+        return TITLE;
     }
 }

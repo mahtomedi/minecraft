@@ -8,20 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class KilledByCrossbowTrigger extends SimpleCriterionTrigger<KilledByCrossbowTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("killed_by_crossbow");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public KilledByCrossbowTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         List<ContextAwarePredicate> var0 = EntityPredicate.fromJsonArray(param0, "victims", param2);
         MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("unique_entity_types"));
@@ -45,17 +39,18 @@ public class KilledByCrossbowTrigger extends SimpleCriterionTrigger<KilledByCros
         private final MinMaxBounds.Ints uniqueEntityTypes;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, List<ContextAwarePredicate> param1, MinMaxBounds.Ints param2) {
-            super(KilledByCrossbowTrigger.ID, param0);
+            super(param0);
             this.victims = param1;
             this.uniqueEntityTypes = param2;
         }
 
-        public static KilledByCrossbowTrigger.TriggerInstance crossbowKilled(EntityPredicate.Builder... param0) {
-            return new KilledByCrossbowTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), MinMaxBounds.Ints.ANY);
+        public static Criterion<KilledByCrossbowTrigger.TriggerInstance> crossbowKilled(EntityPredicate.Builder... param0) {
+            return CriteriaTriggers.KILLED_BY_CROSSBOW
+                .createCriterion(new KilledByCrossbowTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), MinMaxBounds.Ints.ANY));
         }
 
-        public static KilledByCrossbowTrigger.TriggerInstance crossbowKilled(MinMaxBounds.Ints param0) {
-            return new KilledByCrossbowTrigger.TriggerInstance(Optional.empty(), List.of(), param0);
+        public static Criterion<KilledByCrossbowTrigger.TriggerInstance> crossbowKilled(MinMaxBounds.Ints param0) {
+            return CriteriaTriggers.KILLED_BY_CROSSBOW.createCriterion(new KilledByCrossbowTrigger.TriggerInstance(Optional.empty(), List.of(), param0));
         }
 
         public boolean matches(Collection<LootContext> param0, int param1) {

@@ -314,11 +314,8 @@ public class PresetFlatWorldScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double param0, double param1, int param2) {
-                if (param2 == 0) {
-                    this.select();
-                }
-
-                return false;
+                this.select();
+                return true;
             }
 
             void select() {

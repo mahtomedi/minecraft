@@ -3,27 +3,16 @@ package net.minecraft.advancements.critereon;
 import com.google.gson.JsonObject;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class KilledTrigger extends SimpleCriterionTrigger<KilledTrigger.TriggerInstance> {
-    final ResourceLocation id;
-
-    public KilledTrigger(ResourceLocation param0) {
-        this.id = param0;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
     public KilledTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         return new KilledTrigger.TriggerInstance(
-            this.id, param1, EntityPredicate.fromJson(param0, "entity", param2), DamageSourcePredicate.fromJson(param0.get("killing_blow"))
+            param1, EntityPredicate.fromJson(param0, "entity", param2), DamageSourcePredicate.fromJson(param0.get("killing_blow"))
         );
     }
 
@@ -36,72 +25,85 @@ public class KilledTrigger extends SimpleCriterionTrigger<KilledTrigger.TriggerI
         private final Optional<ContextAwarePredicate> entityPredicate;
         private final Optional<DamageSourcePredicate> killingBlow;
 
-        public TriggerInstance(
-            ResourceLocation param0, Optional<ContextAwarePredicate> param1, Optional<ContextAwarePredicate> param2, Optional<DamageSourcePredicate> param3
-        ) {
-            super(param0, param1);
-            this.entityPredicate = param2;
-            this.killingBlow = param3;
+        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1, Optional<DamageSourcePredicate> param2) {
+            super(param0);
+            this.entityPredicate = param1;
+            this.killingBlow = param2;
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(Optional<EntityPredicate> param0) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(Optional<EntityPredicate> param0) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(EntityPredicate.Builder param0) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity() {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), Optional.empty(), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity() {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(Optional<EntityPredicate> param0, Optional<DamageSourcePredicate> param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), param1);
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(Optional<EntityPredicate> param0, Optional<DamageSourcePredicate> param1) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), param1));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0, Optional<DamageSourcePredicate> param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), param1);
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(EntityPredicate.Builder param0, Optional<DamageSourcePredicate> param1) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), param1));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(Optional<EntityPredicate> param0, DamageSourcePredicate.Builder param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), param1.build());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(Optional<EntityPredicate> param0, DamageSourcePredicate.Builder param1) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), Optional.of(param1.build())));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntity(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.PLAYER_KILLED_ENTITY.id, Optional.empty(), EntityPredicate.wrap(param0), param1.build());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntity(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
+            return CriteriaTriggers.PLAYER_KILLED_ENTITY
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), Optional.of(param1.build())));
         }
 
-        public static KilledTrigger.TriggerInstance playerKilledEntityNearSculkCatalyst() {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST.id, Optional.empty(), Optional.empty(), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> playerKilledEntityNearSculkCatalyst() {
+            return CriteriaTriggers.KILL_MOB_NEAR_SCULK_CATALYST
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(Optional<EntityPredicate> param0) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(Optional<EntityPredicate> param0) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(EntityPredicate.Builder param0) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer() {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), Optional.empty(), Optional.empty());
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer() {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(Optional<EntityPredicate> param0, Optional<DamageSourcePredicate> param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), param1);
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(Optional<EntityPredicate> param0, Optional<DamageSourcePredicate> param1) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), param1));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0, Optional<DamageSourcePredicate> param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), param1);
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(EntityPredicate.Builder param0, Optional<DamageSourcePredicate> param1) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), param1));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(Optional<EntityPredicate> param0, DamageSourcePredicate.Builder param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), param1.build());
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(Optional<EntityPredicate> param0, DamageSourcePredicate.Builder param1) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), EntityPredicate.wrap(param0), Optional.of(param1.build())));
         }
 
-        public static KilledTrigger.TriggerInstance entityKilledPlayer(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
-            return new KilledTrigger.TriggerInstance(CriteriaTriggers.ENTITY_KILLED_PLAYER.id, Optional.empty(), EntityPredicate.wrap(param0), param1.build());
+        public static Criterion<KilledTrigger.TriggerInstance> entityKilledPlayer(EntityPredicate.Builder param0, DamageSourcePredicate.Builder param1) {
+            return CriteriaTriggers.ENTITY_KILLED_PLAYER
+                .createCriterion(new KilledTrigger.TriggerInstance(Optional.empty(), Optional.of(EntityPredicate.wrap(param0)), Optional.of(param1.build())));
         }
 
         public boolean matches(ServerPlayer param0, LootContext param1, DamageSource param2) {

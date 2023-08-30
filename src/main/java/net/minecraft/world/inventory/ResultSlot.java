@@ -49,7 +49,7 @@ public class ResultSlot extends Slot {
         }
 
         Container var3 = this.container;
-        if (var3 instanceof RecipeHolder var0) {
+        if (var3 instanceof RecipeCraftingHolder var0) {
             var0.awardUsedRecipes(this.player, this.craftSlots.getItems());
         }
 

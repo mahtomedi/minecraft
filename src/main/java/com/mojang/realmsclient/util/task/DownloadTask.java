@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class DownloadTask extends LongRunningTask {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Component TITLE = Component.translatable("mco.download.preparing");
     private final long worldId;
     private final int slot;
     private final Screen lastScreen;
@@ -30,7 +31,6 @@ public class DownloadTask extends LongRunningTask {
 
     @Override
     public void run() {
-        this.setTitle(Component.translatable("mco.download.preparing"));
         RealmsClient var0 = RealmsClient.create();
         int var1 = 0;
 
@@ -75,5 +75,10 @@ public class DownloadTask extends LongRunningTask {
             }
         }
 
+    }
+
+    @Override
+    public Component getTitle() {
+        return TITLE;
     }
 }

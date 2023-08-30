@@ -23,10 +23,6 @@ public record FluidPredicate(Optional<TagKey<Fluid>> tag, Optional<Holder<Fluid>
                 .apply(param0, FluidPredicate::new)
     );
 
-    static Optional<FluidPredicate> of(Optional<TagKey<Fluid>> param0, Optional<Holder<Fluid>> param1, Optional<StatePropertiesPredicate> param2) {
-        return param0.isEmpty() && param1.isEmpty() && param2.isEmpty() ? Optional.empty() : Optional.of(new FluidPredicate(param0, param1, param2));
-    }
-
     public boolean matches(ServerLevel param0, BlockPos param1) {
         if (!param0.isLoaded(param1)) {
             return false;
@@ -69,8 +65,8 @@ public record FluidPredicate(Optional<TagKey<Fluid>> tag, Optional<Holder<Fluid>
             return this;
         }
 
-        public Optional<FluidPredicate> build() {
-            return FluidPredicate.of(this.fluids, this.fluid, this.properties);
+        public FluidPredicate build() {
+            return new FluidPredicate(this.fluids, this.fluid, this.properties);
         }
     }
 }

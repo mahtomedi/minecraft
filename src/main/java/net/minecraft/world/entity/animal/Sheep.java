@@ -354,7 +354,7 @@ public class Sheep extends Animal implements Shearable {
         return this.level()
             .getRecipeManager()
             .getRecipeFor(RecipeType.CRAFTING, var2, this.level())
-            .map(param1x -> param1x.assemble(var2, this.level().registryAccess()))
+            .map(param1x -> param1x.value().assemble(var2, this.level().registryAccess()))
             .map(ItemStack::getItem)
             .filter(DyeItem.class::isInstance)
             .map(DyeItem.class::cast)

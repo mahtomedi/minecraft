@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -59,13 +60,14 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
         if (!param1.isClientSide) {
             ServerPlayer var0 = (ServerPlayer)param2;
             ItemStack var1 = ItemStack.EMPTY;
-            Optional<CraftingRecipe> var2 = param1.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, param3, param1);
+            Optional<RecipeHolder<CraftingRecipe>> var2 = param1.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, param3, param1);
             if (var2.isPresent()) {
-                CraftingRecipe var3 = var2.get();
+                RecipeHolder<CraftingRecipe> var3 = var2.get();
+                CraftingRecipe var4 = var3.value();
                 if (param4.setRecipeUsed(param1, var0, var3)) {
-                    ItemStack var4 = var3.assemble(param3, param1.registryAccess());
-                    if (var4.isItemEnabled(param1.enabledFeatures())) {
-                        var1 = var4;
+                    ItemStack var5 = var4.assemble(param3, param1.registryAccess());
+                    if (var5.isItemEnabled(param1.enabledFeatures())) {
+                        var1 = var5;
                     }
                 }
             }
@@ -93,8 +95,8 @@ public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
     }
 
     @Override
-    public boolean recipeMatches(Recipe<? super CraftingContainer> param0) {
-        return param0.matches(this.craftSlots, this.player.level());
+    public boolean recipeMatches(RecipeHolder<? extends Recipe<CraftingContainer>> param0) {
+        return param0.value().matches(this.craftSlots, this.player.level());
     }
 
     @Override

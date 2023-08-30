@@ -10,11 +10,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.loot.LootContext;
 
-public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerInstance> implements CriterionTrigger<T> {
+public abstract class SimpleCriterionTrigger<T extends SimpleCriterionTrigger.SimpleInstance> implements CriterionTrigger<T> {
     private final Map<PlayerAdvancements, Set<CriterionTrigger.Listener<T>>> players = Maps.newIdentityHashMap();
 
     @Override
@@ -54,9 +55,9 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
             List<CriterionTrigger.Listener<T>> var3 = null;
 
             for(CriterionTrigger.Listener<T> var4 : var1) {
-                T var5 = var4.getTriggerInstance();
+                T var5 = var4.trigger();
                 if (param1.test(var5)) {
-                    Optional<ContextAwarePredicate> var6 = var5.getPlayerPredicate();
+                    Optional<ContextAwarePredicate> var6 = var5.playerPredicate();
                     if (var6.isEmpty() || var6.get().matches(var2)) {
                         if (var3 == null) {
                             var3 = Lists.newArrayList();
@@ -74,5 +75,9 @@ public abstract class SimpleCriterionTrigger<T extends AbstractCriterionTriggerI
             }
 
         }
+    }
+
+    public interface SimpleInstance extends CriterionTriggerInstance {
+        Optional<ContextAwarePredicate> playerPredicate();
     }
 }

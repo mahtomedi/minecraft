@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -250,7 +249,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
 
     @Override
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
-        return AbstractContainerMenu.getRedstoneSignalFromContainer((Container)param1.getBlockEntity(param2));
+        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(param1.getBlockEntity(param2));
     }
 
     @Override

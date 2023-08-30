@@ -2,20 +2,14 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteractTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("player_interacted_with_entity");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     protected PlayerInteractTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
         Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "entity", param2);
@@ -32,18 +26,19 @@ public class PlayerInteractTrigger extends SimpleCriterionTrigger<PlayerInteract
         private final Optional<ContextAwarePredicate> entity;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, Optional<ContextAwarePredicate> param2) {
-            super(PlayerInteractTrigger.ID, param0);
+            super(param0);
             this.item = param1;
             this.entity = param2;
         }
 
-        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(
+        public static Criterion<PlayerInteractTrigger.TriggerInstance> itemUsedOnEntity(
             Optional<ContextAwarePredicate> param0, ItemPredicate.Builder param1, Optional<ContextAwarePredicate> param2
         ) {
-            return new PlayerInteractTrigger.TriggerInstance(param0, param1.build(), param2);
+            return CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY
+                .createCriterion(new PlayerInteractTrigger.TriggerInstance(param0, Optional.of(param1.build()), param2));
         }
 
-        public static PlayerInteractTrigger.TriggerInstance itemUsedOnEntity(ItemPredicate.Builder param0, Optional<ContextAwarePredicate> param1) {
+        public static Criterion<PlayerInteractTrigger.TriggerInstance> itemUsedOnEntity(ItemPredicate.Builder param0, Optional<ContextAwarePredicate> param1) {
             return itemUsedOnEntity(Optional.empty(), param0, param1);
         }
 

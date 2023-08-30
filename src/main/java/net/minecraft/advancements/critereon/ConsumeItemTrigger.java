@@ -2,19 +2,13 @@ package net.minecraft.advancements.critereon;
 
 import com.google.gson.JsonObject;
 import java.util.Optional;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 public class ConsumeItemTrigger extends SimpleCriterionTrigger<ConsumeItemTrigger.TriggerInstance> {
-    static final ResourceLocation ID = new ResourceLocation("consume_item");
-
-    @Override
-    public ResourceLocation getId() {
-        return ID;
-    }
-
     public ConsumeItemTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
         return new ConsumeItemTrigger.TriggerInstance(param1, ItemPredicate.fromJson(param0.get("item")));
     }
@@ -27,20 +21,20 @@ public class ConsumeItemTrigger extends SimpleCriterionTrigger<ConsumeItemTrigge
         private final Optional<ItemPredicate> item;
 
         public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1) {
-            super(ConsumeItemTrigger.ID, param0);
+            super(param0);
             this.item = param1;
         }
 
-        public static ConsumeItemTrigger.TriggerInstance usedItem() {
-            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.empty());
+        public static Criterion<ConsumeItemTrigger.TriggerInstance> usedItem() {
+            return CriteriaTriggers.CONSUME_ITEM.createCriterion(new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.empty()));
         }
 
-        public static ConsumeItemTrigger.TriggerInstance usedItem(ItemPredicate param0) {
-            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.of(param0));
+        public static Criterion<ConsumeItemTrigger.TriggerInstance> usedItem(ItemLike param0) {
+            return usedItem(ItemPredicate.Builder.item().of(param0.asItem()));
         }
 
-        public static ConsumeItemTrigger.TriggerInstance usedItem(ItemLike param0) {
-            return new ConsumeItemTrigger.TriggerInstance(Optional.empty(), ItemPredicate.Builder.item().of(param0.asItem()).build());
+        public static Criterion<ConsumeItemTrigger.TriggerInstance> usedItem(ItemPredicate.Builder param0) {
+            return CriteriaTriggers.CONSUME_ITEM.createCriterion(new ConsumeItemTrigger.TriggerInstance(Optional.empty(), Optional.of(param0.build())));
         }
 
         public boolean matches(ItemStack param0) {

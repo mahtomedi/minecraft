@@ -70,6 +70,7 @@ public class ChunkHolder {
     private final ChunkHolder.PlayerProvider playerProvider;
     private boolean wasAccessibleSinceLastSave;
     private CompletableFuture<Void> pendingFullStateConfirmation = CompletableFuture.completedFuture(null);
+    private CompletableFuture<?> sendSync = CompletableFuture.completedFuture(null);
 
     public ChunkHolder(
         ChunkPos param0,
@@ -117,6 +118,15 @@ public class ChunkHolder {
         CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> var0 = this.getTickingChunkFuture();
         Either<LevelChunk, ChunkHolder.ChunkLoadingFailure> var1 = var0.getNow(null);
         return var1 == null ? null : var1.left().orElse(null);
+    }
+
+    public CompletableFuture<?> getChunkSendSyncFuture() {
+        return this.sendSync;
+    }
+
+    @Nullable
+    public LevelChunk getChunkToSend() {
+        return !this.sendSync.isDone() ? null : this.getTickingChunk();
     }
 
     @Nullable
@@ -303,6 +313,15 @@ public class ChunkHolder {
         }
 
         this.chunkToSave = this.chunkToSave.thenCombine(param0, (param0x, param1x) -> param1x.map(param0xx -> param0xx, param1xx -> param0x));
+    }
+
+    public void addSendDependency(CompletableFuture<?> param0) {
+        if (this.sendSync.isDone()) {
+            this.sendSync = param0;
+        } else {
+            this.sendSync = this.sendSync.thenCombine(param0, (param0x, param1) -> null);
+        }
+
     }
 
     public FullChunkStatus getFullStatus() {

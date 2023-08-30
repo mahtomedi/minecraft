@@ -1,14 +1,13 @@
 package net.minecraft.world.item.crafting;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,16 +19,14 @@ import net.minecraft.world.item.armortrim.TrimPatterns;
 import net.minecraft.world.level.Level;
 
 public class SmithingTrimRecipe implements SmithingRecipe {
-    private final ResourceLocation id;
     final Ingredient template;
     final Ingredient base;
     final Ingredient addition;
 
-    public SmithingTrimRecipe(ResourceLocation param0, Ingredient param1, Ingredient param2, Ingredient param3) {
-        this.id = param0;
-        this.template = param1;
-        this.base = param2;
-        this.addition = param3;
+    SmithingTrimRecipe(Ingredient param0, Ingredient param1, Ingredient param2) {
+        this.template = param0;
+        this.base = param1;
+        this.addition = param2;
     }
 
     @Override
@@ -92,11 +89,6 @@ public class SmithingTrimRecipe implements SmithingRecipe {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return this.id;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return RecipeSerializer.SMITHING_TRIM;
     }
@@ -107,18 +99,25 @@ public class SmithingTrimRecipe implements SmithingRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<SmithingTrimRecipe> {
-        public SmithingTrimRecipe fromJson(ResourceLocation param0, JsonObject param1) {
-            Ingredient var0 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "template"));
-            Ingredient var1 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "base"));
-            Ingredient var2 = Ingredient.fromJson(GsonHelper.getNonNull(param1, "addition"));
-            return new SmithingTrimRecipe(param0, var0, var1, var2);
+        private static final Codec<SmithingTrimRecipe> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        Ingredient.CODEC.fieldOf("template").forGetter(param0x -> param0x.template),
+                        Ingredient.CODEC.fieldOf("base").forGetter(param0x -> param0x.base),
+                        Ingredient.CODEC.fieldOf("addition").forGetter(param0x -> param0x.addition)
+                    )
+                    .apply(param0, SmithingTrimRecipe::new)
+        );
+
+        @Override
+        public Codec<SmithingTrimRecipe> codec() {
+            return CODEC;
         }
 
-        public SmithingTrimRecipe fromNetwork(ResourceLocation param0, FriendlyByteBuf param1) {
-            Ingredient var0 = Ingredient.fromNetwork(param1);
-            Ingredient var1 = Ingredient.fromNetwork(param1);
-            Ingredient var2 = Ingredient.fromNetwork(param1);
-            return new SmithingTrimRecipe(param0, var0, var1, var2);
+        public SmithingTrimRecipe fromNetwork(FriendlyByteBuf param0) {
+            Ingredient var0 = Ingredient.fromNetwork(param0);
+            Ingredient var1 = Ingredient.fromNetwork(param0);
+            Ingredient var2 = Ingredient.fromNetwork(param0);
+            return new SmithingTrimRecipe(var0, var1, var2);
         }
 
         public void toNetwork(FriendlyByteBuf param0, SmithingTrimRecipe param1) {

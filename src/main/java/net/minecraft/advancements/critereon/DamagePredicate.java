@@ -15,18 +15,6 @@ public record DamagePredicate(
     Optional<Boolean> blocked,
     Optional<DamageSourcePredicate> type
 ) {
-    static Optional<DamagePredicate> of(
-        MinMaxBounds.Doubles param0,
-        MinMaxBounds.Doubles param1,
-        Optional<EntityPredicate> param2,
-        Optional<Boolean> param3,
-        Optional<DamageSourcePredicate> param4
-    ) {
-        return param0.isAny() && param1.isAny() && param2.isEmpty() && param3.isEmpty() && param4.isEmpty()
-            ? Optional.empty()
-            : Optional.of(new DamagePredicate(param0, param1, param2, param3, param4));
-    }
-
     public boolean matches(ServerPlayer param0, DamageSource param1, float param2, float param3, boolean param4) {
         if (!this.dealtDamage.matches((double)param2)) {
             return false;
@@ -49,7 +37,9 @@ public record DamagePredicate(
             Optional<Boolean> var3 = var0.has("blocked") ? Optional.of(GsonHelper.getAsBoolean(var0, "blocked")) : Optional.empty();
             Optional<EntityPredicate> var4 = EntityPredicate.fromJson(var0.get("source_entity"));
             Optional<DamageSourcePredicate> var5 = DamageSourcePredicate.fromJson(var0.get("type"));
-            return of(var1, var2, var4, var3, var5);
+            return var1.isAny() && var2.isAny() && var4.isEmpty() && var3.isEmpty() && var5.isEmpty()
+                ? Optional.empty()
+                : Optional.of(new DamagePredicate(var1, var2, var4, var3, var5));
         } else {
             return Optional.empty();
         }
@@ -102,12 +92,12 @@ public record DamagePredicate(
         }
 
         public DamagePredicate.Builder type(DamageSourcePredicate.Builder param0) {
-            this.type = param0.build();
+            this.type = Optional.of(param0.build());
             return this;
         }
 
-        public Optional<DamagePredicate> build() {
-            return DamagePredicate.of(this.dealtDamage, this.takenDamage, this.sourceEntity, this.blocked, this.type);
+        public DamagePredicate build() {
+            return new DamagePredicate(this.dealtDamage, this.takenDamage, this.sourceEntity, this.blocked, this.type);
         }
     }
 }
