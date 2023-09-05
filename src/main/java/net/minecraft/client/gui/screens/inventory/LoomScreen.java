@@ -45,6 +45,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
     private static final ResourceLocation PATTERN_SELECTED_SPRITE = new ResourceLocation("container/loom/pattern_selected");
     private static final ResourceLocation PATTERN_HIGHLIGHTED_SPRITE = new ResourceLocation("container/loom/pattern_highlighted");
     private static final ResourceLocation PATTERN_SPRITE = new ResourceLocation("container/loom/pattern");
+    private static final ResourceLocation ERROR_SPRITE = new ResourceLocation("container/loom/error");
     private static final ResourceLocation BG_LOCATION = new ResourceLocation("textures/gui/container/loom.png");
     private static final int PATTERN_COLUMNS = 4;
     private static final int PATTERN_ROWS = 4;
@@ -96,6 +97,7 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
         Slot var2 = this.menu.getBannerSlot();
         Slot var3 = this.menu.getDyeSlot();
         Slot var4 = this.menu.getPatternSlot();
+        Slot var5 = this.menu.getResultSlot();
         if (!var2.hasItem()) {
             param0.blitSprite(BANNER_SLOT_SPRITE, var0 + var2.x, var1 + var2.y, 16, 16);
         }
@@ -108,16 +110,16 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             param0.blitSprite(PATTERN_SLOT_SPRITE, var0 + var4.x, var1 + var4.y, 16, 16);
         }
 
-        int var5 = (int)(41.0F * this.scrollOffs);
-        ResourceLocation var6 = this.displayPatterns ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
-        param0.blitSprite(var6, var0 + 119, var1 + 13 + var5, 12, 15);
+        int var6 = (int)(41.0F * this.scrollOffs);
+        ResourceLocation var7 = this.displayPatterns ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
+        param0.blitSprite(var7, var0 + 119, var1 + 13 + var6, 12, 15);
         Lighting.setupForFlatItems();
         if (this.resultBannerPatterns != null && !this.hasMaxPatterns) {
             param0.pose().pushPose();
             param0.pose().translate((float)(var0 + 139), (float)(var1 + 52), 0.0F);
             param0.pose().scale(24.0F, -24.0F, 1.0F);
             param0.pose().translate(0.5F, 0.5F, 0.5F);
-            float var7 = 0.6666667F;
+            float var8 = 0.6666667F;
             param0.pose().scale(0.6666667F, -0.6666667F, -0.6666667F);
             this.flag.xRot = 0.0F;
             this.flag.y = -32.0F;
@@ -126,36 +128,38 @@ public class LoomScreen extends AbstractContainerScreen<LoomMenu> {
             );
             param0.pose().popPose();
             param0.flush();
+        } else if (this.hasMaxPatterns) {
+            param0.blitSprite(ERROR_SPRITE, var0 + var5.x - 5, var1 + var5.y - 5, 26, 26);
         }
 
         if (this.displayPatterns) {
-            int var8 = var0 + 60;
-            int var9 = var1 + 13;
-            List<Holder<BannerPattern>> var10 = this.menu.getSelectablePatterns();
+            int var9 = var0 + 60;
+            int var10 = var1 + 13;
+            List<Holder<BannerPattern>> var11 = this.menu.getSelectablePatterns();
 
             label63:
-            for(int var11 = 0; var11 < 4; ++var11) {
-                for(int var12 = 0; var12 < 4; ++var12) {
-                    int var13 = var11 + this.startRow;
-                    int var14 = var13 * 4 + var12;
-                    if (var14 >= var10.size()) {
+            for(int var12 = 0; var12 < 4; ++var12) {
+                for(int var13 = 0; var13 < 4; ++var13) {
+                    int var14 = var12 + this.startRow;
+                    int var15 = var14 * 4 + var13;
+                    if (var15 >= var11.size()) {
                         break label63;
                     }
 
-                    int var15 = var8 + var12 * 14;
-                    int var16 = var9 + var11 * 14;
-                    boolean var17 = param2 >= var15 && param3 >= var16 && param2 < var15 + 14 && param3 < var16 + 14;
-                    ResourceLocation var18;
-                    if (var14 == this.menu.getSelectedBannerPatternIndex()) {
-                        var18 = PATTERN_SELECTED_SPRITE;
-                    } else if (var17) {
-                        var18 = PATTERN_HIGHLIGHTED_SPRITE;
+                    int var16 = var9 + var13 * 14;
+                    int var17 = var10 + var12 * 14;
+                    boolean var18 = param2 >= var16 && param3 >= var17 && param2 < var16 + 14 && param3 < var17 + 14;
+                    ResourceLocation var19;
+                    if (var15 == this.menu.getSelectedBannerPatternIndex()) {
+                        var19 = PATTERN_SELECTED_SPRITE;
+                    } else if (var18) {
+                        var19 = PATTERN_HIGHLIGHTED_SPRITE;
                     } else {
-                        var18 = PATTERN_SPRITE;
+                        var19 = PATTERN_SPRITE;
                     }
 
-                    param0.blitSprite(var18, var15, var16, 14, 14);
-                    this.renderPattern(param0, var10.get(var14), var15, var16);
+                    param0.blitSprite(var19, var16, var17, 14, 14);
+                    this.renderPattern(param0, var11.get(var15), var16, var17);
                 }
             }
         }

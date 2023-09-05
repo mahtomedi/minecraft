@@ -65,8 +65,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.ServerScoreboard;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -132,7 +134,7 @@ public abstract class PlayerList {
         this.playerIo = param2;
     }
 
-    public void placeNewPlayer(Connection param0, ServerPlayer param1, int param2) {
+    public void placeNewPlayer(Connection param0, ServerPlayer param1, CommonListenerCookie param2) {
         GameProfile var0 = param1.getGameProfile();
         GameProfileCache var1 = this.server.getProfileCache();
         String var3;
@@ -174,6 +176,7 @@ public abstract class PlayerList {
         GameRules var13 = var8.getGameRules();
         boolean var14 = var13.getBoolean(GameRules.RULE_DO_IMMEDIATE_RESPAWN);
         boolean var15 = var13.getBoolean(GameRules.RULE_REDUCEDDEBUGINFO);
+        boolean var16 = var13.getBoolean(GameRules.RULE_LIMITED_CRAFTING);
         var12.send(
             new ClientboundLoginPacket(
                 param1.getId(),
@@ -184,6 +187,7 @@ public abstract class PlayerList {
                 this.simulationDistance,
                 var15,
                 !var14,
+                var16,
                 param1.createCommonSpawnInfo(var8)
             )
         );
@@ -196,18 +200,18 @@ public abstract class PlayerList {
         param1.getRecipeBook().sendInitialRecipeBook(param1);
         this.updateEntireScoreboard(var8.getScoreboard(), param1);
         this.server.invalidateStatus();
-        MutableComponent var16;
+        MutableComponent var17;
         if (param1.getGameProfile().getName().equalsIgnoreCase(var3)) {
-            var16 = Component.translatable("multiplayer.player.joined", param1.getDisplayName());
+            var17 = Component.translatable("multiplayer.player.joined", param1.getDisplayName());
         } else {
-            var16 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
+            var17 = Component.translatable("multiplayer.player.joined.renamed", param1.getDisplayName(), var3);
         }
 
-        this.broadcastSystemMessage(var16.withStyle(ChatFormatting.YELLOW), false);
+        this.broadcastSystemMessage(var17.withStyle(ChatFormatting.YELLOW), false);
         var12.teleport(param1.getX(), param1.getY(), param1.getZ(), param1.getYRot(), param1.getXRot());
-        ServerStatus var18 = this.server.getStatus();
-        if (var18 != null) {
-            param1.sendServerStatus(var18);
+        ServerStatus var19 = this.server.getStatus();
+        if (var19 != null) {
+            param1.sendServerStatus(var19);
         }
 
         param1.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players));
@@ -218,27 +222,27 @@ public abstract class PlayerList {
         var8.addNewPlayer(param1);
         this.server.getCustomBossEvents().onPlayerConnect(param1);
 
-        for(MobEffectInstance var19 : param1.getActiveEffects()) {
-            var12.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var19));
+        for(MobEffectInstance var20 : param1.getActiveEffects()) {
+            var12.send(new ClientboundUpdateMobEffectPacket(param1.getId(), var20));
         }
 
         if (var5 != null && var5.contains("RootVehicle", 10)) {
-            CompoundTag var20 = var5.getCompound("RootVehicle");
-            Entity var21 = EntityType.loadEntityRecursive(var20.getCompound("Entity"), var8, param1x -> !var8.addWithUUID(param1x) ? null : param1x);
-            if (var21 != null) {
-                UUID var22;
-                if (var20.hasUUID("Attach")) {
-                    var22 = var20.getUUID("Attach");
+            CompoundTag var21 = var5.getCompound("RootVehicle");
+            Entity var22 = EntityType.loadEntityRecursive(var21.getCompound("Entity"), var8, param1x -> !var8.addWithUUID(param1x) ? null : param1x);
+            if (var22 != null) {
+                UUID var23;
+                if (var21.hasUUID("Attach")) {
+                    var23 = var21.getUUID("Attach");
                 } else {
-                    var22 = null;
+                    var23 = null;
                 }
 
-                if (var21.getUUID().equals(var22)) {
-                    param1.startRiding(var21, true);
+                if (var22.getUUID().equals(var23)) {
+                    param1.startRiding(var22, true);
                 } else {
-                    for(Entity var24 : var21.getIndirectPassengers()) {
-                        if (var24.getUUID().equals(var22)) {
-                            param1.startRiding(var24, true);
+                    for(Entity var25 : var22.getIndirectPassengers()) {
+                        if (var25.getUUID().equals(var23)) {
+                            param1.startRiding(var25, true);
                             break;
                         }
                     }
@@ -246,10 +250,10 @@ public abstract class PlayerList {
 
                 if (!param1.isPassenger()) {
                     LOGGER.warn("Couldn't reattach entity to player");
-                    var21.discard();
+                    var22.discard();
 
-                    for(Entity var25 : var21.getIndirectPassengers()) {
-                        var25.discard();
+                    for(Entity var26 : var22.getIndirectPassengers()) {
+                        var26.discard();
                     }
                 }
             }
@@ -400,8 +404,8 @@ public abstract class PlayerList {
         }
     }
 
-    public ServerPlayer getPlayerForLogin(GameProfile param0) {
-        return new ServerPlayer(this.server, this.server.overworld(), param0);
+    public ServerPlayer getPlayerForLogin(GameProfile param0, ClientInformation param1) {
+        return new ServerPlayer(this.server, this.server.overworld(), param0, param1);
     }
 
     public boolean disconnectAllPlayersWithProfile(GameProfile param0) {
@@ -441,7 +445,7 @@ public abstract class PlayerList {
         }
 
         ServerLevel var6 = var3 != null && var4.isPresent() ? var3 : this.server.overworld();
-        ServerPlayer var7 = new ServerPlayer(this.server, var6, param0.getGameProfile());
+        ServerPlayer var7 = new ServerPlayer(this.server, var6, param0.getGameProfile(), param0.clientInformation());
         var7.connection = param0.connection;
         var7.restoreFrom(param0, param1);
         var7.setId(param0.getId());

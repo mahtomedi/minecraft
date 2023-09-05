@@ -2015,6 +2015,26 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         this.setRot(param3, param4);
     }
 
+    public double lerpTargetX() {
+        return this.getX();
+    }
+
+    public double lerpTargetY() {
+        return this.getY();
+    }
+
+    public double lerpTargetZ() {
+        return this.getZ();
+    }
+
+    public float lerpTargetXRot() {
+        return this.getXRot();
+    }
+
+    public float lerpTargetYRot() {
+        return this.getYRot();
+    }
+
     public void lerpHeadTo(float param0, int param1) {
         this.setYHeadRot(param0);
     }

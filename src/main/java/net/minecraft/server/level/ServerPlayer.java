@@ -72,7 +72,6 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.protocol.game.CommonPlayerSpawnInfo;
-import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -182,7 +181,8 @@ public class ServerPlayer extends Player {
     private Vec3 levitationStartPos;
     private int levitationStartTime;
     private boolean disconnected;
-    private OptionalInt requestedViewDistance = OptionalInt.empty();
+    private int requestedViewDistance = 2;
+    private String language = "en_us";
     @Nullable
     private Vec3 startingToFallPosition;
     @Nullable
@@ -251,7 +251,7 @@ public class ServerPlayer extends Player {
     private int containerCounter;
     public boolean wonGame;
 
-    public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2) {
+    public ServerPlayer(MinecraftServer param0, ServerLevel param1, GameProfile param2, ClientInformation param3) {
         super(param1, param1.getSharedSpawnPos(), param1.getSharedSpawnAngle(), param2);
         this.textFilter = param0.createTextFilterForPlayer(this);
         this.gameMode = param0.createGameModeForPlayer(this);
@@ -260,6 +260,7 @@ public class ServerPlayer extends Player {
         this.advancements = param0.getPlayerList().getPlayerAdvancements(this);
         this.setMaxUpStep(1.0F);
         this.fudgeSpawnLocation(param1);
+        this.updateOptions(param3);
     }
 
     private void fudgeSpawnLocation(ServerLevel param0) {
@@ -1153,7 +1154,6 @@ public class ServerPlayer extends Player {
 
     public void restoreFrom(ServerPlayer param0, boolean param1) {
         this.wardenSpawnTracker = param0.wardenSpawnTracker;
-        this.textFilteringEnabled = param0.textFilteringEnabled;
         this.chatSession = param0.chatSession;
         this.gameMode.setGameModeForPlayer(param0.gameMode.getGameModeForPlayer(), param0.gameMode.getPreviousGameModeForPlayer());
         this.onUpdateAbilities();
@@ -1184,7 +1184,6 @@ public class ServerPlayer extends Player {
         this.seenCredits = param0.seenCredits;
         this.enteredNetherPosition = param0.enteredNetherPosition;
         this.chunkTrackingView = param0.chunkTrackingView;
-        this.requestedViewDistance = param0.requestedViewDistance;
         this.setShoulderEntityLeft(param0.getShoulderEntityLeft());
         this.setShoulderEntityRight(param0.getShoulderEntityRight());
         this.setLastDeathLocation(param0.getLastDeathLocation());
@@ -1345,14 +1344,23 @@ public class ServerPlayer extends Player {
         return var0 instanceof InetSocketAddress var1 ? InetAddresses.toAddrString(var1.getAddress()) : "<unknown>";
     }
 
-    public void updateOptions(ServerboundClientInformationPacket param0) {
-        this.requestedViewDistance = OptionalInt.of(param0.viewDistance());
+    public void updateOptions(ClientInformation param0) {
+        this.language = param0.language();
+        this.requestedViewDistance = param0.viewDistance();
         this.chatVisibility = param0.chatVisibility();
         this.canChatColor = param0.chatColors();
         this.textFilteringEnabled = param0.textFilteringEnabled();
         this.allowsListing = param0.allowsListing();
         this.getEntityData().set(DATA_PLAYER_MODE_CUSTOMISATION, (byte)param0.modelCustomisation());
-        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)(param0.mainHand() == HumanoidArm.LEFT ? 0 : 1));
+        this.getEntityData().set(DATA_PLAYER_MAIN_HAND, (byte)param0.mainHand().getId());
+    }
+
+    public ClientInformation clientInformation() {
+        int var0 = this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION);
+        HumanoidArm var1 = HumanoidArm.BY_ID.apply(this.getEntityData().get(DATA_PLAYER_MAIN_HAND));
+        return new ClientInformation(
+            this.language, this.requestedViewDistance, this.chatVisibility, this.canChatColor, var0, var1, this.textFilteringEnabled, this.allowsListing
+        );
     }
 
     public boolean canChatInColor() {
@@ -1371,7 +1379,7 @@ public class ServerPlayer extends Player {
         return this.chatVisibility == ChatVisiblity.FULL;
     }
 
-    public OptionalInt requestedViewDistance() {
+    public int requestedViewDistance() {
         return this.requestedViewDistance;
     }
 

@@ -82,13 +82,16 @@ public record Advancement(
         if (var3.isEmpty()) {
             throw new JsonSyntaxException("Advancement criteria cannot be empty");
         } else {
-            AdvancementRequirements var4 = AdvancementRequirements.fromJson(GsonHelper.getAsJsonArray(param0, "requirements", new JsonArray()), var3.keySet());
+            JsonArray var4 = GsonHelper.getAsJsonArray(param0, "requirements", new JsonArray());
+            AdvancementRequirements var5;
             if (var4.isEmpty()) {
-                var4 = AdvancementRequirements.allOf(var3.keySet());
+                var5 = AdvancementRequirements.allOf(var3.keySet());
+            } else {
+                var5 = AdvancementRequirements.fromJson(var4, var3.keySet());
             }
 
-            boolean var5 = GsonHelper.getAsBoolean(param0, "sends_telemetry_event", false);
-            return new Advancement(var0, var1, var2, var3, var4, var5);
+            boolean var7 = GsonHelper.getAsBoolean(param0, "sends_telemetry_event", false);
+            return new Advancement(var0, var1, var2, var3, var5, var7);
         }
     }
 

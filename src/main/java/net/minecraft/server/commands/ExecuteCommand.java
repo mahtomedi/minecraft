@@ -28,10 +28,8 @@ import java.util.function.IntFunction;
 import java.util.stream.Stream;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.FunctionInstantiationException;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -49,7 +47,6 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
-import net.minecraft.commands.arguments.item.FunctionArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -645,17 +642,6 @@ public class ExecuteCommand {
                             param0x -> checkCustomPredicate(param0x.getSource(), ResourceLocationArgument.getPredicate(param0x, "predicate"))
                         )
                     )
-            )
-            .then(
-                Commands.literal("function")
-                    .then(
-                        addConditional(
-                            param0,
-                            Commands.argument("function", FunctionArgument.functions()).suggests(FunctionCommand.SUGGEST_FUNCTION),
-                            param2,
-                            param0x -> checkFunction(param0x.getSource(), FunctionArgument.getFunctions(param0x, "function"))
-                        )
-                    )
             );
 
         for(DataCommands.DataProvider var0 : DataCommands.SOURCE_PROVIDERS) {
@@ -725,22 +711,6 @@ public class ExecuteCommand {
         Objective var1 = ObjectiveArgument.getObjective(param0, "targetObjective");
         Scoreboard var2 = param0.getSource().getServer().getScoreboard();
         return !var2.hasPlayerScore(var0, var1) ? false : param1.matches(var2.getOrCreatePlayerScore(var0, var1).getScore());
-    }
-
-    private static boolean checkFunction(CommandSourceStack param0, Collection<CommandFunction> param1) {
-        boolean var0 = false;
-
-        for(CommandFunction var1 : param1) {
-            try {
-                FunctionCommand.FunctionResult var2 = FunctionCommand.runFunction(param0, var1, null);
-                if (var2.isReturn() && var2.value() != 0) {
-                    var0 = true;
-                }
-            } catch (FunctionInstantiationException var6) {
-            }
-        }
-
-        return var0;
     }
 
     private static boolean checkCustomPredicate(CommandSourceStack param0, LootItemCondition param1) {

@@ -45,6 +45,7 @@ import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.util.profiling.jfr.JvmProfiler;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -141,9 +142,9 @@ public class Main {
         String var55 = var31.valueOf(var17);
         String var56 = var31.valueOf(var18);
         String var57 = parseArgument(var31, var4);
-        String var58 = parseArgument(var31, var5);
-        String var59 = parseArgument(var31, var6);
-        String var60 = parseArgument(var31, var7);
+        String var58 = unescapeJavaArgument(parseArgument(var31, var5));
+        String var59 = unescapeJavaArgument(parseArgument(var31, var6));
+        String var60 = unescapeJavaArgument(parseArgument(var31, var7));
         if (var31.has(var3)) {
             JvmProfiler.INSTANCE.start(Environment.CLIENT);
         }
@@ -244,6 +245,11 @@ public class Main {
             var66.destroy();
         }
 
+    }
+
+    @Nullable
+    private static String unescapeJavaArgument(@Nullable String param0) {
+        return param0 == null ? null : StringEscapeUtils.unescapeJava(param0);
     }
 
     private static Optional<String> emptyStringToEmptyOptional(String param0) {

@@ -236,11 +236,10 @@ public class ServerLoginPacketListenerImpl implements TickablePacketListener, Se
     @Override
     public void handleLoginAcknowledgement(ServerboundLoginAcknowledgedPacket param0) {
         Validate.validState(this.state == ServerLoginPacketListenerImpl.State.PROTOCOL_SWITCHING, "Unexpected login acknowledgement packet");
-        ServerConfigurationPacketListenerImpl var0 = new ServerConfigurationPacketListenerImpl(
-            this.server, this.connection, Objects.requireNonNull(this.authenticatedProfile)
-        );
-        this.connection.setListener(var0);
-        var0.startConfiguration();
+        CommonListenerCookie var0 = CommonListenerCookie.createInitial(Objects.requireNonNull(this.authenticatedProfile));
+        ServerConfigurationPacketListenerImpl var1 = new ServerConfigurationPacketListenerImpl(this.server, this.connection, var0);
+        this.connection.setListener(var1);
+        var1.startConfiguration();
         this.state = ServerLoginPacketListenerImpl.State.ACCEPTED;
     }
 

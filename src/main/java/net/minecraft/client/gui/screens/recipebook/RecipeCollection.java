@@ -64,9 +64,9 @@ public class RecipeCollection {
 
     }
 
-    public void canCraft(StackedContents param0, int param1, int param2, RecipeBook param3) {
+    public void canCraft(StackedContents param0, int param1, int param2, RecipeBook param3, boolean param4) {
         for(RecipeHolder<?> var0 : this.recipes) {
-            boolean var1 = var0.value().canCraftInDimensions(param1, param2) && param3.contains(var0);
+            boolean var1 = var0.value().canCraftInDimensions(param1, param2) && (!param4 || param3.contains(var0));
             if (var1) {
                 this.fitsDimensions.add(var0);
             } else {

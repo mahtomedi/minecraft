@@ -260,37 +260,41 @@ public class PlayerTabOverlay {
             if (var4 <= 3) {
                 float var5 = Mth.clamp((float)param5 / 20.0F, 0.0F, 1.0F);
                 int var6 = (int)((1.0F - var5) * 255.0F) << 16 | (int)(var5 * 255.0F) << 8;
-                String var7 = (float)param5 / 2.0F + "";
-                if (param2 - this.minecraft.font.width(var7 + "hp") >= param1) {
-                    var7 = var7 + "hp";
+                float var7 = (float)param5 / 2.0F;
+                Component var8 = Component.translatable("multiplayer.player.list.hp", var7);
+                Component var9;
+                if (param2 - this.minecraft.font.width(var8) >= param1) {
+                    var9 = var8;
+                } else {
+                    var9 = Component.literal(var7 + "");
                 }
 
-                param4.drawString(this.minecraft.font, var7, (param2 + param1 - this.minecraft.font.width(var7)) / 2, param0, var6);
+                param4.drawString(this.minecraft.font, var9, (param2 + param1 - this.minecraft.font.width(var9)) / 2, param0, var6);
             } else {
-                ResourceLocation var8 = var3 ? HEART_CONTAINER_BLINKING_SPRITE : HEART_CONTAINER_SPRITE;
+                ResourceLocation var11 = var3 ? HEART_CONTAINER_BLINKING_SPRITE : HEART_CONTAINER_SPRITE;
 
-                for(int var9 = var1; var9 < var2; ++var9) {
-                    param4.blitSprite(var8, param1 + var9 * var4, param0, 9, 9);
+                for(int var12 = var1; var12 < var2; ++var12) {
+                    param4.blitSprite(var11, param1 + var12 * var4, param0, 9, 9);
                 }
 
-                for(int var10 = 0; var10 < var1; ++var10) {
-                    param4.blitSprite(var8, param1 + var10 * var4, param0, 9, 9);
+                for(int var13 = 0; var13 < var1; ++var13) {
+                    param4.blitSprite(var11, param1 + var13 * var4, param0, 9, 9);
                     if (var3) {
-                        if (var10 * 2 + 1 < var0.displayedValue()) {
-                            param4.blitSprite(HEART_FULL_BLINKING_SPRITE, param1 + var10 * var4, param0, 9, 9);
+                        if (var13 * 2 + 1 < var0.displayedValue()) {
+                            param4.blitSprite(HEART_FULL_BLINKING_SPRITE, param1 + var13 * var4, param0, 9, 9);
                         }
 
-                        if (var10 * 2 + 1 == var0.displayedValue()) {
-                            param4.blitSprite(HEART_HALF_BLINKING_SPRITE, param1 + var10 * var4, param0, 9, 9);
+                        if (var13 * 2 + 1 == var0.displayedValue()) {
+                            param4.blitSprite(HEART_HALF_BLINKING_SPRITE, param1 + var13 * var4, param0, 9, 9);
                         }
                     }
 
-                    if (var10 * 2 + 1 < param5) {
-                        param4.blitSprite(var10 >= 10 ? HEART_ABSORBING_FULL_BLINKING_SPRITE : HEART_FULL_SPRITE, param1 + var10 * var4, param0, 9, 9);
+                    if (var13 * 2 + 1 < param5) {
+                        param4.blitSprite(var13 >= 10 ? HEART_ABSORBING_FULL_BLINKING_SPRITE : HEART_FULL_SPRITE, param1 + var13 * var4, param0, 9, 9);
                     }
 
-                    if (var10 * 2 + 1 == param5) {
-                        param4.blitSprite(var10 >= 10 ? HEART_ABSORBING_HALF_BLINKING_SPRITE : HEART_HALF_SPRITE, param1 + var10 * var4, param0, 9, 9);
+                    if (var13 * 2 + 1 == param5) {
+                        param4.blitSprite(var13 >= 10 ? HEART_ABSORBING_HALF_BLINKING_SPRITE : HEART_HALF_SPRITE, param1 + var13 * var4, param0, 9, 9);
                     }
                 }
 

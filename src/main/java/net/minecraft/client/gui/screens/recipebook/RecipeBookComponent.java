@@ -1,8 +1,7 @@
 package net.minecraft.client.gui.screens.recipebook;
 
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -23,7 +22,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.client.resources.language.LanguageManager;
-import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundRecipeBookChangeSettingsPacket;
 import net.minecraft.recipebook.PlaceRecipe;
@@ -35,6 +33,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.GameRules;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -190,23 +189,45 @@ public class RecipeBookComponent implements PlaceRecipe<Ingredient>, Renderable,
 
     private void updateCollections(boolean param0) {
         List<RecipeCollection> var0 = this.book.getCollection(this.selectedTab.getCategory());
-        var0.forEach(param0x -> param0x.canCraft(this.stackedContents, this.menu.getGridWidth(), this.menu.getGridHeight(), this.book));
-        List<RecipeCollection> var1 = Lists.newArrayList(var0);
-        var1.removeIf(param0x -> !param0x.hasKnownRecipes());
-        var1.removeIf(param0x -> !param0x.hasFitting());
-        String var2 = this.searchBox.getValue();
-        if (!var2.isEmpty()) {
-            ObjectSet<RecipeCollection> var3 = new ObjectLinkedOpenHashSet<>(
-                this.minecraft.getSearchTree(SearchRegistry.RECIPE_COLLECTIONS).search(var2.toLowerCase(Locale.ROOT))
+        boolean var1 = this.minecraft.level.getGameRules().getBoolean(GameRules.RULE_LIMITED_CRAFTING);
+        var0.forEach(param1 -> param1.canCraft(this.stackedContents, this.menu.getGridWidth(), this.menu.getGridHeight(), this.book, var1));
+        List<RecipeCollection> var2 = Lists.newArrayList(var0);
+        var2.removeIf(param0x -> !param0x.hasFitting());
+        String var3 = this.searchBox.getValue();
+        if (var3.isEmpty() || var1) {
+            var2.removeIf(param0x -> !param0x.hasKnownRecipes());
+        }
+
+        if (!var3.isEmpty()) {
+            var2.removeIf(
+                param1 -> param1.getRecipes()
+                        .stream()
+                        .noneMatch(
+                            param1x -> Arrays.stream(
+                                        param1x.value()
+                                            .getResultItem(this.minecraft.level.registryAccess())
+                                            .getHoverName()
+                                            .getString()
+                                            .toLowerCase(Locale.ROOT)
+                                            .split("\\W+")
+                                    )
+                                    .anyMatch(param1xx -> param1xx.startsWith(var3.toLowerCase(Locale.ROOT)))
+                        )
             );
-            var1.removeIf(param1 -> !var3.contains(param1));
+            var2.sort((param0x, param1) -> {
+                if (param0x.hasKnownRecipes() == param1.hasKnownRecipes()) {
+                    return 0;
+                } else {
+                    return param0x.hasKnownRecipes() ? -1 : 1;
+                }
+            });
         }
 
         if (this.book.isFiltering(this.menu)) {
-            var1.removeIf(param0x -> !param0x.hasCraftable());
+            var2.removeIf(param0x -> !param0x.hasCraftable());
         }
 
-        this.recipeBookPage.updateCollections(var1, param0);
+        this.recipeBookPage.updateCollections(var2, param0);
     }
 
     private void updateTabs() {

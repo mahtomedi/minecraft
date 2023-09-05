@@ -24,6 +24,7 @@ import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.flow.FlowControlHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.TimeoutException;
 import io.netty.util.AttributeKey;
@@ -438,7 +439,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
 
                 ChannelPipeline var0 = param0.pipeline().addLast("timeout", new ReadTimeoutHandler(30));
                 Connection.configureSerialization(var0, PacketFlow.CLIENTBOUND, param2.bandwidthDebugMonitor);
-                var0.addLast("packet_handler", param2);
+                param2.configurePacketHandler(var0);
             }
         }).channel(var0).connect(param0.getAddress(), param0.getPort());
     }
@@ -453,6 +454,10 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
             .addLast("encoder", new PacketEncoder(var2))
             .addLast("unbundler", new PacketBundleUnpacker(var2))
             .addLast("bundler", new PacketBundlePacker(var1));
+    }
+
+    public void configurePacketHandler(ChannelPipeline param0) {
+        param0.addLast(new FlowControlHandler()).addLast("packet_handler", this);
     }
 
     private static void configureInMemoryPacketValidation(ChannelPipeline param0, PacketFlow param1) {
@@ -474,7 +479,7 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
                 Connection.setInitialProtocolAttributes(param0);
                 ChannelPipeline var0 = param0.pipeline();
                 Connection.configureInMemoryPipeline(var0, PacketFlow.CLIENTBOUND);
-                var0.addLast("packet_handler", var0);
+                var0.configurePacketHandler(var0);
             }
         }).channel(LocalChannel.class).connect(param0).syncUninterruptibly();
         return var0;

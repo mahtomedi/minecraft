@@ -81,7 +81,7 @@ public class LoomMenu extends AbstractContainerMenu {
                 return param0.getItem() instanceof BannerPatternItem;
             }
         });
-        this.resultSlot = this.addSlot(new Slot(this.outputContainer, 0, 143, 58) {
+        this.resultSlot = this.addSlot(new Slot(this.outputContainer, 0, 143, 57) {
             @Override
             public boolean mayPlace(ItemStack param0) {
                 return false;

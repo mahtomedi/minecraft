@@ -100,9 +100,9 @@ public class DispenserBlock extends BaseEntityBlock {
         boolean var1 = param0.getValue(TRIGGERED);
         if (var0 && !var1) {
             param1.scheduleTick(param2, this, 4);
-            param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(true)), 4);
+            param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(true)), 2);
         } else if (!var0 && var1) {
-            param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(false)), 4);
+            param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(false)), 2);
         }
 
     }

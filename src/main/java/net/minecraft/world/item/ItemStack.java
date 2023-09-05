@@ -602,7 +602,7 @@ public final class ItemStack {
         if (!param1.isAdvanced() && !this.hasCustomHoverName() && this.is(Items.FILLED_MAP)) {
             Integer var2 = MapItem.getMapId(this);
             if (var2 != null) {
-                var0.add(Component.literal("#" + var2).withStyle(ChatFormatting.GRAY));
+                var0.add(MapItem.getTooltipForId(this));
             }
         }
 

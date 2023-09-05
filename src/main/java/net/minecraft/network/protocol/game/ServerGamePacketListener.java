@@ -19,8 +19,6 @@ public interface ServerGamePacketListener extends ServerCommonPacketListener, Se
 
     void handleClientCommand(ServerboundClientCommandPacket var1);
 
-    void handleClientInformation(ServerboundClientInformationPacket var1);
-
     void handleContainerButtonClick(ServerboundContainerButtonClickPacket var1);
 
     void handleContainerClick(ServerboundContainerClickPacket var1);

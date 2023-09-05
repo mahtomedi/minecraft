@@ -20,6 +20,7 @@ import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -233,7 +234,8 @@ public class GameTestHelper {
         forRemoval = true
     )
     public ServerPlayer makeMockServerPlayerInLevel() {
-        ServerPlayer var0 = new ServerPlayer(this.getLevel().getServer(), this.getLevel(), new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+        CommonListenerCookie var0 = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-mock-player"));
+        ServerPlayer var1 = new ServerPlayer(this.getLevel().getServer(), this.getLevel(), var0.gameProfile(), var0.clientInformation()) {
             @Override
             public boolean isSpectator() {
                 return false;
@@ -244,11 +246,11 @@ public class GameTestHelper {
                 return true;
             }
         };
-        Connection var1 = new Connection(PacketFlow.SERVERBOUND);
-        EmbeddedChannel var2 = new EmbeddedChannel(var1);
-        var2.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
-        this.getLevel().getServer().getPlayerList().placeNewPlayer(var1, var0, 0);
-        return var0;
+        Connection var2 = new Connection(PacketFlow.SERVERBOUND);
+        EmbeddedChannel var3 = new EmbeddedChannel(var2);
+        var3.attr(Connection.ATTRIBUTE_SERVERBOUND_PROTOCOL).set(ConnectionProtocol.PLAY.codec(PacketFlow.SERVERBOUND));
+        this.getLevel().getServer().getPlayerList().placeNewPlayer(var2, var1, var0);
+        return var1;
     }
 
     public void pullLever(int param0, int param1, int param2) {

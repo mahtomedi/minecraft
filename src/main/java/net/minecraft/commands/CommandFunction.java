@@ -16,7 +16,13 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
+import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.ShortTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerFunctionManager;
@@ -260,7 +266,7 @@ public class CommandFunction {
                         throw new FunctionInstantiationException(Component.translatable("commands.function.error.missing_argument", this.getId(), var1));
                     }
 
-                    var0.add(param0.get(var1).getAsString());
+                    var0.add(stringify(param0.get(var1)));
                 }
 
                 CommandFunction var2 = this.cache.getAndMoveToLast(var0);
@@ -278,6 +284,20 @@ public class CommandFunction {
 
                     return var3;
                 }
+            }
+        }
+
+        private static String stringify(Tag param0) {
+            if (param0 instanceof FloatTag var0) {
+                return String.valueOf(var0.getAsFloat());
+            } else if (param0 instanceof DoubleTag var1) {
+                return String.valueOf(var1.getAsDouble());
+            } else if (param0 instanceof ByteTag var2) {
+                return String.valueOf(var2.getAsByte());
+            } else if (param0 instanceof ShortTag var3) {
+                return String.valueOf(var3.getAsShort());
+            } else {
+                return param0 instanceof LongTag var4 ? String.valueOf(var4.getAsLong()) : param0.getAsString();
             }
         }
 

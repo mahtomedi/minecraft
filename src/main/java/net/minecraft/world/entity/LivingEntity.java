@@ -963,18 +963,18 @@ public abstract class LivingEntity extends Entity implements Attackable {
             return false;
         } else {
             MobEffectInstance var0 = this.activeEffects.get(param0.getEffect());
+            boolean var1 = false;
             if (var0 == null) {
                 this.activeEffects.put(param0.getEffect(), param0);
                 this.onEffectAdded(param0, param1);
-                param0.onEffectStarted(this);
-                return true;
+                var1 = true;
             } else if (var0.update(param0)) {
                 this.onEffectUpdated(var0, true, param1);
-                param0.onEffectStarted(this);
-                return true;
-            } else {
-                return false;
+                var1 = true;
             }
+
+            param0.onEffectStarted(this);
+            return var1;
         }
     }
 
@@ -2799,6 +2799,31 @@ public abstract class LivingEntity extends Entity implements Attackable {
         this.lerpYRot = (double)param3;
         this.lerpXRot = (double)param4;
         this.lerpSteps = param5;
+    }
+
+    @Override
+    public double lerpTargetX() {
+        return this.lerpX;
+    }
+
+    @Override
+    public double lerpTargetY() {
+        return this.lerpY;
+    }
+
+    @Override
+    public double lerpTargetZ() {
+        return this.lerpZ;
+    }
+
+    @Override
+    public float lerpTargetXRot() {
+        return (float)this.lerpXRot;
+    }
+
+    @Override
+    public float lerpTargetYRot() {
+        return (float)this.lerpYRot;
     }
 
     @Override

@@ -810,23 +810,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     )
             );
         this.searchRegistry.register(SearchRegistry.CREATIVE_TAGS, param0 -> new IdSearchTree<>(param0x -> param0x.getTags().map(TagKey::location), param0));
-        this.searchRegistry
-            .register(
-                SearchRegistry.RECIPE_COLLECTIONS,
-                param0 -> new FullTextSearchTree<>(
-                        param0x -> param0x.getRecipes()
-                                .stream()
-                                .flatMap(
-                                    param1 -> param1.value().getResultItem(param0x.registryAccess()).getTooltipLines(null, TooltipFlag.Default.NORMAL).stream()
-                                )
-                                .map(param0xx -> ChatFormatting.stripFormatting(param0xx.getString()).trim())
-                                .filter(param0xx -> !param0xx.isEmpty()),
-                        param0x -> param0x.getRecipes()
-                                .stream()
-                                .map(param1 -> BuiltInRegistries.ITEM.getKey(param1.value().getResultItem(param0x.registryAccess()).getItem())),
-                        param0
-                    )
-            );
         CreativeModeTabs.searchTab().setSearchTreeBuilder(param0 -> {
             this.populateSearchTree(SearchRegistry.CREATIVE_NAMES, param0);
             this.populateSearchTree(SearchRegistry.CREATIVE_TAGS, param0);

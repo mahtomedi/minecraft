@@ -40,6 +40,7 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
     static final ResourceLocation SORT_UP_SPRITE = new ResourceLocation("statistics/sort_up");
     static final ResourceLocation SORT_DOWN_SPRITE = new ResourceLocation("statistics/sort_down");
     private static final Component PENDING_TEXT = Component.translatable("multiplayer.downloadingStats");
+    static final Component NO_VALUE_DISPLAY = Component.translatable("stats.none");
     protected final Screen lastScreen;
     private StatsScreen.GeneralStatisticsList statsList;
     StatsScreen.ItemStatisticsList itemStatsList;
@@ -448,7 +449,9 @@ public class StatsScreen extends Screen implements StatsUpdateListener {
             }
 
             protected void renderStat(GuiGraphics param0, @Nullable Stat<?> param1, int param2, int param3, boolean param4) {
-                String var0 = param1 == null ? "-" : param1.format(StatsScreen.this.stats.getValue(param1));
+                Component var0 = (Component)(param1 == null
+                    ? StatsScreen.NO_VALUE_DISPLAY
+                    : Component.literal(param1.format(StatsScreen.this.stats.getValue(param1))));
                 param0.drawString(StatsScreen.this.font, var0, param2 - StatsScreen.this.font.width(var0), param3 + 5, param4 ? 16777215 : 9474192);
             }
 

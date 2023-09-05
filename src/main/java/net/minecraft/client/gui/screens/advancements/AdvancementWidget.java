@@ -174,7 +174,7 @@ public class AdvancementWidget {
 
     public void drawHover(GuiGraphics param0, int param1, int param2, float param3, int param4, int param5) {
         boolean var0 = param4 + param1 + this.x + this.width + 26 >= this.tab.getScreen().width;
-        String var1 = this.progress == null ? null : this.progress.getProgressText();
+        Component var1 = this.progress == null ? null : this.progress.getProgressText();
         int var2 = var1 == null ? 0 : this.minecraft.font.width(var1);
         boolean var3 = 113 - param2 - this.y - 26 <= 6 + this.description.size() * 9;
         float var4 = this.progress == null ? 0.0F : this.progress.getPercent();
