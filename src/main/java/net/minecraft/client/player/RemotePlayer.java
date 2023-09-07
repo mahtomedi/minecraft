@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -94,5 +95,11 @@ public class RemotePlayer extends AbstractClientPlayer {
     public void sendSystemMessage(Component param0) {
         Minecraft var0 = Minecraft.getInstance();
         var0.gui.getChat().addMessage(param0);
+    }
+
+    @Override
+    public void recreateFromPacket(ClientboundAddEntityPacket param0) {
+        super.recreateFromPacket(param0);
+        this.setOldPosAndRot();
     }
 }

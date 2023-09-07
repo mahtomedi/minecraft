@@ -57,6 +57,7 @@ import net.minecraft.client.resources.sounds.BeeSoundInstance;
 import net.minecraft.client.resources.sounds.GuardianAttackSoundInstance;
 import net.minecraft.client.resources.sounds.MinecartSoundInstance;
 import net.minecraft.client.resources.sounds.SnifferSoundInstance;
+import net.minecraft.client.searchtree.SearchRegistry;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ArgumentSignatures;
@@ -106,7 +107,6 @@ import net.minecraft.network.protocol.common.custom.WorldGenAttemptDebugPayload;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundAddExperienceOrbPacket;
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundAwardStatsPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
@@ -399,9 +399,8 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
 
         this.minecraft.debugRenderer.clear();
         this.minecraft.player.resetPos();
-        int var7 = param0.playerId();
-        this.minecraft.player.setId(var7);
-        this.level.addPlayer(var7, this.minecraft.player);
+        this.minecraft.player.setId(param0.playerId());
+        this.level.addEntity(this.minecraft.player);
         this.minecraft.player.input = new KeyboardInput(this.minecraft.options);
         this.minecraft.gameMode.adjustPlayer(this.minecraft.player);
         this.minecraft.cameraEntity = this.minecraft.player;
@@ -427,32 +426,46 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     @Override
     public void handleAddEntity(ClientboundAddEntityPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        EntityType<?> var0 = param0.getType();
-        Entity var1 = var0.create(this.level);
-        if (var1 != null) {
-            var1.recreateFromPacket(param0);
-            int var2 = param0.getId();
-            this.level.putNonPlayerEntity(var2, var1);
-            this.postAddEntitySoundInstance(var1);
+        Entity var0 = this.createEntityFromPacket(param0);
+        if (var0 != null) {
+            var0.recreateFromPacket(param0);
+            this.level.addEntity(var0);
+            this.postAddEntitySoundInstance(var0);
         } else {
-            LOGGER.warn("Skipping Entity with id {}", var0);
+            LOGGER.warn("Skipping Entity with id {}", param0.getType());
         }
 
     }
 
-    private void postAddEntitySoundInstance(Entity param0) {
-        if (param0 instanceof AbstractMinecart) {
-            this.minecraft.getSoundManager().play(new MinecartSoundInstance((AbstractMinecart)param0));
-        } else if (param0 instanceof Bee) {
-            boolean var0 = ((Bee)param0).isAngry();
-            BeeSoundInstance var1;
-            if (var0) {
-                var1 = new BeeAggressiveSoundInstance((Bee)param0);
+    @Nullable
+    private Entity createEntityFromPacket(ClientboundAddEntityPacket param0) {
+        EntityType<?> var0 = param0.getType();
+        if (var0 == EntityType.PLAYER) {
+            PlayerInfo var1 = this.getPlayerInfo(param0.getUUID());
+            if (var1 == null) {
+                LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", param0.getUUID());
+                return null;
             } else {
-                var1 = new BeeFlyingSoundInstance((Bee)param0);
+                return new RemotePlayer(this.level, var1.getProfile());
+            }
+        } else {
+            return var0.create(this.level);
+        }
+    }
+
+    private void postAddEntitySoundInstance(Entity param0) {
+        if (param0 instanceof AbstractMinecart var0) {
+            this.minecraft.getSoundManager().play(new MinecartSoundInstance(var0));
+        } else if (param0 instanceof Bee var1) {
+            boolean var2 = var1.isAngry();
+            BeeSoundInstance var3;
+            if (var2) {
+                var3 = new BeeAggressiveSoundInstance(var1);
+            } else {
+                var3 = new BeeFlyingSoundInstance(var1);
             }
 
-            this.minecraft.getSoundManager().queueTickingSound(var1);
+            this.minecraft.getSoundManager().queueTickingSound(var3);
         }
 
     }
@@ -468,7 +481,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         var3.setYRot(0.0F);
         var3.setXRot(0.0F);
         var3.setId(param0.getId());
-        this.level.putNonPlayerEntity(param0.getId(), var3);
+        this.level.addEntity(var3);
     }
 
     @Override
@@ -488,28 +501,6 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             var0.getEntityData().assignValues(param0.packedItems());
         }
 
-    }
-
-    @Override
-    public void handleAddPlayer(ClientboundAddPlayerPacket param0) {
-        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        PlayerInfo var0 = this.getPlayerInfo(param0.getPlayerId());
-        if (var0 == null) {
-            LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", param0.getPlayerId());
-        } else {
-            double var1 = param0.getX();
-            double var2 = param0.getY();
-            double var3 = param0.getZ();
-            float var4 = (float)(param0.getyRot() * 360) / 256.0F;
-            float var5 = (float)(param0.getxRot() * 360) / 256.0F;
-            int var6 = param0.getEntityId();
-            RemotePlayer var7 = new RemotePlayer(this.minecraft.level, var0.getProfile());
-            var7.setId(var6);
-            var7.syncPacketPositionCodec(var1, var2, var3);
-            var7.absMoveTo(var1, var2, var3, var4, var5);
-            var7.setOldPosAndRot();
-            this.level.addPlayer(var6, var7);
-        }
     }
 
     @Override
@@ -1059,28 +1050,27 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         ResourceKey<Level> var1 = var0.dimension();
         Holder<DimensionType> var2 = this.registryAccess.<DimensionType>registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(var0.dimensionType());
         LocalPlayer var3 = this.minecraft.player;
-        int var4 = var3.getId();
         if (var1 != var3.level().dimension()) {
-            Scoreboard var5 = this.level.getScoreboard();
-            Map<String, MapItemSavedData> var6 = this.level.getAllMapData();
-            boolean var7 = var0.isDebug();
-            boolean var8 = var0.isFlat();
-            ClientLevel.ClientLevelData var9 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var8);
-            this.levelData = var9;
+            Scoreboard var4 = this.level.getScoreboard();
+            Map<String, MapItemSavedData> var5 = this.level.getAllMapData();
+            boolean var6 = var0.isDebug();
+            boolean var7 = var0.isFlat();
+            ClientLevel.ClientLevelData var8 = new ClientLevel.ClientLevelData(this.levelData.getDifficulty(), this.levelData.isHardcore(), var7);
+            this.levelData = var8;
             this.level = new ClientLevel(
                 this,
-                var9,
+                var8,
                 var1,
                 var2,
                 this.serverChunkRadius,
                 this.serverSimulationDistance,
                 this.minecraft::getProfiler,
                 this.minecraft.levelRenderer,
-                var7,
+                var6,
                 var0.seed()
             );
-            this.level.setScoreboard(var5);
-            this.level.addMapData(var6);
+            this.level.setScoreboard(var4);
+            this.level.addMapData(var5);
             this.minecraft.setLevel(this.level);
             this.minecraft.setScreen(new ReceivingLevelScreen());
         }
@@ -1090,42 +1080,42 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             var3.closeContainer();
         }
 
-        LocalPlayer var10;
+        LocalPlayer var9;
         if (param0.shouldKeep((byte)2)) {
-            var10 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook(), var3.isShiftKeyDown(), var3.isSprinting());
+            var9 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook(), var3.isShiftKeyDown(), var3.isSprinting());
         } else {
-            var10 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook());
+            var9 = this.minecraft.gameMode.createPlayer(this.level, var3.getStats(), var3.getRecipeBook());
         }
 
-        var10.setId(var4);
-        this.minecraft.player = var10;
+        var9.setId(var3.getId());
+        this.minecraft.player = var9;
         if (var1 != var3.level().dimension()) {
             this.minecraft.getMusicManager().stopPlaying();
         }
 
-        this.minecraft.cameraEntity = var10;
+        this.minecraft.cameraEntity = var9;
         if (param0.shouldKeep((byte)2)) {
-            List<SynchedEntityData.DataValue<?>> var12 = var3.getEntityData().getNonDefaultValues();
-            if (var12 != null) {
-                var10.getEntityData().assignValues(var12);
+            List<SynchedEntityData.DataValue<?>> var11 = var3.getEntityData().getNonDefaultValues();
+            if (var11 != null) {
+                var9.getEntityData().assignValues(var11);
             }
         }
 
         if (param0.shouldKeep((byte)1)) {
-            var10.getAttributes().assignValues(var3.getAttributes());
+            var9.getAttributes().assignValues(var3.getAttributes());
         }
 
-        var10.resetPos();
-        this.level.addPlayer(var4, var10);
-        var10.setYRot(-180.0F);
-        var10.input = new KeyboardInput(this.minecraft.options);
-        this.minecraft.gameMode.adjustPlayer(var10);
-        var10.setReducedDebugInfo(var3.isReducedDebugInfo());
-        var10.setShowDeathScreen(var3.shouldShowDeathScreen());
-        var10.setLastDeathLocation(var0.lastDeathLocation());
-        var10.setPortalCooldown(var0.portalCooldown());
-        var10.spinningEffectIntensity = var3.spinningEffectIntensity;
-        var10.oSpinningEffectIntensity = var3.oSpinningEffectIntensity;
+        var9.resetPos();
+        this.level.addEntity(var9);
+        var9.setYRot(-180.0F);
+        var9.input = new KeyboardInput(this.minecraft.options);
+        this.minecraft.gameMode.adjustPlayer(var9);
+        var9.setReducedDebugInfo(var3.isReducedDebugInfo());
+        var9.setShowDeathScreen(var3.shouldShowDeathScreen());
+        var9.setLastDeathLocation(var0.lastDeathLocation());
+        var9.setPortalCooldown(var0.portalCooldown());
+        var9.spinningEffectIntensity = var3.spinningEffectIntensity;
+        var9.oSpinningEffectIntensity = var3.oSpinningEffectIntensity;
         if (this.minecraft.screen instanceof DeathScreen || this.minecraft.screen instanceof DeathScreen.TitleConfirmScreen) {
             this.minecraft.setScreen(null);
         }
@@ -1426,6 +1416,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         this.recipeManager.replaceRecipes(param0.getRecipes());
         ClientRecipeBook var0 = this.minecraft.player.getRecipeBook();
         var0.setupCollections(this.recipeManager.getRecipes(), this.minecraft.level.registryAccess());
+        this.minecraft.populateSearchTree(SearchRegistry.RECIPE_COLLECTIONS, var0.getCollections());
     }
 
     @Override

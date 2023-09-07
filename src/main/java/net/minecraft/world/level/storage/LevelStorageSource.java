@@ -41,7 +41,10 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.annotation.Nullable;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
 import net.minecraft.FileUtil;
+import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -189,27 +192,42 @@ public class LevelStorageSource {
                         boolean var0x;
                         try {
                             var2x = DirectoryLock.isLocked(var1.path());
-                        } catch (Exception var6) {
-                            LOGGER.warn("Failed to read {} lock", var1.path(), var6);
+                        } catch (Exception var14) {
+                            LOGGER.warn("Failed to read {} lock", var1.path(), var14);
                             return null;
                         }
         
                         try {
                             LevelSummary var3 = this.readLevelData(var1, this.levelSummaryReader(var1, var2x));
                             return var3 != null ? var3 : null;
-                        } catch (OutOfMemoryError var4x) {
+                        } catch (OutOfMemoryError var12) {
                             MemoryReserve.release();
                             System.gc();
-                            LOGGER.error(LogUtils.FATAL_MARKER, "Ran out of memory trying to read summary of {}", var1.directoryName());
-                            throw var4x;
-                        } catch (StackOverflowError var51) {
+                            String var5 = "Ran out of memory trying to read summary of world folder \"" + var1.directoryName() + "\"";
+                            LOGGER.error(LogUtils.FATAL_MARKER, var5);
+                            OutOfMemoryError var6 = new OutOfMemoryError("Ran out of memory reading level data");
+                            var6.initCause(var12);
+                            CrashReport var7 = CrashReport.forThrowable(var6, var5);
+                            CrashReportCategory var8 = var7.addCategory("World details");
+                            var8.setDetail("Folder Name", var1.directoryName());
+        
+                            try {
+                                long var9 = Files.size(var1.dataFile());
+                                var8.setDetail("level.dat size", var9);
+                            } catch (IOException var111) {
+                                var8.setDetailError("level.dat size", var111);
+                            }
+        
+                            throw new ReportedException(var7);
+                        } catch (StackOverflowError var13) {
                             LOGGER.error(
                                 LogUtils.FATAL_MARKER,
-                                "Ran out of stack trying to read summary of {}. Assuming corruption; attempting to restore from from level.dat_old.",
-                                var1.directoryName()
+                                "Ran out of stack trying to read summary of world folder \"{}\". Assuming corruption; attempting to restore from from {}.",
+                                var1.directoryName(),
+                                var1.oldDataFile()
                             );
                             Util.safeReplaceOrMoveFile(var1.dataFile(), var1.oldDataFile(), var1.corruptedDataFile(LocalDateTime.now()), true);
-                            throw var51;
+                            throw var13;
                         }
                     },
                     Util.backgroundExecutor()

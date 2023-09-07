@@ -9,9 +9,12 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -245,6 +248,7 @@ public class CommandFunction {
     }
 
     static class CommandMacro extends CommandFunction {
+        private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#");
         private final List<String> parameters;
         private static final int MAX_CACHE_ENTRIES = 8;
         private final Object2ObjectLinkedOpenHashMap<List<String>, CommandFunction> cache = new Object2ObjectLinkedOpenHashMap<>(8, 0.25F);
@@ -289,9 +293,9 @@ public class CommandFunction {
 
         private static String stringify(Tag param0) {
             if (param0 instanceof FloatTag var0) {
-                return String.valueOf(var0.getAsFloat());
+                return DECIMAL_FORMAT.format((double)var0.getAsFloat());
             } else if (param0 instanceof DoubleTag var1) {
-                return String.valueOf(var1.getAsDouble());
+                return DECIMAL_FORMAT.format(var1.getAsDouble());
             } else if (param0 instanceof ByteTag var2) {
                 return String.valueOf(var2.getAsByte());
             } else if (param0 instanceof ShortTag var3) {
@@ -337,6 +341,11 @@ public class CommandFunction {
 
             ResourceLocation var11 = this.getId();
             return new CommandFunction(new ResourceLocation(var11.getNamespace(), var11.getPath() + "/" + param0.hashCode()), var1);
+        }
+
+        static {
+            DECIMAL_FORMAT.setMaximumFractionDigits(15);
+            DECIMAL_FORMAT.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
         }
     }
 

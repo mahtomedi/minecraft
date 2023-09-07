@@ -15,7 +15,7 @@ public class CommonButtons {
     }
 
     public static SpriteIconButton accessibility(int param0, Button.OnPress param1, boolean param2) {
-        return SpriteIconButton.builder(Component.translatable("options.accessibility.title"), param1, param2)
+        return SpriteIconButton.builder(Component.translatable("options.accessibility"), param1, param2)
             .width(param0)
             .sprite(new ResourceLocation("icon/accessibility"), 15, 15)
             .build();

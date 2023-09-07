@@ -22,7 +22,7 @@ public class LanguageSelectScreen extends OptionsSubScreen {
     final LanguageManager languageManager;
 
     public LanguageSelectScreen(Screen param0, Options param1, LanguageManager param2) {
-        super(param0, param1, Component.translatable("options.language"));
+        super(param0, param1, Component.translatable("options.language.title"));
         this.languageManager = param2;
     }
 

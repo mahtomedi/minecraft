@@ -118,8 +118,11 @@ public abstract class StoredUserList<K, V extends StoredUserEntry<K>> {
     public void load() throws IOException {
         if (this.file.exists()) {
             try (BufferedReader var0 = Files.newReader(this.file, StandardCharsets.UTF_8)) {
-                JsonArray var1 = GSON.fromJson(var0, JsonArray.class);
                 this.map.clear();
+                JsonArray var1 = GSON.fromJson(var0, JsonArray.class);
+                if (var1 == null) {
+                    return;
+                }
 
                 for(JsonElement var2 : var1) {
                     JsonObject var3 = GsonHelper.convertToJsonObject(var2, "entry");

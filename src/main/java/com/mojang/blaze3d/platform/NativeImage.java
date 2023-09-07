@@ -62,6 +62,9 @@ public final class NativeImage implements AutoCloseable {
                 this.pixels = MemoryUtil.nmemAlloc(this.size);
             }
 
+            if (this.pixels == 0L) {
+                throw new IllegalStateException("Unable to allocate texture of size " + param1 + "x" + param2 + " (" + param0.components() + " channels)");
+            }
         } else {
             throw new IllegalArgumentException("Invalid texture size: " + param1 + "x" + param2);
         }
@@ -600,19 +603,20 @@ public final class NativeImage implements AutoCloseable {
 
     public void flipY() {
         this.checkAllocated();
+        int var0 = this.format.components();
+        int var1 = this.getWidth() * var0;
+        long var2 = MemoryUtil.nmemAlloc((long)var1);
 
-        try (MemoryStack var0 = MemoryStack.stackPush()) {
-            int var1 = this.format.components();
-            int var2 = this.getWidth() * var1;
-            long var3 = var0.nmalloc(var2);
-
-            for(int var4 = 0; var4 < this.getHeight() / 2; ++var4) {
-                int var5 = var4 * this.getWidth() * var1;
-                int var6 = (this.getHeight() - 1 - var4) * this.getWidth() * var1;
-                MemoryUtil.memCopy(this.pixels + (long)var5, var3, (long)var2);
-                MemoryUtil.memCopy(this.pixels + (long)var6, this.pixels + (long)var5, (long)var2);
-                MemoryUtil.memCopy(var3, this.pixels + (long)var6, (long)var2);
+        try {
+            for(int var3 = 0; var3 < this.getHeight() / 2; ++var3) {
+                int var4 = var3 * this.getWidth() * var0;
+                int var5 = (this.getHeight() - 1 - var3) * this.getWidth() * var0;
+                MemoryUtil.memCopy(this.pixels + (long)var4, var2, (long)var1);
+                MemoryUtil.memCopy(this.pixels + (long)var5, this.pixels + (long)var4, (long)var1);
+                MemoryUtil.memCopy(var2, this.pixels + (long)var5, (long)var1);
             }
+        } finally {
+            MemoryUtil.nmemFree(var2);
         }
 
     }

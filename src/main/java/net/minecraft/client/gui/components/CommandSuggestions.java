@@ -75,6 +75,7 @@ public class CommandSuggestions {
     private CommandSuggestions.SuggestionsList suggestions;
     private boolean allowSuggestions;
     boolean keepSuggestions;
+    private boolean allowHiding = true;
 
     public CommandSuggestions(
         Minecraft param0, Screen param1, EditBox param2, Font param3, boolean param4, boolean param5, int param6, int param7, boolean param8, int param9
@@ -100,14 +101,19 @@ public class CommandSuggestions {
 
     }
 
+    public void setAllowHiding(boolean param0) {
+        this.allowHiding = param0;
+    }
+
     public boolean keyPressed(int param0, int param1, int param2) {
-        if (this.suggestions != null && this.suggestions.keyPressed(param0, param1, param2)) {
+        boolean var0 = this.suggestions != null;
+        if (var0 && this.suggestions.keyPressed(param0, param1, param2)) {
             return true;
-        } else if (this.screen.getFocused() == this.input && param0 == 258) {
+        } else if (this.screen.getFocused() != this.input || param0 != 258 || this.allowHiding && !var0) {
+            return false;
+        } else {
             this.showSuggestions(true);
             return true;
-        } else {
-            return false;
         }
     }
 
@@ -135,6 +141,22 @@ public class CommandSuggestions {
             }
         }
 
+    }
+
+    public boolean isVisible() {
+        return this.suggestions != null;
+    }
+
+    public Component getUsageNarration() {
+        if (this.suggestions != null && this.suggestions.tabCycles) {
+            return this.allowHiding
+                ? Component.translatable("narration.suggestion.usage.cycle.hidable")
+                : Component.translatable("narration.suggestion.usage.cycle.fixed");
+        } else {
+            return this.allowHiding
+                ? Component.translatable("narration.suggestion.usage.fill.hidable")
+                : Component.translatable("narration.suggestion.usage.fill.fixed");
+        }
     }
 
     public void hide() {
@@ -379,7 +401,7 @@ public class CommandSuggestions {
         private int offset;
         private int current;
         private Vec2 lastMouse = Vec2.ZERO;
-        private boolean tabCycles;
+        boolean tabCycles;
         private int lastNarratedEntry;
 
         SuggestionsList(int param1, int param2, int param3, List<Suggestion> param4, boolean param5) {

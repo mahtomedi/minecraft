@@ -57,14 +57,12 @@ public class MultiLineEditBox extends AbstractScrollWidget {
 
     @Override
     public boolean mouseClicked(double param0, double param1, int param2) {
-        if (super.mouseClicked(param0, param1, param2)) {
-            return true;
-        } else if (this.withinContentAreaPoint(param0, param1) && param2 == 0) {
+        if (this.withinContentAreaPoint(param0, param1) && param2 == 0) {
             this.textField.setSelecting(Screen.hasShiftDown());
             this.seekCursorScreen(param0, param1);
             return true;
         } else {
-            return false;
+            return super.mouseClicked(param0, param1, param2);
         }
     }
 
