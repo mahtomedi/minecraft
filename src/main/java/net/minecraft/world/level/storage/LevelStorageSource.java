@@ -49,6 +49,7 @@ import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
@@ -98,6 +99,7 @@ public class LevelStorageSource {
     private static final String TAG_DATA = "Data";
     private static final PathMatcher NO_SYMLINKS_ALLOWED = param0 -> false;
     public static final String ALLOWED_SYMLINKS_CONFIG_NAME = "allowed_symlinks.txt";
+    private static final int SUMMARY_UNCOMPRESSED_NBT_QUOTA = 1073741824;
     private final Path baseDir;
     private final Path backupDir;
     final DataFixer fixerUpper;
@@ -186,53 +188,39 @@ public class LevelStorageSource {
         List<CompletableFuture<LevelSummary>> var0 = new ArrayList<>(param0.levels.size());
 
         for(LevelStorageSource.LevelDirectory var1 : param0.levels) {
-            var0.add(
-                CompletableFuture.supplyAsync(
-                    () -> {
-                        boolean var0x;
-                        try {
-                            var2x = DirectoryLock.isLocked(var1.path());
-                        } catch (Exception var14) {
-                            LOGGER.warn("Failed to read {} lock", var1.path(), var14);
-                            return null;
-                        }
-        
-                        try {
-                            LevelSummary var3 = this.readLevelData(var1, this.levelSummaryReader(var1, var2x));
-                            return var3 != null ? var3 : null;
-                        } catch (OutOfMemoryError var12) {
-                            MemoryReserve.release();
-                            System.gc();
-                            String var5 = "Ran out of memory trying to read summary of world folder \"" + var1.directoryName() + "\"";
-                            LOGGER.error(LogUtils.FATAL_MARKER, var5);
-                            OutOfMemoryError var6 = new OutOfMemoryError("Ran out of memory reading level data");
-                            var6.initCause(var12);
-                            CrashReport var7 = CrashReport.forThrowable(var6, var5);
-                            CrashReportCategory var8 = var7.addCategory("World details");
-                            var8.setDetail("Folder Name", var1.directoryName());
-        
-                            try {
-                                long var9 = Files.size(var1.dataFile());
-                                var8.setDetail("level.dat size", var9);
-                            } catch (IOException var111) {
-                                var8.setDetailError("level.dat size", var111);
-                            }
-        
-                            throw new ReportedException(var7);
-                        } catch (StackOverflowError var13) {
-                            LOGGER.error(
-                                LogUtils.FATAL_MARKER,
-                                "Ran out of stack trying to read summary of world folder \"{}\". Assuming corruption; attempting to restore from from {}.",
-                                var1.directoryName(),
-                                var1.oldDataFile()
-                            );
-                            Util.safeReplaceOrMoveFile(var1.dataFile(), var1.oldDataFile(), var1.corruptedDataFile(LocalDateTime.now()), true);
-                            throw var13;
-                        }
-                    },
-                    Util.backgroundExecutor()
-                )
-            );
+            var0.add(CompletableFuture.supplyAsync(() -> {
+                boolean var0x;
+                try {
+                    var2x = DirectoryLock.isLocked(var1.path());
+                } catch (Exception var13) {
+                    LOGGER.warn("Failed to read {} lock", var1.path(), var13);
+                    return null;
+                }
+
+                try {
+                    LevelSummary var4x = this.readLevelData(var1, this.levelSummaryReader(var1, var2x));
+                    return var4x != null ? var4x : null;
+                } catch (OutOfMemoryError var12) {
+                    MemoryReserve.release();
+                    System.gc();
+                    String var5 = "Ran out of memory trying to read summary of world folder \"" + var1.directoryName() + "\"";
+                    LOGGER.error(LogUtils.FATAL_MARKER, var5);
+                    OutOfMemoryError var6 = new OutOfMemoryError("Ran out of memory reading level data");
+                    var6.initCause(var12);
+                    CrashReport var7 = CrashReport.forThrowable(var6, var5);
+                    CrashReportCategory var8 = var7.addCategory("World details");
+                    var8.setDetail("Folder Name", var1.directoryName());
+
+                    try {
+                        long var9 = Files.size(var1.dataFile());
+                        var8.setDetail("level.dat size", var9);
+                    } catch (IOException var11) {
+                        var8.setDetailError("level.dat size", var11);
+                    }
+
+                    throw new ReportedException(var7);
+                }
+            }, Util.backgroundExecutor()));
         }
 
         return Util.sequenceFailFastAndCancel(var0).thenApply(param0x -> param0x.stream().filter(Objects::nonNull).sorted().toList());
@@ -354,7 +342,7 @@ public class LevelStorageSource {
     @Nullable
     private static Tag readLightweightData(Path param0) throws IOException {
         SkipFields var0 = new SkipFields(new FieldSelector("Data", CompoundTag.TYPE, "Player"), new FieldSelector("Data", CompoundTag.TYPE, "WorldGenSettings"));
-        NbtIo.parseCompressed(param0.toFile(), var0);
+        NbtIo.parseCompressed(param0.toFile(), var0, NbtAccounter.create(1073741824L));
         return var0.getResult();
     }
 

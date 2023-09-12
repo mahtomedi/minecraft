@@ -150,7 +150,7 @@ public abstract class AbstractMinecart extends Entity {
 
     @Override
     protected Vector3f getPassengerAttachmentPoint(Entity param0, EntityDimensions param1, float param2) {
-        return new Vector3f(0.0F, 0.0F, 0.0F);
+        return new Vector3f(0.0F, 0.25F, 0.0F);
     }
 
     @Override

@@ -319,9 +319,9 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void joinRealm(RealmsServer param0) {
         if (this.serverData.state == RealmsServer.State.OPEN) {
-            this.lastScreen.play(param0, new RealmsConfigureWorldScreen(this.lastScreen.newScreen(), this.serverId));
+            RealmsMainScreen.play(param0, new RealmsConfigureWorldScreen(this.lastScreen, this.serverId));
         } else {
-            this.openTheWorld(true, new RealmsConfigureWorldScreen(this.lastScreen.newScreen(), this.serverId));
+            this.openTheWorld(true, new RealmsConfigureWorldScreen(this.lastScreen, this.serverId));
         }
 
     }
@@ -484,8 +484,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     }
 
     public void openTheWorld(boolean param0, Screen param1) {
-        this.minecraft
-            .setScreen(new RealmsLongRunningMcoTaskScreen(param1, new OpenServerTask(this.serverData, this, this.lastScreen, param0, this.minecraft)));
+        this.minecraft.setScreen(new RealmsLongRunningMcoTaskScreen(param1, new OpenServerTask(this.serverData, this, param0, this.minecraft)));
     }
 
     public void closeTheWorld(Screen param0) {

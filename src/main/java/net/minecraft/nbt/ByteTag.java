@@ -7,14 +7,18 @@ import java.io.IOException;
 public class ByteTag extends NumericTag {
     private static final int SELF_SIZE_IN_BYTES = 9;
     public static final TagType<ByteTag> TYPE = new TagType.StaticSize<ByteTag>() {
-        public ByteTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBytes(9L);
-            return ByteTag.valueOf(param0.readByte());
+        public ByteTag load(DataInput param0, NbtAccounter param1) throws IOException {
+            return ByteTag.valueOf(readAccounted(param0, param1));
         }
 
         @Override
-        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
-            return param1.visit(param0.readByte());
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+            return param1.visit(readAccounted(param0, param2));
+        }
+
+        private static byte readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
+            param1.accountBytes(9L);
+            return param0.readByte();
         }
 
         @Override

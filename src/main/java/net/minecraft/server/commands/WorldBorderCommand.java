@@ -26,7 +26,7 @@ public class WorldBorderCommand {
         Component.translatable("commands.worldborder.set.failed.small")
     );
     private static final SimpleCommandExceptionType ERROR_TOO_BIG = new SimpleCommandExceptionType(
-        Component.translatable("commands.worldborder.set.failed.big", 5.9999968E7)
+        Component.translatable("commands.worldborder.set.failed.big", 5.999997E7F)
     );
     private static final SimpleCommandExceptionType ERROR_TOO_FAR_OUT = new SimpleCommandExceptionType(
         Component.translatable("commands.worldborder.set.failed.far", 2.9999984E7)
@@ -51,7 +51,7 @@ public class WorldBorderCommand {
                 .then(
                     Commands.literal("add")
                         .then(
-                            Commands.argument("distance", DoubleArgumentType.doubleArg(-5.9999968E7, 5.9999968E7))
+                            Commands.argument("distance", DoubleArgumentType.doubleArg(-5.999997E7F, 5.999997E7F))
                                 .executes(
                                     param0x -> setSize(
                                             param0x.getSource(),
@@ -76,7 +76,7 @@ public class WorldBorderCommand {
                 .then(
                     Commands.literal("set")
                         .then(
-                            Commands.argument("distance", DoubleArgumentType.doubleArg(-5.9999968E7, 5.9999968E7))
+                            Commands.argument("distance", DoubleArgumentType.doubleArg(-5.999997E7F, 5.999997E7F))
                                 .executes(param0x -> setSize(param0x.getSource(), DoubleArgumentType.getDouble(param0x, "distance"), 0L))
                                 .then(
                                     Commands.argument("time", IntegerArgumentType.integer(0))
@@ -210,7 +210,7 @@ public class WorldBorderCommand {
             throw ERROR_SAME_SIZE.create();
         } else if (param1 < 1.0) {
             throw ERROR_TOO_SMALL.create();
-        } else if (param1 > 5.9999968E7) {
+        } else if (param1 > 5.999997E7F) {
             throw ERROR_TOO_BIG.create();
         } else {
             if (param2 > 0L) {

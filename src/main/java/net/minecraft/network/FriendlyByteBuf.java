@@ -94,7 +94,7 @@ public class FriendlyByteBuf extends ByteBuf {
 
     @Deprecated
     public <T> T readWithCodecTrusted(DynamicOps<Tag> param0, Codec<T> param1) {
-        return this.readWithCodec(param0, param1, NbtAccounter.UNLIMITED);
+        return this.readWithCodec(param0, param1, NbtAccounter.unlimitedHeap());
     }
 
     @Deprecated
@@ -547,7 +547,7 @@ public class FriendlyByteBuf extends ByteBuf {
 
     @Nullable
     public CompoundTag readNbt() {
-        Tag var0 = this.readNbt(new NbtAccounter(2097152L));
+        Tag var0 = this.readNbt(NbtAccounter.create(2097152L));
         if (var0 != null && !(var0 instanceof CompoundTag)) {
             throw new DecoderException("Not a compound tag: " + var0);
         } else {

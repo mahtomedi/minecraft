@@ -99,7 +99,7 @@ public class ShowTradesToPlayer extends Behavior<Villager> {
     private void updateDisplayItems(Villager param0) {
         for(MerchantOffer var0 : param0.getOffers()) {
             if (!var0.isOutOfStock() && this.playerItemStackMatchesCostOfOffer(var0)) {
-                this.displayItems.add(var0.getResult());
+                this.displayItems.add(var0.assemble());
             }
         }
 

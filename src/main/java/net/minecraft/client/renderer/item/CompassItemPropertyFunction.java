@@ -48,7 +48,7 @@ public class CompassItemPropertyFunction implements ClampedItemPropertyFunction 
             this.wobbleRandom.update(param1, Math.random());
         }
 
-        double var0 = this.wobbleRandom.rotation + (double)((float)this.hash(param0) / 2.14748365E9F);
+        double var0 = this.wobbleRandom.rotation + (double)((float)this.hash(param0) / 2.1474836E9F);
         return Mth.positiveModulo((float)var0, 1.0F);
     }
 

@@ -36,7 +36,6 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final int DEFAULT_BUTTON_WIDTH = 80;
     private final Screen lastScreen;
-    private final RealmsMainScreen mainScreen;
     @Nullable
     private RealmsServer serverData;
     private final long serverId;
@@ -47,11 +46,10 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
     private final List<Integer> slotsThatHasBeenDownloaded = Lists.newArrayList();
     private int animTick;
 
-    public RealmsBrokenWorldScreen(Screen param0, RealmsMainScreen param1, long param2, boolean param3) {
-        super(param3 ? Component.translatable("mco.brokenworld.minigame.title") : Component.translatable("mco.brokenworld.title"));
+    public RealmsBrokenWorldScreen(Screen param0, long param1, boolean param2) {
+        super(param2 ? Component.translatable("mco.brokenworld.minigame.title") : Component.translatable("mco.brokenworld.title"));
         this.lastScreen = param0;
-        this.mainScreen = param1;
-        this.serverId = param2;
+        this.serverId = param1;
     }
 
     @Override
@@ -191,16 +189,12 @@ public class RealmsBrokenWorldScreen extends RealmsScreen {
                         this.minecraft
                             .execute(
                                 () -> this.minecraft
-                                        .setScreen(
-                                            new RealmsLongRunningMcoTaskScreen(
-                                                this, new OpenServerTask(this.serverData, this, this.mainScreen, true, this.minecraft)
-                                            )
-                                        )
+                                        .setScreen(new RealmsLongRunningMcoTaskScreen(this, new OpenServerTask(this.serverData, this, true, this.minecraft)))
                             );
                     } else {
                         try {
                             RealmsServer var1 = var0.getOwnWorld(this.serverId);
-                            this.minecraft.execute(() -> this.mainScreen.newScreen().play(var1, this));
+                            this.minecraft.execute(() -> RealmsMainScreen.play(var1, this));
                         } catch (RealmsServiceException var3) {
                             LOGGER.error("Couldn't get own world", (Throwable)var3);
                             this.minecraft.execute(() -> this.minecraft.setScreen(this.lastScreen));

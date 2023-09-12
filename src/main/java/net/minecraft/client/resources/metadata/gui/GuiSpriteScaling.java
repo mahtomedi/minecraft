@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.lang.runtime.ObjectMethods;
 import java.util.OptionalInt;
 import java.util.function.Function;
 import net.minecraft.util.ExtraCodecs;
@@ -84,27 +83,12 @@ public interface GuiSpriteScaling {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static final class Stretch extends Record implements GuiSpriteScaling {
+    public static record Stretch() implements GuiSpriteScaling {
         public static final Codec<GuiSpriteScaling.Stretch> CODEC = Codec.unit(GuiSpriteScaling.Stretch::new);
 
         @Override
         public GuiSpriteScaling.Type type() {
             return GuiSpriteScaling.Type.STRETCH;
-        }
-
-        @Override
-        public final String toString() {
-            return ObjectMethods.bootstrap<"toString",GuiSpriteScaling.Stretch,"">(this);
-        }
-
-        @Override
-        public final int hashCode() {
-            return ObjectMethods.bootstrap<"hashCode",GuiSpriteScaling.Stretch,"">(this);
-        }
-
-        @Override
-        public final boolean equals(Object param0) {
-            return ObjectMethods.bootstrap<"equals",GuiSpriteScaling.Stretch,"">(this, param0);
         }
     }
 

@@ -7,14 +7,18 @@ import java.io.IOException;
 public class ShortTag extends NumericTag {
     private static final int SELF_SIZE_IN_BYTES = 10;
     public static final TagType<ShortTag> TYPE = new TagType.StaticSize<ShortTag>() {
-        public ShortTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBytes(10L);
-            return ShortTag.valueOf(param0.readShort());
+        public ShortTag load(DataInput param0, NbtAccounter param1) throws IOException {
+            return ShortTag.valueOf(readAccounted(param0, param1));
         }
 
         @Override
-        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
-            return param1.visit(param0.readShort());
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+            return param1.visit(readAccounted(param0, param2));
+        }
+
+        private static short readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
+            param1.accountBytes(10L);
+            return param0.readShort();
         }
 
         @Override

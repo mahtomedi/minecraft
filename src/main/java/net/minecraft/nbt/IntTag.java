@@ -7,14 +7,18 @@ import java.io.IOException;
 public class IntTag extends NumericTag {
     private static final int SELF_SIZE_IN_BYTES = 12;
     public static final TagType<IntTag> TYPE = new TagType.StaticSize<IntTag>() {
-        public IntTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBytes(12L);
-            return IntTag.valueOf(param0.readInt());
+        public IntTag load(DataInput param0, NbtAccounter param1) throws IOException {
+            return IntTag.valueOf(readAccounted(param0, param1));
         }
 
         @Override
-        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
-            return param1.visit(param0.readInt());
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+            return param1.visit(readAccounted(param0, param2));
+        }
+
+        private static int readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
+            param1.accountBytes(12L);
+            return param0.readInt();
         }
 
         @Override

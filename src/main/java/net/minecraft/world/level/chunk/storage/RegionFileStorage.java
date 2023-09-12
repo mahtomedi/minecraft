@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import javax.annotation.Nullable;
 import net.minecraft.FileUtil;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.StreamTagVisitor;
 import net.minecraft.util.ExceptionCollector;
@@ -64,7 +65,7 @@ public final class RegionFileStorage implements AutoCloseable {
 
         try (DataInputStream var1 = var0.getChunkDataInputStream(param0)) {
             if (var1 != null) {
-                NbtIo.parse(var1, param1);
+                NbtIo.parse(var1, param1, NbtAccounter.unlimitedHeap());
             }
         }
 

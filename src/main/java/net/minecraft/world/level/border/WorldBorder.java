@@ -15,7 +15,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class WorldBorder {
-    public static final double MAX_SIZE = 5.9999968E7;
+    public static final double MAX_SIZE = 5.999997E7F;
     public static final double MAX_CENTER_COORDINATE = 2.9999984E7;
     private final List<BorderChangeListener> listeners = Lists.newArrayList();
     private double damagePerBlock = 0.2;
@@ -25,8 +25,8 @@ public class WorldBorder {
     private double centerX;
     private double centerZ;
     int absoluteMaxSize = 29999984;
-    private WorldBorder.BorderExtent extent = new WorldBorder.StaticBorderExtent(5.9999968E7);
-    public static final WorldBorder.Settings DEFAULT_SETTINGS = new WorldBorder.Settings(0.0, 0.0, 0.2, 5.0, 5, 15, 5.9999968E7, 0L, 0.0);
+    private WorldBorder.BorderExtent extent = new WorldBorder.StaticBorderExtent(5.999997E7F);
+    public static final WorldBorder.Settings DEFAULT_SETTINGS = new WorldBorder.Settings(0.0, 0.0, 0.2, 5.0, 5, 15, 5.999997E7F, 0L, 0.0);
 
     public boolean isWithinBounds(BlockPos param0) {
         return (double)(param0.getX() + 1) > this.getMinX()

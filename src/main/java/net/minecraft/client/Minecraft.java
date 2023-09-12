@@ -928,7 +928,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                                 var0.complete(null);
                                 this.onResourceLoadFinished(param1);
                             }),
-                        true
+                        !param0
                     )
                 );
                 return var0;

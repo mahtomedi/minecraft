@@ -36,22 +36,22 @@ public class NbtIo {
     public static CompoundTag readCompressed(InputStream param0) throws IOException {
         CompoundTag var2;
         try (DataInputStream var0 = createDecompressorStream(param0)) {
-            var2 = read(var0, NbtAccounter.UNLIMITED);
+            var2 = read(var0, NbtAccounter.unlimitedHeap());
         }
 
         return var2;
     }
 
-    public static void parseCompressed(File param0, StreamTagVisitor param1) throws IOException {
+    public static void parseCompressed(File param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
         try (InputStream var0 = new FileInputStream(param0)) {
-            parseCompressed(var0, param1);
+            parseCompressed(var0, param1, param2);
         }
 
     }
 
-    public static void parseCompressed(InputStream param0, StreamTagVisitor param1) throws IOException {
+    public static void parseCompressed(InputStream param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
         try (DataInputStream var0 = createDecompressorStream(param0)) {
-            parse(var0, param1);
+            parse(var0, param1, param2);
         }
 
     }
@@ -90,7 +90,7 @@ public class NbtIo {
                 FileInputStream var0 = new FileInputStream(param0);
                 DataInputStream var1 = new DataInputStream(var0);
             ) {
-                var3 = read(var1, NbtAccounter.UNLIMITED);
+                var3 = read(var1, NbtAccounter.unlimitedHeap());
             }
 
             return var3;
@@ -98,11 +98,11 @@ public class NbtIo {
     }
 
     public static CompoundTag read(DataInput param0) throws IOException {
-        return read(param0, NbtAccounter.UNLIMITED);
+        return read(param0, NbtAccounter.unlimitedHeap());
     }
 
     public static CompoundTag read(DataInput param0, NbtAccounter param1) throws IOException {
-        Tag var0 = readUnnamedTag(param0, 0, param1);
+        Tag var0 = readUnnamedTag(param0, param1);
         if (var0 instanceof CompoundTag) {
             return (CompoundTag)var0;
         } else {
@@ -114,7 +114,8 @@ public class NbtIo {
         writeUnnamedTag(param0, param1);
     }
 
-    public static void parse(DataInput param0, StreamTagVisitor param1) throws IOException {
+    public static void parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+        param2.accountBytes(8L);
         TagType<?> var0 = TagTypes.getType(param0.readByte());
         if (var0 == EndTag.TYPE) {
             if (param1.visitRootEntry(EndTag.TYPE) == StreamTagVisitor.ValueResult.CONTINUE) {
@@ -128,11 +129,11 @@ public class NbtIo {
                     break;
                 case BREAK:
                     StringTag.skipString(param0);
-                    var0.skip(param0);
+                    var0.skip(param0, param2);
                     break;
                 case CONTINUE:
                     StringTag.skipString(param0);
-                    var0.parse(param0, param1);
+                    var0.parse(param0, param1, param2);
             }
 
         }
@@ -140,7 +141,7 @@ public class NbtIo {
 
     public static Tag readAnyTag(DataInput param0, NbtAccounter param1) throws IOException {
         byte var0 = param0.readByte();
-        return (Tag)(var0 == 0 ? EndTag.INSTANCE : readTagSafe(param0, 0, param1, var0));
+        return (Tag)(var0 == 0 ? EndTag.INSTANCE : readTagSafe(param0, param1, var0));
     }
 
     public static void writeAnyTag(Tag param0, DataOutput param1) throws IOException {
@@ -158,23 +159,23 @@ public class NbtIo {
         }
     }
 
-    private static Tag readUnnamedTag(DataInput param0, int param1, NbtAccounter param2) throws IOException {
+    private static Tag readUnnamedTag(DataInput param0, NbtAccounter param1) throws IOException {
         byte var0 = param0.readByte();
         if (var0 == 0) {
             return EndTag.INSTANCE;
         } else {
             StringTag.skipString(param0);
-            return readTagSafe(param0, param1, param2, var0);
+            return readTagSafe(param0, param1, var0);
         }
     }
 
-    private static Tag readTagSafe(DataInput param0, int param1, NbtAccounter param2, byte param3) {
+    private static Tag readTagSafe(DataInput param0, NbtAccounter param1, byte param2) {
         try {
-            return TagTypes.getType(param3).load(param0, param1, param2);
-        } catch (IOException var7) {
-            CrashReport var1 = CrashReport.forThrowable(var7, "Loading NBT data");
+            return TagTypes.getType(param2).load(param0, param1);
+        } catch (IOException var6) {
+            CrashReport var1 = CrashReport.forThrowable(var6, "Loading NBT data");
             CrashReportCategory var2 = var1.addCategory("NBT Tag");
-            var2.setDetail("Tag type", param3);
+            var2.setDetail("Tag type", param2);
             throw new ReportedException(var1);
         }
     }

@@ -10,25 +10,26 @@ import org.apache.commons.lang3.ArrayUtils;
 public class ByteArrayTag extends CollectionTag<ByteTag> {
     private static final int SELF_SIZE_IN_BYTES = 24;
     public static final TagType<ByteArrayTag> TYPE = new TagType.VariableSize<ByteArrayTag>() {
-        public ByteArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBytes(24L);
-            int var0 = param0.readInt();
-            param2.accountBytes(1L * (long)var0);
-            byte[] var1 = new byte[var0];
-            param0.readFully(var1);
-            return new ByteArrayTag(var1);
+        public ByteArrayTag load(DataInput param0, NbtAccounter param1) throws IOException {
+            return new ByteArrayTag(readAccounted(param0, param1));
         }
 
         @Override
-        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+            return param1.visit(readAccounted(param0, param2));
+        }
+
+        private static byte[] readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
+            param1.accountBytes(24L);
             int var0 = param0.readInt();
+            param1.accountBytes(1L * (long)var0);
             byte[] var1 = new byte[var0];
             param0.readFully(var1);
-            return param1.visit(var1);
+            return var1;
         }
 
         @Override
-        public void skip(DataInput param0) throws IOException {
+        public void skip(DataInput param0, NbtAccounter param1) throws IOException {
             param0.skipBytes(param0.readInt() * 1);
         }
 

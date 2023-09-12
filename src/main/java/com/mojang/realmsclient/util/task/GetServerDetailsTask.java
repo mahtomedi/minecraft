@@ -1,7 +1,6 @@
 package com.mojang.realmsclient.util.task;
 
 import com.mojang.logging.LogUtils;
-import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.client.RealmsClient;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsServerAddress;
@@ -18,7 +17,6 @@ import java.net.URL;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -33,14 +31,10 @@ public class GetServerDetailsTask extends LongRunningTask {
     private static final Component TITLE = Component.translatable("mco.connect.connecting");
     private final RealmsServer server;
     private final Screen lastScreen;
-    private final RealmsMainScreen mainScreen;
-    private final ReentrantLock connectLock;
 
-    public GetServerDetailsTask(RealmsMainScreen param0, Screen param1, RealmsServer param2, ReentrantLock param3) {
-        this.lastScreen = param1;
-        this.mainScreen = param0;
-        this.server = param2;
-        this.connectLock = param3;
+    public GetServerDetailsTask(Screen param0, RealmsServer param1) {
+        this.lastScreen = param0;
+        this.server = param1;
     }
 
     @Override
@@ -54,15 +48,13 @@ public class GetServerDetailsTask extends LongRunningTask {
         } catch (RealmsServiceException var5) {
             switch(var5.realmsError.errorCode()) {
                 case 6002:
-                    setScreen(new RealmsTermsScreen(this.lastScreen, this.mainScreen, this.server));
+                    setScreen(new RealmsTermsScreen(this.lastScreen, this.server));
                     return;
                 case 6006:
                     boolean var3 = Minecraft.getInstance().isLocalPlayer(this.server.ownerUUID);
                     setScreen(
                         (Screen)(var3
-                            ? new RealmsBrokenWorldScreen(
-                                this.lastScreen, this.mainScreen, this.server.id, this.server.worldType == RealmsServer.WorldType.MINIGAME
-                            )
+                            ? new RealmsBrokenWorldScreen(this.lastScreen, this.server.id, this.server.worldType == RealmsServer.WorldType.MINIGAME)
                             : new RealmsGenericErrorScreen(
                                 Component.translatable("mco.brokenworld.nonowner.title"),
                                 Component.translatable("mco.brokenworld.nonowner.error"),
@@ -118,25 +110,16 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     private RealmsLongConfirmationScreen resourcePackDownloadConfirmationScreen(RealmsServerAddress param0, Function<RealmsServerAddress, Screen> param1) {
         BooleanConsumer var0 = param2 -> {
-            try {
-                if (param2) {
-                    this.scheduleResourcePackDownload(param0).thenRun(() -> setScreen(param1.apply(param0))).exceptionally(param1x -> {
-                        Minecraft.getInstance().getDownloadedPackSource().clearServerPack();
-                        LOGGER.error("Failed to download resource pack from {}", param0, param1x);
-                        setScreen(new RealmsGenericErrorScreen(Component.translatable("mco.download.resourcePack.fail"), this.lastScreen));
-                        return null;
-                    });
-                    return;
-                }
-
+            if (!param2) {
                 setScreen(this.lastScreen);
-            } finally {
-                if (this.connectLock.isHeldByCurrentThread()) {
-                    this.connectLock.unlock();
-                }
-
+            } else {
+                this.scheduleResourcePackDownload(param0).thenRun(() -> setScreen(param1.apply(param0))).exceptionally(param1x -> {
+                    Minecraft.getInstance().getDownloadedPackSource().clearServerPack();
+                    LOGGER.error("Failed to download resource pack from {}", param0, param1x);
+                    setScreen(new RealmsGenericErrorScreen(Component.translatable("mco.download.resourcePack.fail"), this.lastScreen));
+                    return null;
+                });
             }
-
         };
         return new RealmsLongConfirmationScreen(
             var0,

@@ -1,6 +1,7 @@
 package net.minecraft.client.multiplayer;
 
 import com.mojang.logging.LogUtils;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -9,6 +10,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.status.ServerStatus;
+import net.minecraft.util.PngInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ServerData {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int MAX_ICON_SIZE = 1024;
     public String name;
     public String ip;
     public Component status;
@@ -68,7 +71,8 @@ public class ServerData {
         ServerData var0 = new ServerData(param0.getString("name"), param0.getString("ip"), ServerData.Type.OTHER);
         if (param0.contains("icon", 8)) {
             try {
-                var0.setIconBytes(Base64.getDecoder().decode(param0.getString("icon")));
+                byte[] var1 = Base64.getDecoder().decode(param0.getString("icon"));
+                var0.setIconBytes(validateIcon(var1));
             } catch (IllegalArgumentException var3) {
                 LOGGER.warn("Malformed base64 server icon", (Throwable)var3);
             }
@@ -123,6 +127,22 @@ public class ServerData {
         this.setResourcePackStatus(param0.getResourcePackStatus());
         this.type = param0.type;
         this.enforcesSecureChat = param0.enforcesSecureChat;
+    }
+
+    @Nullable
+    public static byte[] validateIcon(@Nullable byte[] param0) {
+        if (param0 != null) {
+            try {
+                PngInfo var0 = PngInfo.fromBytes(param0);
+                if (var0.width() <= 1024 && var0.height() <= 1024) {
+                    return param0;
+                }
+            } catch (IOException var2) {
+                LOGGER.warn("Failed to decode server icon", (Throwable)var2);
+            }
+        }
+
+        return null;
     }
 
     @OnlyIn(Dist.CLIENT)

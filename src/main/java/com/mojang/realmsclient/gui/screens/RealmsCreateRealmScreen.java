@@ -62,7 +62,7 @@ public class RealmsCreateRealmScreen extends RealmsScreen {
     private void createWorld() {
         RealmsResetWorldScreen var0 = RealmsResetWorldScreen.forNewRealm(this.lastScreen, this.server, () -> this.minecraft.execute(() -> {
                 this.lastScreen.refreshServerList();
-                this.minecraft.setScreen(this.lastScreen.newScreen());
+                this.minecraft.setScreen(this.lastScreen);
             }));
         this.minecraft
             .setScreen(

@@ -10,33 +10,30 @@ import org.apache.commons.lang3.ArrayUtils;
 public class IntArrayTag extends CollectionTag<IntTag> {
     private static final int SELF_SIZE_IN_BYTES = 24;
     public static final TagType<IntArrayTag> TYPE = new TagType.VariableSize<IntArrayTag>() {
-        public IntArrayTag load(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.accountBytes(24L);
+        public IntArrayTag load(DataInput param0, NbtAccounter param1) throws IOException {
+            return new IntArrayTag(readAccounted(param0, param1));
+        }
+
+        @Override
+        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+            return param1.visit(readAccounted(param0, param2));
+        }
+
+        private static int[] readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
+            param1.accountBytes(24L);
             int var0 = param0.readInt();
-            param2.accountBytes(4L * (long)var0);
+            param1.accountBytes(4L * (long)var0);
             int[] var1 = new int[var0];
 
             for(int var2 = 0; var2 < var0; ++var2) {
                 var1[var2] = param0.readInt();
             }
 
-            return new IntArrayTag(var1);
+            return var1;
         }
 
         @Override
-        public StreamTagVisitor.ValueResult parse(DataInput param0, StreamTagVisitor param1) throws IOException {
-            int var0 = param0.readInt();
-            int[] var1 = new int[var0];
-
-            for(int var2 = 0; var2 < var0; ++var2) {
-                var1[var2] = param0.readInt();
-            }
-
-            return param1.visit(var1);
-        }
-
-        @Override
-        public void skip(DataInput param0) throws IOException {
+        public void skip(DataInput param0, NbtAccounter param1) throws IOException {
             param0.skipBytes(param0.readInt() * 4);
         }
 
