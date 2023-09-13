@@ -1,8 +1,8 @@
 package net.minecraft.world.item;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.DispenseItemBehavior;
 import net.minecraft.tags.BlockTags;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 
 public class MinecartItem extends Item {
     private static final DispenseItemBehavior DISPENSE_ITEM_BEHAVIOR = new DefaultDispenseItemBehavior() {
@@ -22,52 +23,53 @@ public class MinecartItem extends Item {
 
         @Override
         public ItemStack execute(BlockSource param0, ItemStack param1) {
-            Direction var0 = param0.getBlockState().getValue(DispenserBlock.FACING);
-            Level var1 = param0.getLevel();
-            double var2 = param0.x() + (double)var0.getStepX() * 1.125;
-            double var3 = Math.floor(param0.y()) + (double)var0.getStepY();
-            double var4 = param0.z() + (double)var0.getStepZ() * 1.125;
-            BlockPos var5 = param0.getPos().relative(var0);
-            BlockState var6 = var1.getBlockState(var5);
-            RailShape var7 = var6.getBlock() instanceof BaseRailBlock
-                ? var6.getValue(((BaseRailBlock)var6.getBlock()).getShapeProperty())
+            Direction var0 = param0.state().getValue(DispenserBlock.FACING);
+            Level var1 = param0.level();
+            Vec3 var2 = param0.center();
+            double var3 = var2.x() + (double)var0.getStepX() * 1.125;
+            double var4 = Math.floor(var2.y()) + (double)var0.getStepY();
+            double var5 = var2.z() + (double)var0.getStepZ() * 1.125;
+            BlockPos var6 = param0.pos().relative(var0);
+            BlockState var7 = var1.getBlockState(var6);
+            RailShape var8 = var7.getBlock() instanceof BaseRailBlock
+                ? var7.getValue(((BaseRailBlock)var7.getBlock()).getShapeProperty())
                 : RailShape.NORTH_SOUTH;
-            double var8;
-            if (var6.is(BlockTags.RAILS)) {
-                if (var7.isAscending()) {
-                    var8 = 0.6;
+            double var9;
+            if (var7.is(BlockTags.RAILS)) {
+                if (var8.isAscending()) {
+                    var9 = 0.6;
                 } else {
-                    var8 = 0.1;
+                    var9 = 0.1;
                 }
             } else {
-                if (!var6.isAir() || !var1.getBlockState(var5.below()).is(BlockTags.RAILS)) {
+                if (!var7.isAir() || !var1.getBlockState(var6.below()).is(BlockTags.RAILS)) {
                     return this.defaultDispenseItemBehavior.dispense(param0, param1);
                 }
 
-                BlockState var10 = var1.getBlockState(var5.below());
-                RailShape var11 = var10.getBlock() instanceof BaseRailBlock
-                    ? var10.getValue(((BaseRailBlock)var10.getBlock()).getShapeProperty())
+                BlockState var11 = var1.getBlockState(var6.below());
+                RailShape var12 = var11.getBlock() instanceof BaseRailBlock
+                    ? var11.getValue(((BaseRailBlock)var11.getBlock()).getShapeProperty())
                     : RailShape.NORTH_SOUTH;
-                if (var0 != Direction.DOWN && var11.isAscending()) {
-                    var8 = -0.4;
+                if (var0 != Direction.DOWN && var12.isAscending()) {
+                    var9 = -0.4;
                 } else {
-                    var8 = -0.9;
+                    var9 = -0.9;
                 }
             }
 
-            AbstractMinecart var15 = AbstractMinecart.createMinecart(var1, var2, var3 + var8, var4, ((MinecartItem)param1.getItem()).type);
+            AbstractMinecart var16 = AbstractMinecart.createMinecart(var1, var3, var4 + var9, var5, ((MinecartItem)param1.getItem()).type);
             if (param1.hasCustomHoverName()) {
-                var15.setCustomName(param1.getHoverName());
+                var16.setCustomName(param1.getHoverName());
             }
 
-            var1.addFreshEntity(var15);
+            var1.addFreshEntity(var16);
             param1.shrink(1);
             return param1;
         }
 
         @Override
         protected void playSound(BlockSource param0) {
-            param0.getLevel().levelEvent(1000, param0.getPos(), 0);
+            param0.level().levelEvent(1000, param0.pos(), 0);
         }
     };
     final AbstractMinecart.Type type;

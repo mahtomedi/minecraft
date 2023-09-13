@@ -39,6 +39,7 @@ import com.mojang.realmsclient.gui.RealmsDataFetcher;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.lang.management.ManagementFactory;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -2358,6 +2359,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private static SystemReport fillSystemReport(
         SystemReport param0, @Nullable Minecraft param1, @Nullable LanguageManager param2, String param3, Options param4
     ) {
+        param0.setDetail("JVM uptime in seconds", () -> String.valueOf((double)ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0));
         param0.setDetail("Launched Version", () -> param3);
         param0.setDetail("Backend library", RenderSystem::getBackendDescription);
         param0.setDetail("Backend API", RenderSystem::getApiDescription);

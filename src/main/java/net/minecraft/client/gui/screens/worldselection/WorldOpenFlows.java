@@ -6,10 +6,13 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -37,6 +40,7 @@ import net.minecraft.server.WorldStem;
 import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
+import net.minecraft.util.MemoryReserve;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -62,7 +66,21 @@ public class WorldOpenFlows {
     }
 
     public void loadLevel(Screen param0, String param1) {
-        this.doLoadLevel(param0, param1, false, true);
+        try {
+            this.doLoadLevel(param0, param1, false, true);
+        } catch (OutOfMemoryError var9) {
+            MemoryReserve.release();
+            System.gc();
+            Path var1 = this.levelSource.getLevelPath(param1);
+            String var2 = "Ran out of memory trying to read level data of world folder \"" + var1 + "\"";
+            LOGGER.error(LogUtils.FATAL_MARKER, var2);
+            OutOfMemoryError var3 = new OutOfMemoryError("Ran out of memory reading level data");
+            var3.initCause(var9);
+            CrashReport var4 = CrashReport.forThrowable(var3, var2);
+            CrashReportCategory var5 = var4.addCategory("World details");
+            var5.setDetail("World folder", var1);
+            throw new ReportedException(var4);
+        }
     }
 
     public void createFreshLevel(String param0, LevelSettings param1, WorldOptions param2, Function<RegistryAccess, WorldDimensions> param3) {

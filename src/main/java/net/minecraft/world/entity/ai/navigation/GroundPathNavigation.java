@@ -1,12 +1,14 @@
 package net.minecraft.world.entity.ai.navigation;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
@@ -40,34 +42,39 @@ public class GroundPathNavigation extends PathNavigation {
 
     @Override
     public Path createPath(BlockPos param0, int param1) {
-        if (this.level.getBlockState(param0).isAir()) {
-            BlockPos var0 = param0.below();
-
-            while(var0.getY() > this.level.getMinBuildHeight() && this.level.getBlockState(var0).isAir()) {
-                var0 = var0.below();
-            }
-
-            if (var0.getY() > this.level.getMinBuildHeight()) {
-                return super.createPath(var0.above(), param1);
-            }
-
-            while(var0.getY() < this.level.getMaxBuildHeight() && this.level.getBlockState(var0).isAir()) {
-                var0 = var0.above();
-            }
-
-            param0 = var0;
-        }
-
-        if (!this.level.getBlockState(param0).isSolid()) {
-            return super.createPath(param0, param1);
+        LevelChunk var0 = this.level.getChunkSource().getChunkNow(SectionPos.blockToSectionCoord(param0.getX()), SectionPos.blockToSectionCoord(param0.getZ()));
+        if (var0 == null) {
+            return null;
         } else {
-            BlockPos var1 = param0.above();
+            if (var0.getBlockState(param0).isAir()) {
+                BlockPos var1 = param0.below();
 
-            while(var1.getY() < this.level.getMaxBuildHeight() && this.level.getBlockState(var1).isSolid()) {
-                var1 = var1.above();
+                while(var1.getY() > this.level.getMinBuildHeight() && var0.getBlockState(var1).isAir()) {
+                    var1 = var1.below();
+                }
+
+                if (var1.getY() > this.level.getMinBuildHeight()) {
+                    return super.createPath(var1.above(), param1);
+                }
+
+                while(var1.getY() < this.level.getMaxBuildHeight() && var0.getBlockState(var1).isAir()) {
+                    var1 = var1.above();
+                }
+
+                param0 = var1;
             }
 
-            return super.createPath(var1, param1);
+            if (!var0.getBlockState(param0).isSolid()) {
+                return super.createPath(param0, param1);
+            } else {
+                BlockPos var2 = param0.above();
+
+                while(var2.getY() < this.level.getMaxBuildHeight() && var0.getBlockState(var2).isSolid()) {
+                    var2 = var2.above();
+                }
+
+                return super.createPath(var2, param1);
+            }
         }
     }
 
