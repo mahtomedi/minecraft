@@ -22,7 +22,7 @@ public class ByteArrayTag extends CollectionTag<ByteTag> {
         private static byte[] readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
             param1.accountBytes(24L);
             int var0 = param0.readInt();
-            param1.accountBytes(1L * (long)var0);
+            param1.accountBytes(1L, (long)var0);
             byte[] var1 = new byte[var0];
             param0.readFully(var1);
             return var1;

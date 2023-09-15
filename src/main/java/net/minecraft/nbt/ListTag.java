@@ -32,7 +32,7 @@ public class ListTag extends CollectionTag<Tag> {
             if (var0 == 0 && var1 > 0) {
                 throw new RuntimeException("Missing type on ListTag");
             } else {
-                param1.accountBytes(4L * (long)var1);
+                param1.accountBytes(4L, (long)var1);
                 TagType<?> var2 = TagTypes.getType(var0);
                 List<Tag> var3 = Lists.newArrayListWithCapacity(var1);
 
@@ -69,7 +69,7 @@ public class ListTag extends CollectionTag<Tag> {
                     var0.skip(param0, var1, param2);
                     return param1.visitContainerEnd();
                 default:
-                    param2.accountBytes(4L * (long)var1);
+                    param2.accountBytes(4L, (long)var1);
                     int var2 = 0;
 
                     while(true) {
@@ -107,18 +107,6 @@ public class ListTag extends CollectionTag<Tag> {
                         ++var2;
                     }
             }
-        }
-
-        @Override
-        public void skip(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.pushDepth();
-
-            try {
-                TagType.VariableSize.super.skip(param0, param1, param2);
-            } finally {
-                param2.popDepth();
-            }
-
         }
 
         @Override

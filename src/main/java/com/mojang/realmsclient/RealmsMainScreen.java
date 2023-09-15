@@ -66,6 +66,7 @@ import net.minecraft.realms.RealmsScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.CommonLinks;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -113,6 +114,8 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final int LOGO_PADDING = 5;
     private static final int HEADER_HEIGHT = 44;
     private static final int FOOTER_PADDING = 10;
+    private static final int ENTRY_WIDTH = 216;
+    private static final int ITEM_HEIGHT = 36;
     private final CompletableFuture<RealmsAvailability.Result> availability = RealmsAvailability.get();
     @Nullable
     private DataFetcher.Subscription dataSubscription;
@@ -407,7 +410,15 @@ public class RealmsMainScreen extends RealmsScreen {
 
     private void addEntriesForNotification(RealmsMainScreen.RealmSelectionList param0, RealmsNotification param1) {
         if (param1 instanceof RealmsNotification.VisitUrl var0) {
-            param0.addEntry(new RealmsMainScreen.NotificationMessageEntry(var0.getMessage(), var0));
+            Component var1 = var0.getMessage();
+            int var2 = this.font.wordWrapHeight(var1, 216);
+            int var3 = Mth.positiveCeilDiv(var2 + 7, 36) - 1;
+            param0.addEntry(new RealmsMainScreen.NotificationMessageEntry(var1, var3 + 2, var0));
+
+            for(int var4 = 0; var4 < var3; ++var4) {
+                param0.addEntry(new RealmsMainScreen.EmptyEntry());
+            }
+
             param0.addEntry(new RealmsMainScreen.ButtonEntry(var0.buildOpenLinkButton(this)));
         }
 
@@ -621,6 +632,18 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @OnlyIn(Dist.CLIENT)
+    class EmptyEntry extends RealmsMainScreen.Entry {
+        @Override
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+        }
+
+        @Override
+        public Component getNarration() {
+            return Component.empty();
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     abstract class Entry extends ObjectSelectionList.Entry<RealmsMainScreen.Entry> {
         @Nullable
         public RealmsServer getServer() {
@@ -679,9 +702,9 @@ public class RealmsMainScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class NotificationMessageEntry extends RealmsMainScreen.Entry {
         private static final int SIDE_MARGINS = 40;
-        private static final int ITEM_HEIGHT = 36;
         private static final int OUTLINE_COLOR = -12303292;
         private final Component text;
+        private final int frameItemHeight;
         private final List<AbstractWidget> children = new ArrayList<>();
         @Nullable
         private final RealmsMainScreen.CrossButton dismissButton;
@@ -690,24 +713,25 @@ public class RealmsMainScreen extends RealmsScreen {
         private final FrameLayout textFrame;
         private int lastEntryWidth = -1;
 
-        public NotificationMessageEntry(Component param0, RealmsNotification param1) {
+        public NotificationMessageEntry(Component param0, int param1, RealmsNotification param2) {
             this.text = param0;
+            this.frameItemHeight = param1;
             this.gridLayout = new GridLayout();
-            int param2 = 7;
+            int param3 = 7;
             this.gridLayout.addChild(ImageWidget.sprite(20, 20, RealmsMainScreen.INFO_SPRITE), 0, 0, this.gridLayout.newCellSettings().padding(7, 7, 0, 0));
             this.gridLayout.addChild(SpacerElement.width(40), 0, 0);
-            this.textFrame = this.gridLayout.addChild(new FrameLayout(0, 9 * 3), 0, 1, this.gridLayout.newCellSettings().paddingTop(7));
+            this.textFrame = this.gridLayout.addChild(new FrameLayout(0, 9 * 3 * (param1 - 1)), 0, 1, this.gridLayout.newCellSettings().paddingTop(7));
             this.textWidget = this.textFrame
                 .addChild(
-                    new MultiLineTextWidget(param0, RealmsMainScreen.this.font).setCentered(true).setMaxRows(3),
+                    new MultiLineTextWidget(param0, RealmsMainScreen.this.font).setCentered(true),
                     this.textFrame.newChildLayoutSettings().alignHorizontallyCenter().alignVerticallyTop()
                 );
             this.gridLayout.addChild(SpacerElement.width(40), 0, 2);
-            if (param1.dismissable()) {
+            if (param2.dismissable()) {
                 this.dismissButton = this.gridLayout
                     .addChild(
                         new RealmsMainScreen.CrossButton(
-                            param1x -> RealmsMainScreen.this.dismissNotification(param1.uuid()), Component.translatable("mco.notification.dismiss")
+                            param1x -> RealmsMainScreen.this.dismissNotification(param2.uuid()), Component.translatable("mco.notification.dismiss")
                         ),
                         0,
                         2,
@@ -745,7 +769,7 @@ public class RealmsMainScreen extends RealmsScreen {
             GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9
         ) {
             super.renderBack(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
-            param0.renderOutline(param3 - 2, param2 - 2, param4, 70, -12303292);
+            param0.renderOutline(param3 - 2, param2 - 2, param4, 36 * this.frameItemHeight - 2, -12303292);
         }
 
         @Override

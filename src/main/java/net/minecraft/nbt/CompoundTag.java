@@ -46,8 +46,7 @@ public class CompoundTag implements Tag {
 
             byte var1;
             while((var1 = param0.readByte()) != 0) {
-                String var2 = param0.readUTF();
-                param1.accountBytes(28L + 2L * (long)var2.length());
+                String var2 = readString(param0, param1);
                 Tag var3 = CompoundTag.readNamedTagData(TagTypes.getType(var1), var2, param0, param1);
                 if (var0.put(var2, var3) == null) {
                     param1.accountBytes(36L);
@@ -90,8 +89,7 @@ public class CompoundTag implements Tag {
                         var1.skip(param0, param2);
                         break;
                     default:
-                        String var2 = param0.readUTF();
-                        param2.accountBytes(28L + 2L * (long)var2.length());
+                        String var2 = readString(param0, param2);
                         switch(param1.visitEntry(var1, var2)) {
                             case HALT:
                                 return StreamTagVisitor.ValueResult.HALT;
@@ -122,16 +120,11 @@ public class CompoundTag implements Tag {
             return param1.visitContainerEnd();
         }
 
-        @Override
-        public void skip(DataInput param0, int param1, NbtAccounter param2) throws IOException {
-            param2.pushDepth();
-
-            try {
-                TagType.VariableSize.super.skip(param0, param1, param2);
-            } finally {
-                param2.popDepth();
-            }
-
+        private static String readString(DataInput param0, NbtAccounter param1) throws IOException {
+            String var0 = param0.readUTF();
+            param1.accountBytes(28L);
+            param1.accountBytes(2L, (long)var0.length());
+            return var0;
         }
 
         @Override

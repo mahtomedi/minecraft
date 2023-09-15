@@ -23,7 +23,7 @@ public class LongArrayTag extends CollectionTag<LongTag> {
         private static long[] readAccounted(DataInput param0, NbtAccounter param1) throws IOException {
             param1.accountBytes(24L);
             int var0 = param0.readInt();
-            param1.accountBytes(8L * (long)var0);
+            param1.accountBytes(8L, (long)var0);
             long[] var1 = new long[var0];
 
             for(int var2 = 0; var2 < var0; ++var2) {

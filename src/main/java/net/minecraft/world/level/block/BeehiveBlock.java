@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -89,14 +90,18 @@ public class BeehiveBlock extends BaseEntityBlock {
     }
 
     private void angerNearbyBees(Level param0, BlockPos param1) {
-        List<Bee> var0 = param0.getEntitiesOfClass(Bee.class, new AABB(param1).inflate(8.0, 6.0, 8.0));
-        if (!var0.isEmpty()) {
-            List<Player> var1 = param0.getEntitiesOfClass(Player.class, new AABB(param1).inflate(8.0, 6.0, 8.0));
-            int var2 = var1.size();
+        AABB var0 = new AABB(param1).inflate(8.0, 6.0, 8.0);
+        List<Bee> var1 = param0.getEntitiesOfClass(Bee.class, var0);
+        if (!var1.isEmpty()) {
+            List<Player> var2 = param0.getEntitiesOfClass(Player.class, var0);
+            if (var2.isEmpty()) {
+                return;
+            }
 
-            for(Bee var3 : var0) {
+            for(Bee var3 : var1) {
                 if (var3.getTarget() == null) {
-                    var3.setTarget(var1.get(param0.random.nextInt(var2)));
+                    Player var4 = Util.getRandom(var2, param0.random);
+                    var3.setTarget(var4);
                 }
             }
         }

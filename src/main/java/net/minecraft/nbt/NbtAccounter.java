@@ -22,26 +22,33 @@ public class NbtAccounter {
         return new NbtAccounter(Long.MAX_VALUE, 512);
     }
 
+    public void accountBytes(long param0, long param1) {
+        this.accountBytes(param0 * param1);
+    }
+
     public void accountBytes(long param0) {
-        this.usage += param0;
-        if (this.usage > this.quota) {
+        if (this.usage + param0 > this.quota) {
             throw new NbtAccounterException(
-                "Tried to read NBT tag that was too big; tried to allocate: " + this.usage + " bytes where max allowed: " + this.quota
+                "Tried to read NBT tag that was too big; tried to allocate: " + this.usage + " + " + param0 + " bytes where max allowed: " + this.quota
             );
+        } else {
+            this.usage += param0;
         }
     }
 
     public void pushDepth() {
-        ++this.depth;
-        if (this.depth > this.maxDepth) {
+        if (this.depth >= this.maxDepth) {
             throw new NbtAccounterException("Tried to read NBT tag with too high complexity, depth > " + this.maxDepth);
+        } else {
+            ++this.depth;
         }
     }
 
     public void popDepth() {
-        --this.depth;
-        if (this.depth < 0) {
+        if (this.depth <= 0) {
             throw new NbtAccounterException("NBT-Accounter tried to pop stack-depth at top-level");
+        } else {
+            --this.depth;
         }
     }
 

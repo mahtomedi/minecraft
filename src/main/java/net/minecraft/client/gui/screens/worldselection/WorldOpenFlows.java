@@ -6,7 +6,6 @@ import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.Lifecycle;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -68,18 +67,17 @@ public class WorldOpenFlows {
     public void loadLevel(Screen param0, String param1) {
         try {
             this.doLoadLevel(param0, param1, false, true);
-        } catch (OutOfMemoryError var9) {
+        } catch (OutOfMemoryError var8) {
             MemoryReserve.release();
             System.gc();
-            Path var1 = this.levelSource.getLevelPath(param1);
-            String var2 = "Ran out of memory trying to read level data of world folder \"" + var1 + "\"";
-            LOGGER.error(LogUtils.FATAL_MARKER, var2);
-            OutOfMemoryError var3 = new OutOfMemoryError("Ran out of memory reading level data");
-            var3.initCause(var9);
-            CrashReport var4 = CrashReport.forThrowable(var3, var2);
-            CrashReportCategory var5 = var4.addCategory("World details");
-            var5.setDetail("World folder", var1);
-            throw new ReportedException(var4);
+            String var1 = "Ran out of memory trying to read level data of world folder \"" + param1 + "\"";
+            LOGGER.error(LogUtils.FATAL_MARKER, var1);
+            OutOfMemoryError var2 = new OutOfMemoryError("Ran out of memory reading level data");
+            var2.initCause(var8);
+            CrashReport var3 = CrashReport.forThrowable(var2, var1);
+            CrashReportCategory var4 = var3.addCategory("World details");
+            var4.setDetail("World folder", param1);
+            throw new ReportedException(var3);
         }
     }
 

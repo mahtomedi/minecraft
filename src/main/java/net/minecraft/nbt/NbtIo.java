@@ -115,7 +115,6 @@ public class NbtIo {
     }
 
     public static void parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
-        param2.accountBytes(8L);
         TagType<?> var0 = TagTypes.getType(param0.readByte());
         if (var0 == EndTag.TYPE) {
             if (param1.visitRootEntry(EndTag.TYPE) == StreamTagVisitor.ValueResult.CONTINUE) {
