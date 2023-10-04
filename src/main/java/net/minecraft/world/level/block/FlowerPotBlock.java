@@ -1,9 +1,12 @@
 package net.minecraft.world.level.block;
 
 import com.google.common.collect.Maps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -23,14 +27,23 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FlowerPotBlock extends Block {
+    public static final MapCodec<FlowerPotBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(BuiltInRegistries.BLOCK.byNameCodec().fieldOf("potted").forGetter(param0x -> param0x.potted), propertiesCodec())
+                .apply(param0, FlowerPotBlock::new)
+    );
     private static final Map<Block, Block> POTTED_BY_CONTENT = Maps.newHashMap();
     public static final float AABB_SIZE = 3.0F;
     protected static final VoxelShape SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 6.0, 11.0);
-    private final Block content;
+    private final Block potted;
+
+    @Override
+    public MapCodec<FlowerPotBlock> codec() {
+        return CODEC;
+    }
 
     public FlowerPotBlock(Block param0, BlockBehaviour.Properties param1) {
         super(param1);
-        this.content = param0;
+        this.potted = param0;
         POTTED_BY_CONTENT.put(param0, this);
     }
 
@@ -60,7 +73,7 @@ public class FlowerPotBlock extends Block {
                     var0.shrink(1);
                 }
             } else {
-                ItemStack var5 = new ItemStack(this.content);
+                ItemStack var5 = new ItemStack(this.potted);
                 if (var0.isEmpty()) {
                     param3.setItemInHand(param4, var5);
                 } else if (!param3.addItem(var5)) {
@@ -78,12 +91,12 @@ public class FlowerPotBlock extends Block {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
-        return this.isEmpty() ? super.getCloneItemStack(param0, param1, param2) : new ItemStack(this.content);
+    public ItemStack getCloneItemStack(LevelReader param0, BlockPos param1, BlockState param2) {
+        return this.isEmpty() ? super.getCloneItemStack(param0, param1, param2) : new ItemStack(this.potted);
     }
 
     private boolean isEmpty() {
-        return this.content == Blocks.AIR;
+        return this.potted == Blocks.AIR;
     }
 
     @Override
@@ -93,8 +106,8 @@ public class FlowerPotBlock extends Block {
             : super.updateShape(param0, param1, param2, param3, param4, param5);
     }
 
-    public Block getContent() {
-        return this.content;
+    public Block getPotted() {
+        return this.potted;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -16,10 +18,18 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public class StandingSignBlock extends SignBlock {
+    public static final MapCodec<StandingSignBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(WoodType.CODEC.fieldOf("wood_type").forGetter(SignBlock::type), propertiesCodec()).apply(param0, StandingSignBlock::new)
+    );
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
 
-    public StandingSignBlock(BlockBehaviour.Properties param0, WoodType param1) {
-        super(param0.sound(param1.soundType()), param1);
+    @Override
+    public MapCodec<StandingSignBlock> codec() {
+        return CODEC;
+    }
+
+    public StandingSignBlock(WoodType param0, BlockBehaviour.Properties param1) {
+        super(param0, param1.sound(param0.soundType()));
         this.registerDefaultState(this.stateDefinition.any().setValue(ROTATION, Integer.valueOf(0)).setValue(WATERLOGGED, Boolean.valueOf(false)));
     }
 

@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.mojang.serialization.MapCodec;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -40,6 +41,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<SculkSensorBlock> CODEC = simpleCodec(SculkSensorBlock::new);
     public static final int ACTIVE_TICKS = 30;
     public static final int COOLDOWN_TICKS = 10;
     public static final EnumProperty<SculkSensorPhase> PHASE = BlockStateProperties.SCULK_SENSOR_PHASE;
@@ -54,6 +56,11 @@ public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterlogg
         }
 
     });
+
+    @Override
+    public MapCodec<? extends SculkSensorBlock> codec() {
+        return CODEC;
+    }
 
     public SculkSensorBlock(BlockBehaviour.Properties param0) {
         super(param0);

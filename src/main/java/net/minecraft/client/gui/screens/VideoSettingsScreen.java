@@ -163,15 +163,20 @@ public class VideoSettingsScreen extends OptionsSubScreen {
                     var1.add(Component.translatable("options.graphics.warning.version", var4).withStyle(ChatFormatting.GRAY));
                 }
 
-                this.minecraft.setScreen(new PopupScreen(WARNING_TITLE, var1, ImmutableList.of(new PopupScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
-                    this.options.graphicsMode().set(GraphicsStatus.FABULOUS);
-                    Minecraft.getInstance().levelRenderer.allChanged();
-                    this.gpuWarnlistManager.dismissWarning();
-                    this.minecraft.setScreen(this);
-                }), new PopupScreen.ButtonOption(BUTTON_CANCEL, param0x -> {
-                    this.gpuWarnlistManager.dismissWarningAndSkipFabulous();
-                    this.minecraft.setScreen(this);
-                }))));
+                this.minecraft
+                    .setScreen(
+                        new UnsupportedGraphicsWarningScreen(
+                            WARNING_TITLE, var1, ImmutableList.of(new UnsupportedGraphicsWarningScreen.ButtonOption(BUTTON_ACCEPT, param0x -> {
+                                this.options.graphicsMode().set(GraphicsStatus.FABULOUS);
+                                Minecraft.getInstance().levelRenderer.allChanged();
+                                this.gpuWarnlistManager.dismissWarning();
+                                this.minecraft.setScreen(this);
+                            }), new UnsupportedGraphicsWarningScreen.ButtonOption(BUTTON_CANCEL, param0x -> {
+                                this.gpuWarnlistManager.dismissWarningAndSkipFabulous();
+                                this.minecraft.setScreen(this);
+                            }))
+                        )
+                    );
             }
 
             return true;

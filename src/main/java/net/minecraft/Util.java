@@ -11,11 +11,14 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DataResult.PartialResult;
-import it.unimi.dsi.fastutil.Hash.Strategy;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceImmutableList;
+import it.unimi.dsi.fastutil.objects.ReferenceList;
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -58,7 +61,6 @@ import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
@@ -86,6 +88,7 @@ public class Util {
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
     private static final ExecutorService IO_POOL = makeIoExecutor();
     private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
+    private static final int LINEAR_LOOKUP_THRESHOLD = 8;
     public static final long NANOS_PER_MILLI = 1000000L;
     public static TimeSource.NanoTimeSource timeSource = System::nanoTime;
     public static final Ticker TICKER = new Ticker() {
@@ -358,10 +361,6 @@ public class Util {
     public static <T> T make(T param0, Consumer<? super T> param1) {
         param1.accept(param0);
         return param0;
-    }
-
-    public static <K> Strategy<K> identityStrategy() {
-        return Util.IdentityStrategy.INSTANCE;
     }
 
     public static <V> CompletableFuture<List<V>> sequence(List<? extends CompletableFuture<V>> param0) {
@@ -798,20 +797,39 @@ public class Util {
     }
 
     public static <T> ToIntFunction<T> createIndexLookup(List<T> param0) {
-        return createIndexLookup(param0, Object2IntOpenHashMap::new);
-    }
+        int var0 = param0.size();
+        if (var0 < 8) {
+            return param0::indexOf;
+        } else {
+            Object2IntMap<T> var1 = new Object2IntOpenHashMap<>(var0);
+            var1.defaultReturnValue(-1);
 
-    public static <T> ToIntFunction<T> createIndexLookup(List<T> param0, IntFunction<Object2IntMap<T>> param1) {
-        Object2IntMap<T> var0 = param1.apply(param0.size());
+            for(int var2 = 0; var2 < var0; ++var2) {
+                var1.put(param0.get(var2), var2);
+            }
 
-        for(int var1 = 0; var1 < param0.size(); ++var1) {
-            var0.put(param0.get(var1), var1);
+            return var1;
         }
-
-        return var0;
     }
 
-    public static <T, E extends Exception> T getOrThrow(DataResult<T> param0, Function<String, E> param1) throws E {
+    public static <T> ToIntFunction<T> createIndexIdentityLookup(List<T> param0) {
+        int var0 = param0.size();
+        if (var0 < 8) {
+            ReferenceList<T> var1 = new ReferenceImmutableList<>(param0);
+            return var1::indexOf;
+        } else {
+            Reference2IntMap<T> var2 = new Reference2IntOpenHashMap<>(var0);
+            var2.defaultReturnValue(-1);
+
+            for(int var3 = 0; var3 < var0; ++var3) {
+                var2.put(param0.get(var3), var3);
+            }
+
+            return var2;
+        }
+    }
+
+    public static <T, E extends Throwable> T getOrThrow(DataResult<T> param0, Function<String, E> param1) throws E {
         Optional<PartialResult<T>> var0 = param0.error();
         if (var0.isPresent()) {
             throw param1.apply(var0.get().message());
@@ -826,20 +844,6 @@ public class Util {
 
     public static boolean isBlank(@Nullable String param0) {
         return param0 != null && param0.length() != 0 ? param0.chars().allMatch(Util::isWhitespace) : true;
-    }
-
-    static enum IdentityStrategy implements Strategy<Object> {
-        INSTANCE;
-
-        @Override
-        public int hashCode(Object param0) {
-            return System.identityHashCode(param0);
-        }
-
-        @Override
-        public boolean equals(Object param0, Object param1) {
-            return param0 == param1;
-        }
     }
 
     public static enum OS {

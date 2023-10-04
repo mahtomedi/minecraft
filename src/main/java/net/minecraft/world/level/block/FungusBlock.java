@@ -1,8 +1,11 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -18,15 +21,28 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FungusBlock extends BushBlock implements BonemealableBlock {
+    public static final MapCodec<FungusBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(
+                    ResourceKey.codec(Registries.CONFIGURED_FEATURE).fieldOf("feature").forGetter(param0x -> param0x.feature),
+                    BuiltInRegistries.BLOCK.byNameCodec().fieldOf("grows_on").forGetter(param0x -> param0x.requiredBlock),
+                    propertiesCodec()
+                )
+                .apply(param0, FungusBlock::new)
+    );
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 9.0, 12.0);
     private static final double BONEMEAL_SUCCESS_PROBABILITY = 0.4;
     private final Block requiredBlock;
     private final ResourceKey<ConfiguredFeature<?, ?>> feature;
 
-    protected FungusBlock(BlockBehaviour.Properties param0, ResourceKey<ConfiguredFeature<?, ?>> param1, Block param2) {
-        super(param0);
-        this.feature = param1;
-        this.requiredBlock = param2;
+    @Override
+    public MapCodec<FungusBlock> codec() {
+        return CODEC;
+    }
+
+    protected FungusBlock(ResourceKey<ConfiguredFeature<?, ?>> param0, Block param1, BlockBehaviour.Properties param2) {
+        super(param2);
+        this.feature = param0;
+        this.requiredBlock = param1;
     }
 
     @Override

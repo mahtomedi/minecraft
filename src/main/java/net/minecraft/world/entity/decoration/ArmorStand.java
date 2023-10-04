@@ -29,7 +29,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -402,7 +401,7 @@ public class ArmorStand extends LivingEntity {
             this.causeDamage(param0, 4.0F);
             return false;
         } else {
-            boolean var0 = "player".equals(param0.getMsgId());
+            boolean var0 = param0.is(DamageTypeTags.CAN_BREAK_ARMOR_STAND);
             boolean var1 = param0.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
             if (!var0 && !var1) {
                 return false;
@@ -416,18 +415,13 @@ public class ArmorStand extends LivingEntity {
                     this.playBrokenSound();
                     this.showBreakingParticles();
                     this.kill();
-                    var6 = param0.getDirectEntity();
-                    if (var6 instanceof AbstractArrow var3 && var3.getPierceLevel() > 0) {
-                        return true;
-                    }
-
-                    return false;
+                    return true;
                 } else {
-                    long var4 = this.level().getGameTime();
-                    if (var4 - this.lastHit > 5L && !var1) {
+                    long var3 = this.level().getGameTime();
+                    if (var3 - this.lastHit > 5L && !var1) {
                         this.level().broadcastEntityEvent(this, (byte)32);
                         this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
-                        this.lastHit = var4;
+                        this.lastHit = var3;
                     } else {
                         this.brokenByPlayer(param0);
                         this.showBreakingParticles();

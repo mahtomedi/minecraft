@@ -612,7 +612,9 @@ public class CommandSuggestions {
             Suggestion var0 = this.suggestionList.get(this.current);
             Message var1 = var0.getTooltip();
             return var1 != null
-                ? Component.translatable("narration.suggestion.tooltip", this.current + 1, this.suggestionList.size(), var0.getText(), var1)
+                ? Component.translatable(
+                    "narration.suggestion.tooltip", this.current + 1, this.suggestionList.size(), var0.getText(), Component.translationArg(var1)
+                )
                 : Component.translatable("narration.suggestion", this.current + 1, this.suggestionList.size(), var0.getText());
         }
     }

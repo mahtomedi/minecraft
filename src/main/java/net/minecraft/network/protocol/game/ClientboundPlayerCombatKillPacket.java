@@ -15,7 +15,7 @@ public class ClientboundPlayerCombatKillPacket implements Packet<ClientGamePacke
 
     public ClientboundPlayerCombatKillPacket(FriendlyByteBuf param0) {
         this.playerId = param0.readVarInt();
-        this.message = param0.readComponent();
+        this.message = param0.readComponentTrusted();
     }
 
     @Override

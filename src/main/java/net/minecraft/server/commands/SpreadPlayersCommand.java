@@ -34,13 +34,13 @@ import net.minecraft.world.scores.Team;
 public class SpreadPlayersCommand {
     private static final int MAX_ITERATION_COUNT = 10000;
     private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_TEAMS = new Dynamic4CommandExceptionType(
-        (param0, param1, param2, param3) -> Component.translatable("commands.spreadplayers.failed.teams", param0, param1, param2, param3)
+        (param0, param1, param2, param3) -> Component.translatableEscape("commands.spreadplayers.failed.teams", param0, param1, param2, param3)
     );
     private static final Dynamic4CommandExceptionType ERROR_FAILED_TO_SPREAD_ENTITIES = new Dynamic4CommandExceptionType(
-        (param0, param1, param2, param3) -> Component.translatable("commands.spreadplayers.failed.entities", param0, param1, param2, param3)
+        (param0, param1, param2, param3) -> Component.translatableEscape("commands.spreadplayers.failed.entities", param0, param1, param2, param3)
     );
     private static final Dynamic2CommandExceptionType ERROR_INVALID_MAX_HEIGHT = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("commands.spreadplayers.failed.invalid.height", param0, param1)
+        (param0, param1) -> Component.translatableEscape("commands.spreadplayers.failed.invalid.height", param0, param1)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {

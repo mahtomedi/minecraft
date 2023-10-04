@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +27,13 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class JukeboxBlock extends BaseEntityBlock {
+    public static final MapCodec<JukeboxBlock> CODEC = simpleCodec(JukeboxBlock::new);
     public static final BooleanProperty HAS_RECORD = BlockStateProperties.HAS_RECORD;
+
+    @Override
+    public MapCodec<JukeboxBlock> codec() {
+        return CODEC;
+    }
 
     protected JukeboxBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -97,7 +104,7 @@ public class JukeboxBlock extends BaseEntityBlock {
     public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
         BlockEntity var6 = param1.getBlockEntity(param2);
         if (var6 instanceof JukeboxBlockEntity var0) {
-            Item var7 = var0.getFirstItem().getItem();
+            Item var7 = var0.getTheItem().getItem();
             if (var7 instanceof RecordItem var1) {
                 return var1.getAnalogOutput();
             }

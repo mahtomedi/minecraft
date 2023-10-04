@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import java.util.Optional;
 import net.minecraft.BlockUtil;
 import net.minecraft.core.BlockPos;
@@ -23,12 +24,18 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements BonemealableBlock, SimpleWaterloggedBlock {
+    public static final MapCodec<BigDripleafStemBlock> CODEC = simpleCodec(BigDripleafStemBlock::new);
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final int STEM_WIDTH = 6;
     protected static final VoxelShape NORTH_SHAPE = Block.box(5.0, 0.0, 9.0, 11.0, 16.0, 15.0);
     protected static final VoxelShape SOUTH_SHAPE = Block.box(5.0, 0.0, 1.0, 11.0, 16.0, 7.0);
     protected static final VoxelShape EAST_SHAPE = Block.box(1.0, 0.0, 5.0, 7.0, 16.0, 11.0);
     protected static final VoxelShape WEST_SHAPE = Block.box(9.0, 0.0, 5.0, 15.0, 16.0, 11.0);
+
+    @Override
+    public MapCodec<BigDripleafStemBlock> codec() {
+        return CODEC;
+    }
 
     protected BigDripleafStemBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -127,7 +134,7 @@ public class BigDripleafStemBlock extends HorizontalDirectionalBlock implements 
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
+    public ItemStack getCloneItemStack(LevelReader param0, BlockPos param1, BlockState param2) {
         return new ItemStack(Blocks.BIG_DRIPLEAF);
     }
 }

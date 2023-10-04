@@ -88,11 +88,6 @@ public class Dolphin extends WaterAnimal {
     }
 
     @Override
-    public boolean canBreatheUnderwater() {
-        return false;
-    }
-
-    @Override
     protected void handleAirSupply(int param0) {
     }
 

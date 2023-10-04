@@ -1,5 +1,6 @@
 package net.minecraft.core;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -30,6 +31,8 @@ public final class UUIDUtil {
             return DataResult.error(() -> "Invalid UUID " + param0 + ": " + var2.getMessage());
         }
     }, UndashedUuid::toString)).xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::right);
+    public static Codec<UUID> LENIENT_CODEC = Codec.either(CODEC, STRING_CODEC)
+        .xmap(param0 -> param0.map(param0x -> param0x, param0x -> param0x), Either::left);
     public static final int UUID_BYTES = 16;
     private static final String UUID_PREFIX_OFFLINE_PLAYER = "OfflinePlayer:";
 
@@ -67,5 +70,10 @@ public final class UUIDUtil {
 
     public static UUID createOfflinePlayerUUID(String param0) {
         return UUID.nameUUIDFromBytes(("OfflinePlayer:" + param0).getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static GameProfile createOfflineProfile(String param0) {
+        UUID var0 = createOfflinePlayerUUID(param0);
+        return new GameProfile(var0, param0);
     }
 }

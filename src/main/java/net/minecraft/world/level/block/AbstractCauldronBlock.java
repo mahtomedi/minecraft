@@ -1,6 +1,6 @@
 package net.minecraft.world.level.block;
 
-import java.util.Map;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +9,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -36,9 +35,12 @@ public abstract class AbstractCauldronBlock extends Block {
         Shapes.or(box(0.0, 0.0, 4.0, 16.0, 3.0, 12.0), box(4.0, 0.0, 0.0, 12.0, 3.0, 16.0), box(2.0, 0.0, 2.0, 14.0, 3.0, 14.0), INSIDE),
         BooleanOp.ONLY_FIRST
     );
-    private final Map<Item, CauldronInteraction> interactions;
+    protected final CauldronInteraction.InteractionMap interactions;
 
-    public AbstractCauldronBlock(BlockBehaviour.Properties param0, Map<Item, CauldronInteraction> param1) {
+    @Override
+    protected abstract MapCodec<? extends AbstractCauldronBlock> codec();
+
+    public AbstractCauldronBlock(BlockBehaviour.Properties param0, CauldronInteraction.InteractionMap param1) {
         super(param0);
         this.interactions = param1;
     }
@@ -54,7 +56,7 @@ public abstract class AbstractCauldronBlock extends Block {
     @Override
     public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
         ItemStack var0 = param3.getItemInHand(param4);
-        CauldronInteraction var1 = this.interactions.get(var0.getItem());
+        CauldronInteraction var1 = this.interactions.map().get(var0.getItem());
         return var1.interact(param0, param1, param2, param3, param4, var0);
     }
 

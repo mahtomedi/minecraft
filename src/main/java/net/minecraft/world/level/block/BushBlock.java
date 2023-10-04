@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -10,10 +11,13 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 
-public class BushBlock extends Block {
+public abstract class BushBlock extends Block {
     protected BushBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
+
+    @Override
+    protected abstract MapCodec<? extends BushBlock> codec();
 
     protected boolean mayPlaceOn(BlockState param0, BlockGetter param1, BlockPos param2) {
         return param0.is(BlockTags.DIRT) || param0.is(Blocks.FARMLAND);

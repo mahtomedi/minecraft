@@ -2,12 +2,17 @@ package net.minecraft.world.level.block;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.FluidTags;
@@ -31,6 +36,15 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class LiquidBlock extends Block implements BucketPickup {
+    private static final Codec<FlowingFluid> FLOWING_FLUID = BuiltInRegistries.FLUID
+        .byNameCodec()
+        .comapFlatMap(
+            param0 -> param0 instanceof FlowingFluid var0 ? DataResult.success(var0) : DataResult.error(() -> "Not a flowing fluid: " + param0),
+            param0 -> param0
+        );
+    public static final MapCodec<LiquidBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(FLOWING_FLUID.fieldOf("fluid").forGetter(param0x -> param0x.fluid), propertiesCodec()).apply(param0, LiquidBlock::new)
+    );
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL;
     protected final FlowingFluid fluid;
     private final List<FluidState> stateCache;
@@ -38,6 +52,11 @@ public class LiquidBlock extends Block implements BucketPickup {
     public static final ImmutableList<Direction> POSSIBLE_FLOW_DIRECTIONS = ImmutableList.of(
         Direction.DOWN, Direction.SOUTH, Direction.NORTH, Direction.EAST, Direction.WEST
     );
+
+    @Override
+    public MapCodec<LiquidBlock> codec() {
+        return CODEC;
+    }
 
     protected LiquidBlock(FlowingFluid param0, BlockBehaviour.Properties param1) {
         super(param1);

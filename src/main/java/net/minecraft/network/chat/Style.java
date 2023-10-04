@@ -1,39 +1,17 @@
 package net.minecraft.network.chat;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.lang.reflect.Type;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 
 public class Style {
     public static final Style EMPTY = new Style(null, null, null, null, null, null, null, null, null, null);
-    public static final Codec<Style> FORMATTING_CODEC = RecordCodecBuilder.create(
-        param0 -> param0.group(
-                    TextColor.CODEC.optionalFieldOf("color").forGetter(param0x -> Optional.ofNullable(param0x.color)),
-                    Codec.BOOL.optionalFieldOf("bold").forGetter(param0x -> Optional.ofNullable(param0x.bold)),
-                    Codec.BOOL.optionalFieldOf("italic").forGetter(param0x -> Optional.ofNullable(param0x.italic)),
-                    Codec.BOOL.optionalFieldOf("underlined").forGetter(param0x -> Optional.ofNullable(param0x.underlined)),
-                    Codec.BOOL.optionalFieldOf("strikethrough").forGetter(param0x -> Optional.ofNullable(param0x.strikethrough)),
-                    Codec.BOOL.optionalFieldOf("obfuscated").forGetter(param0x -> Optional.ofNullable(param0x.obfuscated)),
-                    Codec.STRING.optionalFieldOf("insertion").forGetter(param0x -> Optional.ofNullable(param0x.insertion)),
-                    ResourceLocation.CODEC.optionalFieldOf("font").forGetter(param0x -> Optional.ofNullable(param0x.font))
-                )
-                .apply(param0, Style::create)
-    );
     public static final ResourceLocation DEFAULT_FONT = new ResourceLocation("minecraft", "default");
     @Nullable
     final TextColor color;
@@ -63,24 +41,27 @@ public class Style {
         Optional<Boolean> param3,
         Optional<Boolean> param4,
         Optional<Boolean> param5,
-        Optional<String> param6,
-        Optional<ResourceLocation> param7
+        Optional<ClickEvent> param6,
+        Optional<HoverEvent> param7,
+        Optional<String> param8,
+        Optional<ResourceLocation> param9
     ) {
-        return new Style(
+        Style var0 = new Style(
             param0.orElse(null),
             param1.orElse(null),
             param2.orElse(null),
             param3.orElse(null),
             param4.orElse(null),
             param5.orElse(null),
-            null,
-            null,
             param6.orElse(null),
-            param7.orElse(null)
+            param7.orElse(null),
+            param8.orElse(null),
+            param9.orElse(null)
         );
+        return var0.equals(EMPTY) ? EMPTY : var0;
     }
 
-    Style(
+    private Style(
         @Nullable TextColor param0,
         @Nullable Boolean param1,
         @Nullable Boolean param2,
@@ -152,10 +133,29 @@ public class Style {
         return this.font != null ? this.font : DEFAULT_FONT;
     }
 
+    private static <T> Style checkEmptyAfterChange(Style param0, @Nullable T param1, @Nullable T param2) {
+        return param1 != null && param2 == null && param0.equals(EMPTY) ? EMPTY : param0;
+    }
+
     public Style withColor(@Nullable TextColor param0) {
-        return new Style(
-            param0, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.color, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    param0,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.color,
+                param0
+            );
     }
 
     public Style withColor(@Nullable ChatFormatting param0) {
@@ -167,57 +167,183 @@ public class Style {
     }
 
     public Style withBold(@Nullable Boolean param0) {
-        return new Style(
-            this.color, param0, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.bold, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    param0,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.bold,
+                param0
+            );
     }
 
     public Style withItalic(@Nullable Boolean param0) {
-        return new Style(
-            this.color, this.bold, param0, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.italic, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    param0,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.italic,
+                param0
+            );
     }
 
     public Style withUnderlined(@Nullable Boolean param0) {
-        return new Style(
-            this.color, this.bold, this.italic, param0, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.underlined, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    param0,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.underlined,
+                param0
+            );
     }
 
     public Style withStrikethrough(@Nullable Boolean param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, param0, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.strikethrough, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color, this.bold, this.italic, this.underlined, param0, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, this.font
+                ),
+                this.strikethrough,
+                param0
+            );
     }
 
     public Style withObfuscated(@Nullable Boolean param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, this.strikethrough, param0, this.clickEvent, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.obfuscated, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    param0,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.obfuscated,
+                param0
+            );
     }
 
     public Style withClickEvent(@Nullable ClickEvent param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, param0, this.hoverEvent, this.insertion, this.font
-        );
+        return Objects.equals(this.clickEvent, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    param0,
+                    this.hoverEvent,
+                    this.insertion,
+                    this.font
+                ),
+                this.clickEvent,
+                param0
+            );
     }
 
     public Style withHoverEvent(@Nullable HoverEvent param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, param0, this.insertion, this.font
-        );
+        return Objects.equals(this.hoverEvent, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    param0,
+                    this.insertion,
+                    this.font
+                ),
+                this.hoverEvent,
+                param0
+            );
     }
 
     public Style withInsertion(@Nullable String param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, param0, this.font
-        );
+        return Objects.equals(this.insertion, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    param0,
+                    this.font
+                ),
+                this.insertion,
+                param0
+            );
     }
 
     public Style withFont(@Nullable ResourceLocation param0) {
-        return new Style(
-            this.color, this.bold, this.italic, this.underlined, this.strikethrough, this.obfuscated, this.clickEvent, this.hoverEvent, this.insertion, param0
-        );
+        return Objects.equals(this.font, param0)
+            ? this
+            : checkEmptyAfterChange(
+                new Style(
+                    this.color,
+                    this.bold,
+                    this.italic,
+                    this.underlined,
+                    this.strikethrough,
+                    this.obfuscated,
+                    this.clickEvent,
+                    this.hoverEvent,
+                    this.insertion,
+                    param0
+                ),
+                this.font,
+                param0
+            );
     }
 
     public Style applyFormat(ChatFormatting param0) {
@@ -406,16 +532,16 @@ public class Style {
             return false;
         } else {
             Style var0 = (Style)param0;
-            return this.isBold() == var0.isBold()
+            return this.bold == var0.bold
                 && Objects.equals(this.getColor(), var0.getColor())
-                && this.isItalic() == var0.isItalic()
-                && this.isObfuscated() == var0.isObfuscated()
-                && this.isStrikethrough() == var0.isStrikethrough()
-                && this.isUnderlined() == var0.isUnderlined()
-                && Objects.equals(this.getClickEvent(), var0.getClickEvent())
-                && Objects.equals(this.getHoverEvent(), var0.getHoverEvent())
-                && Objects.equals(this.getInsertion(), var0.getInsertion())
-                && Objects.equals(this.getFont(), var0.getFont());
+                && this.italic == var0.italic
+                && this.obfuscated == var0.obfuscated
+                && this.strikethrough == var0.strikethrough
+                && this.underlined == var0.underlined
+                && Objects.equals(this.clickEvent, var0.clickEvent)
+                && Objects.equals(this.hoverEvent, var0.hoverEvent)
+                && Objects.equals(this.insertion, var0.insertion)
+                && Objects.equals(this.font, var0.font);
         }
     }
 
@@ -426,145 +552,22 @@ public class Style {
         );
     }
 
-    public static class Serializer implements JsonDeserializer<Style>, JsonSerializer<Style> {
-        @Nullable
-        public Style deserialize(JsonElement param0, Type param1, JsonDeserializationContext param2) throws JsonParseException {
-            if (param0.isJsonObject()) {
-                JsonObject var0 = param0.getAsJsonObject();
-                if (var0 == null) {
-                    return null;
-                } else {
-                    Boolean var1 = getOptionalFlag(var0, "bold");
-                    Boolean var2 = getOptionalFlag(var0, "italic");
-                    Boolean var3 = getOptionalFlag(var0, "underlined");
-                    Boolean var4 = getOptionalFlag(var0, "strikethrough");
-                    Boolean var5 = getOptionalFlag(var0, "obfuscated");
-                    TextColor var6 = getTextColor(var0);
-                    String var7 = getInsertion(var0);
-                    ClickEvent var8 = getClickEvent(var0);
-                    HoverEvent var9 = getHoverEvent(var0);
-                    ResourceLocation var10 = getFont(var0);
-                    return new Style(var6, var1, var2, var3, var4, var5, var8, var9, var7, var10);
-                }
-            } else {
-                return null;
-            }
-        }
-
-        @Nullable
-        private static ResourceLocation getFont(JsonObject param0) {
-            if (param0.has("font")) {
-                String var0 = GsonHelper.getAsString(param0, "font");
-
-                try {
-                    return new ResourceLocation(var0);
-                } catch (ResourceLocationException var3) {
-                    throw new JsonSyntaxException("Invalid font name: " + var0);
-                }
-            } else {
-                return null;
-            }
-        }
-
-        @Nullable
-        private static HoverEvent getHoverEvent(JsonObject param0) {
-            if (param0.has("hoverEvent")) {
-                JsonObject var0 = GsonHelper.getAsJsonObject(param0, "hoverEvent");
-                HoverEvent var1 = HoverEvent.deserialize(var0);
-                if (var1 != null && var1.getAction().isAllowedFromServer()) {
-                    return var1;
-                }
-            }
-
-            return null;
-        }
-
-        @Nullable
-        private static ClickEvent getClickEvent(JsonObject param0) {
-            if (param0.has("clickEvent")) {
-                JsonObject var0 = GsonHelper.getAsJsonObject(param0, "clickEvent");
-                String var1 = GsonHelper.getAsString(var0, "action", null);
-                ClickEvent.Action var2 = var1 == null ? null : ClickEvent.Action.getByName(var1);
-                String var3 = GsonHelper.getAsString(var0, "value", null);
-                if (var2 != null && var3 != null && var2.isAllowedFromServer()) {
-                    return new ClickEvent(var2, var3);
-                }
-            }
-
-            return null;
-        }
-
-        @Nullable
-        private static String getInsertion(JsonObject param0) {
-            return GsonHelper.getAsString(param0, "insertion", null);
-        }
-
-        @Nullable
-        private static TextColor getTextColor(JsonObject param0) {
-            if (param0.has("color")) {
-                String var0 = GsonHelper.getAsString(param0, "color");
-                return TextColor.parseColor(var0);
-            } else {
-                return null;
-            }
-        }
-
-        @Nullable
-        private static Boolean getOptionalFlag(JsonObject param0, String param1) {
-            return param0.has(param1) ? param0.get(param1).getAsBoolean() : null;
-        }
-
-        @Nullable
-        public JsonElement serialize(Style param0, Type param1, JsonSerializationContext param2) {
-            if (param0.isEmpty()) {
-                return null;
-            } else {
-                JsonObject var0 = new JsonObject();
-                if (param0.bold != null) {
-                    var0.addProperty("bold", param0.bold);
-                }
-
-                if (param0.italic != null) {
-                    var0.addProperty("italic", param0.italic);
-                }
-
-                if (param0.underlined != null) {
-                    var0.addProperty("underlined", param0.underlined);
-                }
-
-                if (param0.strikethrough != null) {
-                    var0.addProperty("strikethrough", param0.strikethrough);
-                }
-
-                if (param0.obfuscated != null) {
-                    var0.addProperty("obfuscated", param0.obfuscated);
-                }
-
-                if (param0.color != null) {
-                    var0.addProperty("color", param0.color.serialize());
-                }
-
-                if (param0.insertion != null) {
-                    var0.add("insertion", param2.serialize(param0.insertion));
-                }
-
-                if (param0.clickEvent != null) {
-                    JsonObject var1 = new JsonObject();
-                    var1.addProperty("action", param0.clickEvent.getAction().getName());
-                    var1.addProperty("value", param0.clickEvent.getValue());
-                    var0.add("clickEvent", var1);
-                }
-
-                if (param0.hoverEvent != null) {
-                    var0.add("hoverEvent", param0.hoverEvent.serialize());
-                }
-
-                if (param0.font != null) {
-                    var0.addProperty("font", param0.font.toString());
-                }
-
-                return var0;
-            }
-        }
+    public static class Serializer {
+        public static final MapCodec<Style> MAP_CODEC = RecordCodecBuilder.mapCodec(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(TextColor.CODEC, "color").forGetter(param0x -> Optional.ofNullable(param0x.color)),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "bold").forGetter(param0x -> Optional.ofNullable(param0x.bold)),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "italic").forGetter(param0x -> Optional.ofNullable(param0x.italic)),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "underlined").forGetter(param0x -> Optional.ofNullable(param0x.underlined)),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "strikethrough").forGetter(param0x -> Optional.ofNullable(param0x.strikethrough)),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "obfuscated").forGetter(param0x -> Optional.ofNullable(param0x.obfuscated)),
+                        ExtraCodecs.strictOptionalField(ClickEvent.CODEC, "clickEvent").forGetter(param0x -> Optional.ofNullable(param0x.clickEvent)),
+                        ExtraCodecs.strictOptionalField(HoverEvent.CODEC, "hoverEvent").forGetter(param0x -> Optional.ofNullable(param0x.hoverEvent)),
+                        ExtraCodecs.strictOptionalField(Codec.STRING, "insertion").forGetter(param0x -> Optional.ofNullable(param0x.insertion)),
+                        ExtraCodecs.strictOptionalField(ResourceLocation.CODEC, "font").forGetter(param0x -> Optional.ofNullable(param0x.font))
+                    )
+                    .apply(param0, Style::create)
+        );
+        public static final Codec<Style> CODEC = MAP_CODEC.codec();
     }
 }

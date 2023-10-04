@@ -8,31 +8,31 @@ import net.minecraft.network.chat.Component;
 
 public class BrigadierExceptions implements BuiltInExceptionProvider {
     private static final Dynamic2CommandExceptionType DOUBLE_TOO_SMALL = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.double.low", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.double.low", param1, param0)
     );
     private static final Dynamic2CommandExceptionType DOUBLE_TOO_BIG = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.double.big", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.double.big", param1, param0)
     );
     private static final Dynamic2CommandExceptionType FLOAT_TOO_SMALL = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.float.low", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.float.low", param1, param0)
     );
     private static final Dynamic2CommandExceptionType FLOAT_TOO_BIG = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.float.big", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.float.big", param1, param0)
     );
     private static final Dynamic2CommandExceptionType INTEGER_TOO_SMALL = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.integer.low", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.integer.low", param1, param0)
     );
     private static final Dynamic2CommandExceptionType INTEGER_TOO_BIG = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.integer.big", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.integer.big", param1, param0)
     );
     private static final Dynamic2CommandExceptionType LONG_TOO_SMALL = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.long.low", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.long.low", param1, param0)
     );
     private static final Dynamic2CommandExceptionType LONG_TOO_BIG = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.long.big", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.long.big", param1, param0)
     );
     private static final DynamicCommandExceptionType LITERAL_INCORRECT = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.literal.incorrect", param0)
+        param0 -> Component.translatableEscape("argument.literal.incorrect", param0)
     );
     private static final SimpleCommandExceptionType READER_EXPECTED_START_OF_QUOTE = new SimpleCommandExceptionType(
         Component.translatable("parsing.quote.expected.start")
@@ -41,30 +41,30 @@ public class BrigadierExceptions implements BuiltInExceptionProvider {
         Component.translatable("parsing.quote.expected.end")
     );
     private static final DynamicCommandExceptionType READER_INVALID_ESCAPE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.quote.escape", param0)
+        param0 -> Component.translatableEscape("parsing.quote.escape", param0)
     );
     private static final DynamicCommandExceptionType READER_INVALID_BOOL = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.bool.invalid", param0)
+        param0 -> Component.translatableEscape("parsing.bool.invalid", param0)
     );
     private static final DynamicCommandExceptionType READER_INVALID_INT = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.int.invalid", param0)
+        param0 -> Component.translatableEscape("parsing.int.invalid", param0)
     );
     private static final SimpleCommandExceptionType READER_EXPECTED_INT = new SimpleCommandExceptionType(Component.translatable("parsing.int.expected"));
     private static final DynamicCommandExceptionType READER_INVALID_LONG = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.long.invalid", param0)
+        param0 -> Component.translatableEscape("parsing.long.invalid", param0)
     );
     private static final SimpleCommandExceptionType READER_EXPECTED_LONG = new SimpleCommandExceptionType(Component.translatable("parsing.long.expected"));
     private static final DynamicCommandExceptionType READER_INVALID_DOUBLE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.double.invalid", param0)
+        param0 -> Component.translatableEscape("parsing.double.invalid", param0)
     );
     private static final SimpleCommandExceptionType READER_EXPECTED_DOUBLE = new SimpleCommandExceptionType(Component.translatable("parsing.double.expected"));
     private static final DynamicCommandExceptionType READER_INVALID_FLOAT = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.float.invalid", param0)
+        param0 -> Component.translatableEscape("parsing.float.invalid", param0)
     );
     private static final SimpleCommandExceptionType READER_EXPECTED_FLOAT = new SimpleCommandExceptionType(Component.translatable("parsing.float.expected"));
     private static final SimpleCommandExceptionType READER_EXPECTED_BOOL = new SimpleCommandExceptionType(Component.translatable("parsing.bool.expected"));
     private static final DynamicCommandExceptionType READER_EXPECTED_SYMBOL = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("parsing.expected", param0)
+        param0 -> Component.translatableEscape("parsing.expected", param0)
     );
     private static final SimpleCommandExceptionType DISPATCHER_UNKNOWN_COMMAND = new SimpleCommandExceptionType(
         Component.translatable("command.unknown.command")
@@ -76,7 +76,7 @@ public class BrigadierExceptions implements BuiltInExceptionProvider {
         Component.translatable("command.expected.separator")
     );
     private static final DynamicCommandExceptionType DISPATCHER_PARSE_EXCEPTION = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("command.exception", param0)
+        param0 -> Component.translatableEscape("command.exception", param0)
     );
 
     @Override

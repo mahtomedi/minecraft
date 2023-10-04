@@ -31,7 +31,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 public class FillBiomeCommand {
     public static final SimpleCommandExceptionType ERROR_NOT_LOADED = new SimpleCommandExceptionType(Component.translatable("argument.pos.unloaded"));
     private static final Dynamic2CommandExceptionType ERROR_VOLUME_TOO_LARGE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("commands.fillbiome.toobig", param0, param1)
+        (param0, param1) -> Component.translatableEscape("commands.fillbiome.toobig", param0, param1)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {

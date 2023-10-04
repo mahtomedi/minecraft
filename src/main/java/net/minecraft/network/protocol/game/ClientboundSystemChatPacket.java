@@ -6,7 +6,7 @@ import net.minecraft.network.protocol.Packet;
 
 public record ClientboundSystemChatPacket(Component content, boolean overlay) implements Packet<ClientGamePacketListener> {
     public ClientboundSystemChatPacket(FriendlyByteBuf param0) {
-        this(param0.readComponent(), param0.readBoolean());
+        this(param0.readComponentTrusted(), param0.readBoolean());
     }
 
     @Override

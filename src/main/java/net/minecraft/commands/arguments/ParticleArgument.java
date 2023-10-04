@@ -24,7 +24,7 @@ import net.minecraft.resources.ResourceLocation;
 public class ParticleArgument implements ArgumentType<ParticleOptions> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "particle with options");
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_PARTICLE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("particle.notFound", param0)
+        param0 -> Component.translatableEscape("particle.notFound", param0)
     );
     private final HolderLookup<ParticleType<?>> particles;
 

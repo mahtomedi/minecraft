@@ -26,16 +26,16 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 public class AttributeCommand {
     private static final DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.attribute.failed.entity", param0)
+        param0 -> Component.translatableEscape("commands.attribute.failed.entity", param0)
     );
     private static final Dynamic2CommandExceptionType ERROR_NO_SUCH_ATTRIBUTE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("commands.attribute.failed.no_attribute", param0, param1)
+        (param0, param1) -> Component.translatableEscape("commands.attribute.failed.no_attribute", param0, param1)
     );
     private static final Dynamic3CommandExceptionType ERROR_NO_SUCH_MODIFIER = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> Component.translatable("commands.attribute.failed.no_modifier", param1, param0, param2)
+        (param0, param1, param2) -> Component.translatableEscape("commands.attribute.failed.no_modifier", param1, param0, param2)
     );
     private static final Dynamic3CommandExceptionType ERROR_MODIFIER_ALREADY_PRESENT = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> Component.translatable("commands.attribute.failed.modifier_already_present", param2, param1, param0)
+        (param0, param1, param2) -> Component.translatableEscape("commands.attribute.failed.modifier_already_present", param2, param1, param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {
@@ -263,7 +263,13 @@ public class AttributeCommand {
         } else {
             double var2 = var1.getModifierValue(param2, param3);
             param0.sendSuccess(
-                () -> Component.translatable("commands.attribute.modifier.value.get.success", param3, getAttributeDescription(param2), param1.getName(), var2),
+                () -> Component.translatable(
+                        "commands.attribute.modifier.value.get.success",
+                        Component.translationArg(param3),
+                        getAttributeDescription(param2),
+                        param1.getName(),
+                        var2
+                    ),
                 false
             );
             return (int)(var2 * param4);
@@ -288,7 +294,10 @@ public class AttributeCommand {
         } else {
             var0.addPermanentModifier(var1);
             param0.sendSuccess(
-                () -> Component.translatable("commands.attribute.modifier.add.success", param3, getAttributeDescription(param2), param1.getName()), false
+                () -> Component.translatable(
+                        "commands.attribute.modifier.add.success", Component.translationArg(param3), getAttributeDescription(param2), param1.getName()
+                    ),
+                false
             );
             return 1;
         }
@@ -298,7 +307,10 @@ public class AttributeCommand {
         AttributeInstance var0 = getAttributeInstance(param1, param2);
         if (var0.removePermanentModifier(param3)) {
             param0.sendSuccess(
-                () -> Component.translatable("commands.attribute.modifier.remove.success", param3, getAttributeDescription(param2), param1.getName()), false
+                () -> Component.translatable(
+                        "commands.attribute.modifier.remove.success", Component.translationArg(param3), getAttributeDescription(param2), param1.getName()
+                    ),
+                false
             );
             return 1;
         } else {

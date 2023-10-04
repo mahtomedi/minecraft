@@ -1,12 +1,14 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.grower.AbstractTreeGrower;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -16,12 +18,20 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class SaplingBlock extends BushBlock implements BonemealableBlock {
+    public static final MapCodec<SaplingBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(TreeGrower.CODEC.fieldOf("tree").forGetter(param0x -> param0x.treeGrower), propertiesCodec()).apply(param0, SaplingBlock::new)
+    );
     public static final IntegerProperty STAGE = BlockStateProperties.STAGE;
     protected static final float AABB_OFFSET = 6.0F;
     protected static final VoxelShape SHAPE = Block.box(2.0, 0.0, 2.0, 14.0, 12.0, 14.0);
-    private final AbstractTreeGrower treeGrower;
+    protected final TreeGrower treeGrower;
 
-    protected SaplingBlock(AbstractTreeGrower param0, BlockBehaviour.Properties param1) {
+    @Override
+    public MapCodec<? extends SaplingBlock> codec() {
+        return CODEC;
+    }
+
+    protected SaplingBlock(TreeGrower param0, BlockBehaviour.Properties param1) {
         super(param1);
         this.treeGrower = param0;
         this.registerDefaultState(this.stateDefinition.any().setValue(STAGE, Integer.valueOf(0)));

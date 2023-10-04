@@ -730,7 +730,9 @@ public abstract class Display extends Entity {
 
         @Override
         protected void updateRenderSubState(boolean param0, float param1) {
-            this.itemRenderState = new Display.ItemDisplay.ItemRenderState(this.getItemStack(), this.getItemTransform());
+            ItemStack var0 = this.getItemStack();
+            var0.setEntityRepresentation(this);
+            this.itemRenderState = new Display.ItemDisplay.ItemRenderState(var0, this.getItemTransform());
         }
 
         public static record ItemRenderState(ItemStack itemStack, ItemDisplayContext itemTransform) {

@@ -12,7 +12,7 @@ public class ClientboundSetSubtitleTextPacket implements Packet<ClientGamePacket
     }
 
     public ClientboundSetSubtitleTextPacket(FriendlyByteBuf param0) {
-        this.text = param0.readComponent();
+        this.text = param0.readComponentTrusted();
     }
 
     @Override

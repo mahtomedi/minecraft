@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -14,6 +15,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 
 public class ChorusPlantBlock extends PipeBlock {
+    public static final MapCodec<ChorusPlantBlock> CODEC = simpleCodec(ChorusPlantBlock::new);
+
+    @Override
+    public MapCodec<ChorusPlantBlock> codec() {
+        return CODEC;
+    }
+
     protected ChorusPlantBlock(BlockBehaviour.Properties param0) {
         super(0.3125F, param0);
         this.registerDefaultState(
@@ -30,23 +38,23 @@ public class ChorusPlantBlock extends PipeBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext param0) {
-        return this.getStateForPlacement(param0.getLevel(), param0.getClickedPos());
+        return getStateWithConnections(param0.getLevel(), param0.getClickedPos(), this.defaultBlockState());
     }
 
-    public BlockState getStateForPlacement(BlockGetter param0, BlockPos param1) {
+    public static BlockState getStateWithConnections(BlockGetter param0, BlockPos param1, BlockState param2) {
         BlockState var0 = param0.getBlockState(param1.below());
         BlockState var1 = param0.getBlockState(param1.above());
         BlockState var2 = param0.getBlockState(param1.north());
         BlockState var3 = param0.getBlockState(param1.east());
         BlockState var4 = param0.getBlockState(param1.south());
         BlockState var5 = param0.getBlockState(param1.west());
-        return this.defaultBlockState()
-            .setValue(DOWN, Boolean.valueOf(var0.is(this) || var0.is(Blocks.CHORUS_FLOWER) || var0.is(Blocks.END_STONE)))
-            .setValue(UP, Boolean.valueOf(var1.is(this) || var1.is(Blocks.CHORUS_FLOWER)))
-            .setValue(NORTH, Boolean.valueOf(var2.is(this) || var2.is(Blocks.CHORUS_FLOWER)))
-            .setValue(EAST, Boolean.valueOf(var3.is(this) || var3.is(Blocks.CHORUS_FLOWER)))
-            .setValue(SOUTH, Boolean.valueOf(var4.is(this) || var4.is(Blocks.CHORUS_FLOWER)))
-            .setValue(WEST, Boolean.valueOf(var5.is(this) || var5.is(Blocks.CHORUS_FLOWER)));
+        Block var6 = param2.getBlock();
+        return param2.trySetValue(DOWN, Boolean.valueOf(var0.is(var6) || var0.is(Blocks.CHORUS_FLOWER) || var0.is(Blocks.END_STONE)))
+            .trySetValue(UP, Boolean.valueOf(var1.is(var6) || var1.is(Blocks.CHORUS_FLOWER)))
+            .trySetValue(NORTH, Boolean.valueOf(var2.is(var6) || var2.is(Blocks.CHORUS_FLOWER)))
+            .trySetValue(EAST, Boolean.valueOf(var3.is(var6) || var3.is(Blocks.CHORUS_FLOWER)))
+            .trySetValue(SOUTH, Boolean.valueOf(var4.is(var6) || var4.is(Blocks.CHORUS_FLOWER)))
+            .trySetValue(WEST, Boolean.valueOf(var5.is(var6) || var5.is(Blocks.CHORUS_FLOWER)));
     }
 
     @Override

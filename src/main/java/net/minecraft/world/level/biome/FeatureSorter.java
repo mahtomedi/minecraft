@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.ImmutableList.Builder;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -112,7 +111,7 @@ public class FeatureSorter {
 
     public static record StepFeatureData(List<PlacedFeature> features, ToIntFunction<PlacedFeature> indexMapping) {
         StepFeatureData(List<PlacedFeature> param0) {
-            this(param0, Util.createIndexLookup(param0, param0x -> new Object2IntOpenCustomHashMap<>(param0x, Util.identityStrategy())));
+            this(param0, Util.createIndexIdentityLookup(param0));
         }
     }
 }

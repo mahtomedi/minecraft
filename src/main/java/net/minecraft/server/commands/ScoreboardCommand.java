@@ -49,7 +49,7 @@ public class ScoreboardCommand {
         Component.translatable("commands.scoreboard.players.enable.invalid")
     );
     private static final Dynamic2CommandExceptionType ERROR_NO_VALUE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("commands.scoreboard.players.get.null", param0, param1)
+        (param0, param1) -> Component.translatableEscape("commands.scoreboard.players.get.null", param0, param1)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {

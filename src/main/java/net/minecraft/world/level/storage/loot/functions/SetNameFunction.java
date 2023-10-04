@@ -11,6 +11,7 @@ import java.util.function.UnaryOperator;
 import javax.annotation.Nullable;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
@@ -26,7 +27,7 @@ public class SetNameFunction extends LootItemConditionalFunction {
         param0 -> commonFields(param0)
                 .and(
                     param0.group(
-                        ExtraCodecs.strictOptionalField(ExtraCodecs.COMPONENT, "name").forGetter(param0x -> param0x.name),
+                        ExtraCodecs.strictOptionalField(ComponentSerialization.CODEC, "name").forGetter(param0x -> param0x.name),
                         ExtraCodecs.strictOptionalField(LootContext.EntityTarget.CODEC, "entity").forGetter(param0x -> param0x.resolutionContext)
                     )
                 )

@@ -180,8 +180,8 @@ public class PortalShape {
         BlockPos var2 = param0.minCorner;
         double var4;
         if (var0 > 0.0) {
-            float var3 = (float)var2.get(param1) + param3.width / 2.0F;
-            var4 = Mth.clamp(Mth.inverseLerp(param2.get(param1) - (double)var3, 0.0, var0), 0.0, 1.0);
+            double var3 = (double)var2.get(param1) + (double)param3.width / 2.0;
+            var4 = Mth.clamp(Mth.inverseLerp(param2.get(param1) - var3, 0.0, var0), 0.0, 1.0);
         } else {
             var4 = 0.5;
         }

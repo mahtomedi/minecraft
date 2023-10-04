@@ -73,7 +73,7 @@ public class BlockDataAccessor implements DataAccessor {
     @Override
     public Component getPrintSuccess(NbtPathArgument.NbtPath param0, double param1, int param2) {
         return Component.translatable(
-            "commands.data.block.get", param0, this.pos.getX(), this.pos.getY(), this.pos.getZ(), String.format(Locale.ROOT, "%.2f", param1), param2
+            "commands.data.block.get", param0.asString(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), String.format(Locale.ROOT, "%.2f", param1), param2
         );
     }
 }

@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 
 public class GameProfileCache {
@@ -70,26 +71,29 @@ public class GameProfileCache {
     }
 
     private static Optional<GameProfile> lookupGameProfile(GameProfileRepository param0, String param1) {
-        final AtomicReference<GameProfile> var0 = new AtomicReference<>();
-        ProfileLookupCallback var1 = new ProfileLookupCallback() {
-            @Override
-            public void onProfileLookupSucceeded(GameProfile param0) {
-                var0.set(param0);
-            }
-
-            @Override
-            public void onProfileLookupFailed(String param0, Exception param1) {
-                var0.set(null);
-            }
-        };
-        param0.findProfilesByNames(new String[]{param1}, var1);
-        GameProfile var2 = var0.get();
-        if (!usesAuthentication() && var2 == null) {
-            UUID var3 = UUIDUtil.createOfflinePlayerUUID(param1);
-            return Optional.of(new GameProfile(var3, param1));
+        if (!Player.isValidUsername(param1)) {
+            return createUnknownProfile(param1);
         } else {
-            return Optional.ofNullable(var2);
+            final AtomicReference<GameProfile> var0 = new AtomicReference<>();
+            ProfileLookupCallback var1 = new ProfileLookupCallback() {
+                @Override
+                public void onProfileLookupSucceeded(GameProfile param0) {
+                    var0.set(param0);
+                }
+
+                @Override
+                public void onProfileLookupFailed(String param0, Exception param1) {
+                    var0.set(null);
+                }
+            };
+            param0.findProfilesByNames(new String[]{param1}, var1);
+            GameProfile var2 = var0.get();
+            return var2 != null ? Optional.of(var2) : createUnknownProfile(param1);
         }
+    }
+
+    private static Optional<GameProfile> createUnknownProfile(String param0) {
+        return usesAuthentication() ? Optional.empty() : Optional.of(UUIDUtil.createOfflineProfile(param0));
     }
 
     public static void setUsesAuthentication(boolean param0) {

@@ -18,10 +18,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class ClearInventoryCommands {
     private static final DynamicCommandExceptionType ERROR_SINGLE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("clear.failed.single", param0)
+        param0 -> Component.translatableEscape("clear.failed.single", param0)
     );
     private static final DynamicCommandExceptionType ERROR_MULTIPLE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("clear.failed.multiple", param0)
+        param0 -> Component.translatableEscape("clear.failed.multiple", param0)
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> param0, CommandBuildContext param1) {

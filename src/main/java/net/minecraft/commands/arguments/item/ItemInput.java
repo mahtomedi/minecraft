@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class ItemInput implements Predicate<ItemStack> {
     private static final Dynamic2CommandExceptionType ERROR_STACK_TOO_BIG = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("arguments.item.overstacked", param0, param1)
+        (param0, param1) -> Component.translatableEscape("arguments.item.overstacked", param0, param1)
     );
     private final Holder<Item> item;
     @Nullable

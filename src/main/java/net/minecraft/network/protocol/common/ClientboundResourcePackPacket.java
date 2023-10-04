@@ -28,7 +28,7 @@ public class ClientboundResourcePackPacket implements Packet<ClientCommonPacketL
         this.url = param0.readUtf();
         this.hash = param0.readUtf(40);
         this.required = param0.readBoolean();
-        this.prompt = param0.readNullable(FriendlyByteBuf::readComponent);
+        this.prompt = param0.readNullable(FriendlyByteBuf::readComponentTrusted);
     }
 
     @Override

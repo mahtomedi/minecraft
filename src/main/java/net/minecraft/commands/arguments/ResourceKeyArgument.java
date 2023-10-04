@@ -30,13 +30,13 @@ import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 public class ResourceKeyArgument<T> implements ArgumentType<ResourceKey<T>> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo:bar", "012");
     private static final DynamicCommandExceptionType ERROR_INVALID_FEATURE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.place.feature.invalid", param0)
+        param0 -> Component.translatableEscape("commands.place.feature.invalid", param0)
     );
     private static final DynamicCommandExceptionType ERROR_INVALID_STRUCTURE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.place.structure.invalid", param0)
+        param0 -> Component.translatableEscape("commands.place.structure.invalid", param0)
     );
     private static final DynamicCommandExceptionType ERROR_INVALID_TEMPLATE_POOL = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.place.jigsaw.invalid", param0)
+        param0 -> Component.translatableEscape("commands.place.jigsaw.invalid", param0)
     );
     final ResourceKey<? extends Registry<T>> registryKey;
 

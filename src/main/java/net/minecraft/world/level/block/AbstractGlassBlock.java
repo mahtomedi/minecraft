@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -12,6 +13,9 @@ public abstract class AbstractGlassBlock extends HalfTransparentBlock {
     protected AbstractGlassBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
+
+    @Override
+    protected abstract MapCodec<? extends AbstractGlassBlock> codec();
 
     @Override
     public VoxelShape getVisualShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {

@@ -25,7 +25,7 @@ public class ClientboundCommandSuggestionsPacket implements Packet<ClientGamePac
         StringRange var2 = StringRange.between(var0, var0 + var1);
         List<Suggestion> var3 = param0.readList(param1 -> {
             String var0x = param1.readUtf();
-            Component var1x = param1.readNullable(FriendlyByteBuf::readComponent);
+            Component var1x = param1.readNullable(FriendlyByteBuf::readComponentTrusted);
             return new Suggestion(var2, var0x, var1x);
         });
         this.suggestions = new Suggestions(var2, var3);

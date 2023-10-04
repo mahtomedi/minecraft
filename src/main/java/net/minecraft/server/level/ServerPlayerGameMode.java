@@ -235,21 +235,21 @@ public class ServerPlayerGameMode {
             } else if (this.player.blockActionRestricted(this.level, param0, this.gameModeForPlayer)) {
                 return false;
             } else {
-                var2.playerWillDestroy(this.level, param0, var0, this.player);
-                boolean var3 = this.level.removeBlock(param0, false);
-                if (var3) {
-                    var2.destroy(this.level, param0, var0);
+                BlockState var3 = var2.playerWillDestroy(this.level, param0, var0, this.player);
+                boolean var4 = this.level.removeBlock(param0, false);
+                if (var4) {
+                    var2.destroy(this.level, param0, var3);
                 }
 
                 if (this.isCreative()) {
                     return true;
                 } else {
-                    ItemStack var4 = this.player.getMainHandItem();
-                    ItemStack var5 = var4.copy();
-                    boolean var6 = this.player.hasCorrectToolForDrops(var0);
-                    var4.mineBlock(this.level, var0, param0, this.player);
-                    if (var3 && var6) {
-                        var2.playerDestroy(this.level, this.player, param0, var0, var1, var5);
+                    ItemStack var5 = this.player.getMainHandItem();
+                    ItemStack var6 = var5.copy();
+                    boolean var7 = this.player.hasCorrectToolForDrops(var3);
+                    var5.mineBlock(this.level, var3, param0, this.player);
+                    if (var4 && var7) {
+                        var2.playerDestroy(this.level, this.player, param0, var3, var1, var6);
                     }
 
                     return true;

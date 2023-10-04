@@ -9,7 +9,7 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
 import com.mojang.serialization.Dynamic;
 import java.util.stream.Stream;
-import net.minecraft.network.chat.Component;
+import net.minecraft.util.datafix.ComponentDataFixUtils;
 
 public class ItemLoreFix extends DataFix {
     public ItemLoreFix(Schema param0, boolean param1) {
@@ -42,10 +42,6 @@ public class ItemLoreFix extends DataFix {
     }
 
     private static <T> Stream<Dynamic<T>> fixLoreList(Stream<Dynamic<T>> param0) {
-        return param0.map(param0x -> DataFixUtils.orElse(param0x.asString().map(ItemLoreFix::fixLoreEntry).map(param0x::createString).result(), param0x));
-    }
-
-    private static String fixLoreEntry(String param0) {
-        return Component.Serializer.toJson(Component.literal(param0));
+        return param0.map(ComponentDataFixUtils::wrapLiteralStringAsComponent);
     }
 }

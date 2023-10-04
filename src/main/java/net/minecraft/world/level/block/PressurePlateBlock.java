@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -12,13 +14,20 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 public class PressurePlateBlock extends BasePressurePlateBlock {
+    public static final MapCodec<PressurePlateBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(BlockSetType.CODEC.fieldOf("block_set_type").forGetter(param0x -> param0x.type), propertiesCodec())
+                .apply(param0, PressurePlateBlock::new)
+    );
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    private final PressurePlateBlock.Sensitivity sensitivity;
 
-    protected PressurePlateBlock(PressurePlateBlock.Sensitivity param0, BlockBehaviour.Properties param1, BlockSetType param2) {
-        super(param1, param2);
+    @Override
+    public MapCodec<PressurePlateBlock> codec() {
+        return CODEC;
+    }
+
+    protected PressurePlateBlock(BlockSetType param0, BlockBehaviour.Properties param1) {
+        super(param1, param0);
         this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, Boolean.valueOf(false)));
-        this.sensitivity = param0;
     }
 
     @Override
@@ -33,7 +42,7 @@ public class PressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level param0, BlockPos param1) {
-        Class var0 = switch(this.sensitivity) {
+        Class<? extends Entity> var0 = switch(this.type.pressurePlateSensitivity()) {
             case EVERYTHING -> Entity.class;
             case MOBS -> LivingEntity.class;
         };
@@ -43,10 +52,5 @@ public class PressurePlateBlock extends BasePressurePlateBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> param0) {
         param0.add(POWERED);
-    }
-
-    public static enum Sensitivity {
-        EVERYTHING,
-        MOBS;
     }
 }

@@ -1,12 +1,13 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -16,6 +17,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 
 public class EndGatewayBlock extends BaseEntityBlock {
+    public static final MapCodec<EndGatewayBlock> CODEC = simpleCodec(EndGatewayBlock::new);
+
+    @Override
+    public MapCodec<EndGatewayBlock> codec() {
+        return CODEC;
+    }
+
     protected EndGatewayBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
@@ -62,7 +70,7 @@ public class EndGatewayBlock extends BaseEntityBlock {
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
+    public ItemStack getCloneItemStack(LevelReader param0, BlockPos param1, BlockState param2) {
         return ItemStack.EMPTY;
     }
 

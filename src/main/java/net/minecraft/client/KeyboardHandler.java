@@ -109,11 +109,11 @@ public class KeyboardHandler {
     }
 
     private void debugFeedbackTranslated(String param0, Object... param1) {
-        this.debugFeedbackComponent(Component.translatable(param0, param1));
+        this.debugFeedbackComponent(Component.translatableEscape(param0, param1));
     }
 
     private void debugWarningTranslated(String param0, Object... param1) {
-        this.debugComponent(ChatFormatting.RED, Component.translatable(param0, param1));
+        this.debugComponent(ChatFormatting.RED, Component.translatableEscape(param0, param1));
     }
 
     private void debugFeedback(String param0, Object... param1) {

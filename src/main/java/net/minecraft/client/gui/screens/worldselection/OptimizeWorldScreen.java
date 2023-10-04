@@ -3,8 +3,8 @@ package net.minecraft.client.gui.screens.worldselection;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import java.util.function.ToIntFunction;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class OptimizeWorldScreen extends Screen {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Object2IntMap<ResourceKey<Level>> DIMENSION_COLORS = Util.make(new Object2IntOpenCustomHashMap<>(Util.identityStrategy()), param0 -> {
+    private static final ToIntFunction<ResourceKey<Level>> DIMENSION_COLORS = Util.make(new Reference2IntOpenHashMap<>(), param0 -> {
         param0.put(Level.OVERWORLD, -13408734);
         param0.put(Level.NETHER, -10075085);
         param0.put(Level.END, -8943531);
@@ -119,7 +119,7 @@ public class OptimizeWorldScreen extends Screen {
 
             for(ResourceKey<Level> var5 : this.upgrader.levels()) {
                 int var6 = Mth.floor(this.upgrader.dimensionProgress(var5) * (float)(var1 - var0));
-                param0.fill(var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.getInt(var5));
+                param0.fill(var0 + var4, var2, var0 + var4 + var6, var3, DIMENSION_COLORS.applyAsInt(var5));
                 var4 += var6;
             }
 

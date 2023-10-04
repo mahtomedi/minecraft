@@ -286,6 +286,10 @@ public class Slime extends Mob implements Enemy {
 
     public static boolean checkSlimeSpawnRules(EntityType<Slime> param0, LevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4) {
         if (param1.getDifficulty() != Difficulty.PEACEFUL) {
+            if (param2 == MobSpawnType.SPAWNER) {
+                return checkMobSpawnRules(param0, param1, param2, param3, param4);
+            }
+
             if (param1.getBiome(param3).is(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS)
                 && param3.getY() > 50
                 && param3.getY() < 70

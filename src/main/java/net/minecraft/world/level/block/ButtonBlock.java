@@ -1,5 +1,8 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +31,14 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
+    public static final MapCodec<ButtonBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(
+                    BlockSetType.CODEC.fieldOf("block_set_type").forGetter(param0x -> param0x.type),
+                    Codec.intRange(1, 1024).fieldOf("ticks_to_stay_pressed").forGetter(param0x -> param0x.ticksToStayPressed),
+                    propertiesCodec()
+                )
+                .apply(param0, ButtonBlock::new)
+    );
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final int PRESSED_DEPTH = 1;
     private static final int UNPRESSED_DEPTH = 2;
@@ -51,16 +62,19 @@ public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
     protected static final VoxelShape PRESSED_EAST_AABB = Block.box(0.0, 6.0, 5.0, 1.0, 10.0, 11.0);
     private final BlockSetType type;
     private final int ticksToStayPressed;
-    private final boolean arrowsCanPress;
 
-    protected ButtonBlock(BlockBehaviour.Properties param0, BlockSetType param1, int param2, boolean param3) {
-        super(param0.sound(param1.soundType()));
-        this.type = param1;
+    @Override
+    public MapCodec<ButtonBlock> codec() {
+        return CODEC;
+    }
+
+    protected ButtonBlock(BlockSetType param0, int param1, BlockBehaviour.Properties param2) {
+        super(param2.sound(param0.soundType()));
+        this.type = param0;
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, Boolean.valueOf(false)).setValue(FACE, AttachFace.WALL)
         );
-        this.ticksToStayPressed = param2;
-        this.arrowsCanPress = param3;
+        this.ticksToStayPressed = param1;
     }
 
     @Override
@@ -152,13 +166,13 @@ public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
 
     @Override
     public void entityInside(BlockState param0, Level param1, BlockPos param2, Entity param3) {
-        if (!param1.isClientSide && this.arrowsCanPress && !param0.getValue(POWERED)) {
+        if (!param1.isClientSide && this.type.canButtonBeActivatedByArrows() && !param0.getValue(POWERED)) {
             this.checkPressed(param0, param1, param2);
         }
     }
 
     protected void checkPressed(BlockState param0, Level param1, BlockPos param2) {
-        AbstractArrow var0 = this.arrowsCanPress
+        AbstractArrow var0 = this.type.canButtonBeActivatedByArrows()
             ? param1.getEntitiesOfClass(AbstractArrow.class, param0.getShape(param1, param2).bounds().move(param2)).stream().findFirst().orElse(null)
             : null;
         boolean var1 = var0 != null;

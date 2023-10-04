@@ -263,6 +263,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private static final CompletableFuture<Unit> RESOURCE_RELOAD_INITIAL_TASK = CompletableFuture.completedFuture(Unit.INSTANCE);
     private static final Component SOCIAL_INTERACTIONS_NOT_AVAILABLE = Component.translatable("multiplayer.socialInteractions.not_available");
     public static final String UPDATE_DRIVERS_ADVICE = "Please make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions).";
+    private final long canary = Double.doubleToLongBits(Math.PI);
     private final Path resourcePackDirectory;
     private final CompletableFuture<ProfileResult> profileFuture;
     private final TextureManager textureManager;
@@ -358,6 +359,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public Screen screen;
     @Nullable
     private Overlay overlay;
+    private boolean clientLevelTeardownInProgress;
     private Thread gameThread;
     private volatile boolean running;
     @Nullable
@@ -393,11 +395,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     private final CommandHistory commandHistory;
     private final DirectoryValidator directoryValidator;
     private boolean gameLoadFinished;
+    private final long clientStartTimeMs;
+    private long clientTickCount;
     private String debugPath = "root";
 
     public Minecraft(GameConfig param0) {
         super("Client");
         instance = this;
+        this.clientStartTimeMs = System.currentTimeMillis();
         this.gameDirectory = param0.location.gameDirectory;
         File var0 = param0.location.assetDirectory;
         this.resourcePackDirectory = param0.location.resourcePackDirectory.toPath();
@@ -569,6 +574,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.chatListener.setMessageDelay(this.options.chatDelay().get());
         this.reportingContext = ReportingContext.create(ReportEnvironment.local(), this.userApiService);
         LoadingOverlay.registerTextures(this);
+        this.setScreen(new GenericDirtMessageScreen(Component.translatable("gui.loadingMinecraft")));
         List<PackResources> var10 = this.resourcePackRepository.openAllSelected();
         this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var10);
         ReloadInstance var11 = this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var10);
@@ -1018,33 +1024,37 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             this.screen.removed();
         }
 
-        if (param0 == null && this.level == null) {
-            param0 = new TitleScreen();
-        } else if (param0 == null && this.player.isDeadOrDying()) {
-            if (this.player.shouldShowDeathScreen()) {
-                param0 = new DeathScreen(null, this.level.getLevelData().isHardcore());
-            } else {
-                this.player.respawn();
-            }
-        }
-
-        this.screen = param0;
-        if (this.screen != null) {
-            this.screen.added();
-        }
-
-        BufferUploader.reset();
-        if (param0 != null) {
-            this.mouseHandler.releaseMouse();
-            KeyMapping.releaseAll();
-            param0.init(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
-            this.noRender = false;
+        if (param0 == null && this.clientLevelTeardownInProgress) {
+            throw new IllegalStateException("Trying to return to in-game GUI during disconnection");
         } else {
-            this.soundManager.resume();
-            this.mouseHandler.grabMouse();
-        }
+            if (param0 == null && this.level == null) {
+                param0 = new TitleScreen();
+            } else if (param0 == null && this.player.isDeadOrDying()) {
+                if (this.player.shouldShowDeathScreen()) {
+                    param0 = new DeathScreen(null, this.level.getLevelData().isHardcore());
+                } else {
+                    this.player.respawn();
+                }
+            }
 
-        this.updateTitle();
+            this.screen = param0;
+            if (this.screen != null) {
+                this.screen.added();
+            }
+
+            BufferUploader.reset();
+            if (param0 != null) {
+                this.mouseHandler.releaseMouse();
+                KeyMapping.releaseAll();
+                param0.init(this, this.window.getGuiScaledWidth(), this.window.getGuiScaledHeight());
+                this.noRender = false;
+            } else {
+                this.soundManager.resume();
+                this.mouseHandler.grabMouse();
+            }
+
+            this.updateTitle();
+        }
     }
 
     public void setOverlay(@Nullable Overlay param0) {
@@ -1765,6 +1775,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     public void tick() {
+        ++this.clientTickCount;
         if (this.rightClickDelay > 0) {
             --this.rightClickDelay;
         }
@@ -2110,30 +2121,42 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.gameRenderer.resetData();
         this.gameMode = null;
         this.narrator.clear();
-        this.updateScreenAndTick(param0);
-        if (this.level != null) {
-            if (var1 != null) {
-                this.profiler.push("waitForServer");
+        this.clientLevelTeardownInProgress = true;
 
-                while(!var1.isShutdown()) {
-                    this.runTick(false);
+        try {
+            this.updateScreenAndTick(param0);
+            if (this.level != null) {
+                if (var1 != null) {
+                    this.profiler.push("waitForServer");
+
+                    while(!var1.isShutdown()) {
+                        this.runTick(false);
+                    }
+
+                    this.profiler.pop();
                 }
 
-                this.profiler.pop();
+                this.downloadedPackSource.clearServerPack();
+                this.gui.onDisconnected();
+                this.isLocalServer = false;
             }
 
-            this.downloadedPackSource.clearServerPack();
-            this.gui.onDisconnected();
-            this.isLocalServer = false;
+            this.level = null;
+            this.updateLevelInEngines(null);
+            this.player = null;
+        } finally {
+            this.clientLevelTeardownInProgress = false;
         }
 
-        this.level = null;
-        this.updateLevelInEngines(null);
-        this.player = null;
         SkullBlockEntity.clear();
     }
 
     public void clearClientLevel(Screen param0) {
+        ClientPacketListener var0 = this.getConnection();
+        if (var0 != null) {
+            var0.clearLevel();
+        }
+
         if (this.metricsRecorder.isRecording()) {
             this.debugClientMetricsCancel();
         }
@@ -2141,12 +2164,19 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.gameRenderer.resetData();
         this.gameMode = null;
         this.narrator.clear();
-        this.updateScreenAndTick(param0);
-        this.gui.onDisconnected();
-        this.downloadedPackSource.clearServerPack();
-        this.level = null;
-        this.updateLevelInEngines(null);
-        this.player = null;
+        this.clientLevelTeardownInProgress = true;
+
+        try {
+            this.updateScreenAndTick(param0);
+            this.gui.onDisconnected();
+            this.downloadedPackSource.clearServerPack();
+            this.level = null;
+            this.updateLevelInEngines(null);
+            this.player = null;
+        } finally {
+            this.clientLevelTeardownInProgress = false;
+        }
+
         SkullBlockEntity.clear();
     }
 
@@ -2339,6 +2369,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public CrashReport fillReport(CrashReport param0) {
         SystemReport var0 = param0.getSystemReport();
         fillSystemReport(var0, this, this.languageManager, this.launchedVersion, this.options);
+        this.fillUptime(param0.addCategory("Uptime"));
         if (this.level != null) {
             this.level.fillReportDetails(param0);
         }
@@ -2356,10 +2387,20 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         fillSystemReport(var0, param0, param1, param2, param3);
     }
 
+    private static String formatSeconds(double param0) {
+        return String.format(Locale.ROOT, "%.3fs", param0);
+    }
+
+    private void fillUptime(CrashReportCategory param0) {
+        param0.setDetail("JVM uptime", () -> formatSeconds((double)ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0));
+        param0.setDetail("Wall uptime", () -> formatSeconds((double)(System.currentTimeMillis() - this.clientStartTimeMs) / 1000.0));
+        param0.setDetail("High-res time", () -> formatSeconds((double)Util.getMillis() / 1000.0));
+        param0.setDetail("Client ticks", () -> String.format(Locale.ROOT, "%d ticks / %.3fs", this.clientTickCount, (double)this.clientTickCount / 20.0));
+    }
+
     private static SystemReport fillSystemReport(
         SystemReport param0, @Nullable Minecraft param1, @Nullable LanguageManager param2, String param3, Options param4
     ) {
-        param0.setDetail("JVM uptime in seconds", () -> String.valueOf((double)ManagementFactory.getRuntimeMXBean().getUptime() / 1000.0));
         param0.setDetail("Launched Version", () -> param3);
         param0.setDetail("Backend library", RenderSystem::getBackendDescription);
         param0.setDetail("Backend API", RenderSystem::getApiDescription);
@@ -2368,6 +2409,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         param0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
         param0.setDetail("Using VBOs", () -> "Yes");
         param0.setDetail("Is Modded", () -> checkModStatus().fullDescription());
+        param0.setDetail("Universe", () -> Long.toHexString(param1.canary));
         param0.setDetail("Type", "Client (map_client.txt)");
         if (param4 != null) {
             if (instance != null) {

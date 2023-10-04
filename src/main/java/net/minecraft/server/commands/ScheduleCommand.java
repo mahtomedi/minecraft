@@ -26,7 +26,7 @@ import net.minecraft.world.level.timers.TimerQueue;
 public class ScheduleCommand {
     private static final SimpleCommandExceptionType ERROR_SAME_TICK = new SimpleCommandExceptionType(Component.translatable("commands.schedule.same_tick"));
     private static final DynamicCommandExceptionType ERROR_CANT_REMOVE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.schedule.cleared.failure", param0)
+        param0 -> Component.translatableEscape("commands.schedule.cleared.failure", param0)
     );
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_SCHEDULE = (param0, param1) -> SharedSuggestionProvider.suggest(
             param0.getSource().getServer().getWorldData().overworldData().getScheduledEvents().getEventsIds(), param1
@@ -103,7 +103,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionCallback(var1));
-                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.function", var1, param2, var0), true);
+                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.function", Component.translationArg(var1), param2, var0), true);
             }).ifRight(param6 -> {
                 String var0x = "#" + var1;
                 if (param3) {
@@ -111,7 +111,7 @@ public class ScheduleCommand {
                 }
 
                 var2.schedule(var0x, var0, new FunctionTagCallback(var1));
-                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.tag", var1, param2, var0), true);
+                param0.sendSuccess(() -> Component.translatable("commands.schedule.created.tag", Component.translationArg(var1), param2, var0), true);
             });
             return Math.floorMod(var0, Integer.MAX_VALUE);
         }

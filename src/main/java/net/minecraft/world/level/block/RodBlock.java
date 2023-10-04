@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class RodBlock extends DirectionalBlock {
+public abstract class RodBlock extends DirectionalBlock {
     protected static final float AABB_MIN = 6.0F;
     protected static final float AABB_MAX = 10.0F;
     protected static final VoxelShape Y_AXIS_AABB = Block.box(6.0, 0.0, 6.0, 10.0, 16.0, 10.0);
@@ -18,6 +19,9 @@ public class RodBlock extends DirectionalBlock {
     protected RodBlock(BlockBehaviour.Properties param0) {
         super(param0);
     }
+
+    @Override
+    protected abstract MapCodec<? extends RodBlock> codec();
 
     @Override
     public VoxelShape getShape(BlockState param0, BlockGetter param1, BlockPos param2, CollisionContext param3) {

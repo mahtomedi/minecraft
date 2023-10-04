@@ -25,7 +25,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 
 public class FunctionCommand {
     private static final DynamicCommandExceptionType ERROR_ARGUMENT_NOT_COMPOUND = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.function.error.argument_not_compound", param0)
+        param0 -> Component.translatableEscape("commands.function.error.argument_not_compound", param0)
     );
     public static final SuggestionProvider<CommandSourceStack> SUGGEST_FUNCTION = (param0, param1) -> {
         ServerFunctionManager var0 = param0.getSource().getServer().getFunctions();
@@ -106,9 +106,17 @@ public class FunctionCommand {
             int var6 = var0;
             if (param1.size() == 1) {
                 if (var1) {
-                    param0.sendSuccess(() -> Component.translatable("commands.function.success.single.result", var6, param1.iterator().next().getId()), true);
+                    param0.sendSuccess(
+                        () -> Component.translatable(
+                                "commands.function.success.single.result", var6, Component.translationArg(param1.iterator().next().getId())
+                            ),
+                        true
+                    );
                 } else {
-                    param0.sendSuccess(() -> Component.translatable("commands.function.success.single", var6, param1.iterator().next().getId()), true);
+                    param0.sendSuccess(
+                        () -> Component.translatable("commands.function.success.single", var6, Component.translationArg(param1.iterator().next().getId())),
+                        true
+                    );
                 }
             } else if (var1) {
                 param0.sendSuccess(() -> Component.translatable("commands.function.success.multiple.result", param1.size()), true);

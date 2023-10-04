@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -11,7 +13,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 
 public class CoralWallFanBlock extends BaseCoralWallFanBlock {
+    public static final MapCodec<CoralWallFanBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(CoralBlock.DEAD_CORAL_FIELD.forGetter(param0x -> param0x.deadBlock), propertiesCodec()).apply(param0, CoralWallFanBlock::new)
+    );
     private final Block deadBlock;
+
+    @Override
+    public MapCodec<CoralWallFanBlock> codec() {
+        return CODEC;
+    }
 
     protected CoralWallFanBlock(Block param0, BlockBehaviour.Properties param1) {
         super(param1);

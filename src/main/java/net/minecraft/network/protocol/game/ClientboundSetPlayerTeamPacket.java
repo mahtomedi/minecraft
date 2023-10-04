@@ -156,13 +156,13 @@ public class ClientboundSetPlayerTeamPacket implements Packet<ClientGamePacketLi
         }
 
         public Parameters(FriendlyByteBuf param0) {
-            this.displayName = param0.readComponent();
+            this.displayName = param0.readComponentTrusted();
             this.options = param0.readByte();
             this.nametagVisibility = param0.readUtf(40);
             this.collisionRule = param0.readUtf(40);
             this.color = param0.readEnum(ChatFormatting.class);
-            this.playerPrefix = param0.readComponent();
-            this.playerSuffix = param0.readComponent();
+            this.playerPrefix = param0.readComponentTrusted();
+            this.playerSuffix = param0.readComponentTrusted();
         }
 
         public Component getDisplayName() {

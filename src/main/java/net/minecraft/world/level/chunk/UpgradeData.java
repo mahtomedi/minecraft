@@ -31,7 +31,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.StemBlock;
-import net.minecraft.world.level.block.StemGrownBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -414,9 +413,11 @@ public class UpgradeData {
             @Override
             public BlockState updateShape(BlockState param0, Direction param1, BlockState param2, LevelAccessor param3, BlockPos param4, BlockPos param5) {
                 if (param0.getValue(StemBlock.AGE) == 7) {
-                    StemGrownBlock var0 = ((StemBlock)param0.getBlock()).getFruit();
+                    Block var0 = param0.is(Blocks.PUMPKIN_STEM) ? Blocks.PUMPKIN : Blocks.MELON;
                     if (param2.is(var0)) {
-                        return var0.getAttachedStem().defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, param1);
+                        return (param0.is(Blocks.PUMPKIN_STEM) ? Blocks.ATTACHED_PUMPKIN_STEM : Blocks.ATTACHED_MELON_STEM)
+                            .defaultBlockState()
+                            .setValue(HorizontalDirectionalBlock.FACING, param1);
                     }
                 }
 

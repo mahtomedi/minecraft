@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -16,6 +17,13 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class IronBarsBlock extends CrossCollisionBlock {
+    public static final MapCodec<IronBarsBlock> CODEC = simpleCodec(IronBarsBlock::new);
+
+    @Override
+    public MapCodec<? extends IronBarsBlock> codec() {
+        return CODEC;
+    }
+
     protected IronBarsBlock(BlockBehaviour.Properties param0) {
         super(1.0F, 1.0F, 16.0F, 16.0F, 16.0F, param0);
         this.registerDefaultState(

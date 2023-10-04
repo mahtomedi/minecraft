@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -56,7 +57,6 @@ import java.util.stream.Stream;
 import net.minecraft.Util;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -66,18 +66,17 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class ExtraCodecs {
-    public static final Codec<JsonElement> JSON = Codec.PASSTHROUGH
-        .xmap(param0 -> param0.convert(JsonOps.INSTANCE).getValue(), param0 -> new Dynamic<>(JsonOps.INSTANCE, param0));
-    public static final Codec<Component> COMPONENT = adaptJsonSerializer(Component.Serializer::fromJson, Component.Serializer::toJsonTree);
-    public static final Codec<Component> FLAT_COMPONENT = Codec.STRING.flatXmap(param0 -> {
+    public static final Codec<JsonElement> JSON = converter(JsonOps.INSTANCE);
+    public static final Codec<Object> JAVA = converter(JavaOps.INSTANCE);
+    public static final Codec<JsonElement> FLAT_JSON = Codec.STRING.flatXmap(param0 -> {
         try {
-            return DataResult.success(Component.Serializer.fromJson(param0));
+            return DataResult.success(JsonParser.parseString(param0));
         } catch (JsonParseException var2) {
             return DataResult.error(var2::getMessage);
         }
     }, param0 -> {
         try {
-            return DataResult.success(Component.Serializer.toJson(param0));
+            return DataResult.success(GsonHelper.toStableString(param0));
         } catch (IllegalArgumentException var2) {
             return DataResult.error(var2::getMessage);
         }
@@ -205,21 +204,8 @@ public class ExtraCodecs {
                 : DataResult.success(param0)
     );
 
-    @Deprecated
-    public static <T> Codec<T> adaptJsonSerializer(Function<JsonElement, T> param0, Function<T, JsonElement> param1) {
-        return JSON.flatXmap(param1x -> {
-            try {
-                return DataResult.success(param0.apply(param1x));
-            } catch (JsonParseException var3) {
-                return DataResult.error(var3::getMessage);
-            }
-        }, param1x -> {
-            try {
-                return DataResult.success(param1.apply(param1x));
-            } catch (IllegalArgumentException var3) {
-                return DataResult.error(var3::getMessage);
-            }
-        });
+    public static <T> Codec<T> converter(DynamicOps<T> param0) {
+        return Codec.PASSTHROUGH.xmap(param1 -> param1.convert(param0).getValue(), param1 -> new Dynamic<>(param0, param1));
     }
 
     public static <F, S> Codec<Either<F, S>> xor(Codec<F> param0, Codec<S> param1) {
@@ -305,6 +291,30 @@ public class ExtraCodecs {
             @Override
             public <T> DataResult<Pair<E, T>> decode(DynamicOps<T> param0x, T param1x) {
                 return param0.compressMaps() ? param1.decode(param0, param1) : param0.decode(param0, param1);
+            }
+
+            @Override
+            public String toString() {
+                return param0 + " orCompressed " + param1;
+            }
+        };
+    }
+
+    public static <E> MapCodec<E> orCompressed(final MapCodec<E> param0, final MapCodec<E> param1) {
+        return new MapCodec<E>() {
+            @Override
+            public <T> RecordBuilder<T> encode(E param0x, DynamicOps<T> param1x, RecordBuilder<T> param2) {
+                return param1.compressMaps() ? param1.encode(param0, param1, param2) : param0.encode(param0, param1, param2);
+            }
+
+            @Override
+            public <T> DataResult<E> decode(DynamicOps<T> param0x, MapLike<T> param1x) {
+                return param0.compressMaps() ? param1.decode(param0, param1) : param0.decode(param0, param1);
+            }
+
+            @Override
+            public <T> Stream<T> keys(DynamicOps<T> param0x) {
+                return param1.keys(param0);
             }
 
             @Override

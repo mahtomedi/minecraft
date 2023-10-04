@@ -25,7 +25,7 @@ public record ClientboundPlayerChatPacket(
             param0.readVarInt(),
             param0.readNullable(MessageSignature::read),
             new SignedMessageBody.Packed(param0),
-            param0.readNullable(FriendlyByteBuf::readComponent),
+            param0.readNullable(FriendlyByteBuf::readComponentTrusted),
             FilterMask.read(param0),
             new ChatType.BoundNetwork(param0)
         );

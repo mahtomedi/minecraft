@@ -1,6 +1,8 @@
 package net.minecraft.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import java.util.Collection;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -10,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class KickCommand {
+    private static final SimpleCommandExceptionType ERROR_KICKING_OWNER = new SimpleCommandExceptionType(Component.translatable("commands.kick.owner.failed"));
+
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("kick")
@@ -33,12 +37,21 @@ public class KickCommand {
         );
     }
 
-    private static int kickPlayers(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) {
-        for(ServerPlayer var0 : param1) {
-            var0.connection.disconnect(param2);
-            param0.sendSuccess(() -> Component.translatable("commands.kick.success", var0.getDisplayName(), param2), true);
+    private static int kickPlayers(CommandSourceStack param0, Collection<ServerPlayer> param1, Component param2) throws CommandSyntaxException {
+        int var0 = 0;
+
+        for(ServerPlayer var1 : param1) {
+            if (!param0.getServer().isSingleplayerOwner(var1.getGameProfile())) {
+                var1.connection.disconnect(param2);
+                param0.sendSuccess(() -> Component.translatable("commands.kick.success", var1.getDisplayName(), param2), true);
+                ++var0;
+            }
         }
 
-        return param1.size();
+        if (var0 == 0) {
+            throw ERROR_KICKING_OWNER.create();
+        } else {
+            return var0;
+        }
     }
 }

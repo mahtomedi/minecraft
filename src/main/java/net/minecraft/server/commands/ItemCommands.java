@@ -42,22 +42,22 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class ItemCommands {
     static final Dynamic3CommandExceptionType ERROR_TARGET_NOT_A_CONTAINER = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> Component.translatable("commands.item.target.not_a_container", param0, param1, param2)
+        (param0, param1, param2) -> Component.translatableEscape("commands.item.target.not_a_container", param0, param1, param2)
     );
     private static final Dynamic3CommandExceptionType ERROR_SOURCE_NOT_A_CONTAINER = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> Component.translatable("commands.item.source.not_a_container", param0, param1, param2)
+        (param0, param1, param2) -> Component.translatableEscape("commands.item.source.not_a_container", param0, param1, param2)
     );
     static final DynamicCommandExceptionType ERROR_TARGET_INAPPLICABLE_SLOT = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.item.target.no_such_slot", param0)
+        param0 -> Component.translatableEscape("commands.item.target.no_such_slot", param0)
     );
     private static final DynamicCommandExceptionType ERROR_SOURCE_INAPPLICABLE_SLOT = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.item.source.no_such_slot", param0)
+        param0 -> Component.translatableEscape("commands.item.source.no_such_slot", param0)
     );
     private static final DynamicCommandExceptionType ERROR_TARGET_NO_CHANGES = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.item.target.no_changes", param0)
+        param0 -> Component.translatableEscape("commands.item.target.no_changes", param0)
     );
     private static final Dynamic2CommandExceptionType ERROR_TARGET_NO_CHANGES_KNOWN_ITEM = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("commands.item.target.no_changed.known_item", param0, param1)
+        (param0, param1) -> Component.translatableEscape("commands.item.target.no_changed.known_item", param0, param1)
     );
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_MODIFIER = (param0, param1) -> {
         LootDataManager var0 = param0.getSource().getServer().getLootData();

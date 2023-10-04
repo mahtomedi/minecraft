@@ -3,7 +3,6 @@ package net.minecraft.client.renderer.entity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
@@ -144,7 +143,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
             param6.translate(var2, var3, var4);
             var0.render(param0, param4, param5, param6, param7, param8);
             if (param0.displayFireAnimation()) {
-                this.renderFlame(param6, param7, param0);
+                this.renderFlame(param6, param7, param0, Mth.rotationAroundAxis(Mth.Y_AXIS, this.cameraOrientation, new Quaternionf()));
             }
 
             param6.translate(-var1.x(), -var1.y(), -var1.z());
@@ -242,7 +241,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
             .endVertex();
     }
 
-    private void renderFlame(PoseStack param0, MultiBufferSource param1, Entity param2) {
+    private void renderFlame(PoseStack param0, MultiBufferSource param1, Entity param2, Quaternionf param3) {
         TextureAtlasSprite var0 = ModelBakery.FIRE_0.sprite();
         TextureAtlasSprite var1 = ModelBakery.FIRE_1.sprite();
         param0.pushPose();
@@ -252,7 +251,7 @@ public class EntityRenderDispatcher implements ResourceManagerReloadListener {
         float var4 = 0.0F;
         float var5 = param2.getBbHeight() / var2;
         float var6 = 0.0F;
-        param0.mulPose(Axis.YP.rotationDegrees(-this.camera.getYRot()));
+        param0.mulPose(param3);
         param0.translate(0.0F, 0.0F, -0.3F + (float)((int)var5) * 0.02F);
         float var7 = 0.0F;
         int var8 = 0;

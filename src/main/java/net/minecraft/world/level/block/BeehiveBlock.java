@@ -1,5 +1,6 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
@@ -54,10 +55,16 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class BeehiveBlock extends BaseEntityBlock {
+    public static final MapCodec<BeehiveBlock> CODEC = simpleCodec(BeehiveBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty HONEY_LEVEL = BlockStateProperties.LEVEL_HONEY;
     public static final int MAX_HONEY_LEVELS = 5;
     private static final int SHEARED_HONEYCOMB_COUNT = 3;
+
+    @Override
+    public MapCodec<BeehiveBlock> codec() {
+        return CODEC;
+    }
 
     public BeehiveBlock(BlockBehaviour.Properties param0) {
         super(param0);
@@ -267,7 +274,7 @@ public class BeehiveBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+    public BlockState playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param0.isClientSide && param3.isCreative() && param0.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)) {
             BlockEntity var0 = param0.getBlockEntity(param1);
             if (var0 instanceof BeehiveBlockEntity var1) {
@@ -291,7 +298,7 @@ public class BeehiveBlock extends BaseEntityBlock {
             }
         }
 
-        super.playerWillDestroy(param0, param1, param2, param3);
+        return super.playerWillDestroy(param0, param1, param2, param3);
     }
 
     @Override
@@ -317,5 +324,15 @@ public class BeehiveBlock extends BaseEntityBlock {
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    @Override
+    public BlockState rotate(BlockState param0, Rotation param1) {
+        return param0.setValue(FACING, param1.rotate(param0.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState param0, Mirror param1) {
+        return param0.rotate(param1.getRotation(param0.getValue(FACING)));
     }
 }

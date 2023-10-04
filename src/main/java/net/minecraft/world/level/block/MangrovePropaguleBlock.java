@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,7 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.grower.MangroveTreeGrower;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -24,6 +26,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class MangrovePropaguleBlock extends SaplingBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<MangrovePropaguleBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(TreeGrower.CODEC.fieldOf("tree").forGetter(param0x -> param0x.treeGrower), propertiesCodec())
+                .apply(param0, MangrovePropaguleBlock::new)
+    );
     public static final IntegerProperty AGE = BlockStateProperties.AGE_4;
     public static final int MAX_AGE = 4;
     private static final VoxelShape[] SHAPE_PER_AGE = new VoxelShape[]{
@@ -35,10 +41,14 @@ public class MangrovePropaguleBlock extends SaplingBlock implements SimpleWaterl
     };
     private static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
-    private static final float GROW_TALL_MANGROVE_PROBABILITY = 0.85F;
 
-    public MangrovePropaguleBlock(BlockBehaviour.Properties param0) {
-        super(new MangroveTreeGrower(0.85F), param0);
+    @Override
+    public MapCodec<MangrovePropaguleBlock> codec() {
+        return CODEC;
+    }
+
+    public MangrovePropaguleBlock(TreeGrower param0, BlockBehaviour.Properties param1) {
+        super(param0, param1);
         this.registerDefaultState(
             this.stateDefinition
                 .any()

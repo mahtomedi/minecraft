@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.realmsclient.util.JsonUtils;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
@@ -16,16 +17,21 @@ public class RealmsText {
     private static final String ARGS = "args";
     private final String translationKey;
     @Nullable
-    private final Object[] args;
+    private final String[] args;
 
-    private RealmsText(String param0, @Nullable Object[] param1) {
+    private RealmsText(String param0, @Nullable String[] param1) {
         this.translationKey = param0;
         this.args = param1;
     }
 
     public Component createComponent(Component param0) {
+        return Objects.requireNonNullElse(this.createComponent(), param0);
+    }
+
+    @Nullable
+    public Component createComponent() {
         if (!I18n.exists(this.translationKey)) {
-            return param0;
+            return null;
         } else {
             return this.args == null ? Component.translatable(this.translationKey) : Component.translatable(this.translationKey, this.args);
         }
@@ -47,5 +53,10 @@ public class RealmsText {
         }
 
         return new RealmsText(var0, var4);
+    }
+
+    @Override
+    public String toString() {
+        return this.translationKey;
     }
 }

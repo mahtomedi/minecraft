@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.MapCodec;
 import it.unimi.dsi.fastutil.objects.Object2ByteLinkedOpenHashMap;
 import java.util.List;
 import java.util.function.Function;
@@ -62,6 +63,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.slf4j.Logger;
 
 public class Block extends BlockBehaviour implements ItemLike {
+    public static final MapCodec<Block> CODEC = simpleCodec(Block::new);
     private static final Logger LOGGER = LogUtils.getLogger();
     private final Holder.Reference<Block> builtInRegistryHolder = BuiltInRegistries.BLOCK.createIntrusiveHolder(this);
     public static final IdMapper<BlockState> BLOCK_STATE_REGISTRY = new IdMapper<>();
@@ -102,6 +104,11 @@ public class Block extends BlockBehaviour implements ItemLike {
         var0.defaultReturnValue((byte)127);
         return var0;
     });
+
+    @Override
+    protected MapCodec<? extends Block> codec() {
+        return CODEC;
+    }
 
     public static int getId(@Nullable BlockState param0) {
         if (param0 == null) {
@@ -385,7 +392,7 @@ public class Block extends BlockBehaviour implements ItemLike {
         param1.setDeltaMovement(param1.getDeltaMovement().multiply(1.0, 0.0, 1.0));
     }
 
-    public ItemStack getCloneItemStack(BlockGetter param0, BlockPos param1, BlockState param2) {
+    public ItemStack getCloneItemStack(LevelReader param0, BlockPos param1, BlockState param2) {
         return new ItemStack(this);
     }
 
@@ -405,13 +412,14 @@ public class Block extends BlockBehaviour implements ItemLike {
         param0.levelEvent(param1, 2001, param2, getId(param3));
     }
 
-    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+    public BlockState playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         this.spawnDestroyParticles(param0, param3, param1, param2);
         if (param2.is(BlockTags.GUARDED_BY_PIGLINS)) {
             PiglinAi.angerNearbyPiglins(param3, false);
         }
 
         param0.gameEvent(GameEvent.BLOCK_DESTROY, param1, GameEvent.Context.of(param3, param2));
+        return param2;
     }
 
     public void handlePrecipitation(BlockState param0, Level param1, BlockPos param2, Biome.Precipitation param3) {

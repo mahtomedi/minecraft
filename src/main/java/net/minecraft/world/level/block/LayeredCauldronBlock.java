@@ -1,11 +1,10 @@
 package net.minecraft.world.level.block;
 
-import java.util.Map;
-import java.util.function.Predicate;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -18,18 +17,29 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 public class LayeredCauldronBlock extends AbstractCauldronBlock {
+    public static final MapCodec<LayeredCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(
+                    Biome.Precipitation.CODEC.fieldOf("precipitation").forGetter(param0x -> param0x.precipitationType),
+                    CauldronInteraction.CODEC.fieldOf("interactions").forGetter(param0x -> param0x.interactions),
+                    propertiesCodec()
+                )
+                .apply(param0, LayeredCauldronBlock::new)
+    );
     public static final int MIN_FILL_LEVEL = 1;
     public static final int MAX_FILL_LEVEL = 3;
     public static final IntegerProperty LEVEL = BlockStateProperties.LEVEL_CAULDRON;
     private static final int BASE_CONTENT_HEIGHT = 6;
     private static final double HEIGHT_PER_LEVEL = 3.0;
-    public static final Predicate<Biome.Precipitation> RAIN = param0 -> param0 == Biome.Precipitation.RAIN;
-    public static final Predicate<Biome.Precipitation> SNOW = param0 -> param0 == Biome.Precipitation.SNOW;
-    private final Predicate<Biome.Precipitation> fillPredicate;
+    private final Biome.Precipitation precipitationType;
 
-    public LayeredCauldronBlock(BlockBehaviour.Properties param0, Predicate<Biome.Precipitation> param1, Map<Item, CauldronInteraction> param2) {
-        super(param0, param2);
-        this.fillPredicate = param1;
+    @Override
+    public MapCodec<LayeredCauldronBlock> codec() {
+        return CODEC;
+    }
+
+    public LayeredCauldronBlock(Biome.Precipitation param0, CauldronInteraction.InteractionMap param1, BlockBehaviour.Properties param2) {
+        super(param2, param1);
+        this.precipitationType = param0;
         this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, Integer.valueOf(1)));
     }
 
@@ -40,7 +50,7 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
 
     @Override
     protected boolean canReceiveStalactiteDrip(Fluid param0) {
-        return param0 == Fluids.WATER && this.fillPredicate == RAIN;
+        return param0 == Fluids.WATER && this.precipitationType == Biome.Precipitation.RAIN;
     }
 
     @Override
@@ -59,8 +69,13 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
 
     }
 
-    protected void handleEntityOnFireInside(BlockState param0, Level param1, BlockPos param2) {
-        lowerFillLevel(param0, param1, param2);
+    private void handleEntityOnFireInside(BlockState param0, Level param1, BlockPos param2) {
+        if (this.precipitationType == Biome.Precipitation.SNOW) {
+            lowerFillLevel(Blocks.WATER_CAULDRON.defaultBlockState().setValue(LEVEL, param0.getValue(LEVEL)), param1, param2);
+        } else {
+            lowerFillLevel(param0, param1, param2);
+        }
+
     }
 
     public static void lowerFillLevel(BlockState param0, Level param1, BlockPos param2) {
@@ -72,7 +87,7 @@ public class LayeredCauldronBlock extends AbstractCauldronBlock {
 
     @Override
     public void handlePrecipitation(BlockState param0, Level param1, BlockPos param2, Biome.Precipitation param3) {
-        if (CauldronBlock.shouldHandlePrecipitation(param1, param3) && param0.getValue(LEVEL) != 3 && this.fillPredicate.test(param3)) {
+        if (CauldronBlock.shouldHandlePrecipitation(param1, param3) && param0.getValue(LEVEL) != 3 && param3 == this.precipitationType) {
             BlockState var0 = param0.cycle(LEVEL);
             param1.setBlockAndUpdate(param2, var0);
             param1.gameEvent(GameEvent.BLOCK_CHANGE, param2, GameEvent.Context.of(var0));

@@ -19,13 +19,13 @@ public class TagParser {
     public static final SimpleCommandExceptionType ERROR_EXPECTED_KEY = new SimpleCommandExceptionType(Component.translatable("argument.nbt.expected.key"));
     public static final SimpleCommandExceptionType ERROR_EXPECTED_VALUE = new SimpleCommandExceptionType(Component.translatable("argument.nbt.expected.value"));
     public static final Dynamic2CommandExceptionType ERROR_INSERT_MIXED_LIST = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.nbt.list.mixed", param0, param1)
+        (param0, param1) -> Component.translatableEscape("argument.nbt.list.mixed", param0, param1)
     );
     public static final Dynamic2CommandExceptionType ERROR_INSERT_MIXED_ARRAY = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.nbt.array.mixed", param0, param1)
+        (param0, param1) -> Component.translatableEscape("argument.nbt.array.mixed", param0, param1)
     );
     public static final DynamicCommandExceptionType ERROR_INVALID_ARRAY = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.nbt.array.invalid", param0)
+        param0 -> Component.translatableEscape("argument.nbt.array.invalid", param0)
     );
     public static final char ELEMENT_SEPARATOR = ',';
     public static final char NAME_VALUE_SEPARATOR = ':';

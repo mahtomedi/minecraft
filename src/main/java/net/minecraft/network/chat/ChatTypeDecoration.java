@@ -13,7 +13,7 @@ public record ChatTypeDecoration(String translationKey, List<ChatTypeDecoration.
         param0 -> param0.group(
                     Codec.STRING.fieldOf("translation_key").forGetter(ChatTypeDecoration::translationKey),
                     ChatTypeDecoration.Parameter.CODEC.listOf().fieldOf("parameters").forGetter(ChatTypeDecoration::parameters),
-                    Style.FORMATTING_CODEC.optionalFieldOf("style", Style.EMPTY).forGetter(ChatTypeDecoration::style)
+                    Style.Serializer.CODEC.optionalFieldOf("style", Style.EMPTY).forGetter(ChatTypeDecoration::style)
                 )
                 .apply(param0, ChatTypeDecoration::new)
     );

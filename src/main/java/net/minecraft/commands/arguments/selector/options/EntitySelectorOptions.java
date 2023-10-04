@@ -53,10 +53,10 @@ import net.minecraft.world.scores.Team;
 public class EntitySelectorOptions {
     private static final Map<String, EntitySelectorOptions.Option> OPTIONS = Maps.newHashMap();
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_OPTION = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.entity.options.unknown", param0)
+        param0 -> Component.translatableEscape("argument.entity.options.unknown", param0)
     );
     public static final DynamicCommandExceptionType ERROR_INAPPLICABLE_OPTION = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.entity.options.inapplicable", param0)
+        param0 -> Component.translatableEscape("argument.entity.options.inapplicable", param0)
     );
     public static final SimpleCommandExceptionType ERROR_RANGE_NEGATIVE = new SimpleCommandExceptionType(
         Component.translatable("argument.entity.options.distance.negative")
@@ -68,13 +68,13 @@ public class EntitySelectorOptions {
         Component.translatable("argument.entity.options.limit.toosmall")
     );
     public static final DynamicCommandExceptionType ERROR_SORT_UNKNOWN = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.entity.options.sort.irreversible", param0)
+        param0 -> Component.translatableEscape("argument.entity.options.sort.irreversible", param0)
     );
     public static final DynamicCommandExceptionType ERROR_GAME_MODE_INVALID = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.entity.options.mode.invalid", param0)
+        param0 -> Component.translatableEscape("argument.entity.options.mode.invalid", param0)
     );
     public static final DynamicCommandExceptionType ERROR_ENTITY_TYPE_INVALID = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.entity.options.type.invalid", param0)
+        param0 -> Component.translatableEscape("argument.entity.options.type.invalid", param0)
     );
 
     private static void register(String param0, EntitySelectorOptions.Modifier param1, Predicate<EntitySelectorParser> param2, Component param3) {

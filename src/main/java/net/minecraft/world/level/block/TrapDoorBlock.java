@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +30,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<TrapDoorBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(BlockSetType.CODEC.fieldOf("block_set_type").forGetter(param0x -> param0x.type), propertiesCodec())
+                .apply(param0, TrapDoorBlock::new)
+    );
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
@@ -41,9 +47,14 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
     protected static final VoxelShape TOP_AABB = Block.box(0.0, 13.0, 0.0, 16.0, 16.0, 16.0);
     private final BlockSetType type;
 
-    protected TrapDoorBlock(BlockBehaviour.Properties param0, BlockSetType param1) {
-        super(param0.sound(param1.soundType()));
-        this.type = param1;
+    @Override
+    public MapCodec<TrapDoorBlock> codec() {
+        return CODEC;
+    }
+
+    protected TrapDoorBlock(BlockSetType param0, BlockBehaviour.Properties param1) {
+        super(param1.sound(param0.soundType()));
+        this.type = param0;
         this.registerDefaultState(
             this.stateDefinition
                 .any()

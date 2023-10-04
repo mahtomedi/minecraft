@@ -698,6 +698,7 @@ public abstract class PlayerList {
             param0.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.THUNDER_LEVEL_CHANGE, param1.getThunderLevel(1.0F)));
         }
 
+        param0.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.LEVEL_CHUNKS_LOAD_START, 0.0F));
     }
 
     public void sendAllPlayerInfo(ServerPlayer param0) {

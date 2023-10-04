@@ -27,6 +27,8 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
     private static final float SPYGLASS_ARM_ROT_Y = (float) (Math.PI / 12);
     private static final float SPYGLASS_ARM_ROT_X = 1.9198622F;
     private static final float SPYGLASS_ARM_CROUCH_ROT_X = (float) (Math.PI / 12);
+    private static final float HIGHEST_SHIELD_BLOCKING_ANGLE = (float) (-Math.PI * 4.0 / 9.0);
+    private static final float LOWEST_SHIELD_BLOCKING_ANGLE = 0.43633232F;
     public static final float TOOT_HORN_XROT_BASE = 1.4835298F;
     public static final float TOOT_HORN_YROT_BASE = (float) (Math.PI / 6);
     public final ModelPart head;
@@ -266,8 +268,7 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
                 this.rightArm.yRot = 0.0F;
                 break;
             case BLOCK:
-                this.rightArm.xRot = this.rightArm.xRot * 0.5F - 0.9424779F;
-                this.rightArm.yRot = (float) (-Math.PI / 6);
+                this.poseBlockingArm(this.rightArm, true);
                 break;
             case ITEM:
                 this.rightArm.xRot = this.rightArm.xRot * 0.5F - (float) (Math.PI / 10);
@@ -310,8 +311,7 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
                 this.leftArm.yRot = 0.0F;
                 break;
             case BLOCK:
-                this.leftArm.xRot = this.leftArm.xRot * 0.5F - 0.9424779F;
-                this.leftArm.yRot = (float) (Math.PI / 6);
+                this.poseBlockingArm(this.leftArm, false);
                 break;
             case ITEM:
                 this.leftArm.xRot = this.leftArm.xRot * 0.5F - (float) (Math.PI / 10);
@@ -346,6 +346,11 @@ public class HumanoidModel<T extends LivingEntity> extends AgeableListModel<T> i
                 this.leftArm.yRot = this.head.yRot + (float) (Math.PI / 6);
         }
 
+    }
+
+    private void poseBlockingArm(ModelPart param0, boolean param1) {
+        param0.xRot = param0.xRot * 0.5F - 0.9424779F + Mth.clamp(this.head.xRot, (float) (-Math.PI * 4.0 / 9.0), 0.43633232F);
+        param0.yRot = (param1 ? -30.0F : 30.0F) * (float) (Math.PI / 180.0) + this.head.yRot;
     }
 
     protected void setupAttackAnimation(T param0, float param1) {

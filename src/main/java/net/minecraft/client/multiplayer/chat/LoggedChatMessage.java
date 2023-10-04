@@ -11,6 +11,7 @@ import java.time.format.FormatStyle;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraftforge.api.distmarker.Dist;
@@ -92,7 +93,7 @@ public interface LoggedChatMessage extends LoggedChatEvent {
     public static record System(Component message, Instant timeStamp) implements LoggedChatMessage {
         public static final Codec<LoggedChatMessage.System> CODEC = RecordCodecBuilder.create(
             param0 -> param0.group(
-                        ExtraCodecs.COMPONENT.fieldOf("message").forGetter(LoggedChatMessage.System::message),
+                        ComponentSerialization.CODEC.fieldOf("message").forGetter(LoggedChatMessage.System::message),
                         ExtraCodecs.INSTANT_ISO8601.fieldOf("time_stamp").forGetter(LoggedChatMessage.System::timeStamp)
                     )
                     .apply(param0, LoggedChatMessage.System::new)

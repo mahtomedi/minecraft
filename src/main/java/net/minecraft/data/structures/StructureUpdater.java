@@ -20,9 +20,9 @@ public class StructureUpdater implements SnbtToNbt.Filter {
     public static CompoundTag update(String param0, CompoundTag param1) {
         StructureTemplate var0 = new StructureTemplate();
         int var1 = NbtUtils.getDataVersion(param1, 500);
-        int var2 = 3563;
-        if (var1 < 3563) {
-            LOGGER.warn("SNBT Too old, do not forget to update: {} < {}: {}", var1, 3563, param0);
+        int var2 = 3678;
+        if (var1 < 3678) {
+            LOGGER.warn("SNBT Too old, do not forget to update: {} < {}: {}", var1, 3678, param0);
         }
 
         CompoundTag var3 = DataFixTypes.STRUCTURE.updateToCurrentVersion(DataFixers.getDataFixer(), param1, var1);

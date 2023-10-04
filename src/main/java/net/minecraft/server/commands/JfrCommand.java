@@ -19,7 +19,7 @@ import net.minecraft.util.profiling.jfr.JvmProfiler;
 public class JfrCommand {
     private static final SimpleCommandExceptionType START_FAILED = new SimpleCommandExceptionType(Component.translatable("commands.jfr.start.failed"));
     private static final DynamicCommandExceptionType DUMP_FAILED = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("commands.jfr.dump.failed", param0)
+        param0 -> Component.translatableEscape("commands.jfr.dump.failed", param0)
     );
 
     private JfrCommand() {

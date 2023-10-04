@@ -1,5 +1,7 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,6 +36,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class DoorBlock extends Block {
+    public static final MapCodec<DoorBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(BlockSetType.CODEC.fieldOf("block_set_type").forGetter(DoorBlock::type), propertiesCodec()).apply(param0, DoorBlock::new)
+    );
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final EnumProperty<DoorHingeSide> HINGE = BlockStateProperties.DOOR_HINGE;
@@ -46,9 +51,14 @@ public class DoorBlock extends Block {
     protected static final VoxelShape EAST_AABB = Block.box(0.0, 0.0, 0.0, 3.0, 16.0, 16.0);
     private final BlockSetType type;
 
-    protected DoorBlock(BlockBehaviour.Properties param0, BlockSetType param1) {
-        super(param0.sound(param1.soundType()));
-        this.type = param1;
+    @Override
+    public MapCodec<DoorBlock> codec() {
+        return CODEC;
+    }
+
+    protected DoorBlock(BlockSetType param0, BlockBehaviour.Properties param1) {
+        super(param1.sound(param0.soundType()));
+        this.type = param0;
         this.registerDefaultState(
             this.stateDefinition
                 .any()
@@ -100,12 +110,12 @@ public class DoorBlock extends Block {
     }
 
     @Override
-    public void playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
+    public BlockState playerWillDestroy(Level param0, BlockPos param1, BlockState param2, Player param3) {
         if (!param0.isClientSide && param3.isCreative()) {
             DoublePlantBlock.preventCreativeDropFromBottomPart(param0, param1, param2, param3);
         }
 
-        super.playerWillDestroy(param0, param1, param2, param3);
+        return super.playerWillDestroy(param0, param1, param2, param3);
     }
 
     @Override

@@ -23,7 +23,7 @@ import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 public class ObjectiveCriteriaArgument implements ArgumentType<ObjectiveCriteria> {
     private static final Collection<String> EXAMPLES = Arrays.asList("foo", "foo.bar.baz", "minecraft:foo");
     public static final DynamicCommandExceptionType ERROR_INVALID_VALUE = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.criteria.invalid", param0)
+        param0 -> Component.translatableEscape("argument.criteria.invalid", param0)
     );
 
     private ObjectiveCriteriaArgument() {

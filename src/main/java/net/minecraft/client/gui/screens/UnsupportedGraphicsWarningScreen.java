@@ -13,18 +13,18 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class PopupScreen extends Screen {
+public class UnsupportedGraphicsWarningScreen extends Screen {
     private static final int BUTTON_PADDING = 20;
     private static final int BUTTON_MARGIN = 5;
     private static final int BUTTON_HEIGHT = 20;
     private final Component narrationMessage;
     private final FormattedText message;
-    private final ImmutableList<PopupScreen.ButtonOption> buttonOptions;
+    private final ImmutableList<UnsupportedGraphicsWarningScreen.ButtonOption> buttonOptions;
     private MultiLineLabel messageLines = MultiLineLabel.EMPTY;
     private int contentTop;
     private int buttonWidth;
 
-    protected PopupScreen(Component param0, List<Component> param1, ImmutableList<PopupScreen.ButtonOption> param2) {
+    protected UnsupportedGraphicsWarningScreen(Component param0, List<Component> param1, ImmutableList<UnsupportedGraphicsWarningScreen.ButtonOption> param2) {
         super(param0);
         this.message = FormattedText.composite(param1);
         this.narrationMessage = CommonComponents.joinForNarration(param0, ComponentUtils.formatList(param1, CommonComponents.EMPTY));
@@ -38,7 +38,7 @@ public class PopupScreen extends Screen {
 
     @Override
     public void init() {
-        for(PopupScreen.ButtonOption var0 : this.buttonOptions) {
+        for(UnsupportedGraphicsWarningScreen.ButtonOption var0 : this.buttonOptions) {
             this.buttonWidth = Math.max(this.buttonWidth, 20 + this.font.width(var0.message) + 20);
         }
 
@@ -50,7 +50,7 @@ public class PopupScreen extends Screen {
         int var4 = this.contentTop + var3 + 9 * 2;
         int var5 = (int)((double)this.width / 2.0 - (double)var2 / 2.0);
 
-        for(PopupScreen.ButtonOption var6 : this.buttonOptions) {
+        for(UnsupportedGraphicsWarningScreen.ButtonOption var6 : this.buttonOptions) {
             this.addRenderableWidget(Button.builder(var6.message, var6.onPress).bounds(var5, var4, this.buttonWidth, 20).build());
             var5 += var1;
         }

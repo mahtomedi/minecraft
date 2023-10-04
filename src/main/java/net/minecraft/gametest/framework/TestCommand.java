@@ -62,8 +62,12 @@ public class TestCommand {
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
             Commands.literal("test")
-                .then(Commands.literal("runthis").executes(param0x -> runNearbyTest(param0x.getSource())))
-                .then(Commands.literal("runthese").executes(param0x -> runAllNearbyTests(param0x.getSource())))
+                .then(
+                    Commands.literal("runthis")
+                        .executes(param0x -> runNearbyTest(param0x.getSource(), false))
+                        .then(Commands.literal("untilFailed").executes(param0x -> runNearbyTest(param0x.getSource(), true)))
+                )
+                .then(Commands.literal("runthese").executes(param0x -> runAllNearbyTests(param0x.getSource(), false)))
                 .then(
                     Commands.literal("runfailed")
                         .executes(param0x -> runLastFailedTests(param0x.getSource(), false, 0, 8))
@@ -280,7 +284,7 @@ public class TestCommand {
         }
     }
 
-    private static int runNearbyTest(CommandSourceStack param0) {
+    private static int runNearbyTest(CommandSourceStack param0, boolean param1) {
         BlockPos var0 = BlockPos.containing(param0.getPosition());
         ServerLevel var1 = param0.getLevel();
         BlockPos var2 = StructureUtils.findNearestStructureBlock(var0, 15, var1);
@@ -289,12 +293,12 @@ public class TestCommand {
             return 0;
         } else {
             GameTestRunner.clearMarkers(var1);
-            runTest(var1, var2, null);
+            runTest(var1, var2, null, param1);
             return 1;
         }
     }
 
-    private static int runAllNearbyTests(CommandSourceStack param0) {
+    private static int runAllNearbyTests(CommandSourceStack param0, boolean param1) {
         BlockPos var0 = BlockPos.containing(param0.getPosition());
         ServerLevel var1 = param0.getLevel();
         Collection<BlockPos> var2 = StructureUtils.findStructureBlocks(var0, 200, var1);
@@ -305,16 +309,17 @@ public class TestCommand {
             GameTestRunner.clearMarkers(var1);
             say(param0, "Running " + var2.size() + " tests...");
             MultipleTestTracker var3 = new MultipleTestTracker();
-            var2.forEach(param2 -> runTest(var1, param2, var3));
+            var2.forEach(param3 -> runTest(var1, param3, var3, param1));
             return 1;
         }
     }
 
-    private static void runTest(ServerLevel param0, BlockPos param1, @Nullable MultipleTestTracker param2) {
+    private static void runTest(ServerLevel param0, BlockPos param1, @Nullable MultipleTestTracker param2, boolean param3) {
         StructureBlockEntity var0 = (StructureBlockEntity)param0.getBlockEntity(param1);
         String var1 = var0.getStructurePath();
         TestFunction var2 = GameTestRegistry.getTestFunction(var1);
         GameTestInfo var3 = new GameTestInfo(var2, var0.getRotation(), param0);
+        var3.setRerunUntilFailed(param3);
         if (param2 != null) {
             param2.addTestToTrack(var3);
             var3.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));

@@ -38,25 +38,25 @@ public class BlockStateParser {
         Component.translatable("argument.block.tag.disallowed")
     );
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_BLOCK = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("argument.block.id.invalid", param0)
+        param0 -> Component.translatableEscape("argument.block.id.invalid", param0)
     );
     public static final Dynamic2CommandExceptionType ERROR_UNKNOWN_PROPERTY = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.block.property.unknown", param0, param1)
+        (param0, param1) -> Component.translatableEscape("argument.block.property.unknown", param0, param1)
     );
     public static final Dynamic2CommandExceptionType ERROR_DUPLICATE_PROPERTY = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.block.property.duplicate", param1, param0)
+        (param0, param1) -> Component.translatableEscape("argument.block.property.duplicate", param1, param0)
     );
     public static final Dynamic3CommandExceptionType ERROR_INVALID_VALUE = new Dynamic3CommandExceptionType(
-        (param0, param1, param2) -> Component.translatable("argument.block.property.invalid", param0, param2, param1)
+        (param0, param1, param2) -> Component.translatableEscape("argument.block.property.invalid", param0, param2, param1)
     );
     public static final Dynamic2CommandExceptionType ERROR_EXPECTED_VALUE = new Dynamic2CommandExceptionType(
-        (param0, param1) -> Component.translatable("argument.block.property.novalue", param0, param1)
+        (param0, param1) -> Component.translatableEscape("argument.block.property.novalue", param0, param1)
     );
     public static final SimpleCommandExceptionType ERROR_EXPECTED_END_OF_PROPERTIES = new SimpleCommandExceptionType(
         Component.translatable("argument.block.property.unclosed")
     );
     public static final DynamicCommandExceptionType ERROR_UNKNOWN_TAG = new DynamicCommandExceptionType(
-        param0 -> Component.translatable("arguments.block.tag.unknown", param0)
+        param0 -> Component.translatableEscape("arguments.block.tag.unknown", param0)
     );
     private static final char SYNTAX_START_PROPERTIES = '[';
     private static final char SYNTAX_START_NBT = '{';

@@ -1,10 +1,13 @@
 package net.minecraft.world.level.block;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -22,17 +25,31 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
 public class BrushableBlock extends BaseEntityBlock implements Fallable {
+    public static final MapCodec<BrushableBlock> CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(
+                    BuiltInRegistries.BLOCK.byNameCodec().fieldOf("turns_into").forGetter(BrushableBlock::getTurnsInto),
+                    BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("brush_sound").forGetter(BrushableBlock::getBrushSound),
+                    BuiltInRegistries.SOUND_EVENT.byNameCodec().fieldOf("brush_comleted_sound").forGetter(BrushableBlock::getBrushCompletedSound),
+                    propertiesCodec()
+                )
+                .apply(param0, BrushableBlock::new)
+    );
     private static final IntegerProperty DUSTED = BlockStateProperties.DUSTED;
     public static final int TICK_DELAY = 2;
     private final Block turnsInto;
     private final SoundEvent brushSound;
     private final SoundEvent brushCompletedSound;
 
-    public BrushableBlock(Block param0, BlockBehaviour.Properties param1, SoundEvent param2, SoundEvent param3) {
-        super(param1);
+    @Override
+    public MapCodec<BrushableBlock> codec() {
+        return CODEC;
+    }
+
+    public BrushableBlock(Block param0, SoundEvent param1, SoundEvent param2, BlockBehaviour.Properties param3) {
+        super(param3);
         this.turnsInto = param0;
-        this.brushSound = param2;
-        this.brushCompletedSound = param3;
+        this.brushSound = param1;
+        this.brushCompletedSound = param2;
         this.registerDefaultState(this.stateDefinition.any().setValue(DUSTED, Integer.valueOf(0)));
     }
 

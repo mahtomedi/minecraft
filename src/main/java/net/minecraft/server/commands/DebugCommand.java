@@ -112,7 +112,10 @@ public class DebugCommand {
 
         int var10 = var0;
         if (param1.size() == 1) {
-            param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.single", var10, param1.iterator().next().getId(), var2), true);
+            param0.sendSuccess(
+                () -> Component.translatable("commands.debug.function.success.single", var10, Component.translationArg(param1.iterator().next().getId()), var2),
+                true
+            );
         } else {
             param0.sendSuccess(() -> Component.translatable("commands.debug.function.success.multiple", var10, param1.size(), var2), true);
         }
