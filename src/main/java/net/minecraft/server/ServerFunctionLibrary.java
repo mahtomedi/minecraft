@@ -16,9 +16,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -34,21 +34,21 @@ import org.slf4j.Logger;
 public class ServerFunctionLibrary implements PreparableReloadListener {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final FileToIdConverter LISTER = new FileToIdConverter("functions", ".mcfunction");
-    private volatile Map<ResourceLocation, CommandFunction> functions = ImmutableMap.of();
-    private final TagLoader<CommandFunction> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
-    private volatile Map<ResourceLocation, Collection<CommandFunction>> tags = Map.of();
+    private volatile Map<ResourceLocation, CommandFunction<CommandSourceStack>> functions = ImmutableMap.of();
+    private final TagLoader<CommandFunction<CommandSourceStack>> tagsLoader = new TagLoader<>(this::getFunction, "tags/functions");
+    private volatile Map<ResourceLocation, Collection<CommandFunction<CommandSourceStack>>> tags = Map.of();
     private final int functionCompilationLevel;
     private final CommandDispatcher<CommandSourceStack> dispatcher;
 
-    public Optional<CommandFunction> getFunction(ResourceLocation param0) {
+    public Optional<CommandFunction<CommandSourceStack>> getFunction(ResourceLocation param0) {
         return Optional.ofNullable(this.functions.get(param0));
     }
 
-    public Map<ResourceLocation, CommandFunction> getFunctions() {
+    public Map<ResourceLocation, CommandFunction<CommandSourceStack>> getFunctions() {
         return this.functions;
     }
 
-    public Collection<CommandFunction> getTag(ResourceLocation param0) {
+    public Collection<CommandFunction<CommandSourceStack>> getTag(ResourceLocation param0) {
         return this.tags.getOrDefault(param0, List.of());
     }
 
@@ -73,12 +73,12 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
         CompletableFuture<Map<ResourceLocation, List<TagLoader.EntryWithSource>>> var0 = CompletableFuture.supplyAsync(
             () -> this.tagsLoader.load(param1), param4
         );
-        CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction>>> var1 = CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(
+        CompletableFuture<Map<ResourceLocation, CompletableFuture<CommandFunction<CommandSourceStack>>>> var1 = CompletableFuture.<Map<ResourceLocation, Resource>>supplyAsync(
                 () -> LISTER.listMatchingResources(param1), param4
             )
             .thenCompose(
                 param1x -> {
-                    Map<ResourceLocation, CompletableFuture<CommandFunction>> var0x = Maps.newHashMap();
+                    Map<ResourceLocation, CompletableFuture<CommandFunction<CommandSourceStack>>> var0x = Maps.newHashMap();
                     CommandSourceStack var1x = new CommandSourceStack(
                         CommandSource.NULL, Vec3.ZERO, Vec2.ZERO, null, this.functionCompilationLevel, "", CommonComponents.EMPTY, null, null
                     );
@@ -97,8 +97,8 @@ public class ServerFunctionLibrary implements PreparableReloadListener {
                 }
             );
         return var0.thenCombine(var1, Pair::of).thenCompose(param0::wait).thenAcceptAsync(param0x -> {
-            Map<ResourceLocation, CompletableFuture<CommandFunction>> var0x = (Map)param0x.getSecond();
-            Builder<ResourceLocation, CommandFunction> var1x = ImmutableMap.builder();
+            Map<ResourceLocation, CompletableFuture<CommandFunction<CommandSourceStack>>> var0x = (Map)param0x.getSecond();
+            Builder<ResourceLocation, CommandFunction<CommandSourceStack>> var1x = ImmutableMap.builder();
             var0x.forEach((param1x, param2x) -> param2x.handle((param2xx, param3x) -> {
                     if (param3x != null) {
                         LOGGER.error("Failed to load function {}", param1x, param3x);

@@ -33,7 +33,7 @@ public class ExperimentsScreen extends Screen {
     private final Consumer<PackRepository> output;
     private final Object2BooleanMap<Pack> packs = new Object2BooleanLinkedOpenHashMap<>();
 
-    protected ExperimentsScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2) {
+    public ExperimentsScreen(Screen param0, PackRepository param1, Consumer<PackRepository> param2) {
         super(Component.translatable("experiments_screen.title"));
         this.parent = param0;
         this.packRepository = param1;

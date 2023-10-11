@@ -128,6 +128,15 @@ public class Vex extends Monster implements TraceableEntity {
     }
 
     @Override
+    public void restoreFrom(Entity param0) {
+        super.restoreFrom(param0);
+        if (param0 instanceof Vex var0) {
+            this.owner = var0.getOwner();
+        }
+
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag param0) {
         super.addAdditionalSaveData(param0);
         if (this.boundOrigin != null) {

@@ -155,36 +155,36 @@
   },
   "assetIndex": {
     "id": "8",
-    "sha1": "3b85e355ceefe079fc7b3526f3e6f0bfb6ee16ae",
-    "size": 414035,
-    "totalSize": 619495851,
-    "url": "https://piston-meta.mojang.com/v1/packages/3b85e355ceefe079fc7b3526f3e6f0bfb6ee16ae/8.json"
+    "sha1": "490cf2ad724de5eee868328763b54a932fba7826",
+    "size": 415241,
+    "totalSize": 619689962,
+    "url": "https://piston-meta.mojang.com/v1/packages/490cf2ad724de5eee868328763b54a932fba7826/8.json"
   },
   "assets": "8",
   "complianceLevel": 1,
   "downloads": {
     "client": {
-      "sha1": "8b5067a18632c3377da54aa9ff8e52e1a9055042",
-      "size": 23338140,
-      "url": "https://piston-data.mojang.com/v1/objects/8b5067a18632c3377da54aa9ff8e52e1a9055042/client.jar"
+      "sha1": "da1852dc65305e01db8262bad7450eddca55a5d0",
+      "size": 23393725,
+      "url": "https://piston-data.mojang.com/v1/objects/da1852dc65305e01db8262bad7450eddca55a5d0/client.jar"
     },
     "client_mappings": {
-      "sha1": "70835872514b930e6e7b60886c86ef589e02db12",
-      "size": 8651539,
-      "url": "https://piston-data.mojang.com/v1/objects/70835872514b930e6e7b60886c86ef589e02db12/client.txt"
+      "sha1": "a595f60b4582fe7e27436b2d699e5a4c2d253999",
+      "size": 8685242,
+      "url": "https://piston-data.mojang.com/v1/objects/a595f60b4582fe7e27436b2d699e5a4c2d253999/client.txt"
     },
     "server": {
-      "sha1": "0f51a81705f4694b92f5273ffa2c52c45f27b7f8",
-      "size": 48424103,
-      "url": "https://piston-data.mojang.com/v1/objects/0f51a81705f4694b92f5273ffa2c52c45f27b7f8/server.jar"
+      "sha1": "e3e4c46324ac42b1789f7ff6e895ae3c843a9819",
+      "size": 48468200,
+      "url": "https://piston-data.mojang.com/v1/objects/e3e4c46324ac42b1789f7ff6e895ae3c843a9819/server.jar"
     },
     "server_mappings": {
-      "sha1": "ffe335fafa460378bf4242b9d07c4edc0f95f4bc",
-      "size": 6611471,
-      "url": "https://piston-data.mojang.com/v1/objects/ffe335fafa460378bf4242b9d07c4edc0f95f4bc/server.txt"
+      "sha1": "725b2f657007e6d38d42b1a016155bb6c2a38245",
+      "size": 6633940,
+      "url": "https://piston-data.mojang.com/v1/objects/725b2f657007e6d38d42b1a016155bb6c2a38245/server.txt"
     }
   },
-  "id": "23w40a",
+  "id": "23w41a",
   "javaVersion": {
     "component": "java-runtime-gamma",
     "majorVersion": 17
@@ -289,13 +289,13 @@
     {
       "downloads": {
         "artifact": {
-          "path": "com/mojang/brigadier/1.1.8/brigadier-1.1.8.jar",
-          "sha1": "5244ce82c3337bba4a196a3ce858bfaecc74404a",
-          "size": 77121,
-          "url": "https://libraries.minecraft.net/com/mojang/brigadier/1.1.8/brigadier-1.1.8.jar"
+          "path": "com/mojang/brigadier/1.2.9/brigadier-1.2.9.jar",
+          "sha1": "73e324f2ee541493a5179abf367237faa782ed21",
+          "size": 79955,
+          "url": "https://libraries.minecraft.net/com/mojang/brigadier/1.2.9/brigadier-1.2.9.jar"
         }
       },
-      "name": "com.mojang:brigadier:1.1.8"
+      "name": "com.mojang:brigadier:1.2.9"
     },
     {
       "downloads": {
@@ -1533,7 +1533,7 @@
   },
   "mainClass": "net.minecraft.client.main.Main",
   "minimumLauncherVersion": 21,
-  "releaseTime": "2023-10-04T12:48:53+00:00",
-  "time": "2023-10-04T12:48:53+00:00",
+  "releaseTime": "2023-10-11T12:32:46+00:00",
+  "time": "2023-10-11T12:32:46+00:00",
   "type": "snapshot"
 }

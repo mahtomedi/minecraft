@@ -2,6 +2,8 @@ package com.mojang.realmsclient.gui.screens;
 
 import com.mojang.realmsclient.util.LevelType;
 import com.mojang.realmsclient.util.WorldGenerationInfo;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
@@ -10,9 +12,14 @@ import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.layouts.CommonLayouts;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LinearLayout;
+import net.minecraft.client.gui.screens.worldselection.ExperimentsScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.realms.RealmsScreen;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -27,6 +34,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
     private EditBox seedEdit;
     private LevelType levelType = LevelType.DEFAULT;
     private boolean generateStructures = true;
+    private final Set<String> experiments = new HashSet<>();
     private final Component buttonTitle;
 
     public RealmsResetNormalWorldScreen(Consumer<WorldGenerationInfo> param0, Component param1) {
@@ -53,6 +61,7 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
             CycleButton.onOffBuilder(this.generateStructures)
                 .create(0, 0, 210, 20, Component.translatable("selectWorld.mapFeatures"), (param0, param1) -> this.generateStructures = param1)
         );
+        this.createExperimentsButton(var0);
         LinearLayout var1 = this.layout.addToFooter(LinearLayout.horizontal().spacing(10));
         var1.addChild(Button.builder(this.buttonTitle, param0 -> this.callback.accept(this.createWorldGenerationInfo())).build());
         var1.addChild(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).build());
@@ -61,8 +70,26 @@ public class RealmsResetNormalWorldScreen extends RealmsScreen {
         this.repositionElements();
     }
 
+    private void createExperimentsButton(LinearLayout param0) {
+        PackRepository var0 = ServerPacksSource.createVanillaTrustedRepository();
+        var0.reload();
+        param0.addChild(
+            Button.builder(Component.translatable("selectWorld.experiments"), param1 -> this.minecraft.setScreen(new ExperimentsScreen(this, var0, param0x -> {
+                    this.experiments.clear();
+    
+                    for(Pack var0x : param0x.getSelectedPacks()) {
+                        if (var0x.getPackSource() == PackSource.FEATURE) {
+                            this.experiments.add(var0x.getId());
+                        }
+                    }
+    
+                    this.minecraft.setScreen(this);
+                }))).width(210).build()
+        );
+    }
+
     private WorldGenerationInfo createWorldGenerationInfo() {
-        return new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures);
+        return new WorldGenerationInfo(this.seedEdit.getValue(), this.levelType, this.generateStructures, this.experiments);
     }
 
     @Override

@@ -22,7 +22,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntitySelector;
@@ -52,10 +51,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 
-public class Boat extends Entity implements VariantHolder<Boat.Type> {
-    private static final EntityDataAccessor<Integer> DATA_ID_HURT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_ID_HURTDIR = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Float> DATA_ID_DAMAGE = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.FLOAT);
+public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
     private static final EntityDataAccessor<Integer> DATA_ID_TYPE = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_ID_PADDLE_LEFT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_ID_PADDLE_RIGHT = SynchedEntityData.defineId(Boat.class, EntityDataSerializers.BOOLEAN);
@@ -116,9 +112,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(DATA_ID_HURT, 0);
-        this.entityData.define(DATA_ID_HURTDIR, 1);
-        this.entityData.define(DATA_ID_DAMAGE, 0.0F);
+        super.defineSynchedData();
         this.entityData.define(DATA_ID_TYPE, Boat.Type.OAK.ordinal());
         this.entityData.define(DATA_ID_PADDLE_LEFT, false);
         this.entityData.define(DATA_ID_PADDLE_RIGHT, false);
@@ -169,35 +163,6 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
     }
 
     @Override
-    public boolean hurt(DamageSource param0, float param1) {
-        if (this.isInvulnerableTo(param0)) {
-            return false;
-        } else if (!this.level().isClientSide && !this.isRemoved()) {
-            this.setHurtDir(-this.getHurtDir());
-            this.setHurtTime(10);
-            this.setDamage(this.getDamage() + param1 * 10.0F);
-            this.markHurt();
-            this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
-            boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
-            if (var0 || this.getDamage() > 40.0F) {
-                if (!var0 && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    this.destroy(param0);
-                }
-
-                this.discard();
-            }
-
-            return true;
-        } else {
-            return true;
-        }
-    }
-
-    protected void destroy(DamageSource param0) {
-        this.spawnAtLocation(this.getDropItem());
-    }
-
-    @Override
     public void onAboveBubbleCol(boolean param0) {
         if (!this.level().isClientSide) {
             this.isAboveBubbleColumn = true;
@@ -239,6 +204,7 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
 
     }
 
+    @Override
     public Item getDropItem() {
         return switch(this.getVariant()) {
             case SPRUCE -> Items.SPRUCE_BOAT;
@@ -839,22 +805,6 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
         return this.entityData.<Boolean>get(param0 == 0 ? DATA_ID_PADDLE_LEFT : DATA_ID_PADDLE_RIGHT) && this.getControllingPassenger() != null;
     }
 
-    public void setDamage(float param0) {
-        this.entityData.set(DATA_ID_DAMAGE, param0);
-    }
-
-    public float getDamage() {
-        return this.entityData.get(DATA_ID_DAMAGE);
-    }
-
-    public void setHurtTime(int param0) {
-        this.entityData.set(DATA_ID_HURT, param0);
-    }
-
-    public int getHurtTime() {
-        return this.entityData.get(DATA_ID_HURT);
-    }
-
     private void setBubbleTime(int param0) {
         this.entityData.set(DATA_ID_BUBBLE_TIME, param0);
     }
@@ -865,14 +815,6 @@ public class Boat extends Entity implements VariantHolder<Boat.Type> {
 
     public float getBubbleAngle(float param0) {
         return Mth.lerp(param0, this.bubbleAngleO, this.bubbleAngle);
-    }
-
-    public void setHurtDir(int param0) {
-        this.entityData.set(DATA_ID_HURTDIR, param0);
-    }
-
-    public int getHurtDir() {
-        return this.entityData.get(DATA_ID_HURTDIR);
     }
 
     public void setVariant(Boat.Type param0) {

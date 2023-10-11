@@ -1,6 +1,7 @@
 package net.minecraft.world.level.timers;
 
-import net.minecraft.commands.CommandFunction;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -16,7 +17,7 @@ public class FunctionTagCallback implements TimerCallback<MinecraftServer> {
     public void handle(MinecraftServer param0, TimerQueue<MinecraftServer> param1, long param2) {
         ServerFunctionManager var0 = param0.getFunctions();
 
-        for(CommandFunction var2 : var0.getTag(this.tagId)) {
+        for(CommandFunction<CommandSourceStack> var2 : var0.getTag(this.tagId)) {
             var0.execute(var2, var0.getGameLoopSender());
         }
 

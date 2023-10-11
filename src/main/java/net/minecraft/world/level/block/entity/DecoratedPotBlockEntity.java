@@ -17,25 +17,43 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.ticks.ContainerSingleItem;
 
-public class DecoratedPotBlockEntity extends BlockEntity {
+public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSingleItem {
     public static final String TAG_SHERDS = "sherds";
-    private DecoratedPotBlockEntity.Decorations decorations = DecoratedPotBlockEntity.Decorations.EMPTY;
+    public static final String TAG_ITEM = "item";
+    public static final int EVENT_POT_WOBBLES = 1;
+    public long wobbleStartedAtTick;
+    @Nullable
+    public DecoratedPotBlockEntity.WobbleStyle lastWobbleStyle;
+    private DecoratedPotBlockEntity.Decorations decorations;
+    private ItemStack item = ItemStack.EMPTY;
 
     public DecoratedPotBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.DECORATED_POT, param0, param1);
+        this.decorations = DecoratedPotBlockEntity.Decorations.EMPTY;
     }
 
     @Override
     protected void saveAdditional(CompoundTag param0) {
         super.saveAdditional(param0);
         this.decorations.save(param0);
+        if (!this.item.isEmpty()) {
+            param0.put("item", this.item.save(new CompoundTag()));
+        }
+
     }
 
     @Override
     public void load(CompoundTag param0) {
         super.load(param0);
         this.decorations = DecoratedPotBlockEntity.Decorations.load(param0);
+        if (param0.contains("item", 10)) {
+            this.item = ItemStack.of(param0.getCompound("item"));
+        } else {
+            this.item = ItemStack.EMPTY;
+        }
+
     }
 
     public ClientboundBlockEntityDataPacket getUpdatePacket() {
@@ -59,7 +77,7 @@ public class DecoratedPotBlockEntity extends BlockEntity {
         this.decorations = DecoratedPotBlockEntity.Decorations.load(BlockItem.getBlockEntityData(param0));
     }
 
-    public ItemStack getItem() {
+    public ItemStack getPotAsItem() {
         return createDecoratedPotItem(this.decorations);
     }
 
@@ -68,6 +86,48 @@ public class DecoratedPotBlockEntity extends BlockEntity {
         CompoundTag var1 = param0.save(new CompoundTag());
         BlockItem.setBlockEntityData(var0, BlockEntityType.DECORATED_POT, var1);
         return var0;
+    }
+
+    @Override
+    public ItemStack getTheItem() {
+        return this.item;
+    }
+
+    @Override
+    public ItemStack splitTheItem(int param0) {
+        ItemStack var0 = this.item.split(param0);
+        if (this.item.isEmpty()) {
+            this.item = ItemStack.EMPTY;
+        }
+
+        return var0;
+    }
+
+    @Override
+    public void setTheItem(ItemStack param0) {
+        this.item = param0;
+    }
+
+    @Override
+    public BlockEntity getContainerBlockEntity() {
+        return this;
+    }
+
+    public void wobble(DecoratedPotBlockEntity.WobbleStyle param0) {
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.blockEvent(this.getBlockPos(), this.getBlockState().getBlock(), 1, param0.ordinal());
+        }
+    }
+
+    @Override
+    public boolean triggerEvent(int param0, int param1) {
+        if (this.level != null && param0 == 1 && param1 >= 0 && param1 < DecoratedPotBlockEntity.WobbleStyle.values().length) {
+            this.wobbleStartedAtTick = this.level.getGameTime();
+            this.lastWobbleStyle = DecoratedPotBlockEntity.WobbleStyle.values()[param1];
+            return true;
+        } else {
+            return super.triggerEvent(param0, param1);
+        }
     }
 
     public static record Decorations(Item back, Item left, Item right, Item front) {
@@ -106,6 +166,17 @@ public class DecoratedPotBlockEntity extends BlockEntity {
                 Tag var0 = param0.get(param1);
                 return BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(var0.getAsString()));
             }
+        }
+    }
+
+    public static enum WobbleStyle {
+        POSITIVE(7),
+        NEGATIVE(10);
+
+        public final int duration;
+
+        private WobbleStyle(int param0) {
+            this.duration = param0;
         }
     }
 }

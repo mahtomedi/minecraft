@@ -127,7 +127,7 @@ public enum ChatFormatting implements StringRepresentable {
 
     @Nullable
     public static ChatFormatting getByCode(char param0) {
-        char var0 = Character.toString(param0).toLowerCase(Locale.ROOT).charAt(0);
+        char var0 = Character.toLowerCase(param0);
 
         for(ChatFormatting var1 : values()) {
             if (var1.code == var0) {

@@ -22,6 +22,8 @@ public abstract class Request<T extends Request<T>> {
     protected String url;
     private static final int DEFAULT_READ_TIMEOUT = 60000;
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+    private static final String IS_SNAPSHOT_KEY = "Is-Prerelease";
+    private static final String COOKIE_KEY = "Cookie";
 
     public Request(String param0, int param1, int param2) {
         try {
@@ -56,9 +58,8 @@ public abstract class Request<T extends Request<T>> {
 
     }
 
-    public T header(String param0, String param1) {
-        this.connection.addRequestProperty(param0, param1);
-        return (T)this;
+    public void addSnapshotHeader(boolean param0) {
+        this.connection.addRequestProperty("Is-Prerelease", String.valueOf(param0));
     }
 
     public int getRetryAfterHeader() {

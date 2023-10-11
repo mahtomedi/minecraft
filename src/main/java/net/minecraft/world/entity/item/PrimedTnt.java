@@ -102,6 +102,15 @@ public class PrimedTnt extends Entity implements TraceableEntity {
     }
 
     @Override
+    public void restoreFrom(Entity param0) {
+        super.restoreFrom(param0);
+        if (param0 instanceof PrimedTnt var0) {
+            this.owner = var0.owner;
+        }
+
+    }
+
+    @Override
     protected float getEyeHeight(Pose param0, EntityDimensions param1) {
         return 0.15F;
     }

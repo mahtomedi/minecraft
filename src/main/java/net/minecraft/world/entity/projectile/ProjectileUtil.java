@@ -19,28 +19,30 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 public final class ProjectileUtil {
+    private static final float DEFAULT_ENTITY_HIT_RESULT_MARGIN = 0.3F;
+
     public static HitResult getHitResultOnMoveVector(Entity param0, Predicate<Entity> param1) {
         Vec3 var0 = param0.getDeltaMovement();
         Level var1 = param0.level();
         Vec3 var2 = param0.position();
-        return getHitResult(var2, param0, param1, var0, var1);
+        return getHitResult(var2, param0, param1, var0, var1, 0.3F);
     }
 
     public static HitResult getHitResultOnViewVector(Entity param0, Predicate<Entity> param1, double param2) {
         Vec3 var0 = param0.getViewVector(0.0F).scale(param2);
         Level var1 = param0.level();
         Vec3 var2 = param0.getEyePosition();
-        return getHitResult(var2, param0, param1, var0, var1);
+        return getHitResult(var2, param0, param1, var0, var1, 0.0F);
     }
 
-    private static HitResult getHitResult(Vec3 param0, Entity param1, Predicate<Entity> param2, Vec3 param3, Level param4) {
+    private static HitResult getHitResult(Vec3 param0, Entity param1, Predicate<Entity> param2, Vec3 param3, Level param4, float param5) {
         Vec3 var0 = param0.add(param3);
         HitResult var1 = param4.clip(new ClipContext(param0, var0, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param1));
         if (var1.getType() != HitResult.Type.MISS) {
             var0 = var1.getLocation();
         }
 
-        HitResult var2 = getEntityHitResult(param4, param1, param0, var0, param1.getBoundingBox().expandTowards(param3).inflate(1.0), param2);
+        HitResult var2 = getEntityHitResult(param4, param1, param0, var0, param1.getBoundingBox().expandTowards(param3).inflate(1.0), param2, param5);
         if (var2 != null) {
             var1 = var2;
         }

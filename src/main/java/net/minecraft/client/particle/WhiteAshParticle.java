@@ -2,6 +2,7 @@ package net.minecraft.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -14,9 +15,9 @@ public class WhiteAshParticle extends BaseAshSmokeParticle {
         ClientLevel param0, double param1, double param2, double param3, double param4, double param5, double param6, float param7, SpriteSet param8
     ) {
         super(param0, param1, param2, param3, 0.1F, -0.1F, 0.1F, param4, param5, param6, param7, param8, 0.0F, 20, 0.0125F, false);
-        this.rCol = 0.7294118F;
-        this.gCol = 0.69411767F;
-        this.bCol = 0.7607843F;
+        this.rCol = (float)FastColor.ARGB32.red(12235202) / 255.0F;
+        this.gCol = (float)FastColor.ARGB32.green(12235202) / 255.0F;
+        this.bCol = (float)FastColor.ARGB32.blue(12235202) / 255.0F;
     }
 
     @OnlyIn(Dist.CLIENT)

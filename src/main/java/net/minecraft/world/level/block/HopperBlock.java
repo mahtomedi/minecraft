@@ -164,15 +164,8 @@ public class HopperBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param0.is(param3.getBlock())) {
-            BlockEntity var0 = param1.getBlockEntity(param2);
-            if (var0 instanceof HopperBlockEntity) {
-                Containers.dropContents(param1, param2, (HopperBlockEntity)var0);
-                param1.updateNeighbourForOutputSignal(param2, this);
-            }
-
-            super.onRemove(param0, param1, param2, param3, param4);
-        }
+        Containers.dropContentsOnDestroy(param0, param3, param1, param2);
+        super.onRemove(param0, param1, param2, param3, param4);
     }
 
     @Override

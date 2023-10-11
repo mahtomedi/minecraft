@@ -537,11 +537,6 @@ public class Shulker extends AbstractGolem implements VariantHolder<Optional<Dye
     public void push(Entity param0) {
     }
 
-    @Override
-    public float getPickRadius() {
-        return 0.0F;
-    }
-
     public Optional<Vec3> getRenderPosition(float param0) {
         if (this.clientOldAttachPosition != null && this.clientSideTeleportInterpolation > 0) {
             double var0 = (double)((float)this.clientSideTeleportInterpolation - param0) / 6.0;

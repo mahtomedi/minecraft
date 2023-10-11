@@ -2,12 +2,12 @@ package net.minecraft.core.dispenser;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.ChestBoat;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.Vec3;
 
@@ -28,7 +28,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
     @Override
     public ItemStack execute(BlockSource param0, ItemStack param1) {
         Direction var0 = param0.state().getValue(DispenserBlock.FACING);
-        Level var1 = param0.level();
+        ServerLevel var1 = param0.level();
         Vec3 var2 = param0.center();
         double var3 = 0.5625 + (double)EntityType.BOAT.getWidth() / 2.0;
         double var4 = var2.x() + (double)var0.getStepX() * var3;
@@ -47,6 +47,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
         }
 
         Boat var11 = (Boat)(this.isChestBoat ? new ChestBoat(var1, var4, var5 + var8, var6) : new Boat(var1, var4, var5 + var8, var6));
+        EntityType.<Boat>createDefaultStackConfig(var1, param1, null).accept(var11);
         var11.setVariant(this.type);
         var11.setYRot(var0.toYRot());
         var1.addFreshEntity(var11);

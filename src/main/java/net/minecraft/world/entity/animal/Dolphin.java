@@ -583,7 +583,7 @@ public class Dolphin extends WaterAnimal {
                 double var0 = Dolphin.this.getEyeY() - 0.3F;
                 ItemEntity var1 = new ItemEntity(Dolphin.this.level(), Dolphin.this.getX(), var0, Dolphin.this.getZ(), param0);
                 var1.setPickUpDelay(40);
-                var1.setThrower(Dolphin.this.getUUID());
+                var1.setThrower(Dolphin.this);
                 float var2 = 0.3F;
                 float var3 = Dolphin.this.random.nextFloat() * (float) (Math.PI * 2);
                 float var4 = 0.02F * Dolphin.this.random.nextFloat();

@@ -7,6 +7,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class Containers {
     public static void dropContents(Level param0, BlockPos param1, Container param2) {
@@ -47,5 +49,16 @@ public class Containers {
             param0.addFreshEntity(var6);
         }
 
+    }
+
+    public static void dropContentsOnDestroy(BlockState param0, BlockState param1, Level param2, BlockPos param3) {
+        if (!param0.is(param1.getBlock())) {
+            BlockEntity var0 = param2.getBlockEntity(param3);
+            if (var0 instanceof Container var1) {
+                dropContents(param2, param3, var1);
+                param2.updateNeighbourForOutputSignal(param3, param0.getBlock());
+            }
+
+        }
     }
 }

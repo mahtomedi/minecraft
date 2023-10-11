@@ -10,12 +10,12 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Pair;
 import java.util.Collection;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.TimeArgument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -88,7 +88,10 @@ public class ScheduleCommand {
     }
 
     private static int schedule(
-        CommandSourceStack param0, Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> param1, int param2, boolean param3
+        CommandSourceStack param0,
+        Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> param1,
+        int param2,
+        boolean param3
     ) throws CommandSyntaxException {
         if (param2 == 0) {
             throw ERROR_SAME_TICK.create();

@@ -40,6 +40,8 @@ public class ItemEntity extends Entity implements TraceableEntity {
     @Nullable
     private UUID thrower;
     @Nullable
+    private Entity cachedThrower;
+    @Nullable
     private UUID target;
     public final float bobOffs;
 
@@ -76,14 +78,28 @@ public class ItemEntity extends Entity implements TraceableEntity {
     @Nullable
     @Override
     public Entity getOwner() {
-        if (this.thrower != null) {
-            Level var2 = this.level();
-            if (var2 instanceof ServerLevel var0) {
-                return var0.getEntity(this.thrower);
+        if (this.cachedThrower != null && !this.cachedThrower.isRemoved()) {
+            return this.cachedThrower;
+        } else {
+            if (this.thrower != null) {
+                Level var2 = this.level();
+                if (var2 instanceof ServerLevel var0) {
+                    this.cachedThrower = var0.getEntity(this.thrower);
+                    return this.cachedThrower;
+                }
             }
+
+            return null;
+        }
+    }
+
+    @Override
+    public void restoreFrom(Entity param0) {
+        super.restoreFrom(param0);
+        if (param0 instanceof ItemEntity var0) {
+            this.cachedThrower = var0.cachedThrower;
         }
 
-        return null;
     }
 
     @Override
@@ -314,6 +330,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
 
         if (param0.hasUUID("Thrower")) {
             this.thrower = param0.getUUID("Thrower");
+            this.cachedThrower = null;
         }
 
         CompoundTag var0 = param0.getCompound("Item");
@@ -387,8 +404,9 @@ public class ItemEntity extends Entity implements TraceableEntity {
         this.target = param0;
     }
 
-    public void setThrower(@Nullable UUID param0) {
-        this.thrower = param0;
+    public void setThrower(Entity param0) {
+        this.thrower = param0.getUUID();
+        this.cachedThrower = param0;
     }
 
     public int getAge() {

@@ -2,6 +2,7 @@ package com.mojang.realmsclient.client;
 
 import com.google.gson.JsonArray;
 import com.mojang.logging.LogUtils;
+import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.dto.BackupList;
 import com.mojang.realmsclient.dto.GuardedSerializer;
 import com.mojang.realmsclient.dto.Ops;
@@ -33,6 +34,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
@@ -60,6 +62,9 @@ public class RealmsClient {
     private static final String REGIONS_RESOURCE = "regions/ping/stat";
     private static final String TRIALS_RESOURCE = "trial";
     private static final String NOTIFICATIONS_RESOURCE = "notifications";
+    private static final String PATH_LIST_ALL_REALMS = "/listUserWorldsOfType/any";
+    private static final String PATH_CREATE_SNAPSHOT_REALM = "/$PARENT_WORLD_ID/createPrereleaseRealm";
+    private static final String PATH_SNAPSHOT_ELIGIBLE_REALMS = "/listPrereleaseEligibleWorlds";
     private static final String PATH_INITIALIZE = "/$WORLD_ID/initialize";
     private static final String PATH_GET_ACTIVTIES = "/$WORLD_ID";
     private static final String PATH_GET_LIVESTATS = "/liveplayerlist";
@@ -113,8 +118,24 @@ public class RealmsClient {
 
     public RealmsServerList listWorlds() throws RealmsServiceException {
         String var0 = this.url("worlds");
+        if (RealmsMainScreen.isSnapshot()) {
+            var0 = var0 + "/listUserWorldsOfType/any";
+        }
+
         String var1 = this.execute(Request.get(var0));
         return RealmsServerList.parse(var1);
+    }
+
+    public List<RealmsServer> listSnapshotEligibleRealms() throws RealmsServiceException {
+        String var0 = this.url("worlds/listPrereleaseEligibleWorlds");
+        String var1 = this.execute(Request.get(var0));
+        return RealmsServerList.parse(var1).servers;
+    }
+
+    public RealmsServer createSnapshotRealm(Long param0) throws RealmsServiceException {
+        String var0 = String.valueOf(param0);
+        String var1 = this.url("worlds" + "/$PARENT_WORLD_ID/createPrereleaseRealm".replace("$PARENT_WORLD_ID", var0));
+        return RealmsServer.parse(this.execute(Request.post(var1, var0)));
     }
 
     public List<RealmsNotification> getNotifications() throws RealmsServiceException {
@@ -281,14 +302,16 @@ public class RealmsClient {
     }
 
     public Boolean resetWorldWithSeed(long param0, WorldGenerationInfo param1) throws RealmsServiceException {
-        RealmsWorldResetDto var0 = new RealmsWorldResetDto(param1.seed(), -1L, param1.levelType().getDtoIndex(), param1.generateStructures());
+        RealmsWorldResetDto var0 = new RealmsWorldResetDto(
+            param1.seed(), -1L, param1.levelType().getDtoIndex(), param1.generateStructures(), param1.experiments()
+        );
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
         String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);
     }
 
     public Boolean resetWorldWithTemplate(long param0, String param1) throws RealmsServiceException {
-        RealmsWorldResetDto var0 = new RealmsWorldResetDto(null, Long.valueOf(param1), -1, false);
+        RealmsWorldResetDto var0 = new RealmsWorldResetDto(null, Long.valueOf(param1), -1, false, Set.of());
         String var1 = this.url("worlds" + "/$WORLD_ID/reset".replace("$WORLD_ID", String.valueOf(param0)));
         String var2 = this.execute(Request.post(var1, GSON.toJson(var0), 30000, 80000));
         return Boolean.valueOf(var2);
@@ -383,6 +406,7 @@ public class RealmsClient {
         param0.cookie("sid", this.sessionId);
         param0.cookie("user", this.username);
         param0.cookie("version", SharedConstants.getCurrentVersion().getName());
+        param0.addSnapshotHeader(RealmsMainScreen.isSnapshot());
 
         try {
             int var0 = param0.responseCode();

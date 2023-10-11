@@ -9,7 +9,7 @@ import com.google.gson.JsonParseException;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.commands.CommandFunction;
+import net.minecraft.commands.CacheableFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,15 +23,13 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class AdvancementRewards {
-    public static final AdvancementRewards EMPTY = new AdvancementRewards(
-        0, new ResourceLocation[0], new ResourceLocation[0], CommandFunction.CacheableFunction.NONE
-    );
+    public static final AdvancementRewards EMPTY = new AdvancementRewards(0, new ResourceLocation[0], new ResourceLocation[0], CacheableFunction.NONE);
     private final int experience;
     private final ResourceLocation[] loot;
     private final ResourceLocation[] recipes;
-    private final CommandFunction.CacheableFunction function;
+    private final CacheableFunction function;
 
-    public AdvancementRewards(int param0, ResourceLocation[] param1, ResourceLocation[] param2, CommandFunction.CacheableFunction param3) {
+    public AdvancementRewards(int param0, ResourceLocation[] param1, ResourceLocation[] param2, CacheableFunction param3) {
         this.experience = param0;
         this.loot = param1;
         this.recipes = param2;
@@ -155,11 +153,11 @@ public class AdvancementRewards {
             var5[var6] = new ResourceLocation(GsonHelper.convertToString(var4.get(var6), "recipes[" + var6 + "]"));
         }
 
-        CommandFunction.CacheableFunction var7;
+        CacheableFunction var7;
         if (param0.has("function")) {
-            var7 = new CommandFunction.CacheableFunction(new ResourceLocation(GsonHelper.getAsString(param0, "function")));
+            var7 = new CacheableFunction(new ResourceLocation(GsonHelper.getAsString(param0, "function")));
         } else {
-            var7 = CommandFunction.CacheableFunction.NONE;
+            var7 = CacheableFunction.NONE;
         }
 
         return new AdvancementRewards(var0, var2, var5, var7);
@@ -213,7 +211,7 @@ public class AdvancementRewards {
                 this.experience,
                 this.loot.toArray(new ResourceLocation[0]),
                 this.recipes.toArray(new ResourceLocation[0]),
-                this.function == null ? CommandFunction.CacheableFunction.NONE : new CommandFunction.CacheableFunction(this.function)
+                this.function == null ? CacheableFunction.NONE : new CacheableFunction(this.function)
             );
         }
     }

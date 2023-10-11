@@ -48,10 +48,15 @@ public abstract class Projectile extends Entity implements TraceableEntity {
     public Entity getOwner() {
         if (this.cachedOwner != null && !this.cachedOwner.isRemoved()) {
             return this.cachedOwner;
-        } else if (this.ownerUUID != null && this.level() instanceof ServerLevel) {
-            this.cachedOwner = ((ServerLevel)this.level()).getEntity(this.ownerUUID);
-            return this.cachedOwner;
         } else {
+            if (this.ownerUUID != null) {
+                Level var2 = this.level();
+                if (var2 instanceof ServerLevel var0) {
+                    this.cachedOwner = var0.getEntity(this.ownerUUID);
+                    return this.cachedOwner;
+                }
+            }
+
             return null;
         }
     }
@@ -86,6 +91,15 @@ public abstract class Projectile extends Entity implements TraceableEntity {
 
         this.leftOwner = param0.getBoolean("LeftOwner");
         this.hasBeenShot = param0.getBoolean("HasBeenShot");
+    }
+
+    @Override
+    public void restoreFrom(Entity param0) {
+        super.restoreFrom(param0);
+        if (param0 instanceof Projectile var0) {
+            this.cachedOwner = var0.cachedOwner;
+        }
+
     }
 
     @Override

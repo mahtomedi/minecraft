@@ -498,7 +498,7 @@ public class Fox extends Animal implements VariantHolder<Fox.Type> {
         if (!param0.isEmpty() && !this.level().isClientSide) {
             ItemEntity var0 = new ItemEntity(this.level(), this.getX() + this.getLookAngle().x, this.getY() + 1.0, this.getZ() + this.getLookAngle().z, param0);
             var0.setPickUpDelay(40);
-            var0.setThrower(this.getUUID());
+            var0.setThrower(this);
             this.playSound(SoundEvents.FOX_SPIT, 1.0F, 1.0F);
             this.level().addFreshEntity(var0);
         }

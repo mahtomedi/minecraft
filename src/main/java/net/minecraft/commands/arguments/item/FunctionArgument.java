@@ -10,8 +10,8 @@ import com.mojang.datafixers.util.Pair;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -34,12 +34,14 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
             final ResourceLocation var0 = ResourceLocation.read(param0);
             return new FunctionArgument.Result() {
                 @Override
-                public Collection<CommandFunction> create(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Collection<CommandFunction<CommandSourceStack>> create(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
                     return FunctionArgument.getFunctionTag(param0, var0);
                 }
 
                 @Override
-                public Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> unwrap(
+                    CommandContext<CommandSourceStack> param0
+                ) throws CommandSyntaxException {
                     return Pair.of(var0, Either.right(FunctionArgument.getFunctionTag(param0, var0)));
                 }
             };
@@ -47,24 +49,26 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
             final ResourceLocation var1 = ResourceLocation.read(param0);
             return new FunctionArgument.Result() {
                 @Override
-                public Collection<CommandFunction> create(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Collection<CommandFunction<CommandSourceStack>> create(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
                     return Collections.singleton(FunctionArgument.getFunction(param0, var1));
                 }
 
                 @Override
-                public Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> param0) throws CommandSyntaxException {
+                public Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> unwrap(
+                    CommandContext<CommandSourceStack> param0
+                ) throws CommandSyntaxException {
                     return Pair.of(var1, Either.left(FunctionArgument.getFunction(param0, var1)));
                 }
             };
         }
     }
 
-    static CommandFunction getFunction(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
+    static CommandFunction<CommandSourceStack> getFunction(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
         return param0.getSource().getServer().getFunctions().get(param1).orElseThrow(() -> ERROR_UNKNOWN_FUNCTION.create(param1.toString()));
     }
 
-    static Collection<CommandFunction> getFunctionTag(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
-        Collection<CommandFunction> var0 = param0.getSource().getServer().getFunctions().getTag(param1);
+    static Collection<CommandFunction<CommandSourceStack>> getFunctionTag(CommandContext<CommandSourceStack> param0, ResourceLocation param1) throws CommandSyntaxException {
+        Collection<CommandFunction<CommandSourceStack>> var0 = param0.getSource().getServer().getFunctions().getTag(param1);
         if (var0 == null) {
             throw ERROR_UNKNOWN_TAG.create(param1.toString());
         } else {
@@ -72,11 +76,11 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
         }
     }
 
-    public static Collection<CommandFunction> getFunctions(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
+    public static Collection<CommandFunction<CommandSourceStack>> getFunctions(CommandContext<CommandSourceStack> param0, String param1) throws CommandSyntaxException {
         return param0.getArgument(param1, FunctionArgument.Result.class).create(param0);
     }
 
-    public static Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> getFunctionOrTag(
+    public static Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> getFunctionOrTag(
         CommandContext<CommandSourceStack> param0, String param1
     ) throws CommandSyntaxException {
         return param0.getArgument(param1, FunctionArgument.Result.class).unwrap(param0);
@@ -88,8 +92,10 @@ public class FunctionArgument implements ArgumentType<FunctionArgument.Result> {
     }
 
     public interface Result {
-        Collection<CommandFunction> create(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
+        Collection<CommandFunction<CommandSourceStack>> create(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
 
-        Pair<ResourceLocation, Either<CommandFunction, Collection<CommandFunction>>> unwrap(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
+        Pair<ResourceLocation, Either<CommandFunction<CommandSourceStack>, Collection<CommandFunction<CommandSourceStack>>>> unwrap(
+            CommandContext<CommandSourceStack> var1
+        ) throws CommandSyntaxException;
     }
 }

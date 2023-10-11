@@ -7,12 +7,23 @@ import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,11 +43,13 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -83,6 +96,46 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     }
 
     @Override
+    public InteractionResult use(BlockState param0, Level param1, BlockPos param2, Player param3, InteractionHand param4, BlockHitResult param5) {
+        BlockEntity var2 = param1.getBlockEntity(param2);
+        if (!(var2 instanceof DecoratedPotBlockEntity)) {
+            return InteractionResult.PASS;
+        } else {
+            DecoratedPotBlockEntity var0 = (DecoratedPotBlockEntity)var2;
+            ItemStack var13 = param3.getItemInHand(param4);
+            ItemStack var3 = var0.getTheItem();
+            if (!var13.isEmpty() && (var3.isEmpty() || ItemStack.isSameItemSameTags(var3, var13) && var3.getCount() < var3.getMaxStackSize())) {
+                var0.wobble(DecoratedPotBlockEntity.WobbleStyle.POSITIVE);
+                param3.awardStat(Stats.ITEM_USED.get(var13.getItem()));
+                ItemStack var4 = param3.isCreative() ? var13.copyWithCount(1) : var13.split(1);
+                float var5;
+                if (var0.isEmpty()) {
+                    var0.setTheItem(var4);
+                    var5 = (float)var4.getCount() / (float)var4.getMaxStackSize();
+                } else {
+                    var3.grow(1);
+                    var5 = (float)var3.getCount() / (float)var3.getMaxStackSize();
+                }
+
+                param1.playSound(null, param2, SoundEvents.DECORATED_POT_INSERT, SoundSource.BLOCKS, 1.0F, 0.7F + 0.5F * var5);
+                if (param1 instanceof ServerLevel var7) {
+                    var7.sendParticles(
+                        ParticleTypes.DUST_PLUME, (double)param2.getX() + 0.5, (double)param2.getY() + 1.2, (double)param2.getZ() + 0.5, 7, 0.0, 0.0, 0.0, 0.0
+                    );
+                }
+
+                param1.updateNeighbourForOutputSignal(param2, this);
+            } else {
+                param1.playSound(null, param2, SoundEvents.DECORATED_POT_INSERT_FAIL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                var0.wobble(DecoratedPotBlockEntity.WobbleStyle.NEGATIVE);
+            }
+
+            param1.gameEvent(param3, GameEvent.BLOCK_CHANGE, param2);
+            return InteractionResult.SUCCESS;
+        }
+    }
+
+    @Override
     public void setPlacedBy(Level param0, BlockPos param1, BlockState param2, @Nullable LivingEntity param3, ItemStack param4) {
         if (param0.isClientSide) {
             param0.getBlockEntity(param1, BlockEntityType.DECORATED_POT).ifPresent(param1x -> param1x.setFromItem(param4));
@@ -109,6 +162,12 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     @Override
     public BlockEntity newBlockEntity(BlockPos param0, BlockState param1) {
         return new DecoratedPotBlockEntity(param0, param1);
+    }
+
+    @Override
+    public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
+        Containers.dropContentsOnDestroy(param0, param3, param1, param2);
+        super.onRemove(param0, param1, param2, param3, param4);
     }
 
     @Override
@@ -155,8 +214,28 @@ public class DecoratedPotBlock extends BaseEntityBlock implements SimpleWaterlog
     }
 
     @Override
+    public void onProjectileHit(Level param0, BlockState param1, BlockHitResult param2, Projectile param3) {
+        BlockPos var0 = param2.getBlockPos();
+        if (!param0.isClientSide && param3.mayInteract(param0, var0) && param3.getType().is(EntityTypeTags.IMPACT_PROJECTILES)) {
+            param0.setBlock(var0, param1.setValue(CRACKED, Boolean.valueOf(true)), 4);
+            param0.destroyBlock(var0, true, param3);
+        }
+
+    }
+
+    @Override
     public ItemStack getCloneItemStack(LevelReader param0, BlockPos param1, BlockState param2) {
         BlockEntity var5 = param0.getBlockEntity(param1);
-        return var5 instanceof DecoratedPotBlockEntity var0 ? var0.getItem() : super.getCloneItemStack(param0, param1, param2);
+        return var5 instanceof DecoratedPotBlockEntity var0 ? var0.getPotAsItem() : super.getCloneItemStack(param0, param1, param2);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState param0) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState param0, Level param1, BlockPos param2) {
+        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(param1.getBlockEntity(param2));
     }
 }

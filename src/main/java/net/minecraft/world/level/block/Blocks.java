@@ -2611,7 +2611,7 @@ public class Blocks {
     );
     public static final Block PUMPKIN = register(
         net.minecraft.references.Blocks.PUMPKIN,
-        new Block(
+        new PumpkinBlock(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.COLOR_ORANGE)
                 .instrument(NoteBlockInstrument.DIDGERIDOO)

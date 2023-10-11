@@ -470,7 +470,7 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
                         String var2 = "selectWorld.backupWarning." + var0.getTranslationKey();
                         MutableComponent var3 = Component.translatable(var1);
                         if (var0.isSevere()) {
-                            var3.withStyle(ChatFormatting.BOLD, ChatFormatting.RED);
+                            var3.withStyle(param0 -> param0.withColor(-2142128));
                         }
 
                         Component var4 = Component.translatable(var2, this.summary.getWorldVersionName(), SharedConstants.getCurrentVersion().getName());

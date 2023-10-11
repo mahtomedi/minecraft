@@ -7,11 +7,14 @@ import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.Object2LongMap.Entry;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -185,6 +188,9 @@ public class GameTestInfo {
     public void succeed() {
         if (this.error == null) {
             this.finish();
+            AABB var0 = this.getStructureBounds();
+            List<Entity> var1 = this.getLevel().getEntitiesOfClass(Entity.class, var0.inflate(1.0), param0 -> !(param0 instanceof Player));
+            var1.forEach(param0 -> param0.remove(Entity.RemovalReason.DISCARDED));
         }
 
     }

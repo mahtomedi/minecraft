@@ -34,7 +34,7 @@ public class TeamMsgCommand {
                             param0x -> {
                                 CommandSourceStack var0x = param0x.getSource();
                                 Entity var1x = var0x.getEntityOrException();
-                                PlayerTeam var2 = (PlayerTeam)var1x.getTeam();
+                                PlayerTeam var2 = var1x.getTeam();
                                 if (var2 == null) {
                                     throw ERROR_NOT_ON_TEAM.create();
                                 } else {

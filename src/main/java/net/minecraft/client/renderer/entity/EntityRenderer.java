@@ -69,7 +69,7 @@ public abstract class EntityRenderer<T extends Entity> {
     }
 
     protected boolean shouldShowName(T param0) {
-        return param0.shouldShowName() && param0.hasCustomName();
+        return param0.shouldShowName() || param0.hasCustomName() && param0 == this.entityRenderDispatcher.crosshairPickEntity;
     }
 
     public abstract ResourceLocation getTextureLocation(T var1);

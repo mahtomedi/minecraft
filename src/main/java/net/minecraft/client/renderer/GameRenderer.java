@@ -57,7 +57,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Spider;
@@ -89,6 +88,7 @@ public class GameRenderer implements AutoCloseable {
     private static final boolean DEPTH_BUFFER_DEBUG = false;
     public static final float PROJECTION_Z_NEAR = 0.05F;
     private static final float GUI_Z_NEAR = 1000.0F;
+    private static final int ENTITY_INTERACTION_RANGE = 3;
     final Minecraft minecraft;
     private final ResourceManager resourceManager;
     private final RandomSource random = RandomSource.create();
@@ -774,25 +774,10 @@ public class GameRenderer implements AutoCloseable {
                 double var1 = (double)this.minecraft.gameMode.getPickRange();
                 this.minecraft.hitResult = var0.pick(var1, param0, false);
                 Vec3 var2 = var0.getEyePosition(param0);
-                boolean var3 = false;
-                int var4 = 3;
-                double var5 = var1;
-                if (this.minecraft.gameMode.hasFarPickRange()) {
-                    var5 = 6.0;
-                    var1 = var5;
-                } else {
-                    if (var1 > 3.0) {
-                        var3 = true;
-                    }
-
-                    var1 = var1;
-                }
-
-                var5 *= var5;
-                if (this.minecraft.hitResult != null) {
-                    var5 = this.minecraft.hitResult.getLocation().distanceToSqr(var2);
-                }
-
+                boolean var3 = this.minecraft.gameMode.hasFarPickRange();
+                var1 = var3 ? 6.0 : var1;
+                boolean var4 = !var3;
+                double var5 = this.minecraft.hitResult != null ? this.minecraft.hitResult.getLocation().distanceToSqr(var2) : var1 * var1;
                 Vec3 var6 = var0.getViewVector(1.0F);
                 Vec3 var7 = var2.add(var6.x * var1, var6.y * var1, var6.z * var1);
                 float var8 = 1.0F;
@@ -801,16 +786,14 @@ public class GameRenderer implements AutoCloseable {
                     var0, var2, var7, var9, param0x -> !param0x.isSpectator() && param0x.isPickable(), var5
                 );
                 if (var10 != null) {
-                    Entity var11 = var10.getEntity();
-                    Vec3 var12 = var10.getLocation();
-                    double var13 = var2.distanceToSqr(var12);
-                    if (var3 && var13 > 9.0) {
-                        this.minecraft.hitResult = BlockHitResult.miss(var12, Direction.getNearest(var6.x, var6.y, var6.z), BlockPos.containing(var12));
-                    } else if (var13 < var5 || this.minecraft.hitResult == null) {
+                    Vec3 var11 = var10.getLocation();
+                    double var12 = var2.distanceToSqr(var11);
+                    if (var4 && var12 > 9.0) {
+                        this.minecraft.hitResult = BlockHitResult.miss(var11, Direction.getNearest(var6.x, var6.y, var6.z), BlockPos.containing(var11));
+                    } else if (var12 < var5 || this.minecraft.hitResult == null) {
                         this.minecraft.hitResult = var10;
-                        if (var11 instanceof LivingEntity || var11 instanceof ItemFrame) {
-                            this.minecraft.crosshairPickEntity = var11;
-                        }
+                        Entity var13 = var10.getEntity();
+                        this.minecraft.crosshairPickEntity = var13;
                     }
                 }
 

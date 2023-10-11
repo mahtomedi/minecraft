@@ -27,6 +27,7 @@ import com.mojang.realmsclient.util.task.GetServerDetailsTask;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -35,11 +36,14 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.FocusableTextWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.ImageWidget;
@@ -58,7 +62,9 @@ import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.SpacerElement;
 import net.minecraft.client.gui.navigation.CommonInputs;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
@@ -71,6 +77,7 @@ import net.minecraft.util.CommonLinks;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
@@ -88,11 +95,10 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final ResourceLocation NO_REALMS_LOCATION = new ResourceLocation("textures/gui/realms/no_realms.png");
     private static final Component TITLE = Component.translatable("menu.online");
     private static final Component LOADING_TEXT = Component.translatable("mco.selectServer.loading");
-    static final Component SERVER_UNITIALIZED_TEXT = Component.translatable("mco.selectServer.uninitialized").withStyle(ChatFormatting.GREEN);
+    static final Component SERVER_UNITIALIZED_TEXT = Component.translatable("mco.selectServer.uninitialized");
     static final Component SUBSCRIPTION_EXPIRED_TEXT = Component.translatable("mco.selectServer.expiredList");
     private static final Component SUBSCRIPTION_RENEW_TEXT = Component.translatable("mco.selectServer.expiredRenew");
     static final Component TRIAL_EXPIRED_TEXT = Component.translatable("mco.selectServer.expiredTrial");
-    static final Component SELECT_MINIGAME_PREFIX = Component.translatable("mco.selectServer.minigame").append(CommonComponents.SPACE);
     private static final Component PLAY_TEXT = Component.translatable("mco.selectServer.play");
     private static final Component LEAVE_SERVER_TEXT = Component.translatable("mco.selectServer.leave");
     private static final Component CONFIGURE_SERVER_TEXT = Component.translatable("mco.selectServer.configure");
@@ -115,9 +121,13 @@ public class RealmsMainScreen extends RealmsScreen {
     private static final int LOGO_TEXTURE_HEIGHT = 64;
     private static final int LOGO_PADDING = 5;
     private static final int HEADER_HEIGHT = 44;
-    private static final int FOOTER_PADDING = 10;
+    private static final int FOOTER_PADDING = 11;
+    private static final int NEW_REALM_SPRITE_WIDTH = 40;
+    private static final int NEW_REALM_SPRITE_HEIGHT = 20;
     private static final int ENTRY_WIDTH = 216;
     private static final int ITEM_HEIGHT = 36;
+    private static final boolean SNAPSHOT = !SharedConstants.getCurrentVersion().isStable();
+    private static boolean snapshotToggle = SNAPSHOT;
     private final CompletableFuture<RealmsAvailability.Result> availability = RealmsAvailability.get();
     @Nullable
     private DataFetcher.Subscription dataSubscription;
@@ -132,6 +142,7 @@ public class RealmsMainScreen extends RealmsScreen {
     private Button leaveButton;
     private RealmsMainScreen.RealmSelectionList realmSelectionList;
     private RealmsServerList serverList;
+    private List<RealmsServer> availableSnapshotServers = List.of();
     private volatile boolean trialsAvailable;
     @Nullable
     private volatile String newsLink;
@@ -180,6 +191,17 @@ public class RealmsMainScreen extends RealmsScreen {
             .size(100, 20)
             .build();
         this.backButton = Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen)).width(100).build();
+        if (RealmsClient.ENVIRONMENT == RealmsClient.Environment.STAGE) {
+            this.addRenderableWidget(
+                CycleButton.booleanBuilder(Component.literal("Snapshot"), Component.literal("Release"))
+                    .create(5, 5, 100, 20, Component.literal("Realm"), (param0, param1) -> {
+                        snapshotToggle = param1;
+                        this.availableSnapshotServers = List.of();
+                        this.debugRefreshDataFetchers();
+                    })
+            );
+        }
+
         this.updateLayout(RealmsMainScreen.LayoutState.LOADING);
         this.updateButtonStates();
         this.availability.thenAcceptAsync(param0 -> {
@@ -193,11 +215,24 @@ public class RealmsMainScreen extends RealmsScreen {
         }, this.screenExecutor);
     }
 
+    public static boolean isSnapshot() {
+        return SNAPSHOT && snapshotToggle;
+    }
+
     @Override
     protected void repositionElements() {
         if (this.layout != null) {
             this.realmSelectionList.updateSize(this.width, this.height, this.layout.getHeaderHeight(), this.height - this.layout.getFooterHeight());
             this.layout.arrangeElements();
+        }
+
+    }
+
+    private void updateLayout() {
+        if (this.serverList.isEmpty() && this.availableSnapshotServers.isEmpty() && this.notifications.isEmpty()) {
+            this.updateLayout(RealmsMainScreen.LayoutState.NO_REALMS);
+        } else {
+            this.updateLayout(RealmsMainScreen.LayoutState.LIST);
         }
 
     }
@@ -222,7 +257,7 @@ public class RealmsMainScreen extends RealmsScreen {
         var0.addToHeader(this.createHeader());
         Layout var1 = this.createFooter(param0);
         var1.arrangeElements();
-        var0.setFooterHeight(var1.getHeight() + 20);
+        var0.setFooterHeight(var1.getHeight() + 22);
         var0.addToFooter(var1);
         switch(param0) {
             case LOADING:
@@ -276,26 +311,27 @@ public class RealmsMainScreen extends RealmsScreen {
     void updateButtonStates() {
         RealmsServer var0 = this.getSelectedServer();
         this.addRealmButton.active = this.activeLayoutState != RealmsMainScreen.LayoutState.LOADING;
-        this.playButton.active = this.shouldPlayButtonBeActive(var0);
-        this.renewButton.active = this.shouldRenewButtonBeActive(var0);
-        this.leaveButton.active = this.shouldLeaveButtonBeActive(var0);
-        this.configureButton.active = this.shouldConfigureButtonBeActive(var0);
+        this.playButton.active = var0 != null && this.shouldPlayButtonBeActive(var0);
+        this.renewButton.active = var0 != null && this.shouldRenewButtonBeActive(var0);
+        this.leaveButton.active = var0 != null && this.shouldLeaveButtonBeActive(var0);
+        this.configureButton.active = var0 != null && this.shouldConfigureButtonBeActive(var0);
     }
 
-    boolean shouldPlayButtonBeActive(@Nullable RealmsServer param0) {
-        return param0 != null && !param0.expired && param0.state == RealmsServer.State.OPEN;
+    boolean shouldPlayButtonBeActive(RealmsServer param0) {
+        boolean var0 = !param0.expired && param0.state == RealmsServer.State.OPEN;
+        return var0 && (param0.isCompatible() || this.isSelfOwnedServer(param0));
     }
 
-    private boolean shouldRenewButtonBeActive(@Nullable RealmsServer param0) {
-        return param0 != null && param0.expired && this.isSelfOwnedServer(param0);
+    private boolean shouldRenewButtonBeActive(RealmsServer param0) {
+        return param0.expired && this.isSelfOwnedServer(param0);
     }
 
-    private boolean shouldConfigureButtonBeActive(@Nullable RealmsServer param0) {
-        return param0 != null && this.isSelfOwnedServer(param0);
+    private boolean shouldConfigureButtonBeActive(RealmsServer param0) {
+        return this.isSelfOwnedServer(param0);
     }
 
-    private boolean shouldLeaveButtonBeActive(@Nullable RealmsServer param0) {
-        return param0 != null && !this.isSelfOwnedServer(param0);
+    private boolean shouldLeaveButtonBeActive(RealmsServer param0) {
+        return !this.isSelfOwnedServer(param0);
     }
 
     @Override
@@ -311,35 +347,37 @@ public class RealmsMainScreen extends RealmsScreen {
         Minecraft.getInstance().realmsDataFetcher().pendingInvitesTask.reset();
     }
 
-    public void refreshServerList() {
+    public static void refreshServerList() {
         Minecraft.getInstance().realmsDataFetcher().serverListUpdateTask.reset();
+    }
+
+    private void debugRefreshDataFetchers() {
+        for(DataFetcher.Task<?> var0 : this.minecraft.realmsDataFetcher().getTasks()) {
+            var0.reset();
+        }
+
     }
 
     private DataFetcher.Subscription initDataFetcher(RealmsDataFetcher param0) {
         DataFetcher.Subscription var0 = param0.dataFetcher.createSubscription();
-        var0.subscribe(
-            param0.serverListUpdateTask,
-            param0x -> {
-                this.serverList.updateServersList(param0x);
-                this.updateLayout(
-                    this.serverList.isEmpty() && this.notifications.isEmpty() ? RealmsMainScreen.LayoutState.NO_REALMS : RealmsMainScreen.LayoutState.LIST
-                );
-                this.refreshRealmsSelectionList();
-                boolean var0x = false;
-    
-                for(RealmsServer var1x : this.serverList) {
-                    if (this.isSelfOwnedNonExpiredServer(var1x)) {
-                        var0x = true;
-                    }
+        var0.subscribe(param0.serverListUpdateTask, param0x -> {
+            this.serverList.updateServersList(param0x.serverList());
+            this.availableSnapshotServers = param0x.availableSnapshotServers();
+            this.refreshListAndLayout();
+            boolean var0x = false;
+
+            for(RealmsServer var1x : this.serverList) {
+                if (this.isSelfOwnedNonExpiredServer(var1x)) {
+                    var0x = true;
                 }
-    
-                if (!regionsPinged && var0x) {
-                    regionsPinged = true;
-                    this.pingRegions();
-                }
-    
             }
-        );
+
+            if (!regionsPinged && var0x) {
+                regionsPinged = true;
+                this.pingRegions();
+            }
+
+        });
         callRealmsClient(RealmsClient::getNotifications, param0x -> {
             this.notifications.clear();
             this.notifications.addAll(param0x);
@@ -356,8 +394,7 @@ public class RealmsMainScreen extends RealmsScreen {
             }
 
             if (!this.notifications.isEmpty() && this.activeLayoutState != RealmsMainScreen.LayoutState.LOADING) {
-                this.updateLayout(RealmsMainScreen.LayoutState.LIST);
-                this.refreshRealmsSelectionList();
+                this.refreshListAndLayout();
             }
 
         });
@@ -410,7 +447,7 @@ public class RealmsMainScreen extends RealmsScreen {
         });
     }
 
-    private void refreshRealmsSelectionList() {
+    private void refreshListAndLayout() {
         RealmsServer var0 = this.getSelectedServer();
         this.realmSelectionList.clear();
 
@@ -421,15 +458,41 @@ public class RealmsMainScreen extends RealmsScreen {
             }
         }
 
-        for(RealmsServer var2 : this.serverList) {
-            RealmsMainScreen.ServerEntry var3 = new RealmsMainScreen.ServerEntry(var2);
-            this.realmSelectionList.addEntry(var3);
-            if (var0 != null && var0.id == var2.id) {
-                this.realmSelectionList.setSelected((RealmsMainScreen.Entry)var3);
-            }
+        for(RealmsServer var2 : this.availableSnapshotServers) {
+            this.realmSelectionList.addEntry(new RealmsMainScreen.AvailableSnapshotEntry(var2));
         }
 
-        this.updateButtonStates();
+        Iterator var6 = this.serverList.iterator();
+
+        while(true) {
+            RealmsMainScreen.Entry var4;
+            RealmsServer var3;
+            while(true) {
+                if (!var6.hasNext()) {
+                    this.updateLayout();
+                    this.updateButtonStates();
+                    return;
+                }
+
+                var3 = (RealmsServer)var6.next();
+                if (isSnapshot() && !var3.isSnapshotRealm()) {
+                    if (var3.state == RealmsServer.State.UNINITIALIZED) {
+                        continue;
+                    }
+
+                    var4 = new RealmsMainScreen.ParentEntry(var3);
+                    break;
+                }
+
+                var4 = new RealmsMainScreen.ServerEntry(var3);
+                break;
+            }
+
+            this.realmSelectionList.addEntry(var4);
+            if (var0 != null && var0.id == var3.id) {
+                this.realmSelectionList.setSelected(var4);
+            }
+        }
     }
 
     private boolean addListEntriesForNotification(RealmsNotification param0) {
@@ -510,8 +573,8 @@ public class RealmsMainScreen extends RealmsScreen {
 
     @Nullable
     private RealmsServer getSelectedServer() {
-        RealmsMainScreen.Entry var0 = this.realmSelectionList.getSelected();
-        return var0 != null ? var0.getServer() : null;
+        AbstractSelectionList.Entry var2 = this.realmSelectionList.getSelected();
+        return var2 instanceof RealmsMainScreen.ServerEntry var0 ? var0.getServer() : null;
     }
 
     private void leaveServer(boolean param0, final RealmsServer param1) {
@@ -540,8 +603,12 @@ public class RealmsMainScreen extends RealmsScreen {
     void removeServer(RealmsServer param0) {
         this.serverList.removeItem(param0);
         this.realmSelectionList.children().removeIf(param1 -> {
-            RealmsServer var0 = param1.getServer();
-            return var0 != null && var0.id == param0.id;
+            if (param1 instanceof RealmsMainScreen.ServerEntry var0) {
+                RealmsServer var1x = var0.getServer();
+                return var1x.id == param0.id;
+            } else {
+                return false;
+            }
         });
         this.realmSelectionList.setSelected(null);
         this.updateButtonStates();
@@ -553,7 +620,7 @@ public class RealmsMainScreen extends RealmsScreen {
             return null;
         }, param1 -> {
             this.notifications.removeIf(param1x -> param1x.dismissable() && param0.equals(param1x.uuid()));
-            this.refreshRealmsSelectionList();
+            this.refreshListAndLayout();
         });
     }
 
@@ -573,6 +640,10 @@ public class RealmsMainScreen extends RealmsScreen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
+        if (isSnapshot()) {
+            param0.drawString(this.font, "Minecraft " + SharedConstants.getCurrentVersion().getName(), 2, this.height - 10, -1);
+        }
+
         if (this.trialsAvailable && this.addRealmButton.active) {
             RealmsPopupScreen.renderDiamond(param0, this.addRealmButton);
         }
@@ -592,10 +663,71 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     public static void play(@Nullable RealmsServer param0, Screen param1) {
+        play(param0, param1, false);
+    }
+
+    public static void play(@Nullable RealmsServer param0, Screen param1, boolean param2) {
         if (param0 != null) {
-            Minecraft.getInstance().setScreen(new RealmsLongRunningMcoTaskScreen(param1, new GetServerDetailsTask(param1, param0)));
+            if (!isSnapshot() || param2) {
+                Minecraft.getInstance().setScreen(new RealmsLongRunningMcoTaskScreen(param1, new GetServerDetailsTask(param1, param0)));
+                return;
+            }
+
+            switch(param0.compatibility) {
+                case COMPATIBLE:
+                    Minecraft.getInstance().setScreen(new RealmsLongRunningMcoTaskScreen(param1, new GetServerDetailsTask(param1, param0)));
+                    break;
+                case UNVERIFIABLE:
+                    confirmToPlay(
+                        param0,
+                        param1,
+                        Component.translatable("mco.compatibility.unverifiable.title").withStyle(ChatFormatting.YELLOW),
+                        Component.translatable("mco.compatibility.unverifiable.message"),
+                        CommonComponents.GUI_CONTINUE
+                    );
+                    break;
+                case NEEDS_DOWNGRADE:
+                    confirmToPlay(
+                        param0,
+                        param1,
+                        Component.translatable("selectWorld.backupQuestion.downgrade").withStyle(param0x -> param0x.withColor(-2142128)),
+                        Component.translatable(
+                            "mco.compatibility.downgrade.description",
+                            Component.literal(param0.activeVersion).withStyle(ChatFormatting.YELLOW),
+                            Component.literal(SharedConstants.getCurrentVersion().getName()).withStyle(ChatFormatting.YELLOW)
+                        ),
+                        Component.translatable("mco.compatibility.downgrade")
+                    );
+                    break;
+                case NEEDS_UPGRADE:
+                    confirmToPlay(
+                        param0,
+                        param1,
+                        Component.translatable("mco.compatibility.upgrade.title").withStyle(ChatFormatting.YELLOW),
+                        Component.translatable(
+                            "mco.compatibility.upgrade.description",
+                            Component.literal(param0.activeVersion).withStyle(ChatFormatting.YELLOW),
+                            Component.literal(SharedConstants.getCurrentVersion().getName()).withStyle(ChatFormatting.YELLOW)
+                        ),
+                        Component.translatable("mco.compatibility.upgrade")
+                    );
+            }
         }
 
+    }
+
+    private static void confirmToPlay(RealmsServer param0, Screen param1, Component param2, Component param3, Component param4) {
+        Minecraft.getInstance().setScreen(new ConfirmScreen(param2x -> {
+            Object var1x;
+            if (param2x) {
+                var1x = new RealmsLongRunningMcoTaskScreen(param1, new GetServerDetailsTask(param1, param0));
+                refreshServerList();
+            } else {
+                var1x = param1;
+            }
+
+            Minecraft.getInstance().setScreen(var1x);
+        }, param2, param3, param4, CommonComponents.GUI_CANCEL));
     }
 
     boolean isSelfOwnedServer(RealmsServer param0) {
@@ -613,6 +745,69 @@ public class RealmsMainScreen extends RealmsScreen {
         param0.pose().scale(1.5F, 1.5F, 1.5F);
         param0.drawString(this.font, param1, 0, 0, param2, false);
         param0.pose().popPose();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    class AvailableSnapshotEntry extends RealmsMainScreen.Entry {
+        private static final Component START_SNAPSHOT_REALM = Component.translatable("mco.snapshot.start");
+        private static final int TEXT_PADDING = 5;
+        private final Tooltip tooltip;
+        private final RealmsServer parent;
+
+        public AvailableSnapshotEntry(RealmsServer param0) {
+            this.parent = param0;
+            this.tooltip = Tooltip.create(Component.translatable("mco.snapshot.tooltip"));
+        }
+
+        @Override
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            param0.blitSprite(RealmsMainScreen.NEW_REALM_SPRITE, param3 - 5, param2 + param5 / 2 - 10, 40, 20);
+            int var0 = param2 + param5 / 2 - 9 / 2;
+            param0.drawString(RealmsMainScreen.this.font, START_SNAPSHOT_REALM, param3 + 40 - 2, var0 - 5, 8388479);
+            param0.drawString(
+                RealmsMainScreen.this.font, Component.translatable("mco.snapshot.description", this.parent.name), param3 + 40 - 2, var0 + 5, -8355712
+            );
+            this.tooltip.refreshTooltipForNextRenderPass(param8, this.isFocused(), new ScreenRectangle(param3, param2, param4, param5));
+        }
+
+        @Override
+        public boolean mouseClicked(double param0, double param1, int param2) {
+            this.addSnapshotRealm();
+            return true;
+        }
+
+        @Override
+        public boolean keyPressed(int param0, int param1, int param2) {
+            if (CommonInputs.selected(param0)) {
+                this.addSnapshotRealm();
+                return true;
+            } else {
+                return super.keyPressed(param0, param1, param2);
+            }
+        }
+
+        private void addSnapshotRealm() {
+            RealmsMainScreen.this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            RealmsMainScreen.this.minecraft
+                .setScreen(
+                    new PopupScreen.Builder(RealmsMainScreen.this, Component.translatable("mco.snapshot.createSnapshotPopup.title"))
+                        .setMessage(Component.translatable("mco.snapshot.createSnapshotPopup.text"))
+                        .addButton(
+                            Component.translatable("mco.selectServer.create"),
+                            param0 -> RealmsMainScreen.this.minecraft.setScreen(new RealmsCreateRealmScreen(RealmsMainScreen.this, this.parent.id))
+                        )
+                        .addButton(CommonComponents.GUI_CANCEL, PopupScreen::onClose)
+                        .build()
+                );
+        }
+
+        @Override
+        public Component getNarration() {
+            return Component.translatable(
+                "gui.narrate.button",
+                CommonComponents.joinForNarration(START_SNAPSHOT_REALM, Component.translatable("mco.snapshot.description", this.parent.name))
+            );
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -672,9 +867,93 @@ public class RealmsMainScreen extends RealmsScreen {
 
     @OnlyIn(Dist.CLIENT)
     abstract class Entry extends ObjectSelectionList.Entry<RealmsMainScreen.Entry> {
-        @Nullable
-        public RealmsServer getServer() {
-            return null;
+        private static final int STATUS_LIGHT_WIDTH = 10;
+        private static final int STATUS_LIGHT_HEIGHT = 28;
+        private static final int PADDING = 7;
+
+        protected void renderStatusLights(RealmsServer param0, GuiGraphics param1, int param2, int param3, int param4, int param5) {
+            int var0 = param2 - 10 - 7;
+            int var1 = param3 + 2;
+            if (param0.expired) {
+                this.drawRealmStatus(param1, var0, var1, param4, param5, RealmsMainScreen.EXPIRED_SPRITE, () -> RealmsMainScreen.SERVER_EXPIRED_TOOLTIP);
+            } else if (param0.state == RealmsServer.State.CLOSED) {
+                this.drawRealmStatus(param1, var0, var1, param4, param5, RealmsMainScreen.CLOSED_SPRITE, () -> RealmsMainScreen.SERVER_CLOSED_TOOLTIP);
+            } else if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.daysLeft < 7) {
+                this.drawRealmStatus(
+                    param1,
+                    var0,
+                    var1,
+                    param4,
+                    param5,
+                    RealmsMainScreen.EXPIRES_SOON_SPRITE,
+                    () -> {
+                        if (param0.daysLeft <= 0) {
+                            return RealmsMainScreen.SERVER_EXPIRES_SOON_TOOLTIP;
+                        } else {
+                            return (Component)(param0.daysLeft == 1
+                                ? RealmsMainScreen.SERVER_EXPIRES_IN_DAY_TOOLTIP
+                                : Component.translatable("mco.selectServer.expires.days", param0.daysLeft));
+                        }
+                    }
+                );
+            } else if (param0.state == RealmsServer.State.OPEN) {
+                this.drawRealmStatus(param1, var0, var1, param4, param5, RealmsMainScreen.OPEN_SPRITE, () -> RealmsMainScreen.SERVER_OPEN_TOOLTIP);
+            }
+
+        }
+
+        private void drawRealmStatus(GuiGraphics param0, int param1, int param2, int param3, int param4, ResourceLocation param5, Supplier<Component> param6) {
+            param0.blitSprite(param5, param1, param2, 10, 28);
+            if (param3 >= param1
+                && param3 <= param1 + 9
+                && param4 >= param2
+                && param4 <= param2 + 27
+                && param4 < RealmsMainScreen.this.height - 40
+                && param4 > 32) {
+                RealmsMainScreen.this.setTooltipForNextRenderPass(param6.get());
+            }
+
+        }
+
+        protected void renderClampedName(GuiGraphics param0, String param1, int param2, int param3, int param4, int param5) {
+            int var0 = param4 - param2;
+            if (RealmsMainScreen.this.font.width(param1) > var0) {
+                String var1 = RealmsMainScreen.this.font.plainSubstrByWidth(param1, var0 - RealmsMainScreen.this.font.width("... "));
+                param0.drawString(RealmsMainScreen.this.font, var1 + "...", param2, param3, param5, false);
+            } else {
+                param0.drawString(RealmsMainScreen.this.font, param1, param2, param3, param5, false);
+            }
+
+        }
+
+        protected Component getVersionComponent(RealmsServer param0, int param1) {
+            return (Component)(StringUtils.isBlank(param0.activeVersion)
+                ? CommonComponents.EMPTY
+                : Component.translatable("mco.version", Component.literal(param0.activeVersion).withStyle(param1x -> param1x.withColor(param1))));
+        }
+
+        protected int versionTextX(int param0, int param1, Component param2) {
+            return param0 + param1 - RealmsMainScreen.this.font.width(param2) - 20;
+        }
+
+        protected int firstLineY(int param0) {
+            return param0 + 1;
+        }
+
+        protected int lineHeight() {
+            return 2 + 9;
+        }
+
+        protected int textX(int param0) {
+            return param0 + 36 + 2;
+        }
+
+        protected int secondLineY(int param0) {
+            return param0 + this.lineHeight();
+        }
+
+        protected int thirdLineY(int param0) {
+            return param0 + this.lineHeight() * 2;
         }
     }
 
@@ -822,6 +1101,48 @@ public class RealmsMainScreen extends RealmsScreen {
     }
 
     @OnlyIn(Dist.CLIENT)
+    class ParentEntry extends RealmsMainScreen.Entry {
+        private final RealmsServer server;
+        private final Tooltip tooltip;
+
+        public ParentEntry(RealmsServer param0) {
+            this.server = param0;
+            this.tooltip = Tooltip.create(Component.translatable("mco.snapshot.parent.tooltip"));
+        }
+
+        @Override
+        public boolean mouseClicked(double param0, double param1, int param2) {
+            return true;
+        }
+
+        @Override
+        public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
+            RealmsUtil.renderPlayerFace(param0, param3, param2, 32, this.server.ownerUUID);
+            int var0 = this.textX(param3);
+            int var1 = this.firstLineY(param2);
+            Component var2 = this.getVersionComponent(this.server, -8355712);
+            int var3 = this.versionTextX(param3, param4, var2);
+            this.renderClampedName(param0, this.server.getName(), var0, var1, var3, -8355712);
+            if (var2 != CommonComponents.EMPTY) {
+                param0.drawString(RealmsMainScreen.this.font, var2, var3, var1, -8355712, false);
+            }
+
+            param0.drawString(RealmsMainScreen.this.font, this.server.getDescription(), var0, this.secondLineY(var1), -8355712, false);
+            if (!RealmsMainScreen.this.isSelfOwnedServer(this.server)) {
+                param0.drawString(RealmsMainScreen.this.font, this.server.owner, var0, this.thirdLineY(var1), -8355712, false);
+            }
+
+            this.tooltip.refreshTooltipForNextRenderPass(param8, this.isFocused(), new ScreenRectangle(param3, param2, param4, param5));
+            this.renderStatusLights(this.server, param0, param3 + param4, param2, param6, param7);
+        }
+
+        @Override
+        public Component getNarration() {
+            return Component.literal(this.server.name);
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
     class RealmSelectionList extends RealmsObjectSelectionList<RealmsMainScreen.Entry> {
         public RealmSelectionList() {
             super(RealmsMainScreen.this.width, RealmsMainScreen.this.height, 0, RealmsMainScreen.this.height, 36);
@@ -852,42 +1173,68 @@ public class RealmsMainScreen extends RealmsScreen {
     class ServerEntry extends RealmsMainScreen.Entry {
         private static final int SKIN_HEAD_LARGE_WIDTH = 36;
         private final RealmsServer serverData;
+        @Nullable
+        private final Tooltip tooltip;
 
         public ServerEntry(RealmsServer param0) {
             this.serverData = param0;
+            boolean param1 = RealmsMainScreen.this.isSelfOwnedServer(param0);
+            if (RealmsMainScreen.isSnapshot() && param1 && param0.isSnapshotRealm()) {
+                this.tooltip = Tooltip.create(Component.translatable("mco.snapshot.paired", param0.parentWorldName));
+            } else if (RealmsMainScreen.isSnapshot() && !param1 && param0.needsUpgrade()) {
+                this.tooltip = Tooltip.create(Component.translatable("mco.snapshot.friendsRealm.upgrade", param0.owner));
+            } else if (RealmsMainScreen.isSnapshot() && !param1 && param0.needsDowngrade()) {
+                this.tooltip = Tooltip.create(Component.translatable("mco.snapshot.friendsRealm.downgrade", param0.activeVersion));
+            } else {
+                this.tooltip = null;
+            }
+
         }
 
         @Override
         public void render(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5, int param6, int param7, boolean param8, float param9) {
             if (this.serverData.state == RealmsServer.State.UNINITIALIZED) {
-                param0.blitSprite(RealmsMainScreen.NEW_REALM_SPRITE, param3 + 36 + 10, param2 + 6, 40, 20);
-                int var0 = param3 + 36 + 10 + 40 + 10;
-                param0.drawString(RealmsMainScreen.this.font, RealmsMainScreen.SERVER_UNITIALIZED_TEXT, var0, param2 + 12, -1);
+                param0.blitSprite(RealmsMainScreen.NEW_REALM_SPRITE, param3 - 5, param2 + param5 / 2 - 10, 40, 20);
+                int var0 = param2 + param5 / 2 - 9 / 2;
+                param0.drawString(RealmsMainScreen.this.font, RealmsMainScreen.SERVER_UNITIALIZED_TEXT, param3 + 40 - 2, var0, 8388479);
             } else {
-                int var1 = 225;
-                int var2 = 2;
-                this.renderStatusLights(this.serverData, param0, param3 + 36, param2, param6, param7, 225, 2);
+                this.renderStatusLights(this.serverData, param0, param3 + param4, param2, param6, param7);
+                int var1 = this.textX(param3);
+                int var2 = this.firstLineY(param2);
+                int var3 = this.secondLineY(var2);
+                int var4 = this.thirdLineY(var2);
+                Component var5 = this.getVersionComponent(this.serverData, this.serverData.isCompatible() ? -8355712 : -2142128);
+                int var6 = this.versionTextX(param3, param4, var5);
+                this.renderClampedName(param0, this.serverData.getName(), var1, var2, var6, -1);
                 if (RealmsMainScreen.this.isSelfOwnedServer(this.serverData) && this.serverData.expired) {
-                    Component var3 = this.serverData.expiredTrial ? RealmsMainScreen.TRIAL_EXPIRED_TEXT : RealmsMainScreen.SUBSCRIPTION_EXPIRED_TEXT;
-                    int var4 = param2 + 11 + 5;
-                    param0.drawString(RealmsMainScreen.this.font, var3, param3 + 36 + 2, var4 + 1, 15553363, false);
+                    Component var7 = this.serverData.expiredTrial ? RealmsMainScreen.TRIAL_EXPIRED_TEXT : RealmsMainScreen.SUBSCRIPTION_EXPIRED_TEXT;
+                    param0.drawString(RealmsMainScreen.this.font, var7, var1, var4, 15553363, false);
+                } else if (this.serverData.worldType == RealmsServer.WorldType.MINIGAME) {
+                    Component var8 = Component.literal(this.serverData.getMinigameName()).withStyle(ChatFormatting.GRAY);
+                    param0.drawString(
+                        RealmsMainScreen.this.font,
+                        Component.translatable("mco.selectServer.minigameName", var8).withStyle(ChatFormatting.YELLOW),
+                        var1,
+                        var3,
+                        13413468,
+                        false
+                    );
                 } else {
-                    if (this.serverData.worldType == RealmsServer.WorldType.MINIGAME) {
-                        int var5 = 13413468;
-                        int var6 = RealmsMainScreen.this.font.width(RealmsMainScreen.SELECT_MINIGAME_PREFIX);
-                        param0.drawString(RealmsMainScreen.this.font, RealmsMainScreen.SELECT_MINIGAME_PREFIX, param3 + 36 + 2, param2 + 12, 13413468, false);
-                        param0.drawString(RealmsMainScreen.this.font, this.serverData.getMinigameName(), param3 + 36 + 2 + var6, param2 + 12, 7105644, false);
-                    } else {
-                        param0.drawString(RealmsMainScreen.this.font, this.serverData.getDescription(), param3 + 36 + 2, param2 + 12, 7105644, false);
+                    param0.drawString(RealmsMainScreen.this.font, this.serverData.getDescription(), var1, var3, -8355712, false);
+                    if (var5 != CommonComponents.EMPTY) {
+                        param0.drawString(RealmsMainScreen.this.font, var5, var6, var2, -8355712, false);
                     }
 
                     if (!RealmsMainScreen.this.isSelfOwnedServer(this.serverData)) {
-                        param0.drawString(RealmsMainScreen.this.font, this.serverData.owner, param3 + 36 + 2, param2 + 12 + 11, 5000268, false);
+                        param0.drawString(RealmsMainScreen.this.font, this.serverData.owner, var1, var4, -8355712, false);
                     }
                 }
 
-                param0.drawString(RealmsMainScreen.this.font, this.serverData.getName(), param3 + 36 + 2, param2 + 1, -1, false);
-                RealmsUtil.renderPlayerFace(param0, param3 + 36 - 36, param2, 32, this.serverData.ownerUUID);
+                if (this.tooltip != null) {
+                    this.tooltip.refreshTooltipForNextRenderPass(param8, this.isFocused(), new ScreenRectangle(param3, param2, param4, param5));
+                }
+
+                RealmsUtil.renderPlayerFace(param0, param3, param2, 32, this.serverData.ownerUUID);
             }
         }
 
@@ -898,7 +1245,7 @@ public class RealmsMainScreen extends RealmsScreen {
 
         private void createUnitializedRealm() {
             RealmsMainScreen.this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            RealmsCreateRealmScreen var0 = new RealmsCreateRealmScreen(this.serverData, RealmsMainScreen.this);
+            RealmsCreateRealmScreen var0 = new RealmsCreateRealmScreen(RealmsMainScreen.this, this.serverData);
             RealmsMainScreen.this.minecraft.setScreen(var0);
         }
 
@@ -934,53 +1281,6 @@ public class RealmsMainScreen extends RealmsScreen {
             return super.keyPressed(param0, param1, param2);
         }
 
-        private void renderStatusLights(RealmsServer param0, GuiGraphics param1, int param2, int param3, int param4, int param5, int param6, int param7) {
-            int var0 = param2 + param6 + 22;
-            if (param0.expired) {
-                this.drawRealmStatus(
-                    param1, var0, param3 + param7, param4, param5, RealmsMainScreen.EXPIRED_SPRITE, () -> RealmsMainScreen.SERVER_EXPIRED_TOOLTIP
-                );
-            } else if (param0.state == RealmsServer.State.CLOSED) {
-                this.drawRealmStatus(
-                    param1, var0, param3 + param7, param4, param5, RealmsMainScreen.CLOSED_SPRITE, () -> RealmsMainScreen.SERVER_CLOSED_TOOLTIP
-                );
-            } else if (RealmsMainScreen.this.isSelfOwnedServer(param0) && param0.daysLeft < 7) {
-                this.drawRealmStatus(
-                    param1,
-                    var0,
-                    param3 + param7,
-                    param4,
-                    param5,
-                    RealmsMainScreen.EXPIRES_SOON_SPRITE,
-                    () -> {
-                        if (param0.daysLeft <= 0) {
-                            return RealmsMainScreen.SERVER_EXPIRES_SOON_TOOLTIP;
-                        } else {
-                            return (Component)(param0.daysLeft == 1
-                                ? RealmsMainScreen.SERVER_EXPIRES_IN_DAY_TOOLTIP
-                                : Component.translatable("mco.selectServer.expires.days", param0.daysLeft));
-                        }
-                    }
-                );
-            } else if (param0.state == RealmsServer.State.OPEN) {
-                this.drawRealmStatus(param1, var0, param3 + param7, param4, param5, RealmsMainScreen.OPEN_SPRITE, () -> RealmsMainScreen.SERVER_OPEN_TOOLTIP);
-            }
-
-        }
-
-        private void drawRealmStatus(GuiGraphics param0, int param1, int param2, int param3, int param4, ResourceLocation param5, Supplier<Component> param6) {
-            param0.blitSprite(param5, param1, param2, 10, 28);
-            if (param3 >= param1
-                && param3 <= param1 + 9
-                && param4 >= param2
-                && param4 <= param2 + 27
-                && param4 < RealmsMainScreen.this.height - 40
-                && param4 > 32) {
-                RealmsMainScreen.this.setTooltipForNextRenderPass(param6.get());
-            }
-
-        }
-
         @Override
         public Component getNarration() {
             return (Component)(this.serverData.state == RealmsServer.State.UNINITIALIZED
@@ -988,8 +1288,6 @@ public class RealmsMainScreen extends RealmsScreen {
                 : Component.translatable("narrator.select", this.serverData.name));
         }
 
-        @Nullable
-        @Override
         public RealmsServer getServer() {
             return this.serverData;
         }

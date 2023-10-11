@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -61,15 +60,8 @@ public class BarrelBlock extends BaseEntityBlock {
 
     @Override
     public void onRemove(BlockState param0, Level param1, BlockPos param2, BlockState param3, boolean param4) {
-        if (!param0.is(param3.getBlock())) {
-            BlockEntity var0 = param1.getBlockEntity(param2);
-            if (var0 instanceof Container) {
-                Containers.dropContents(param1, param2, (Container)var0);
-                param1.updateNeighbourForOutputSignal(param2, this);
-            }
-
-            super.onRemove(param0, param1, param2, param3, param4);
-        }
+        Containers.dropContentsOnDestroy(param0, param3, param1, param2);
+        super.onRemove(param0, param1, param2, param3, param4);
     }
 
     @Override

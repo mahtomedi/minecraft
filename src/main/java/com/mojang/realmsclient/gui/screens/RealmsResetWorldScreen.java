@@ -11,6 +11,9 @@ import com.mojang.realmsclient.util.task.LongRunningTask;
 import com.mojang.realmsclient.util.task.ResettingGeneratedWorldTask;
 import com.mojang.realmsclient.util.task.ResettingTemplateWorldTask;
 import com.mojang.realmsclient.util.task.SwitchSlotTask;
+import com.mojang.realmsclient.util.task.WorldCreationTask;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -60,11 +63,27 @@ public class RealmsResetWorldScreen extends RealmsScreen {
     WorldTemplatePaginatedList experiences;
     WorldTemplatePaginatedList inspirations;
     public final int slot;
+    @Nullable
+    private final WorldCreationTask worldCreationTask;
     private final Runnable resetWorldRunnable;
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
 
     private RealmsResetWorldScreen(
         Screen param0, RealmsServer param1, int param2, Component param3, Component param4, int param5, Component param6, Runnable param7
+    ) {
+        this(param0, param1, param2, param3, param4, param5, param6, null, param7);
+    }
+
+    public RealmsResetWorldScreen(
+        Screen param0,
+        RealmsServer param1,
+        int param2,
+        Component param3,
+        Component param4,
+        int param5,
+        Component param6,
+        @Nullable WorldCreationTask param7,
+        Runnable param8
     ) {
         super(param3);
         this.lastScreen = param0;
@@ -73,12 +92,13 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         this.subtitle = param4;
         this.subtitleColor = param5;
         this.resetTaskTitle = param6;
-        this.resetWorldRunnable = param7;
+        this.worldCreationTask = param7;
+        this.resetWorldRunnable = param8;
     }
 
-    public static RealmsResetWorldScreen forNewRealm(Screen param0, RealmsServer param1, Runnable param2) {
+    public static RealmsResetWorldScreen forNewRealm(Screen param0, RealmsServer param1, WorldCreationTask param2, Runnable param3) {
         return new RealmsResetWorldScreen(
-            param0, param1, param1.activeSlot, CREATE_REALM_TITLE, CREATE_REALM_SUBTITLE, -6250336, CREATE_WORLD_RESET_TASK_TITLE, param2
+            param0, param1, param1.activeSlot, CREATE_REALM_TITLE, CREATE_REALM_SUBTITLE, -6250336, CREATE_WORLD_RESET_TASK_TITLE, param2, param3
         );
     }
 
@@ -215,18 +235,10 @@ public class RealmsResetWorldScreen extends RealmsScreen {
         return this.width / 2 - 130 + (param0 - 1) * 100;
     }
 
-    private void startTask(LongRunningTask param0) {
-        this.minecraft.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, param0));
-    }
-
-    public void switchSlot(Runnable param0) {
-        this.startTask(new SwitchSlotTask(this.serverData.id, this.slot, () -> this.minecraft.execute(param0)));
-    }
-
     private void templateSelectionCallback(@Nullable WorldTemplate param0) {
         this.minecraft.setScreen(this);
         if (param0 != null) {
-            this.resetWorld(() -> this.startTask(new ResettingTemplateWorldTask(param0, this.serverData.id, this.resetTaskTitle, this.resetWorldRunnable)));
+            this.runResetTasks(new ResettingTemplateWorldTask(param0, this.serverData.id, this.resetTaskTitle, this.resetWorldRunnable));
         }
 
     }
@@ -234,18 +246,31 @@ public class RealmsResetWorldScreen extends RealmsScreen {
     private void generationSelectionCallback(@Nullable WorldGenerationInfo param0) {
         this.minecraft.setScreen(this);
         if (param0 != null) {
-            this.resetWorld(() -> this.startTask(new ResettingGeneratedWorldTask(param0, this.serverData.id, this.resetTaskTitle, this.resetWorldRunnable)));
+            this.runResetTasks(new ResettingGeneratedWorldTask(param0, this.serverData.id, this.resetTaskTitle, this.resetWorldRunnable));
         }
 
     }
 
-    private void resetWorld(Runnable param0) {
-        if (this.slot == -1) {
-            param0.run();
-        } else {
-            this.switchSlot(param0);
+    private void runResetTasks(LongRunningTask param0) {
+        List<LongRunningTask> var0 = new ArrayList<>();
+        if (this.worldCreationTask != null) {
+            var0.add(this.worldCreationTask);
         }
 
+        if (this.slot != this.serverData.activeSlot) {
+            var0.add(new SwitchSlotTask(this.serverData.id, this.slot, () -> {
+            }));
+        }
+
+        var0.add(param0);
+        this.minecraft.setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, var0.toArray(new LongRunningTask[0])));
+    }
+
+    public void switchSlot(Runnable param0) {
+        this.minecraft
+            .setScreen(
+                new RealmsLongRunningMcoTaskScreen(this.lastScreen, new SwitchSlotTask(this.serverData.id, this.slot, () -> this.minecraft.execute(param0)))
+            );
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class RealmsServer extends ValueObject {
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int NO_VALUE = -1;
     public long id;
     public String remoteSubscriptionId;
     public String name;
@@ -47,6 +49,11 @@ public class RealmsServer extends ValueObject {
     public String minigameName;
     public int minigameId;
     public String minigameImage;
+    public long parentWorldId = -1L;
+    @Nullable
+    public String parentWorldName;
+    public String activeVersion = "";
+    public RealmsServer.Compatibility compatibility = RealmsServer.Compatibility.UNVERIFIABLE;
     public RealmsServerPing serverPing = new RealmsServerPing();
 
     public String getDescription() {
@@ -125,6 +132,10 @@ public class RealmsServer extends ValueObject {
             var0.activeSlot = JsonUtils.getIntOr("activeSlot", param0, -1);
             var0.minigameId = JsonUtils.getIntOr("minigameId", param0, -1);
             var0.minigameImage = JsonUtils.getStringOr("minigameImage", param0, null);
+            var0.parentWorldId = JsonUtils.getLongOr("parentWorldId", param0, -1L);
+            var0.parentWorldName = JsonUtils.getStringOr("parentWorldName", param0, null);
+            var0.activeVersion = JsonUtils.getStringOr("activeVersion", param0, "");
+            var0.compatibility = getCompatibility(JsonUtils.getStringOr("compatibility", param0, RealmsServer.Compatibility.UNVERIFIABLE.name()));
         } catch (Exception var3) {
             LOGGER.error("Could not parse McoServer: {}", var3.getMessage());
         }
@@ -225,6 +236,26 @@ public class RealmsServer extends ValueObject {
         }
     }
 
+    private static RealmsServer.Compatibility getCompatibility(@Nullable String param0) {
+        try {
+            return RealmsServer.Compatibility.valueOf(param0);
+        } catch (Exception var2) {
+            return RealmsServer.Compatibility.UNVERIFIABLE;
+        }
+    }
+
+    public boolean isCompatible() {
+        return this.compatibility == RealmsServer.Compatibility.COMPATIBLE;
+    }
+
+    public boolean needsUpgrade() {
+        return this.compatibility == RealmsServer.Compatibility.NEEDS_UPGRADE;
+    }
+
+    public boolean needsDowngrade() {
+        return this.compatibility == RealmsServer.Compatibility.NEEDS_DOWNGRADE;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(this.id, this.name, this.motd, this.state, this.owner, this.expired);
@@ -274,6 +305,10 @@ public class RealmsServer extends ValueObject {
         var0.activeSlot = this.activeSlot;
         var0.minigameId = this.minigameId;
         var0.minigameImage = this.minigameImage;
+        var0.parentWorldName = this.parentWorldName;
+        var0.parentWorldId = this.parentWorldId;
+        var0.activeVersion = this.activeVersion;
+        var0.compatibility = this.compatibility;
         return var0;
     }
 
@@ -287,12 +322,25 @@ public class RealmsServer extends ValueObject {
         return var0;
     }
 
+    public boolean isSnapshotRealm() {
+        return this.parentWorldId != -1L;
+    }
+
     public String getWorldName(int param0) {
         return this.name + " (" + this.slots.get(param0).getSlotName(param0) + ")";
     }
 
     public ServerData toServerData(String param0) {
         return new ServerData(this.name, param0, ServerData.Type.REALM);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static enum Compatibility {
+        UNVERIFIABLE,
+        INCOMPATIBLE,
+        NEEDS_DOWNGRADE,
+        NEEDS_UPGRADE,
+        COMPATIBLE;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -305,6 +353,7 @@ public class RealmsServer extends ValueObject {
 
         public int compare(RealmsServer param0, RealmsServer param1) {
             return ComparisonChain.start()
+                .compareTrueFirst(param0.isSnapshotRealm(), param1.isSnapshotRealm())
                 .compareTrueFirst(param0.state == RealmsServer.State.UNINITIALIZED, param1.state == RealmsServer.State.UNINITIALIZED)
                 .compareTrueFirst(param0.expiredTrial, param1.expiredTrial)
                 .compareTrueFirst(param0.owner.equals(this.refOwner), param1.owner.equals(this.refOwner))

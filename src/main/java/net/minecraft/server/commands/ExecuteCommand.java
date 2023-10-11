@@ -4,11 +4,11 @@ import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.RedirectModifier;
-import com.mojang.brigadier.ResultConsumer;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.ContextChain;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -16,6 +16,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.tree.CommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,11 +26,16 @@ import java.util.function.BiPredicate;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandResultConsumer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.ExecutionCommandSource;
+import net.minecraft.commands.FunctionInstantiationException;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -47,6 +53,13 @@ import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.commands.execution.CustomModifierExecutor;
+import net.minecraft.commands.execution.ExecutionControl;
+import net.minecraft.commands.execution.tasks.BuildContexts;
+import net.minecraft.commands.execution.tasks.CallFunction;
+import net.minecraft.commands.functions.CommandFunction;
+import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -92,6 +105,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class ExecuteCommand {
     private static final int MAX_TEST_AREA = 32768;
@@ -104,9 +118,12 @@ public class ExecuteCommand {
     private static final DynamicCommandExceptionType ERROR_CONDITIONAL_FAILED_COUNT = new DynamicCommandExceptionType(
         param0 -> Component.translatableEscape("commands.execute.conditional.fail_count", param0)
     );
-    private static final BinaryOperator<ResultConsumer<CommandSourceStack>> CALLBACK_CHAINER = (param0, param1) -> (param2, param3, param4) -> {
-            param0.onCommandComplete(param2, param3, param4);
-            param1.onCommandComplete(param2, param3, param4);
+    private static final Dynamic2CommandExceptionType ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE = new Dynamic2CommandExceptionType(
+        (param0, param1) -> Component.translatableEscape("commands.execute.function.instantiationFailure", param0, param1)
+    );
+    private static final BinaryOperator<CommandResultConsumer<CommandSourceStack>> CALLBACK_CHAINER = (param0, param1) -> (param2, param3, param4) -> {
+            param0.storeResult(param2, param3, param4);
+            param1.storeResult(param2, param3, param4);
         };
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_PREDICATE = (param0, param1) -> {
         LootDataManager var0 = param0.getSource().getServer().getLootData();
@@ -642,6 +659,14 @@ public class ExecuteCommand {
                             param0x -> checkCustomPredicate(param0x.getSource(), ResourceLocationArgument.getPredicate(param0x, "predicate"))
                         )
                     )
+            )
+            .then(
+                Commands.literal("function")
+                    .then(
+                        Commands.argument("name", FunctionArgument.functions())
+                            .suggests(FunctionCommand.SUGGEST_FUNCTION)
+                            .fork(param0, new ExecuteCommand.ExecuteIfFunctionCustomModifier(param2))
+                    )
             );
 
         for(DataCommands.DataProvider var0 : DataCommands.SOURCE_PROVIDERS) {
@@ -899,6 +924,69 @@ public class ExecuteCommand {
         return param0.withEntity(var0);
     }
 
+    public static <T extends ExecutionCommandSource<T>> void scheduleFunctionConditionsAndTest(
+        List<T> param0,
+        Function<T, T> param1,
+        IntPredicate param2,
+        ContextChain<T> param3,
+        @Nullable CompoundTag param4,
+        ExecutionControl<T> param5,
+        ExecuteCommand.CommandGetter<T, Collection<CommandFunction<T>>> param6,
+        boolean param7
+    ) throws CommandSyntaxException {
+        List<T> var0 = new ArrayList<>(param0.size());
+        CommandContext<T> var1 = param3.getTopContext();
+
+        for(T var2 : param0) {
+            Collection<CommandFunction<T>> var3 = param6.get(var1.copyFor(var2));
+            int var4 = var3.size();
+            if (var4 != 0) {
+                T var5 = prepareCallback(param1, param2, var0, var2, var4 == 1);
+
+                for(CommandFunction<T> var6 : var3) {
+                    InstantiatedFunction<T> var7;
+                    try {
+                        var7 = var6.instantiate(param4, var5.dispatcher(), var5);
+                    } catch (FunctionInstantiationException var19) {
+                        throw ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE.create(var6.id(), var19.messageComponent());
+                    }
+
+                    param5.queueNext(new CallFunction<>(var7).bind(var5));
+                }
+            }
+        }
+
+        ContextChain<T> var10 = param3.nextStage();
+        String var11 = var1.getInput();
+        param5.queueNext(new BuildContexts.Continuation<>(var11, var10, param7, var0));
+    }
+
+    private static <T extends ExecutionCommandSource<T>> T prepareCallback(Function<T, T> param0, IntPredicate param1, List<T> param2, T param3, boolean param4) {
+        T var0 = param0.apply(param3).clearCallbacks();
+        if (param4) {
+            return var0.withReturnValueConsumer(param3x -> {
+                if (param1.test(param3x)) {
+                    param2.add(param3);
+                }
+
+            });
+        } else {
+            MutableBoolean var1 = new MutableBoolean();
+            return var0.withReturnValueConsumer(param4x -> {
+                if (var1.isFalse() && param1.test(param4x)) {
+                    param2.add(param3);
+                    var1.setTrue();
+                }
+
+            });
+        }
+    }
+
+    @FunctionalInterface
+    public interface CommandGetter<T, R> {
+        R get(CommandContext<T> var1) throws CommandSyntaxException;
+    }
+
     @FunctionalInterface
     interface CommandNumericPredicate {
         int test(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
@@ -907,5 +995,27 @@ public class ExecuteCommand {
     @FunctionalInterface
     interface CommandPredicate {
         boolean test(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
+    }
+
+    static class ExecuteIfFunctionCustomModifier implements CustomModifierExecutor.ModifierAdapter<CommandSourceStack> {
+        private final IntPredicate check;
+
+        ExecuteIfFunctionCustomModifier(boolean param0) {
+            this.check = param0 ? param0x -> param0x != 0 : param0x -> param0x == 0;
+        }
+
+        @Override
+        public void apply(List<CommandSourceStack> param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) throws CommandSyntaxException {
+            ExecuteCommand.scheduleFunctionConditionsAndTest(
+                param0,
+                FunctionCommand::modifySenderForExecution,
+                this.check,
+                param1,
+                null,
+                param3,
+                param0x -> FunctionArgument.getFunctions(param0x, "name"),
+                param2
+            );
+        }
     }
 }
