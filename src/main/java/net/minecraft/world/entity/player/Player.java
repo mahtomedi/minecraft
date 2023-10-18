@@ -408,7 +408,12 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public int getPortalWaitTime() {
-        return this.abilities.invulnerable ? 1 : 80;
+        return Math.max(
+            1,
+            this.level()
+                .getGameRules()
+                .getInt(this.abilities.invulnerable ? GameRules.RULE_PLAYERS_NETHER_PORTAL_CREATIVE_DELAY : GameRules.RULE_PLAYERS_NETHER_PORTAL_DEFAULT_DELAY)
+        );
     }
 
     @Override

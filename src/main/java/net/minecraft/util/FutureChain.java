@@ -5,32 +5,33 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 
 public class FutureChain implements AutoCloseable, TaskChainer {
     private static final Logger LOGGER = LogUtils.getLogger();
     private CompletableFuture<?> head = CompletableFuture.completedFuture(null);
-    private final Executor checkedExecutor;
+    private final Executor executor;
     private volatile boolean closed;
 
     public FutureChain(Executor param0) {
-        this.checkedExecutor = param1 -> {
-            if (!this.closed) {
-                param0.execute(param1);
-            }
-
-        };
+        this.executor = param0;
     }
 
     @Override
-    public void append(TaskChainer.DelayedTask param0) {
-        this.head = this.head.thenComposeAsync(param1 -> param0.submit(this.checkedExecutor), this.checkedExecutor).exceptionally(param0x -> {
+    public <T> void append(CompletableFuture<T> param0, Consumer<T> param1) {
+        this.head = this.head.<T, Object>thenCombine(param0, (param0x, param1x) -> param1x).thenAcceptAsync(param1x -> {
+            if (!this.closed) {
+                param1.accept((T)param1x);
+            }
+
+        }, this.executor).exceptionally(param0x -> {
             if (param0x instanceof CompletionException var1x) {
                 param0x = var1x.getCause();
             }
 
-            if (param0x instanceof CancellationException var1) {
-                throw var1;
+            if (param0x instanceof CancellationException var2x) {
+                throw var2x;
             } else {
                 LOGGER.error("Chain link failed, continuing to next one", param0x);
                 return null;

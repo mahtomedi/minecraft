@@ -180,7 +180,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         return this.getItemCount() * this.itemHeight + this.headerHeight;
     }
 
-    protected void clickedHeader(int param0, int param1) {
+    protected boolean clickedHeader(int param0, int param1) {
+        return false;
     }
 
     protected void renderHeader(GuiGraphics param0, int param1, int param2) {
@@ -316,16 +317,15 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                         this.setFocused(var0);
                         this.setDragging(true);
                         return true;
-                    } else {
-                        return this.scrolling;
                     }
-                } else {
-                    this.clickedHeader(
-                        (int)(param0 - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)),
-                        (int)(param1 - (double)this.y0) + (int)this.getScrollAmount() - 4
-                    );
+                } else if (this.clickedHeader(
+                    (int)(param0 - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)),
+                    (int)(param1 - (double)this.y0) + (int)this.getScrollAmount() - 4
+                )) {
                     return true;
                 }
+
+                return this.scrolling;
             }
         }
     }

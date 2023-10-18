@@ -18,6 +18,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.WorldStem;
+import net.minecraft.server.packs.repository.PackRepository;
+import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.worldupdate.WorldUpgrader;
 import net.minecraft.world.level.Level;
@@ -46,17 +48,20 @@ public class OptimizeWorldScreen extends Screen {
         Minecraft param0, BooleanConsumer param1, DataFixer param2, LevelStorageSource.LevelStorageAccess param3, boolean param4
     ) {
         try {
-            OptimizeWorldScreen var8;
-            try (WorldStem var0 = param0.createWorldOpenFlows().loadWorldStem(param3, false)) {
-                WorldData var1 = var0.worldData();
-                RegistryAccess.Frozen var2 = var0.registries().compositeAccess();
-                param3.saveDataTag(var2, var1);
-                var8 = new OptimizeWorldScreen(param1, param2, param3, var1.getLevelSettings(), param4, var2.registryOrThrow(Registries.LEVEL_STEM));
+            WorldOpenFlows var0 = param0.createWorldOpenFlows();
+            PackRepository var1 = ServerPacksSource.createPackRepository(param3);
+
+            OptimizeWorldScreen var10;
+            try (WorldStem var2 = var0.loadWorldStem(param3.getDataTag(), false, var1)) {
+                WorldData var3 = var2.worldData();
+                RegistryAccess.Frozen var4 = var2.registries().compositeAccess();
+                param3.saveDataTag(var4, var3);
+                var10 = new OptimizeWorldScreen(param1, param2, param3, var3.getLevelSettings(), param4, var4.registryOrThrow(Registries.LEVEL_STEM));
             }
 
-            return var8;
-        } catch (Exception var11) {
-            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var11);
+            return var10;
+        } catch (Exception var13) {
+            LOGGER.warn("Failed to load datapacks, can't optimize world", (Throwable)var13);
             return null;
         }
     }

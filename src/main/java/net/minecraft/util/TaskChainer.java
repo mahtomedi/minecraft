@@ -3,22 +3,28 @@ package net.minecraft.util;
 import com.mojang.logging.LogUtils;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 
 @FunctionalInterface
 public interface TaskChainer {
     Logger LOGGER = LogUtils.getLogger();
 
-    static TaskChainer immediate(Executor param0) {
-        return param1 -> param1.submit(param0).exceptionally(param0x -> {
-                LOGGER.error("Task failed", param0x);
-                return null;
-            });
+    static TaskChainer immediate(final Executor param0) {
+        return new TaskChainer() {
+            @Override
+            public <T> void append(CompletableFuture<T> param0x, Consumer<T> param1) {
+                param0.thenAcceptAsync(param1, param0).exceptionally(param0xx -> {
+                    LOGGER.error("Task failed", param0xx);
+                    return null;
+                });
+            }
+        };
     }
 
-    void append(TaskChainer.DelayedTask var1);
-
-    public interface DelayedTask {
-        CompletableFuture<?> submit(Executor var1);
+    default void append(Runnable param0) {
+        this.append(CompletableFuture.completedFuture(null), param1 -> param0.run());
     }
+
+    <T> void append(CompletableFuture<T> var1, Consumer<T> var2);
 }

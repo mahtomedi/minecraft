@@ -2,7 +2,6 @@ package net.minecraft.server;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -59,7 +58,7 @@ public class ServerFunctionManager {
         try {
             InstantiatedFunction<CommandSourceStack> var1 = param0.instantiate(null, this.getDispatcher(), param1);
             Commands.executeCommandInContext(param1, param2 -> param2.queueInitialFunctionCall(var1, param1));
-        } catch (CommandSyntaxException | FunctionInstantiationException var8) {
+        } catch (FunctionInstantiationException var8) {
         } finally {
             var0.pop();
         }

@@ -7,7 +7,7 @@ public interface TraceCallbacks extends AutoCloseable {
 
     void onReturn(int var1, String var2, int var3);
 
-    void onError(int var1, String var2);
+    void onError(String var1);
 
     void onCall(int var1, ResourceLocation var2, int var3);
 

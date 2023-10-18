@@ -83,6 +83,7 @@ import org.slf4j.Logger;
 public class Util {
     static final Logger LOGGER = LogUtils.getLogger();
     private static final int DEFAULT_MAX_THREADS = 255;
+    private static final int DEFAULT_SAFE_FILE_OPERATION_RETRIES = 10;
     private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
@@ -227,8 +228,8 @@ public class Util {
             param1 = param1.getCause();
         }
 
-        if (param1 instanceof ReportedException) {
-            Bootstrap.realStdoutPrintln(((ReportedException)param1).getReport().getFriendlyReport());
+        if (param1 instanceof ReportedException var0x) {
+            Bootstrap.realStdoutPrintln(var0x.getReport().getFriendlyReport());
             System.exit(-1);
         }
 
@@ -590,20 +591,17 @@ public class Util {
         safeReplaceOrMoveFile(param0, param1, param2, false);
     }
 
-    public static void safeReplaceOrMoveFile(File param0, File param1, File param2, boolean param3) {
-        safeReplaceOrMoveFile(param0.toPath(), param1.toPath(), param2.toPath(), param3);
-    }
-
-    public static void safeReplaceOrMoveFile(Path param0, Path param1, Path param2, boolean param3) {
-        int var0 = 10;
-        if (!Files.exists(param0)
-            || runWithRetries(10, "create backup " + param2, createDeleter(param2), createRenamer(param0, param2), createFileCreatedCheck(param2))) {
-            if (runWithRetries(10, "remove old " + param0, createDeleter(param0), createFileDeletedCheck(param0))) {
-                if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0)) && !param3) {
-                    runWithRetries(10, "restore " + param0 + " from " + param2, createRenamer(param2, param0), createFileCreatedCheck(param0));
-                }
-
-            }
+    public static boolean safeReplaceOrMoveFile(Path param0, Path param1, Path param2, boolean param3) {
+        if (Files.exists(param0)
+            && !runWithRetries(10, "create backup " + param2, createDeleter(param2), createRenamer(param0, param2), createFileCreatedCheck(param2))) {
+            return false;
+        } else if (!runWithRetries(10, "remove old " + param0, createDeleter(param0), createFileDeletedCheck(param0))) {
+            return false;
+        } else if (!runWithRetries(10, "replace " + param0 + " with " + param1, createRenamer(param1, param0), createFileCreatedCheck(param0)) && !param3) {
+            runWithRetries(10, "restore " + param0 + " from " + param2, createRenamer(param2, param0), createFileCreatedCheck(param0));
+            return false;
+        } else {
+            return true;
         }
     }
 

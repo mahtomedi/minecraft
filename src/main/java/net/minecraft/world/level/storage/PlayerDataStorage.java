@@ -6,6 +6,7 @@ import java.io.File;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -44,7 +45,7 @@ public class PlayerDataStorage {
         try {
             File var1 = new File(this.playerDir, param0.getStringUUID() + ".dat");
             if (var1.exists() && var1.isFile()) {
-                var0 = NbtIo.readCompressed(var1);
+                var0 = NbtIo.readCompressed(var1, NbtAccounter.unlimitedHeap());
             }
         } catch (Exception var4) {
             LOGGER.warn("Failed to load player data for {}", param0.getName().getString());

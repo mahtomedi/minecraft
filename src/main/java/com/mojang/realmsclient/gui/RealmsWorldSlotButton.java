@@ -1,18 +1,19 @@
 package com.mojang.realmsclient.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
+import com.mojang.realmsclient.RealmsMainScreen;
 import com.mojang.realmsclient.dto.RealmsServer;
 import com.mojang.realmsclient.dto.RealmsWorldOptions;
 import com.mojang.realmsclient.util.RealmsTextureManager;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,20 +29,16 @@ public class RealmsWorldSlotButton extends Button {
     private static final Component SLOT_ACTIVE_TOOLTIP = Component.translatable("mco.configure.world.slot.tooltip.active");
     private static final Component SWITCH_TO_MINIGAME_SLOT_TOOLTIP = Component.translatable("mco.configure.world.slot.tooltip.minigame");
     private static final Component SWITCH_TO_WORLD_SLOT_TOOLTIP = Component.translatable("mco.configure.world.slot.tooltip");
-    private static final Component MINIGAME = Component.translatable("mco.worldSlot.minigame");
-    private final Supplier<RealmsServer> serverDataProvider;
-    private final Consumer<Component> toolTipSetter;
+    static final Component MINIGAME = Component.translatable("mco.worldSlot.minigame");
     private final int slotIndex;
     @Nullable
     private RealmsWorldSlotButton.State state;
+    @Nullable
+    private Tooltip tooltip;
 
-    public RealmsWorldSlotButton(
-        int param0, int param1, int param2, int param3, Supplier<RealmsServer> param4, Consumer<Component> param5, int param6, Button.OnPress param7
-    ) {
-        super(param0, param1, param2, param3, CommonComponents.EMPTY, param7, DEFAULT_NARRATION);
-        this.serverDataProvider = param4;
-        this.slotIndex = param6;
-        this.toolTipSetter = param5;
+    public RealmsWorldSlotButton(int param0, int param1, int param2, int param3, int param4, Button.OnPress param5) {
+        super(param0, param1, param2, param3, CommonComponents.EMPTY, param5, DEFAULT_NARRATION);
+        this.slotIndex = param4;
     }
 
     @Nullable
@@ -49,172 +46,97 @@ public class RealmsWorldSlotButton extends Button {
         return this.state;
     }
 
-    public void tick() {
-        RealmsServer var0 = this.serverDataProvider.get();
-        if (var0 != null) {
-            RealmsWorldOptions var1 = var0.slots.get(this.slotIndex);
-            boolean var2 = this.slotIndex == 4;
-            boolean var3;
-            String var4;
-            long var5;
-            String var6;
-            boolean var7;
-            if (var2) {
-                var3 = var0.worldType == RealmsServer.WorldType.MINIGAME;
-                var4 = MINIGAME.getString();
-                var5 = (long)var0.minigameId;
-                var6 = var0.minigameImage;
-                var7 = var0.minigameId == -1;
+    public void setServerData(RealmsServer param0) {
+        this.state = new RealmsWorldSlotButton.State(param0, this.slotIndex);
+        this.setTooltipAndNarration(this.state, param0.minigameName);
+    }
+
+    private void setTooltipAndNarration(RealmsWorldSlotButton.State param0, String param1) {
+        Component var0 = switch(param0.action) {
+            case JOIN -> SLOT_ACTIVE_TOOLTIP;
+            case SWITCH_SLOT -> param0.minigame ? SWITCH_TO_MINIGAME_SLOT_TOOLTIP : SWITCH_TO_WORLD_SLOT_TOOLTIP;
+            default -> null;
+        };
+        if (var0 == null) {
+            this.setMessage(Component.literal(param0.slotName));
+        } else {
+            this.tooltip = Tooltip.create(var0);
+            if (param0.empty) {
+                this.setMessage(var0);
             } else {
-                var3 = var0.activeSlot == this.slotIndex && var0.worldType != RealmsServer.WorldType.MINIGAME;
-                var4 = var1.getSlotName(this.slotIndex);
-                var5 = var1.templateId;
-                var6 = var1.templateImage;
-                var7 = var1.empty;
-            }
-
-            RealmsWorldSlotButton.Action var13 = getAction(var0, var3, var2);
-            Pair<Component, Component> var14 = this.getTooltipAndNarration(var0, var4, var7, var2, var13);
-            this.state = new RealmsWorldSlotButton.State(var3, var4, var5, var6, var7, var2, var13, var14.getFirst());
-            this.setMessage(var14.getSecond());
-        }
-    }
-
-    private static RealmsWorldSlotButton.Action getAction(RealmsServer param0, boolean param1, boolean param2) {
-        if (param1) {
-            if (!param0.expired && param0.state != RealmsServer.State.UNINITIALIZED) {
-                return RealmsWorldSlotButton.Action.JOIN;
-            }
-        } else {
-            if (!param2) {
-                return RealmsWorldSlotButton.Action.SWITCH_SLOT;
-            }
-
-            if (!param0.expired) {
-                return RealmsWorldSlotButton.Action.SWITCH_SLOT;
-            }
-        }
-
-        return RealmsWorldSlotButton.Action.NOTHING;
-    }
-
-    private Pair<Component, Component> getTooltipAndNarration(
-        RealmsServer param0, String param1, boolean param2, boolean param3, RealmsWorldSlotButton.Action param4
-    ) {
-        if (param4 == RealmsWorldSlotButton.Action.NOTHING) {
-            return Pair.of(null, Component.literal(param1));
-        } else {
-            Component var0;
-            if (param3) {
-                if (param2) {
-                    var0 = CommonComponents.EMPTY;
-                } else {
-                    var0 = CommonComponents.space().append(param1).append(CommonComponents.SPACE).append(param0.minigameName);
+                MutableComponent var1 = var0.copy().append(CommonComponents.space()).append(Component.literal(param0.slotName));
+                if (param0.minigame) {
+                    var1 = var1.append(CommonComponents.SPACE).append(param1);
                 }
-            } else {
-                var0 = CommonComponents.space().append(param1);
-            }
 
-            Component var3;
-            if (param4 == RealmsWorldSlotButton.Action.JOIN) {
-                var3 = SLOT_ACTIVE_TOOLTIP;
-            } else {
-                var3 = param3 ? SWITCH_TO_MINIGAME_SLOT_TOOLTIP : SWITCH_TO_WORLD_SLOT_TOOLTIP;
+                this.setMessage(var1);
             }
+        }
+    }
 
-            Component var5 = var3.copy().append(var0);
-            return Pair.of(var3, var5);
+    static RealmsWorldSlotButton.Action getAction(RealmsServer param0, boolean param1, boolean param2) {
+        if (param1 && !param0.expired && param0.state != RealmsServer.State.UNINITIALIZED) {
+            return RealmsWorldSlotButton.Action.JOIN;
+        } else {
+            return param1 || param2 && param0.expired ? RealmsWorldSlotButton.Action.NOTHING : RealmsWorldSlotButton.Action.SWITCH_SLOT;
         }
     }
 
     @Override
     public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.state != null) {
-            this.drawSlotFrame(
-                param0,
-                this.getX(),
-                this.getY(),
-                param1,
-                param2,
-                this.state.isCurrentlyActiveSlot,
-                this.state.slotName,
-                this.slotIndex,
-                this.state.imageId,
-                this.state.image,
-                this.state.empty,
-                this.state.minigame,
-                this.state.action,
-                this.state.actionPrompt
+            int var0 = this.getX();
+            int var1 = this.getY();
+            boolean var2 = this.isHoveredOrFocused();
+            if (this.tooltip != null) {
+                this.tooltip.refreshTooltipForNextRenderPass(this.isHovered(), this.isFocused(), this.getRectangle());
+            }
+
+            ResourceLocation var3;
+            if (this.state.minigame) {
+                var3 = RealmsTextureManager.worldTemplate(String.valueOf(this.state.imageId), this.state.image);
+            } else if (this.state.empty) {
+                var3 = EMPTY_SLOT_LOCATION;
+            } else if (this.state.image != null && this.state.imageId != -1L) {
+                var3 = RealmsTextureManager.worldTemplate(String.valueOf(this.state.imageId), this.state.image);
+            } else if (this.slotIndex == 1) {
+                var3 = DEFAULT_WORLD_SLOT_1;
+            } else if (this.slotIndex == 2) {
+                var3 = DEFAULT_WORLD_SLOT_2;
+            } else if (this.slotIndex == 3) {
+                var3 = DEFAULT_WORLD_SLOT_3;
+            } else {
+                var3 = EMPTY_SLOT_LOCATION;
+            }
+
+            if (this.state.isCurrentlyActiveSlot) {
+                param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
+            }
+
+            param0.blit(var3, var0 + 3, var1 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
+            boolean var10 = var2 && this.state.action != RealmsWorldSlotButton.Action.NOTHING;
+            if (var10) {
+                param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            } else if (this.state.isCurrentlyActiveSlot) {
+                param0.setColor(0.8F, 0.8F, 0.8F, 1.0F);
+            } else {
+                param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
+            }
+
+            param0.blitSprite(SLOT_FRAME_SPRITE, var0, var1, 80, 80);
+            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+            if (this.state.isCurrentlyActiveSlot) {
+                RenderSystem.enableBlend();
+                param0.blitSprite(CHECKMARK_SPRITE, var0 + 67, var1 + 4, 9, 8);
+                RenderSystem.disableBlend();
+            }
+
+            Font var11 = Minecraft.getInstance().font;
+            param0.drawCenteredString(var11, this.state.slotName, var0 + 40, var1 + 66, -1);
+            param0.drawCenteredString(
+                var11, RealmsMainScreen.getVersionComponent(this.state.slotVersion, this.state.compatibility.isCompatible()), var0 + 40, var1 + 80 + 2, -1
             );
         }
-    }
-
-    private void drawSlotFrame(
-        GuiGraphics param0,
-        int param1,
-        int param2,
-        int param3,
-        int param4,
-        boolean param5,
-        String param6,
-        int param7,
-        long param8,
-        @Nullable String param9,
-        boolean param10,
-        boolean param11,
-        RealmsWorldSlotButton.Action param12,
-        @Nullable Component param13
-    ) {
-        boolean var0 = this.isHoveredOrFocused();
-        if (this.isMouseOver((double)param3, (double)param4) && param13 != null) {
-            this.toolTipSetter.accept(param13);
-        }
-
-        Minecraft var1 = Minecraft.getInstance();
-        ResourceLocation var2;
-        if (param11) {
-            var2 = RealmsTextureManager.worldTemplate(String.valueOf(param8), param9);
-        } else if (param10) {
-            var2 = EMPTY_SLOT_LOCATION;
-        } else if (param9 != null && param8 != -1L) {
-            var2 = RealmsTextureManager.worldTemplate(String.valueOf(param8), param9);
-        } else if (param7 == 1) {
-            var2 = DEFAULT_WORLD_SLOT_1;
-        } else if (param7 == 2) {
-            var2 = DEFAULT_WORLD_SLOT_2;
-        } else if (param7 == 3) {
-            var2 = DEFAULT_WORLD_SLOT_3;
-        } else {
-            var2 = EMPTY_SLOT_LOCATION;
-        }
-
-        if (param5) {
-            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
-        }
-
-        param0.blit(var2, param1 + 3, param2 + 3, 0.0F, 0.0F, 74, 74, 74, 74);
-        boolean var9 = var0 && param12 != RealmsWorldSlotButton.Action.NOTHING;
-        if (var9) {
-            param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        } else if (param5) {
-            param0.setColor(0.8F, 0.8F, 0.8F, 1.0F);
-        } else {
-            param0.setColor(0.56F, 0.56F, 0.56F, 1.0F);
-        }
-
-        param0.blitSprite(SLOT_FRAME_SPRITE, param1, param2, 80, 80);
-        param0.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-        if (param5) {
-            this.renderCheckMark(param0, param1, param2);
-        }
-
-        param0.drawCenteredString(var1.font, param6, param1 + 40, param2 + 66, -1);
-    }
-
-    private void renderCheckMark(GuiGraphics param0, int param1, int param2) {
-        RenderSystem.enableBlend();
-        param0.blitSprite(CHECKMARK_SPRITE, param1 + 67, param2 + 4, 9, 8);
-        RenderSystem.disableBlend();
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -228,33 +150,37 @@ public class RealmsWorldSlotButton extends Button {
     public static class State {
         final boolean isCurrentlyActiveSlot;
         final String slotName;
+        final String slotVersion;
+        final RealmsServer.Compatibility compatibility;
         final long imageId;
         @Nullable
         final String image;
         public final boolean empty;
         public final boolean minigame;
         public final RealmsWorldSlotButton.Action action;
-        @Nullable
-        final Component actionPrompt;
 
-        State(
-            boolean param0,
-            String param1,
-            long param2,
-            @Nullable String param3,
-            boolean param4,
-            boolean param5,
-            RealmsWorldSlotButton.Action param6,
-            @Nullable Component param7
-        ) {
-            this.isCurrentlyActiveSlot = param0;
-            this.slotName = param1;
-            this.imageId = param2;
-            this.image = param3;
-            this.empty = param4;
-            this.minigame = param5;
-            this.action = param6;
-            this.actionPrompt = param7;
+        public State(RealmsServer param0, int param1) {
+            this.minigame = param1 == 4;
+            if (this.minigame) {
+                this.isCurrentlyActiveSlot = param0.worldType == RealmsServer.WorldType.MINIGAME;
+                this.slotName = RealmsWorldSlotButton.MINIGAME.getString();
+                this.imageId = (long)param0.minigameId;
+                this.image = param0.minigameImage;
+                this.empty = param0.minigameId == -1;
+                this.slotVersion = "";
+                this.compatibility = RealmsServer.Compatibility.UNVERIFIABLE;
+            } else {
+                RealmsWorldOptions var0 = param0.slots.get(param1);
+                this.isCurrentlyActiveSlot = param0.activeSlot == param1 && param0.worldType != RealmsServer.WorldType.MINIGAME;
+                this.slotName = var0.getSlotName(param1);
+                this.imageId = var0.templateId;
+                this.image = var0.templateImage;
+                this.empty = var0.empty;
+                this.slotVersion = var0.version;
+                this.compatibility = var0.compatibility;
+            }
+
+            this.action = RealmsWorldSlotButton.getAction(param0, this.isCurrentlyActiveSlot, this.minigame);
         }
     }
 }

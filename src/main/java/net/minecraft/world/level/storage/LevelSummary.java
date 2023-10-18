@@ -14,6 +14,7 @@ import net.minecraft.world.level.LevelSettings;
 import org.apache.commons.lang3.StringUtils;
 
 public class LevelSummary implements Comparable<LevelSummary> {
+    public static final Component PLAY_WORLD = Component.translatable("selectWorld.select");
     private final LevelSettings settings;
     private final LevelVersion levelVersion;
     private final String levelId;
@@ -92,12 +93,12 @@ public class LevelSummary implements Comparable<LevelSummary> {
         return this.levelVersion;
     }
 
-    public boolean markVersionInList() {
-        return this.askToOpenWorld() || !SharedConstants.getCurrentVersion().isStable() && !this.levelVersion.snapshot() || this.backupStatus().shouldBackup();
+    public boolean shouldBackup() {
+        return this.backupStatus().shouldBackup();
     }
 
-    public boolean askToOpenWorld() {
-        return this.levelVersion.minecraftVersion().getVersion() > SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+    public boolean isDowngrade() {
+        return this.backupStatus() == LevelSummary.BackupStatus.DOWNGRADE;
     }
 
     public LevelSummary.BackupStatus backupStatus() {
@@ -141,10 +142,10 @@ public class LevelSummary implements Comparable<LevelSummary> {
         } else if (this.requiresManualConversion()) {
             return Component.translatable("selectWorld.conversion").withStyle(ChatFormatting.RED);
         } else if (!this.isCompatible()) {
-            return Component.translatable("selectWorld.incompatible_series").withStyle(ChatFormatting.RED);
+            return Component.translatable("selectWorld.incompatible.info", this.getWorldVersionName()).withStyle(ChatFormatting.RED);
         } else {
             MutableComponent var0 = this.isHardcore()
-                ? Component.empty().append(Component.translatable("gameMode.hardcore").withStyle(param0 -> param0.withColor(-65536)))
+                ? Component.empty().append(Component.translatable("gameMode.hardcore").withColor(-65536))
                 : Component.translatable("gameMode." + this.getGameMode().getName());
             if (this.hasCheats()) {
                 var0.append(", ").append(Component.translatable("selectWorld.cheats"));
@@ -156,8 +157,8 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
             MutableComponent var1 = this.getWorldVersionName();
             MutableComponent var2 = Component.literal(", ").append(Component.translatable("selectWorld.version")).append(CommonComponents.SPACE);
-            if (this.markVersionInList()) {
-                var2.append(var1.withStyle(this.askToOpenWorld() ? ChatFormatting.RED : ChatFormatting.ITALIC));
+            if (this.shouldBackup()) {
+                var2.append(var1.withStyle(this.isDowngrade() ? ChatFormatting.RED : ChatFormatting.ITALIC));
             } else {
                 var2.append(var1);
             }
@@ -165,6 +166,26 @@ public class LevelSummary implements Comparable<LevelSummary> {
             var0.append(var2);
             return var0;
         }
+    }
+
+    public Component primaryActionMessage() {
+        return PLAY_WORLD;
+    }
+
+    public boolean primaryActionActive() {
+        return !this.isDisabled();
+    }
+
+    public boolean canEdit() {
+        return !this.isDisabled();
+    }
+
+    public boolean canRecreate() {
+        return !this.isDisabled();
+    }
+
+    public boolean canDelete() {
+        return true;
     }
 
     public static enum BackupStatus {
@@ -195,7 +216,61 @@ public class LevelSummary implements Comparable<LevelSummary> {
         }
     }
 
+    public static class CorruptedLevelSummary extends LevelSummary {
+        private static final Component INFO = Component.translatable("recover_world.warning").withStyle(param0 -> param0.withColor(-65536));
+        private static final Component RECOVER = Component.translatable("recover_world.button");
+        private final long lastPlayed;
+
+        public CorruptedLevelSummary(String param0, Path param1, long param2) {
+            super(null, null, param0, false, false, false, param1);
+            this.lastPlayed = param2;
+        }
+
+        @Override
+        public String getLevelName() {
+            return this.getLevelId();
+        }
+
+        @Override
+        public Component getInfo() {
+            return INFO;
+        }
+
+        @Override
+        public long getLastPlayed() {
+            return this.lastPlayed;
+        }
+
+        @Override
+        public boolean isDisabled() {
+            return false;
+        }
+
+        @Override
+        public Component primaryActionMessage() {
+            return RECOVER;
+        }
+
+        @Override
+        public boolean primaryActionActive() {
+            return true;
+        }
+
+        @Override
+        public boolean canEdit() {
+            return false;
+        }
+
+        @Override
+        public boolean canRecreate() {
+            return false;
+        }
+    }
+
     public static class SymlinkLevelSummary extends LevelSummary {
+        private static final Component MORE_INFO_BUTTON = Component.translatable("symlink_warning.more_info");
+        private static final Component INFO = Component.translatable("symlink_warning.title").withColor(-65536);
+
         public SymlinkLevelSummary(String param0, Path param1) {
             super(null, null, param0, false, false, false, param1);
         }
@@ -207,7 +282,7 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
         @Override
         public Component getInfo() {
-            return Component.translatable("symlink_warning.title").withStyle(param0 -> param0.withColor(-65536));
+            return INFO;
         }
 
         @Override
@@ -217,6 +292,26 @@ public class LevelSummary implements Comparable<LevelSummary> {
 
         @Override
         public boolean isDisabled() {
+            return false;
+        }
+
+        @Override
+        public Component primaryActionMessage() {
+            return MORE_INFO_BUTTON;
+        }
+
+        @Override
+        public boolean primaryActionActive() {
+            return true;
+        }
+
+        @Override
+        public boolean canEdit() {
+            return false;
+        }
+
+        @Override
+        public boolean canRecreate() {
             return false;
         }
     }

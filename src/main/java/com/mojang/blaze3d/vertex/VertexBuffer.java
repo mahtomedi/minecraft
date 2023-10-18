@@ -34,21 +34,21 @@ public class VertexBuffer implements AutoCloseable {
     }
 
     public void upload(BufferBuilder.RenderedBuffer param0) {
-        if (!this.isInvalid()) {
-            RenderSystem.assertOnRenderThread();
-
-            try {
+        try {
+            if (!this.isInvalid()) {
+                RenderSystem.assertOnRenderThread();
                 BufferBuilder.DrawState var0 = param0.drawState();
                 this.format = this.uploadVertexBuffer(var0, param0.vertexBuffer());
                 this.sequentialIndices = this.uploadIndexBuffer(var0, param0.indexBuffer());
                 this.indexCount = var0.indexCount();
                 this.indexType = var0.indexType();
                 this.mode = var0.mode();
-            } finally {
-                param0.release();
+                return;
             }
-
+        } finally {
+            param0.release();
         }
+
     }
 
     private VertexFormat uploadVertexBuffer(BufferBuilder.DrawState param0, ByteBuffer param1) {

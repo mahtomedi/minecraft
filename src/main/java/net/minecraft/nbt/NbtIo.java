@@ -1,6 +1,7 @@
 package net.minecraft.nbt;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -16,30 +17,29 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.util.FastBufferedInputStream;
 
 public class NbtIo {
-    public static CompoundTag readCompressed(File param0) throws IOException {
-        CompoundTag var2;
+    public static CompoundTag readCompressed(File param0, NbtAccounter param1) throws IOException {
+        CompoundTag var3;
         try (InputStream var0 = new FileInputStream(param0)) {
-            var2 = readCompressed(var0);
+            var3 = readCompressed(var0, param1);
         }
 
-        return var2;
+        return var3;
     }
 
     private static DataInputStream createDecompressorStream(InputStream param0) throws IOException {
         return new DataInputStream(new FastBufferedInputStream(new GZIPInputStream(param0)));
     }
 
-    public static CompoundTag readCompressed(InputStream param0) throws IOException {
-        CompoundTag var2;
+    public static CompoundTag readCompressed(InputStream param0, NbtAccounter param1) throws IOException {
+        CompoundTag var3;
         try (DataInputStream var0 = createDecompressorStream(param0)) {
-            var2 = read(var0, NbtAccounter.unlimitedHeap());
+            var3 = read(var0, param1);
         }
 
-        return var2;
+        return var3;
     }
 
     public static void parseCompressed(File param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
@@ -54,6 +54,26 @@ public class NbtIo {
             parse(var0, param1, param2);
         }
 
+    }
+
+    public static byte[] writeToByteArrayCompressed(CompoundTag param0) throws IOException {
+        ByteArrayOutputStream var0 = new ByteArrayOutputStream();
+
+        try (DataOutputStream var1 = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(var0)))) {
+            write(param0, var1);
+        }
+
+        return var0.toByteArray();
+    }
+
+    public static byte[] writeToByteArray(CompoundTag param0) throws IOException {
+        ByteArrayOutputStream var0 = new ByteArrayOutputStream();
+
+        try (DataOutputStream var1 = new DataOutputStream(var0)) {
+            write(param0, var1);
+        }
+
+        return var0.toByteArray();
     }
 
     public static void writeCompressed(CompoundTag param0, File param1) throws IOException {
@@ -175,7 +195,7 @@ public class NbtIo {
             CrashReport var1 = CrashReport.forThrowable(var6, "Loading NBT data");
             CrashReportCategory var2 = var1.addCategory("NBT Tag");
             var2.setDetail("Tag type", param2);
-            throw new ReportedException(var1);
+            throw new ReportedNbtException(var1);
         }
     }
 }

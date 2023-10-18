@@ -86,6 +86,7 @@ import net.minecraft.network.protocol.game.ServerboundConfigurationAcknowledgedP
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
 import net.minecraft.network.protocol.game.ServerboundEntityTagQuery;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
@@ -128,6 +129,7 @@ import net.minecraft.util.FutureChain;
 import net.minecraft.util.Mth;
 import net.minecraft.util.SignatureValidator;
 import net.minecraft.util.StringUtil;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
@@ -148,6 +150,7 @@ import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.BeaconMenu;
+import net.minecraft.world.inventory.CrafterMenu;
 import net.minecraft.world.inventory.MerchantMenu;
 import net.minecraft.world.inventory.RecipeBookMenu;
 import net.minecraft.world.item.BlockItem;
@@ -164,6 +167,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CommandBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.CommandBlockEntity;
+import net.minecraft.world.level.block.entity.CrafterBlockEntity;
 import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
@@ -834,6 +838,21 @@ public class ServerGamePacketListenerImpl
     }
 
     @Override
+    public void handleContainerSlotStateChanged(ServerboundContainerSlotStateChangedPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.player.serverLevel());
+        if (!this.player.isSpectator() && param0.containerId() == this.player.containerMenu.containerId) {
+            AbstractContainerMenu var4 = this.player.containerMenu;
+            if (var4 instanceof CrafterMenu var0) {
+                Container var5 = var0.getContainer();
+                if (var5 instanceof CrafterBlockEntity var1) {
+                    var1.setSlotState(param0.slotId(), param0.newState());
+                }
+            }
+
+        }
+    }
+
+    @Override
     public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.player.serverLevel());
         if (this.player.hasPermissions(2)) {
@@ -1215,10 +1234,10 @@ public class ServerGamePacketListenerImpl
 
                     CompletableFuture<FilteredText> var3 = this.filterTextPacket(var2x.signedContent());
                     Component var4 = this.server.getChatDecorator().decorate(this.player, var2x.decoratedContent());
-                    this.chatMessageChain.append(param3 -> var3.thenAcceptAsync(param2x -> {
-                            PlayerChatMessage var0x = var2x.withUnsignedContent(var4).filter(param2x.mask());
-                            this.broadcastChatMessage(var0x);
-                        }, param3));
+                    this.chatMessageChain.append(var3, param2 -> {
+                        PlayerChatMessage var0x = var2x.withUnsignedContent(var4).filter(param2.mask());
+                        this.broadcastChatMessage(var0x);
+                    });
                 });
             }
 
@@ -1780,14 +1799,13 @@ public class ServerGamePacketListenerImpl
         this.signedMessageDecoder = param0.createMessageDecoder(this.player.getUUID());
         this.chatMessageChain
             .append(
-                param1 -> {
+                () -> {
                     this.player.setChatSession(param0);
                     this.server
                         .getPlayerList()
                         .broadcastAll(
                             new ClientboundPlayerInfoUpdatePacket(EnumSet.of(ClientboundPlayerInfoUpdatePacket.Action.INITIALIZE_CHAT), List.of(this.player))
                         );
-                    return CompletableFuture.completedFuture(null);
                 }
             );
     }

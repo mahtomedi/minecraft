@@ -1,6 +1,7 @@
 package net.minecraft.client.gui.screens.worldselection;
 
 import com.mojang.logging.LogUtils;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -37,9 +39,7 @@ public class SelectWorldScreen extends Screen {
         this.addWidget(this.searchBox);
         this.addWidget(this.list);
         this.selectButton = this.addRenderableWidget(
-            Button.builder(
-                    Component.translatable("selectWorld.select"), param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::joinWorld)
-                )
+            Button.builder(LevelSummary.PLAY_WORLD, param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::joinWorld))
                 .bounds(this.width / 2 - 154, this.height - 52, 150, 20)
                 .build()
         );
@@ -76,7 +76,7 @@ public class SelectWorldScreen extends Screen {
                 .bounds(this.width / 2 + 82, this.height - 28, 72, 20)
                 .build()
         );
-        this.updateButtonStatus(false, false);
+        this.updateButtonStatus(null);
         this.setInitialFocus(this.searchBox);
     }
 
@@ -103,11 +103,21 @@ public class SelectWorldScreen extends Screen {
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
     }
 
-    public void updateButtonStatus(boolean param0, boolean param1) {
-        this.selectButton.active = param0;
-        this.renameButton.active = param0;
-        this.copyButton.active = param0;
-        this.deleteButton.active = param1;
+    public void updateButtonStatus(@Nullable LevelSummary param0) {
+        if (param0 == null) {
+            this.selectButton.setMessage(LevelSummary.PLAY_WORLD);
+            this.selectButton.active = false;
+            this.renameButton.active = false;
+            this.copyButton.active = false;
+            this.deleteButton.active = false;
+        } else {
+            this.selectButton.setMessage(param0.primaryActionMessage());
+            this.selectButton.active = param0.primaryActionActive();
+            this.renameButton.active = param0.canEdit();
+            this.copyButton.active = param0.canRecreate();
+            this.deleteButton.active = param0.canDelete();
+        }
+
     }
 
     @Override

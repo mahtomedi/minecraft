@@ -472,6 +472,7 @@ public class ClientLevel extends Level {
         var0.setDetail(
             "Server type", () -> this.minecraft.getSingleplayerServer() == null ? "Non-integrated multiplayer server" : "Integrated singleplayer server"
         );
+        var0.setDetail("Tracked entity count", () -> String.valueOf(this.getEntityCount()));
         return var0;
     }
 

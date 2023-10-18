@@ -7,7 +7,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class SectionBufferBuilderPack {
+public class SectionBufferBuilderPack implements AutoCloseable {
+    public static final int TOTAL_BUFFERS_SIZE = RenderType.chunkBufferLayers().stream().mapToInt(RenderType::bufferSize).sum();
     private final Map<RenderType, BufferBuilder> builders = RenderType.chunkBufferLayers()
         .stream()
         .collect(Collectors.toMap(param0 -> param0, param0 -> new BufferBuilder(param0.bufferSize())));
@@ -22,5 +23,10 @@ public class SectionBufferBuilderPack {
 
     public void discardAll() {
         this.builders.values().forEach(BufferBuilder::discard);
+    }
+
+    @Override
+    public void close() {
+        this.builders.values().forEach(BufferBuilder::release);
     }
 }

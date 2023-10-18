@@ -31,10 +31,8 @@ public class CreditsAndAttributionScreen extends Screen {
         LinearLayout var0 = this.layout.addToContents(LinearLayout.vertical()).spacing(8);
         var0.defaultCellSetting().alignHorizontallyCenter();
         var0.addChild(Button.builder(CREDITS_BUTTON, param0 -> this.openCreditsScreen()).width(210).build());
-        var0.addChild(
-            Button.builder(ATTRIBUTION_BUTTON, ConfirmLinkScreen.confirmLink("https://aka.ms/MinecraftJavaAttribution", this, true)).width(210).build()
-        );
-        var0.addChild(Button.builder(LICENSES_BUTTON, ConfirmLinkScreen.confirmLink("https://aka.ms/MinecraftJavaLicenses", this, true)).width(210).build());
+        var0.addChild(Button.builder(ATTRIBUTION_BUTTON, ConfirmLinkScreen.confirmLink(this, "https://aka.ms/MinecraftJavaAttribution")).width(210).build());
+        var0.addChild(Button.builder(LICENSES_BUTTON, ConfirmLinkScreen.confirmLink(this, "https://aka.ms/MinecraftJavaLicenses")).width(210).build());
         this.layout.addToFooter(Button.builder(CommonComponents.GUI_DONE, param0 -> this.onClose()).build());
         this.layout.arrangeElements();
         this.layout.visitWidgets(this::addRenderableWidget);

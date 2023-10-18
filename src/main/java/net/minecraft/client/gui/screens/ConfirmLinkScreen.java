@@ -23,11 +23,7 @@ public class ConfirmLinkScreen extends ConfirmScreen {
     }
 
     public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, boolean param3) {
-        this(param0, param1, param2, param3 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO, param3);
-    }
-
-    public ConfirmLinkScreen(BooleanConsumer param0, Component param1, String param2, Component param3, boolean param4) {
-        this(param0, param1, confirmMessage(param4, param2), param2, param3, param4);
+        this(param0, param1, confirmMessage(param3, param2), param2, param3 ? CommonComponents.GUI_CANCEL : CommonComponents.GUI_NO, param3);
     }
 
     public ConfirmLinkScreen(BooleanConsumer param0, Component param1, Component param2, String param3, Component param4, boolean param5) {
@@ -73,18 +69,18 @@ public class ConfirmLinkScreen extends ConfirmScreen {
 
     }
 
-    public static void confirmLinkNow(String param0, Screen param1, boolean param2) {
+    public static void confirmLinkNow(Screen param0, String param1) {
         Minecraft var0 = Minecraft.getInstance();
         var0.setScreen(new ConfirmLinkScreen(param3 -> {
             if (param3) {
-                Util.getPlatform().openUri(param0);
+                Util.getPlatform().openUri(param1);
             }
 
-            var0.setScreen(param1);
-        }, param0, param2));
+            var0.setScreen(param0);
+        }, param1, true));
     }
 
-    public static Button.OnPress confirmLink(String param0, Screen param1, boolean param2) {
-        return param3 -> confirmLinkNow(param0, param1, param2);
+    public static Button.OnPress confirmLink(Screen param0, String param1) {
+        return param2 -> confirmLinkNow(param0, param1);
     }
 }

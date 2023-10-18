@@ -29,7 +29,6 @@ import net.minecraft.commands.execution.tasks.CallFunction;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TimeUtil;
@@ -151,13 +150,6 @@ public class DebugCommand {
                 );
             }
         }
-
-        protected void onError(CommandSyntaxException param0, CommandSourceStack param1, boolean param2) {
-            if (!param2) {
-                param1.sendFailure(ComponentUtils.fromMessage(param0.getRawMessage()));
-            }
-
-        }
     }
 
     static class Tracer implements CommandSource, TraceCallbacks {
@@ -226,11 +218,11 @@ public class DebugCommand {
         }
 
         @Override
-        public void onError(int param0, String param1) {
+        public void onError(String param0) {
             this.newLine();
-            this.indentAndSave(param0 + 1);
+            this.indentAndSave(this.lastIndent + 1);
             this.output.print("[E] ");
-            this.output.print(param1);
+            this.output.print(param0);
         }
 
         @Override

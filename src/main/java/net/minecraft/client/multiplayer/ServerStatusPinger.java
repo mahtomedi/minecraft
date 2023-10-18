@@ -39,8 +39,7 @@ import org.slf4j.Logger;
 @OnlyIn(Dist.CLIENT)
 public class ServerStatusPinger {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Component CANT_CONNECT_MESSAGE = Component.translatable("multiplayer.status.cannot_connect")
-        .withStyle(param0 -> param0.withColor(-65536));
+    private static final Component CANT_CONNECT_MESSAGE = Component.translatable("multiplayer.status.cannot_connect").withColor(-65536);
     private final List<Connection> connections = Collections.synchronizedList(Lists.newArrayList());
 
     public void pingServer(final ServerData param0, final Runnable param1) throws UnknownHostException {

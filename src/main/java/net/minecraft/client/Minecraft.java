@@ -107,6 +107,7 @@ import net.minecraft.client.gui.screens.social.PlayerSocialManager;
 import net.minecraft.client.gui.screens.social.SocialInteractionsScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldOpenFlows;
 import net.minecraft.client.main.GameConfig;
+import net.minecraft.client.main.SilentInitException;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -459,8 +460,8 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
         try {
             this.window.setIcon(this.vanillaPackResources, SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
-        } catch (IOException var121) {
-            LOGGER.error("Couldn't set icon", (Throwable)var121);
+        } catch (IOException var131) {
+            LOGGER.error("Couldn't set icon", (Throwable)var131);
         }
 
         this.window.setFramerateLimit(this.options.framerateLimit().get());
@@ -511,7 +512,23 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.resourceManager.registerReloadListener(var7);
         this.itemRenderer = new ItemRenderer(this, this.textureManager, this.modelManager, this.itemColors, var7);
         this.resourceManager.registerReloadListener(this.itemRenderer);
-        this.renderBuffers = new RenderBuffers();
+
+        try {
+            int var8 = Runtime.getRuntime().availableProcessors();
+            int var9 = this.is64Bit() ? var8 : Math.min(var8, 4);
+            Tesselator.init();
+            this.renderBuffers = new RenderBuffers(var9);
+        } catch (OutOfMemoryError var12) {
+            TinyFileDialogs.tinyfd_messageBox(
+                "Minecraft",
+                "Oh no! The game was unable to allocate memory off-heap while trying to start. You may try to free some memory by closing other applications on your computer, check that your system meets the minimum requirements, and try again. If the problem persists, please visit: https://aka.ms/Minecraft-Support",
+                "ok",
+                "error",
+                true
+            );
+            throw new SilentInitException("Unable to allocate render buffers", var12);
+        }
+
         this.playerSocialManager = new PlayerSocialManager(this, this.userApiService);
         this.blockRenderer = new BlockRenderDispatcher(this.modelManager.getBlockModelShaper(), var7, this.blockColors);
         this.resourceManager.registerReloadListener(this.blockRenderer);
@@ -538,11 +555,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.resourceManager.registerReloadListener(this.regionalCompliancies);
         this.gui = new Gui(this, this.itemRenderer);
         this.debugRenderer = new DebugRenderer(this);
-        RealmsClient var8 = RealmsClient.create(this);
-        this.realmsDataFetcher = new RealmsDataFetcher(var8);
+        RealmsClient var11 = RealmsClient.create(this);
+        this.realmsDataFetcher = new RealmsDataFetcher(var11);
         RenderSystem.setErrorCallback(this::onFullscreenError);
         if (this.mainRenderTarget.width != this.window.getWidth() || this.mainRenderTarget.height != this.window.getHeight()) {
-            StringBuilder var9 = new StringBuilder(
+            StringBuilder var12 = new StringBuilder(
                 "Recovering from unsupported resolution ("
                     + this.window.getWidth()
                     + "x"
@@ -550,11 +567,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     + ").\nPlease make sure you have up-to-date drivers (see aka.ms/mcdriver for instructions)."
             );
             if (GlDebug.isDebugEnabled()) {
-                var9.append("\n\nReported GL debug messages:\n").append(String.join("\n", GlDebug.getLastOpenGlDebugMessages()));
+                var12.append("\n\nReported GL debug messages:\n").append(String.join("\n", GlDebug.getLastOpenGlDebugMessages()));
             }
 
             this.window.setWindowed(this.mainRenderTarget.width, this.mainRenderTarget.height);
-            TinyFileDialogs.tinyfd_messageBox("Minecraft", var9.toString(), "ok", "error", false);
+            TinyFileDialogs.tinyfd_messageBox("Minecraft", var12.toString(), "ok", "error", false);
         } else if (this.options.fullscreen().get() && !this.window.isFullscreen()) {
             this.window.toggleFullScreen();
             this.options.fullscreen().set(this.window.isFullscreen());
@@ -575,18 +592,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.reportingContext = ReportingContext.create(ReportEnvironment.local(), this.userApiService);
         LoadingOverlay.registerTextures(this);
         this.setScreen(new GenericDirtMessageScreen(Component.translatable("gui.loadingMinecraft")));
-        List<PackResources> var10 = this.resourcePackRepository.openAllSelected();
-        this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var10);
-        ReloadInstance var11 = this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var10);
+        List<PackResources> var13 = this.resourcePackRepository.openAllSelected();
+        this.reloadStateTracker.startReload(ResourceLoadStateTracker.ReloadReason.INITIAL, var13);
+        ReloadInstance var14 = this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var13);
         GameLoadTimesEvent.INSTANCE.beginStep(TelemetryProperty.LOAD_TIME_LOADING_OVERLAY_MS);
-        Minecraft.GameLoadCookie var12 = new Minecraft.GameLoadCookie(var8, param0.quickPlay);
-        this.setOverlay(new LoadingOverlay(this, var11, param1 -> Util.ifElse(param1, param1x -> this.rollbackResourcePacks(param1x, var12), () -> {
+        Minecraft.GameLoadCookie var15 = new Minecraft.GameLoadCookie(var11, param0.quickPlay);
+        this.setOverlay(new LoadingOverlay(this, var14, param1 -> Util.ifElse(param1, param1x -> this.rollbackResourcePacks(param1x, var15), () -> {
                 if (SharedConstants.IS_RUNNING_IN_IDE) {
                     this.selfTest();
                 }
 
                 this.reloadStateTracker.finishReload();
-                this.onResourceLoadFinished(var12);
+                this.onResourceLoadFinished(var15);
             }), false));
         this.quickPlayLog = QuickPlayLog.of(param0.quickPlay.path());
     }
@@ -758,10 +775,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             boolean var0 = false;
 
             while(this.running) {
-                if (this.delayedCrash != null) {
-                    crash(this.delayedCrash.get());
-                    return;
-                }
+                this.handleDelayedCrash();
 
                 try {
                     SingleTickProfiler var1 = SingleTickProfiler.createTickProfiler("Renderer");
@@ -786,15 +800,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                 }
             }
         } catch (ReportedException var51) {
-            this.fillReport(var51.getReport());
-            this.emergencySave();
             LOGGER.error(LogUtils.FATAL_MARKER, "Reported exception thrown!", (Throwable)var51);
-            crash(var51.getReport());
-        } catch (Throwable var61) {
-            CrashReport var6 = this.fillReport(new CrashReport("Unexpected error", var61));
-            LOGGER.error(LogUtils.FATAL_MARKER, "Unreported exception thrown!", var61);
-            this.emergencySave();
-            crash(var6);
+            this.emergencySaveAndCrash(var51.getReport());
+        } catch (Throwable var6) {
+            LOGGER.error(LogUtils.FATAL_MARKER, "Unreported exception thrown!", var6);
+            this.emergencySaveAndCrash(new CrashReport("Unexpected error", var6));
         }
 
     }
@@ -878,14 +888,31 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.delayedCrash = () -> param0;
     }
 
-    public static void crash(CrashReport param0) {
-        File var0 = new File(getInstance().gameDirectory, "crash-reports");
+    private void handleDelayedCrash() {
+        if (this.delayedCrash != null) {
+            crash(this, this.gameDirectory, this.delayedCrash.get());
+        }
+
+    }
+
+    public void emergencySaveAndCrash(CrashReport param0) {
+        CrashReport var0 = this.fillReport(param0);
+        this.emergencySave();
+        crash(this, this.gameDirectory, var0);
+    }
+
+    public static void crash(@Nullable Minecraft param0, File param1, CrashReport param2) {
+        File var0 = new File(param1, "crash-reports");
         File var1 = new File(var0, "crash-" + Util.getFilenameFormattedDateTime() + "-client.txt");
-        Bootstrap.realStdoutPrintln(param0.getFriendlyReport());
-        if (param0.getSaveFile() != null) {
-            Bootstrap.realStdoutPrintln("#@!@# Game crashed! Crash report saved to: #@!@# " + param0.getSaveFile());
+        Bootstrap.realStdoutPrintln(param2.getFriendlyReport());
+        if (param0 != null) {
+            param0.soundManager.emergencyShutdown();
+        }
+
+        if (param2.getSaveFile() != null) {
+            Bootstrap.realStdoutPrintln("#@!@# Game crashed! Crash report saved to: #@!@# " + param2.getSaveFile());
             System.exit(-1);
-        } else if (param0.saveToFile(var1)) {
+        } else if (param2.saveToFile(var1)) {
             Bootstrap.realStdoutPrintln("#@!@# Game crashed! Crash report saved to: #@!@# " + var1.getAbsolutePath());
             System.exit(-1);
         } else {
@@ -1344,7 +1371,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return this.level != null || this.screen == null && this.overlay == null ? this.window.getFramerateLimit() : 60;
     }
 
-    public void emergencySave() {
+    private void emergencySave() {
         try {
             MemoryReserve.release();
             this.levelRenderer.clear();
@@ -2025,30 +2052,30 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         return new WorldOpenFlows(this, this.levelSource);
     }
 
-    public void doWorldLoad(String param0, LevelStorageSource.LevelStorageAccess param1, PackRepository param2, WorldStem param3, boolean param4) {
+    public void doWorldLoad(LevelStorageSource.LevelStorageAccess param0, PackRepository param1, WorldStem param2, boolean param3) {
         this.disconnect();
         this.progressListener.set(null);
         Instant var0 = Instant.now();
 
         try {
-            param1.saveDataTag(param3.registries().compositeAccess(), param3.worldData());
+            param0.saveDataTag(param2.registries().compositeAccess(), param2.worldData());
             Services var1 = Services.create(this.authenticationService, this.gameDirectory);
             var1.profileCache().setExecutor(this);
             SkullBlockEntity.setup(var1, this);
             GameProfileCache.setUsesAuthentication(false);
-            this.singleplayerServer = MinecraftServer.spin(param4x -> new IntegratedServer(param4x, this, param1, param2, param3, var1, param0x -> {
+            this.singleplayerServer = MinecraftServer.spin(param4 -> new IntegratedServer(param4, this, param0, param1, param2, var1, param0x -> {
                     StoringChunkProgressListener var0x = new StoringChunkProgressListener(param0x + 0);
                     this.progressListener.set(var0x);
                     return ProcessorChunkProgressListener.createStarted(var0x, this.progressTasks::add);
                 }));
             this.isLocalServer = true;
             this.updateReportEnvironment(ReportEnvironment.local());
-            this.quickPlayLog.setWorldData(QuickPlayLog.Type.SINGLEPLAYER, param0, param3.worldData().getLevelName());
-        } catch (Throwable var12) {
-            CrashReport var3 = CrashReport.forThrowable(var12, "Starting integrated server");
+            this.quickPlayLog.setWorldData(QuickPlayLog.Type.SINGLEPLAYER, param0.getLevelId(), param2.worldData().getLevelName());
+        } catch (Throwable var11) {
+            CrashReport var3 = CrashReport.forThrowable(var11, "Starting integrated server");
             CrashReportCategory var4 = var3.addCategory("Starting integrated server");
-            var4.setDetail("Level ID", param0);
-            var4.setDetail("Level Name", () -> param3.worldData().getLevelName());
+            var4.setDetail("Level ID", param0.getLevelId());
+            var4.setDetail("Level Name", () -> param2.worldData().getLevelName());
             throw new ReportedException(var3);
         }
 
@@ -2060,18 +2087,13 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.setScreen(var5);
         this.profiler.push("waitForServer");
 
-        while(!this.singleplayerServer.isReady()) {
+        for(; !this.singleplayerServer.isReady(); this.handleDelayedCrash()) {
             var5.tick();
             this.runTick(false);
 
             try {
                 Thread.sleep(16L);
-            } catch (InterruptedException var11) {
-            }
-
-            if (this.delayedCrash != null) {
-                crash(this.delayedCrash.get());
-                return;
+            } catch (InterruptedException var10) {
             }
         }
 
@@ -2079,7 +2101,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         Duration var6 = Duration.between(var0, Instant.now());
         SocketAddress var7 = this.singleplayerServer.getConnection().startMemoryChannel();
         Connection var8 = Connection.connectToLocalServer(var7);
-        var8.initiateServerboundPlayConnection(var7.toString(), 0, new ClientHandshakePacketListenerImpl(var8, this, null, null, param4, var6, param0x -> {
+        var8.initiateServerboundPlayConnection(var7.toString(), 0, new ClientHandshakePacketListenerImpl(var8, this, null, null, param3, var6, param0x -> {
         }));
         var8.send(new ServerboundHelloPacket(this.getUser().getName(), this.getUser().getProfileId()));
         this.pendingConnection = var8;
@@ -2399,9 +2421,14 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     }
 
     private static SystemReport fillSystemReport(
-        SystemReport param0, @Nullable Minecraft param1, @Nullable LanguageManager param2, String param3, Options param4
+        SystemReport param0, @Nullable Minecraft param1, @Nullable LanguageManager param2, String param3, @Nullable Options param4
     ) {
         param0.setDetail("Launched Version", () -> param3);
+        String var0 = getLauncherBrand();
+        if (var0 != null) {
+            param0.setDetail("Launcher name", var0);
+        }
+
         param0.setDetail("Backend library", RenderSystem::getBackendDescription);
         param0.setDetail("Backend API", RenderSystem::getApiDescription);
         param0.setDetail("Window size", () -> param1 != null ? param1.window.getWidth() + "x" + param1.window.getHeight() : "<not initialized>");
@@ -2409,17 +2436,18 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         param0.setDetail("GL debug messages", () -> GlDebug.isDebugEnabled() ? String.join("\n", GlDebug.getLastOpenGlDebugMessages()) : "<disabled>");
         param0.setDetail("Using VBOs", () -> "Yes");
         param0.setDetail("Is Modded", () -> checkModStatus().fullDescription());
-        param0.setDetail("Universe", () -> Long.toHexString(param1.canary));
+        param0.setDetail("Universe", () -> param1 != null ? Long.toHexString(param1.canary) : "404");
         param0.setDetail("Type", "Client (map_client.txt)");
         if (param4 != null) {
-            if (instance != null) {
-                String var0 = instance.getGpuWarnlistManager().getAllWarnings();
-                if (var0 != null) {
-                    param0.setDetail("GPU Warnings", var0);
+            if (param1 != null) {
+                String var1 = param1.getGpuWarnlistManager().getAllWarnings();
+                if (var1 != null) {
+                    param0.setDetail("GPU Warnings", var1);
                 }
             }
 
             param0.setDetail("Graphics mode", param4.graphicsMode().get().toString());
+            param0.setDetail("Render Distance", param4.getEffectiveRenderDistance() + "/" + param4.renderDistance().get() + " chunks");
             param0.setDetail("Resource Packs", () -> {
                 StringBuilder var0x = new StringBuilder();
 
@@ -2910,6 +2938,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     public DirectoryValidator directoryValidator() {
         return this.directoryValidator;
+    }
+
+    @Nullable
+    public static String getLauncherBrand() {
+        return System.getProperty("minecraft.launcher.brand");
     }
 
     @OnlyIn(Dist.CLIENT)

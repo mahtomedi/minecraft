@@ -46,6 +46,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CrafterBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.MangrovePropaguleBlock;
 import net.minecraft.world.level.block.PitcherCropBlock;
@@ -2474,6 +2475,25 @@ public class BlockModelGenerators {
             .accept(MultiVariantGenerator.multiVariant(Blocks.CHORUS_FLOWER).with(createEmptyOrFullDispatch(BlockStateProperties.AGE_5, 5, var2, var1)));
     }
 
+    private void createCrafterBlock() {
+        ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.CRAFTER);
+        ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.CRAFTER, "_triggered");
+        ResourceLocation var2 = ModelLocationUtils.getModelLocation(Blocks.CRAFTER, "_crafting");
+        ResourceLocation var3 = ModelLocationUtils.getModelLocation(Blocks.CRAFTER, "_crafting_triggered");
+        this.blockStateOutput
+            .accept(
+                MultiVariantGenerator.multiVariant(Blocks.CRAFTER)
+                    .with(PropertyDispatch.property(BlockStateProperties.ORIENTATION).generate(param0 -> this.applyRotation(param0, Variant.variant())))
+                    .with(
+                        PropertyDispatch.properties(BlockStateProperties.TRIGGERED, CrafterBlock.CRAFTING)
+                            .select(false, false, Variant.variant().with(VariantProperties.MODEL, var0))
+                            .select(true, true, Variant.variant().with(VariantProperties.MODEL, var3))
+                            .select(true, false, Variant.variant().with(VariantProperties.MODEL, var1))
+                            .select(false, true, Variant.variant().with(VariantProperties.MODEL, var2))
+                    )
+            );
+    }
+
     private void createDispenserBlock(Block param0) {
         TextureMapping var0 = new TextureMapping()
             .put(TextureSlot.TOP, TextureMapping.getBlockTexture(Blocks.FURNACE, "_top"))
@@ -4076,23 +4096,19 @@ public class BlockModelGenerators {
     }
 
     private void addSlotStateAndRotationVariants(MultiPartGenerator param0, Condition.TerminalCondition param1, VariantProperties.Rotation param2) {
-        Map.of(
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_0_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_LEFT,
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_1_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_MID,
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_2_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_RIGHT,
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_3_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_LEFT,
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_4_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_MID,
-                BlockStateProperties.CHISELED_BOOKSHELF_SLOT_5_OCCUPIED,
-                ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_RIGHT
+        List.of(
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_0_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_LEFT),
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_1_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_MID),
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_2_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_TOP_RIGHT),
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_3_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_LEFT),
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_4_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_MID),
+                Pair.of(BlockStateProperties.CHISELED_BOOKSHELF_SLOT_5_OCCUPIED, ModelTemplates.CHISELED_BOOKSHELF_SLOT_BOTTOM_RIGHT)
             )
-            .forEach((param3, param4) -> {
-                this.addBookSlotModel(param0, param1, param2, param3, param4, true);
-                this.addBookSlotModel(param0, param1, param2, param3, param4, false);
+            .forEach(param3 -> {
+                BooleanProperty var0 = param3.getFirst();
+                ModelTemplate var1x = param3.getSecond();
+                this.addBookSlotModel(param0, param1, param2, var0, var1x, true);
+                this.addBookSlotModel(param0, param1, param2, var0, var1x, false);
             });
     }
 
@@ -4466,6 +4482,7 @@ public class BlockModelGenerators {
         this.createNyliumBlock(Blocks.WARPED_NYLIUM);
         this.createDispenserBlock(Blocks.DISPENSER);
         this.createDispenserBlock(Blocks.DROPPER);
+        this.createCrafterBlock();
         this.createLantern(Blocks.LANTERN);
         this.createLantern(Blocks.SOUL_LANTERN);
         this.createAxisAlignedPillarBlockCustomModel(Blocks.CHAIN, ModelLocationUtils.getModelLocation(Blocks.CHAIN));

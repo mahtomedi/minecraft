@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletionException;
+import javax.annotation.Nullable;
 import net.minecraft.util.MemoryReserve;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,6 +26,7 @@ public class CrashReport {
     private final String title;
     private final Throwable exception;
     private final List<CrashReportCategory> details = Lists.newArrayList();
+    @Nullable
     private File saveFile;
     private boolean trackingStackTrace = true;
     private StackTraceElement[] uncategorizedStackTrace = new StackTraceElement[0];
@@ -129,6 +131,7 @@ public class CrashReport {
         return var0.toString();
     }
 
+    @Nullable
     public File getSaveFile() {
         return this.saveFile;
     }
@@ -177,7 +180,7 @@ public class CrashReport {
             StackTraceElement var4 = null;
             int var5 = var2.length - var1;
             if (var5 < 0) {
-                LOGGER.error("Negative index in crash report handler ({}/{})", var2.length, var1, ")");
+                LOGGER.error("Negative index in crash report handler ({}/{})", var2.length, var1);
             }
 
             if (var2 != null && 0 <= var5 && var5 < var2.length) {
@@ -250,14 +253,14 @@ public class CrashReport {
             param0 = param0.getCause();
         }
 
-        CrashReport var0;
-        if (param0 instanceof ReportedException) {
-            var0 = ((ReportedException)param0).getReport();
+        CrashReport var1;
+        if (param0 instanceof ReportedException var0) {
+            var1 = var0.getReport();
         } else {
-            var0 = new CrashReport(param1, param0);
+            var1 = new CrashReport(param1, param0);
         }
 
-        return var0;
+        return var1;
     }
 
     public static void preload() {

@@ -468,6 +468,10 @@ public final class ItemStack {
         this.getItem().onCraftedBy(this, param0, param1);
     }
 
+    public void onCraftedBySystem(Level param0) {
+        this.getItem().onCraftedPostProcess(this, param0);
+    }
+
     public int getUseDuration() {
         return this.getItem().getUseDuration(this);
     }

@@ -11,11 +11,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class DatapackLoadFailureScreen extends Screen {
     private MultiLineLabel message = MultiLineLabel.EMPTY;
-    private final Runnable callback;
+    private final Runnable cancelCallback;
+    private final Runnable safeModeCallback;
 
-    public DatapackLoadFailureScreen(Runnable param0) {
+    public DatapackLoadFailureScreen(Runnable param0, Runnable param1) {
         super(Component.translatable("datapackFailure.title"));
-        this.callback = param0;
+        this.cancelCallback = param0;
+        this.safeModeCallback = param1;
     }
 
     @Override
@@ -23,12 +25,12 @@ public class DatapackLoadFailureScreen extends Screen {
         super.init();
         this.message = MultiLineLabel.create(this.font, this.getTitle(), this.width - 50);
         this.addRenderableWidget(
-            Button.builder(Component.translatable("datapackFailure.safeMode"), param0 -> this.callback.run())
+            Button.builder(Component.translatable("datapackFailure.safeMode"), param0 -> this.safeModeCallback.run())
                 .bounds(this.width / 2 - 155, this.height / 6 + 96, 150, 20)
                 .build()
         );
         this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_TO_TITLE, param0 -> this.minecraft.setScreen(null))
+            Button.builder(CommonComponents.GUI_BACK, param0 -> this.cancelCallback.run())
                 .bounds(this.width / 2 - 155 + 160, this.height / 6 + 96, 150, 20)
                 .build()
         );

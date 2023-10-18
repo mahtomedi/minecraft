@@ -19,7 +19,7 @@ public class ExecuteCommand<T extends ExecutionCommandSource<T>> implements Unbo
         this.executionContext = param2;
     }
 
-    public void execute(T param0, ExecutionContext<T> param1, int param2) throws CommandSyntaxException {
+    public void execute(T param0, ExecutionContext<T> param1, int param2) {
         param1.profiler().push(() -> "execute " + this.commandInput);
 
         try {
@@ -29,6 +29,8 @@ public class ExecuteCommand<T extends ExecutionCommandSource<T>> implements Unbo
             if (var1 != null) {
                 var1.onReturn(param2, this.commandInput, var0);
             }
+        } catch (CommandSyntaxException var9) {
+            param0.handleError(var9, this.forkedMode, param1.tracer());
         } finally {
             param1.profiler().pop();
         }

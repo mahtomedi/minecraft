@@ -176,6 +176,10 @@ public class SoundManager extends SimplePreparableReloadListener<SoundManager.Pr
         this.soundEngine.destroy();
     }
 
+    public void emergencyShutdown() {
+        this.soundEngine.emergencyShutdown();
+    }
+
     public void tick(boolean param0) {
         this.soundEngine.tick(param0);
     }

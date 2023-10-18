@@ -293,7 +293,9 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                         var0,
                         var1,
                         this.forceGameMode,
-                        this.worldName
+                        this.worldName,
+                        this.options.version,
+                        this.options.compatibility
                     )
                 );
         } else {
@@ -309,7 +311,9 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                         var0,
                         var1,
                         this.options.forceGameMode,
-                        this.worldName
+                        this.worldName,
+                        this.options.version,
+                        this.options.compatibility
                     )
                 );
         }

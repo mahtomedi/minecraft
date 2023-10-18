@@ -70,6 +70,7 @@ public class BlockTypes {
         Registry.register(param0, "coral_fan", CoralFanBlock.CODEC);
         Registry.register(param0, "coral_plant", CoralPlantBlock.CODEC);
         Registry.register(param0, "coral_wall_fan", CoralWallFanBlock.CODEC);
+        Registry.register(param0, "crafter", CrafterBlock.CODEC);
         Registry.register(param0, "crafting_table", CraftingTableBlock.CODEC);
         Registry.register(param0, "crop", CropBlock.CODEC);
         Registry.register(param0, "crying_obsidian", CryingObsidianBlock.CODEC);

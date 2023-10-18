@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -129,13 +128,9 @@ public class SocialInteractionsScreen extends Screen {
         this.searchBox.setResponder(this::checkSearchStringUpdate);
         this.addWidget(this.searchBox);
         this.addWidget(this.socialInteractionsPlayerList);
-        this.blockingHintButton = this.addRenderableWidget(Button.builder(BLOCKING_HINT, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-                if (param0x) {
-                    Util.getPlatform().openUri("https://aka.ms/javablocking");
-                }
-
-                this.minecraft.setScreen(this);
-            }, "https://aka.ms/javablocking", true))).bounds(var5, var4, var3, 20).build());
+        this.blockingHintButton = this.addRenderableWidget(
+            Button.builder(BLOCKING_HINT, ConfirmLinkScreen.confirmLink(this, "https://aka.ms/javablocking")).bounds(var5, var4, var3, 20).build()
+        );
         this.initialized = true;
         this.showPage(this.page);
     }

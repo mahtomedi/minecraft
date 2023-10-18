@@ -1,5 +1,6 @@
 package net.minecraft.server.commands;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -118,7 +119,8 @@ public class ExecuteCommand {
     private static final DynamicCommandExceptionType ERROR_CONDITIONAL_FAILED_COUNT = new DynamicCommandExceptionType(
         param0 -> Component.translatableEscape("commands.execute.conditional.fail_count", param0)
     );
-    private static final Dynamic2CommandExceptionType ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE = new Dynamic2CommandExceptionType(
+    @VisibleForTesting
+    public static final Dynamic2CommandExceptionType ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE = new Dynamic2CommandExceptionType(
         (param0, param1) -> Component.translatableEscape("commands.execute.function.instantiationFailure", param0, param1)
     );
     private static final BinaryOperator<CommandResultConsumer<CommandSourceStack>> CALLBACK_CHAINER = (param0, param1) -> (param2, param3, param4) -> {
@@ -933,32 +935,36 @@ public class ExecuteCommand {
         ExecutionControl<T> param5,
         ExecuteCommand.CommandGetter<T, Collection<CommandFunction<T>>> param6,
         boolean param7
-    ) throws CommandSyntaxException {
+    ) {
         List<T> var0 = new ArrayList<>(param0.size());
         CommandContext<T> var1 = param3.getTopContext();
 
         for(T var2 : param0) {
-            Collection<CommandFunction<T>> var3 = param6.get(var1.copyFor(var2));
-            int var4 = var3.size();
-            if (var4 != 0) {
-                T var5 = prepareCallback(param1, param2, var0, var2, var4 == 1);
+            try {
+                Collection<CommandFunction<T>> var3 = param6.get(var1.copyFor(var2));
+                int var4 = var3.size();
+                if (var4 != 0) {
+                    T var5 = prepareCallback(param1, param2, var0, var2, var4 == 1);
 
-                for(CommandFunction<T> var6 : var3) {
-                    InstantiatedFunction<T> var7;
-                    try {
-                        var7 = var6.instantiate(param4, var5.dispatcher(), var5);
-                    } catch (FunctionInstantiationException var19) {
-                        throw ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE.create(var6.id(), var19.messageComponent());
+                    for(CommandFunction<T> var6 : var3) {
+                        InstantiatedFunction<T> var7;
+                        try {
+                            var7 = var6.instantiate(param4, var5.dispatcher(), var5);
+                        } catch (FunctionInstantiationException var19) {
+                            throw ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE.create(var6.id(), var19.messageComponent());
+                        }
+
+                        param5.queueNext(new CallFunction<>(var7).bind(var5));
                     }
-
-                    param5.queueNext(new CallFunction<>(var7).bind(var5));
                 }
+            } catch (CommandSyntaxException var20) {
+                var2.handleError(var20, param7, param5.tracer());
             }
         }
 
-        ContextChain<T> var10 = param3.nextStage();
-        String var11 = var1.getInput();
-        param5.queueNext(new BuildContexts.Continuation<>(var11, var10, param7, var0));
+        ContextChain<T> var11 = param3.nextStage();
+        String var12 = var1.getInput();
+        param5.queueNext(new BuildContexts.Continuation<>(var12, var11, param7, var0));
     }
 
     private static <T extends ExecutionCommandSource<T>> T prepareCallback(Function<T, T> param0, IntPredicate param1, List<T> param2, T param3, boolean param4) {
@@ -1005,7 +1011,7 @@ public class ExecuteCommand {
         }
 
         @Override
-        public void apply(List<CommandSourceStack> param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) throws CommandSyntaxException {
+        public void apply(List<CommandSourceStack> param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) {
             ExecuteCommand.scheduleFunctionConditionsAndTest(
                 param0,
                 FunctionCommand::modifySenderForExecution,

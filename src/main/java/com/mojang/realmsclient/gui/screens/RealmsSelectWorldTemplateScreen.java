@@ -142,20 +142,14 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
 
     private void onTrailer() {
         if (this.selectedTemplate != null && !this.selectedTemplate.trailer.isBlank()) {
-            this.minecraft.setScreen(new ConfirmLinkScreen(param0 -> {
-                if (param0) {
-                    Util.getPlatform().openUri(this.selectedTemplate.trailer);
-                }
-
-                this.minecraft.setScreen(this);
-            }, this.selectedTemplate.trailer, true));
+            ConfirmLinkScreen.confirmLinkNow(this, this.selectedTemplate.trailer);
         }
 
     }
 
     private void onPublish() {
         if (this.selectedTemplate != null && !this.selectedTemplate.link.isBlank()) {
-            ConfirmLinkScreen.confirmLinkNow(this.selectedTemplate.link, this, true);
+            ConfirmLinkScreen.confirmLinkNow(this, this.selectedTemplate.link);
         }
 
     }
@@ -285,22 +279,14 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
             this.template = param0;
             if (!param0.link.isBlank()) {
                 this.websiteButton = new ImageButton(
-                    15,
-                    15,
-                    WEBSITE_LINK_SPRITES,
-                    ConfirmLinkScreen.confirmLink(param0.link, RealmsSelectWorldTemplateScreen.this, true),
-                    PUBLISHER_LINK_TOOLTIP
+                    15, 15, WEBSITE_LINK_SPRITES, ConfirmLinkScreen.confirmLink(RealmsSelectWorldTemplateScreen.this, param0.link), PUBLISHER_LINK_TOOLTIP
                 );
                 this.websiteButton.setTooltip(Tooltip.create(PUBLISHER_LINK_TOOLTIP));
             }
 
             if (!param0.trailer.isBlank()) {
                 this.trailerButton = new ImageButton(
-                    15,
-                    15,
-                    TRAILER_LINK_SPRITES,
-                    ConfirmLinkScreen.confirmLink(param0.trailer, RealmsSelectWorldTemplateScreen.this, true),
-                    TRAILER_LINK_TOOLTIP
+                    15, 15, TRAILER_LINK_SPRITES, ConfirmLinkScreen.confirmLink(RealmsSelectWorldTemplateScreen.this, param0.trailer), TRAILER_LINK_TOOLTIP
                 );
                 this.trailerButton.setTooltip(Tooltip.create(TRAILER_LINK_TOOLTIP));
             }
@@ -396,7 +382,7 @@ public class RealmsSelectWorldTemplateScreen extends RealmsScreen {
         @Override
         public boolean mouseClicked(double param0, double param1, int param2) {
             if (RealmsSelectWorldTemplateScreen.this.currentLink != null) {
-                ConfirmLinkScreen.confirmLinkNow(RealmsSelectWorldTemplateScreen.this.currentLink, RealmsSelectWorldTemplateScreen.this, true);
+                ConfirmLinkScreen.confirmLinkNow(RealmsSelectWorldTemplateScreen.this, RealmsSelectWorldTemplateScreen.this.currentLink);
                 return true;
             } else {
                 return super.mouseClicked(param0, param1, param2);

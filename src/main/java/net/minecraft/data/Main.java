@@ -20,12 +20,15 @@ import net.minecraft.data.info.BlockListReport;
 import net.minecraft.data.info.CommandsReport;
 import net.minecraft.data.info.RegistryDumpReport;
 import net.minecraft.data.loot.packs.TradeRebalanceLootTableProvider;
+import net.minecraft.data.loot.packs.UpdateOneTwentyOneLootTableProvider;
 import net.minecraft.data.loot.packs.VanillaLootTableProvider;
 import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.data.models.ModelProvider;
 import net.minecraft.data.recipes.packs.BundleRecipeProvider;
+import net.minecraft.data.recipes.packs.UpdateOneTwentyOneRecipeProvider;
 import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.data.registries.RegistriesDatapackGenerator;
+import net.minecraft.data.registries.UpdateOneTwentyOneRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.data.structures.NbtToSnbt;
 import net.minecraft.data.structures.SnbtToNbt;
@@ -44,6 +47,8 @@ import net.minecraft.data.tags.PoiTypeTagsProvider;
 import net.minecraft.data.tags.StructureTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.data.tags.TradeRebalanceStructureTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyOneBlockTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyOneItemTagsProvider;
 import net.minecraft.data.tags.VanillaBlockTagsProvider;
 import net.minecraft.data.tags.VanillaItemTagsProvider;
 import net.minecraft.data.tags.WorldPresetTagsProvider;
@@ -159,6 +164,18 @@ public class Main {
         );
         var4.addProvider(TradeRebalanceLootTableProvider::create);
         var4.addProvider(bindRegistries(TradeRebalanceStructureTagsProvider::new, var2));
+        CompletableFuture<HolderLookup.Provider> var11 = UpdateOneTwentyOneRegistries.createLookup(var2);
+        DataGenerator.PackGenerator var12 = var0.getBuiltinDatapack(param3, "update_1_21");
+        var12.addProvider(UpdateOneTwentyOneRecipeProvider::new);
+        TagsProvider<Block> var13 = var12.addProvider(param2x -> new UpdateOneTwentyOneBlockTagsProvider(param2x, var11, var5.contentsGetter()));
+        var12.addProvider(param3x -> new UpdateOneTwentyOneItemTagsProvider(param3x, var11, var6.contentsGetter(), var13.contentsGetter()));
+        var12.addProvider(UpdateOneTwentyOneLootTableProvider::create);
+        var12.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var11));
+        var12.addProvider(
+            param0x -> PackMetadataGenerator.forFeaturePack(
+                    param0x, Component.translatable("dataPack.update_1_21.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_21)
+                )
+        );
         return var0;
     }
 }

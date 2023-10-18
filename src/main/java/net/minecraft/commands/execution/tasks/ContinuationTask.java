@@ -1,6 +1,5 @@
 package net.minecraft.commands.execution.tasks;
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.List;
 import net.minecraft.commands.execution.CommandQueueEntry;
 import net.minecraft.commands.execution.EntryAction;
@@ -19,7 +18,7 @@ public class ContinuationTask<T, P> implements EntryAction<T> {
     }
 
     @Override
-    public void execute(ExecutionContext<T> param0, int param1) throws CommandSyntaxException {
+    public void execute(ExecutionContext<T> param0, int param1) {
         P var0 = this.arguments.get(this.index);
         param0.queueNext(this.taskFactory.create(param1, var0));
         if (++this.index < this.arguments.size()) {

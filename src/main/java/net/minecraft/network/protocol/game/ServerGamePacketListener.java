@@ -83,6 +83,8 @@ public interface ServerGamePacketListener extends ServerCommonPacketListener, Se
 
     void handleEntityTagQuery(ServerboundEntityTagQuery var1);
 
+    void handleContainerSlotStateChanged(ServerboundContainerSlotStateChangedPacket var1);
+
     void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery var1);
 
     void handleSetJigsawBlock(ServerboundSetJigsawBlockPacket var1);

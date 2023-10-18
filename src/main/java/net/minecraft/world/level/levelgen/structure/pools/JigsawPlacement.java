@@ -5,6 +5,7 @@ import com.google.common.collect.Queues;
 import com.mojang.logging.LogUtils;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,6 +15,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.Pools;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +34,7 @@ import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePiecesBuilder;
+import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import net.minecraft.world.phys.AABB;
@@ -52,7 +55,8 @@ public class JigsawPlacement {
         BlockPos param4,
         boolean param5,
         Optional<Heightmap.Types> param6,
-        int param7
+        int param7,
+        PoolAliasLookup param8
     ) {
         RegistryAccess var0 = param0.registryAccess();
         ChunkGenerator var1 = param0.chunkGenerator();
@@ -105,7 +109,7 @@ public class JigsawPlacement {
             return Optional.of(
                 new Structure.GenerationStub(
                     new BlockPos(var17, var22, var18),
-                    param14 -> {
+                    param15 -> {
                         List<PoolElementStructurePiece> var0x = Lists.newArrayList();
                         var0x.add(var15);
                         if (param3 > 0) {
@@ -118,8 +122,8 @@ public class JigsawPlacement {
                                 (double)(var18 + param7 + 1)
                             );
                             VoxelShape var2x = Shapes.join(Shapes.create(var1x), Shapes.create(AABB.of(var16)), BooleanOp.ONLY_FIRST);
-                            addPieces(param0.randomState(), param3, param5, var1, var2, var3, var4, var5, var15, var0x, var2x);
-                            var0x.forEach(param14::addPiece);
+                            addPieces(param0.randomState(), param3, param5, var1, var2, var3, var4, var5, var15, var0x, var2x, param8);
+                            var0x.forEach(param15::addPiece);
                         }
                     }
                 )
@@ -134,7 +138,7 @@ public class JigsawPlacement {
         Optional<BlockPos> var1 = Optional.empty();
 
         for(StructureTemplate.StructureBlockInfo var2 : var0) {
-            ResourceLocation var3 = ResourceLocation.tryParse(var2.nbt().getString("name"));
+            ResourceLocation var3 = ResourceLocation.tryParse(Objects.requireNonNull(var2.nbt(), () -> var2 + " nbt was null").getString("name"));
             if (param1.equals(var3)) {
                 var1 = Optional.of(var2.pos());
                 break;
@@ -155,14 +159,15 @@ public class JigsawPlacement {
         Registry<StructureTemplatePool> param7,
         PoolElementStructurePiece param8,
         List<PoolElementStructurePiece> param9,
-        VoxelShape param10
+        VoxelShape param10,
+        PoolAliasLookup param11
     ) {
         JigsawPlacement.Placer var0 = new JigsawPlacement.Placer(param7, param1, param3, param4, param9, param6);
         var0.placing.addLast(new JigsawPlacement.PieceState(param8, new MutableObject<>(param10), 0));
 
         while(!var0.placing.isEmpty()) {
             JigsawPlacement.PieceState var1 = var0.placing.removeFirst();
-            var0.tryPlacingChildren(var1.piece, var1.free, var1.depth, param2, param5, param0);
+            var0.tryPlacingChildren(var1.piece, var1.free, var1.depth, param2, param5, param0, param11);
         }
 
     }
@@ -185,7 +190,9 @@ public class JigsawPlacement {
             param0,
             param0x -> true
         );
-        Optional<Structure.GenerationStub> var5 = addPieces(var4, param1, Optional.of(param2), param3, param4, false, Optional.empty(), 128);
+        Optional<Structure.GenerationStub> var5 = addPieces(
+            var4, param1, Optional.of(param2), param3, param4, false, Optional.empty(), 128, PoolAliasLookup.EMPTY
+        );
         if (var5.isPresent()) {
             StructurePiecesBuilder var6 = var5.get().getPiecesBuilder();
 
@@ -239,7 +246,13 @@ public class JigsawPlacement {
         }
 
         void tryPlacingChildren(
-            PoolElementStructurePiece param0, MutableObject<VoxelShape> param1, int param2, boolean param3, LevelHeightAccessor param4, RandomState param5
+            PoolElementStructurePiece param0,
+            MutableObject<VoxelShape> param1,
+            int param2,
+            boolean param3,
+            LevelHeightAccessor param4,
+            RandomState param5,
+            PoolAliasLookup param6
         ) {
             StructurePoolElement var0 = param0.getElement();
             BlockPos var1 = param0.getPosition();
@@ -257,7 +270,7 @@ public class JigsawPlacement {
                 BlockPos var11 = var10.relative(var9);
                 int var12 = var10.getY() - var7;
                 int var13 = -1;
-                ResourceKey<StructureTemplatePool> var14 = readPoolName(var8);
+                ResourceKey<StructureTemplatePool> var14 = readPoolKey(var8, param6);
                 Optional<? extends Holder<StructureTemplatePool>> var15 = this.pools.getHolder(var14);
                 if (var15.isEmpty()) {
                     JigsawPlacement.LOGGER.warn("Empty or non-existent pool: {}", var14.location());
@@ -304,11 +317,11 @@ public class JigsawPlacement {
                                     BoundingBox var25 = var22.getBoundingBox(this.structureTemplateManager, BlockPos.ZERO, var23);
                                     int var27;
                                     if (param3 && var25.getYSpan() <= 16) {
-                                        var27 = var24.stream().mapToInt(param1x -> {
-                                            if (!var25.isInside(param1x.pos().relative(JigsawBlock.getFrontFacing(param1x.state())))) {
+                                        var27 = var24.stream().mapToInt(param2x -> {
+                                            if (!var25.isInside(param2x.pos().relative(JigsawBlock.getFrontFacing(param2x.state())))) {
                                                 return 0;
                                             } else {
-                                                ResourceKey<StructureTemplatePool> var0x = readPoolName(param1x);
+                                                ResourceKey<StructureTemplatePool> var0x = readPoolKey(param2x, param6);
                                                 Optional<? extends Holder<StructureTemplatePool>> var1x = this.pools.getHolder(var0x);
                                                 Optional<Holder<StructureTemplatePool>> var2x = var1x.map(param0x -> param0x.value().getFallback());
                                                 int var3x = var1x.<Integer>map(param0x -> param0x.value().getMaxSize(this.structureTemplateManager)).orElse(0);
@@ -396,8 +409,10 @@ public class JigsawPlacement {
 
         }
 
-        private static ResourceKey<StructureTemplatePool> readPoolName(StructureTemplate.StructureBlockInfo param0) {
-            return ResourceKey.create(Registries.TEMPLATE_POOL, new ResourceLocation(param0.nbt().getString("pool")));
+        private static ResourceKey<StructureTemplatePool> readPoolKey(StructureTemplate.StructureBlockInfo param0, PoolAliasLookup param1) {
+            CompoundTag var0 = Objects.requireNonNull(param0.nbt(), () -> param0 + " nbt was null");
+            ResourceKey<StructureTemplatePool> var1 = Pools.createKey(var0.getString("pool"));
+            return param1.lookup(var1);
         }
     }
 }

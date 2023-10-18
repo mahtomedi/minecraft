@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens;
 
-import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
@@ -21,22 +20,21 @@ public class NoticeWithLinkScreen extends Screen {
     private static final Component SYMLINK_PACK_MESSAGE_TEXT = Component.translatable("symlink_warning.message.pack", "https://aka.ms/MinecraftSymLinks");
     private final Component message;
     private final String url;
-    @Nullable
-    private final Screen callbackScreen;
+    private final Runnable onClose;
     private final GridLayout layout = new GridLayout().rowSpacing(10);
 
-    public NoticeWithLinkScreen(Component param0, Component param1, String param2, @Nullable Screen param3) {
+    public NoticeWithLinkScreen(Component param0, Component param1, String param2, Runnable param3) {
         super(param0);
         this.message = param1;
         this.url = param2;
-        this.callbackScreen = param3;
+        this.onClose = param3;
     }
 
-    public static Screen createWorldSymlinkWarningScreen(@Nullable Screen param0) {
+    public static Screen createWorldSymlinkWarningScreen(Runnable param0) {
         return new NoticeWithLinkScreen(SYMLINK_WORLD_TITLE, SYMLINK_WORLD_MESSAGE_TEXT, "https://aka.ms/MinecraftSymLinks", param0);
     }
 
-    public static Screen createPackSymlinkWarningScreen(@Nullable Screen param0) {
+    public static Screen createPackSymlinkWarningScreen(Runnable param0) {
         return new NoticeWithLinkScreen(SYMLINK_PACK_TITLE, SYMLINK_PACK_MESSAGE_TEXT, "https://aka.ms/MinecraftSymLinks", param0);
     }
 
@@ -73,6 +71,6 @@ public class NoticeWithLinkScreen extends Screen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(this.callbackScreen);
+        this.onClose.run();
     }
 }

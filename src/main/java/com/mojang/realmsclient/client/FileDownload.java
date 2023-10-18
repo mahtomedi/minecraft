@@ -14,16 +14,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Path;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.nbt.NbtException;
+import net.minecraft.nbt.ReportedNbtException;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.validation.ContentValidationException;
 import net.minecraftforge.api.distmarker.Dist;
@@ -317,31 +315,15 @@ public class FileDownload {
                 param1.delete();
             }
 
-            try (LevelStorageSource.LevelStorageAccess var25 = param2.validateAndCreateAccess(var10)) {
-                var25.renameLevel(var10.trim());
-                Path var26 = var25.getLevelPath(LevelResource.LEVEL_DATA_FILE);
-                deletePlayerTag(var26.toFile());
-            } catch (IOException var39) {
-                LOGGER.error("Failed to rename unpacked realms level {}", var10, var39);
+            try (LevelStorageSource.LevelStorageAccess var23 = param2.validateAndCreateAccess(var10)) {
+                var23.renameAndDropPlayer(var10);
+            } catch (NbtException | ReportedNbtException | IOException var39) {
+                LOGGER.error("Failed to modify unpacked realms level {}", var10, var39);
             } catch (ContentValidationException var40) {
                 LOGGER.warn("{}", var40.getMessage());
             }
 
             this.resourcePackPath = new File(var12, var10 + File.separator + "resources.zip");
-        }
-
-    }
-
-    private static void deletePlayerTag(File param0) {
-        if (param0.exists()) {
-            try {
-                CompoundTag var0 = NbtIo.readCompressed(param0);
-                CompoundTag var1 = var0.getCompound("Data");
-                var1.remove("Player");
-                NbtIo.writeCompressed(var0, param0);
-            } catch (Exception var3) {
-                LOGGER.info("Exception while removing player tag", (Throwable)var3);
-            }
         }
 
     }

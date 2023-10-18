@@ -20,6 +20,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.network.protocol.game.ServerboundPickItemPacket;
@@ -500,5 +501,9 @@ public class MultiPlayerGameMode {
 
     public void handlePickItem(int param0) {
         this.connection.send(new ServerboundPickItemPacket(param0));
+    }
+
+    public void handleSlotStateChanged(int param0, int param1, boolean param2) {
+        this.connection.send(new ServerboundContainerSlotStateChangedPacket(param0, param1, param2));
     }
 }

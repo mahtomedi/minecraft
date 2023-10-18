@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
-import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
@@ -19,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -37,8 +37,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.SectionBufferBuilderPool;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -56,56 +58,29 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class SectionRenderDispatcher {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int MAX_WORKERS_32_BIT = 4;
     private static final int MAX_HIGH_PRIORITY_QUOTA = 2;
     private final PriorityBlockingQueue<SectionRenderDispatcher.RenderSection.CompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
     private final Queue<SectionRenderDispatcher.RenderSection.CompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
     private int highPriorityQuota = 2;
-    private final Queue<SectionBufferBuilderPack> freeBuffers;
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
-    private volatile int toBatchCount;
-    private volatile int freeBufferCount;
     final SectionBufferBuilderPack fixedBuffers;
+    private final SectionBufferBuilderPool bufferPool;
+    private volatile int toBatchCount;
+    private volatile boolean closed;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
     ClientLevel level;
     final LevelRenderer renderer;
     private Vec3 camera = Vec3.ZERO;
 
-    public SectionRenderDispatcher(ClientLevel param0, LevelRenderer param1, Executor param2, boolean param3, SectionBufferBuilderPack param4) {
+    public SectionRenderDispatcher(ClientLevel param0, LevelRenderer param1, Executor param2, RenderBuffers param3) {
         this.level = param0;
         this.renderer = param1;
-        int var0 = Math.max(
-            1, (int)((double)Runtime.getRuntime().maxMemory() * 0.3) / (RenderType.chunkBufferLayers().stream().mapToInt(RenderType::bufferSize).sum() * 4) - 1
-        );
-        int var1 = Runtime.getRuntime().availableProcessors();
-        int var2 = param3 ? var1 : Math.min(var1, 4);
-        int var3 = Math.max(1, Math.min(var2, var0));
-        this.fixedBuffers = param4;
-        List<SectionBufferBuilderPack> var4 = Lists.newArrayListWithExpectedSize(var3);
-
-        try {
-            for(int var5 = 0; var5 < var3; ++var5) {
-                var4.add(new SectionBufferBuilderPack());
-            }
-        } catch (OutOfMemoryError var14) {
-            LOGGER.warn("Allocated only {}/{} buffers", var4.size(), var3);
-            int var7 = Math.min(var4.size() * 2 / 3, var4.size() - 1);
-
-            for(int var8 = 0; var8 < var7; ++var8) {
-                var4.remove(var4.size() - 1);
-            }
-
-            System.gc();
-        }
-
-        this.freeBuffers = Queues.newArrayDeque(var4);
-        this.freeBufferCount = this.freeBuffers.size();
+        this.fixedBuffers = param3.fixedBufferPack();
+        this.bufferPool = param3.sectionBufferPool();
         this.executor = param2;
         this.mailbox = ProcessorMailbox.create(param2, "Section Renderer");
         this.mailbox.tell(this::runTask);
@@ -116,13 +91,12 @@ public class SectionRenderDispatcher {
     }
 
     private void runTask() {
-        if (!this.freeBuffers.isEmpty()) {
-            SectionRenderDispatcher.RenderSection.CompileTask var0x = this.pollTask();
-            if (var0x != null) {
-                SectionBufferBuilderPack var1x = this.freeBuffers.poll();
+        if (!this.closed && !this.bufferPool.isEmpty()) {
+            SectionRenderDispatcher.RenderSection.CompileTask var0 = this.pollTask();
+            if (var0 != null) {
+                SectionBufferBuilderPack var1 = Objects.requireNonNull(this.bufferPool.acquire());
                 this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
-                this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(var0x.name(), () -> var0x.doTask(var1x)), this.executor)
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(var0.name(), () -> var0.doTask(var1)), this.executor)
                     .thenCompose(param0x -> param0x)
                     .whenComplete((param1x, param2x) -> {
                         if (param2x != null) {
@@ -130,13 +104,12 @@ public class SectionRenderDispatcher {
                         } else {
                             this.mailbox.tell(() -> {
                                 if (param1x == SectionRenderDispatcher.SectionTaskResult.SUCCESSFUL) {
-                                    var1x.clearAll();
+                                    var1.clearAll();
                                 } else {
-                                    var1x.discardAll();
+                                    var1.discardAll();
                                 }
     
-                                this.freeBuffers.add(var1x);
-                                this.freeBufferCount = this.freeBuffers.size();
+                                this.bufferPool.release(var1);
                                 this.runTask();
                             });
                         }
@@ -166,7 +139,7 @@ public class SectionRenderDispatcher {
     }
 
     public String getStats() {
-        return String.format(Locale.ROOT, "pC: %03d, pU: %02d, aB: %02d", this.toBatchCount, this.toUpload.size(), this.freeBufferCount);
+        return String.format(Locale.ROOT, "pC: %03d, pU: %02d, aB: %02d", this.toBatchCount, this.toUpload.size(), this.bufferPool.getFreeBufferCount());
     }
 
     public int getToBatchCount() {
@@ -178,7 +151,7 @@ public class SectionRenderDispatcher {
     }
 
     public int getFreeBufferCount() {
-        return this.freeBufferCount;
+        return this.bufferPool.getFreeBufferCount();
     }
 
     public void setCamera(Vec3 param0) {
@@ -206,21 +179,27 @@ public class SectionRenderDispatcher {
     }
 
     public void schedule(SectionRenderDispatcher.RenderSection.CompileTask param0) {
-        this.mailbox.tell(() -> {
-            if (param0.isHighPriority) {
-                this.toBatchHighPriority.offer(param0);
-            } else {
-                this.toBatchLowPriority.offer(param0);
-            }
+        if (!this.closed) {
+            this.mailbox.tell(() -> {
+                if (!this.closed) {
+                    if (param0.isHighPriority) {
+                        this.toBatchHighPriority.offer(param0);
+                    } else {
+                        this.toBatchLowPriority.offer(param0);
+                    }
 
-            this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
-            this.runTask();
-        });
+                    this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
+                    this.runTask();
+                }
+            });
+        }
     }
 
     public CompletableFuture<Void> uploadSectionLayer(BufferBuilder.RenderedBuffer param0, VertexBuffer param1) {
-        return CompletableFuture.runAsync(() -> {
-            if (!param1.isInvalid()) {
+        return this.closed ? CompletableFuture.completedFuture(null) : CompletableFuture.runAsync(() -> {
+            if (param1.isInvalid()) {
+                param0.release();
+            } else {
                 param1.bind();
                 param1.upload(param0);
                 VertexBuffer.unbind();
@@ -251,9 +230,9 @@ public class SectionRenderDispatcher {
     }
 
     public void dispose() {
+        this.closed = true;
         this.clearBatchQueue();
-        this.mailbox.close();
-        this.freeBuffers.clear();
+        this.uploadAllPendingUploads();
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -98,7 +98,7 @@ public class Main {
         OptionSet var31 = var2.parse(param0);
         List<String> var32 = var31.valuesOf(var30);
         if (!var32.isEmpty()) {
-            LOGGER.info("Completely ignored arguments: " + var32);
+            LOGGER.info("Completely ignored arguments: {}", var32);
         }
 
         String var33 = parseArgument(var31, var11);
@@ -106,7 +106,7 @@ public class Main {
         if (var33 != null) {
             try {
                 var34 = new Proxy(Type.SOCKS, new InetSocketAddress(var33, parseArgument(var31, var12)));
-            } catch (Exception var83) {
+            } catch (Exception var85) {
             }
         }
 
@@ -150,25 +150,36 @@ public class Main {
         }
 
         CrashReport.preload();
-        Bootstrap.bootStrap();
-        GameLoadTimesEvent.INSTANCE.setBootstrapTime(Bootstrap.bootstrapDuration.get());
-        Bootstrap.validate();
-        Util.startTimerHackThread();
-        String var61 = var28.value(var31);
-        User.Type var62 = User.Type.byName(var61);
-        if (var62 == null) {
-            LOGGER.warn("Unrecognized user type: {}", var61);
+
+        try {
+            Bootstrap.bootStrap();
+            GameLoadTimesEvent.INSTANCE.setBootstrapTime(Bootstrap.bootstrapDuration.get());
+            Bootstrap.validate();
+        } catch (Throwable var84) {
+            CrashReport var62 = CrashReport.forThrowable(var84, "Bootstrap");
+            CrashReportCategory var63 = var62.addCategory("Initialization");
+            NativeModuleLister.addCrashSection(var63);
+            Minecraft.fillReport(null, null, var45, null, var62);
+            Minecraft.crash(null, var50, var62);
+            return;
         }
 
-        User var63 = new User(var15.value(var31), var53, var19.value(var31), emptyStringToEmptyOptional(var55), emptyStringToEmptyOptional(var56), var62);
-        GameConfig var64 = new GameConfig(
-            new GameConfig.UserData(var63, var47, var48, var34),
+        String var64 = var28.value(var31);
+        User.Type var65 = User.Type.byName(var64);
+        if (var65 == null) {
+            LOGGER.warn("Unrecognized user type: {}", var64);
+        }
+
+        User var66 = new User(var15.value(var31), var53, var19.value(var31), emptyStringToEmptyOptional(var55), emptyStringToEmptyOptional(var56), var65);
+        GameConfig var67 = new GameConfig(
+            new GameConfig.UserData(var66, var47, var48, var34),
             new DisplayData(var37, var38, var39, var40, var41),
             new GameConfig.FolderData(var50, var52, var51, var54),
             new GameConfig.GameData(var42, var45, var49, var43, var44),
             new GameConfig.QuickPlayData(var57, var58, var59, var60)
         );
-        Thread var65 = new Thread("Client Shutdown Thread") {
+        Util.startTimerHackThread();
+        Thread var68 = new Thread("Client Shutdown Thread") {
             @Override
             public void run() {
                 Minecraft var0 = Minecraft.getInstance();
@@ -181,68 +192,70 @@ public class Main {
                 }
             }
         };
-        var65.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
-        Runtime.getRuntime().addShutdownHook(var65);
+        var68.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+        Runtime.getRuntime().addShutdownHook(var68);
+        final Minecraft var69 = null;
 
-        final Minecraft var66;
         try {
             Thread.currentThread().setName("Render thread");
             RenderSystem.initRenderThread();
             RenderSystem.beginInitialization();
-            var66 = new Minecraft(var64);
+            var69 = new Minecraft(var67);
             RenderSystem.finishInitialization();
-        } catch (SilentInitException var81) {
-            LOGGER.warn("Failed to create window: ", (Throwable)var81);
+        } catch (SilentInitException var82) {
+            Util.shutdownExecutors();
+            LOGGER.warn("Failed to create window: ", (Throwable)var82);
             return;
-        } catch (Throwable var82) {
-            CrashReport var69 = CrashReport.forThrowable(var82, "Initializing game");
-            CrashReportCategory var70 = var69.addCategory("Initialization");
-            NativeModuleLister.addCrashSection(var70);
-            Minecraft.fillReport(null, null, var64.game.launchVersion, null, var69);
-            Minecraft.crash(var69);
+        } catch (Throwable var83) {
+            CrashReport var72 = CrashReport.forThrowable(var83, "Initializing game");
+            CrashReportCategory var73 = var72.addCategory("Initialization");
+            NativeModuleLister.addCrashSection(var73);
+            Minecraft.fillReport(var69, null, var67.game.launchVersion, null, var72);
+            Minecraft.crash(var69, var67.location.gameDirectory, var72);
             return;
         }
 
-        Thread var72;
-        if (var66.renderOnThread()) {
-            var72 = new Thread("Game thread") {
+        Minecraft var74 = var69;
+        Thread var75;
+        if (var69.renderOnThread()) {
+            var75 = new Thread("Game thread") {
                 @Override
                 public void run() {
                     try {
                         RenderSystem.initGameThread(true);
-                        var66.run();
+                        var69.run();
                     } catch (Throwable var2) {
                         Main.LOGGER.error("Exception in client thread", var2);
                     }
 
                 }
             };
-            var72.start();
+            var75.start();
 
-            while(var66.isRunning()) {
+            while(var74.isRunning()) {
             }
         } else {
-            var72 = null;
+            var75 = null;
 
             try {
                 RenderSystem.initGameThread(false);
-                var66.run();
-            } catch (Throwable var80) {
-                LOGGER.error("Unhandled game exception", var80);
+                var74.run();
+            } catch (Throwable var81) {
+                LOGGER.error("Unhandled game exception", var81);
             }
         }
 
         BufferUploader.reset();
 
         try {
-            var66.stop();
-            if (var72 != null) {
-                var72.join();
+            var74.stop();
+            if (var75 != null) {
+                var75.join();
             }
-        } catch (InterruptedException var78) {
-            LOGGER.error("Exception during client thread shutdown", (Throwable)var78);
+        } catch (InterruptedException var79) {
+            LOGGER.error("Exception during client thread shutdown", (Throwable)var79);
         } finally {
-            var66.destroy();
+            var74.destroy();
         }
 
     }

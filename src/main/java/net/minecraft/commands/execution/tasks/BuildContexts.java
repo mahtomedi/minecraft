@@ -1,5 +1,6 @@
 package net.minecraft.commands.execution.tasks;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.RedirectModifier;
 import com.mojang.brigadier.context.CommandContext;
@@ -8,7 +9,6 @@ import com.mojang.brigadier.context.ContextChain.Stage;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.commands.ExecutionCommandSource;
@@ -23,7 +23,8 @@ import net.minecraft.commands.execution.UnboundEntryAction;
 import net.minecraft.network.chat.Component;
 
 public class BuildContexts<T extends ExecutionCommandSource<T>> {
-    private static final DynamicCommandExceptionType ERROR_FORK_LIMIT_REACHED = new DynamicCommandExceptionType(
+    @VisibleForTesting
+    public static final DynamicCommandExceptionType ERROR_FORK_LIMIT_REACHED = new DynamicCommandExceptionType(
         param0 -> Component.translatableEscape("command.forkLimit", param0)
     );
     private final String commandInput;
@@ -34,7 +35,7 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
         this.command = param1;
     }
 
-    protected void execute(List<T> param0, ExecutionContext<T> param1, int param2, boolean param3) throws CommandSyntaxException {
+    protected void execute(List<T> param0, ExecutionContext<T> param1, int param2, boolean param3) {
         ContextChain<T> var0 = this.command;
         boolean var1 = param3;
         List<T> var2 = param0;
@@ -53,17 +54,26 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
 
                     if (var5 != null) {
                         param1.incrementCost();
-                        List<T> var7 = new ArrayList<>();
+                        var6 = new ArrayList<T>();
 
                         for(T var8 : var2) {
-                            Collection<T> var9 = ContextChain.runModifier(var4, var8, ExecutionCommandSource.resultConsumer(), var1);
-                            var7.addAll(var9);
-                            if (var7.size() >= var3) {
-                                throw ERROR_FORK_LIMIT_REACHED.create(var3);
+                            try {
+                                for(T var10 : ContextChain.runModifier(var4, var8, ExecutionCommandSource.resultConsumer(), var1)) {
+                                    var6.add(var10);
+                                    if (var6.size() >= var3) {
+                                        var10.handleError(ERROR_FORK_LIMIT_REACHED.create(var3), var1, param1.tracer());
+                                        return;
+                                    }
+                                }
+                            } catch (CommandSyntaxException var20) {
+                                var8.handleError(var20, var1, param1.tracer());
+                                if (!var1) {
+                                    return;
+                                }
                             }
                         }
 
-                        var2 = var7;
+                        var2 = var6;
                     }
                 }
             } finally {
@@ -71,17 +81,17 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
             }
         }
 
-        CommandContext<T> var10 = var0.getTopContext();
-        Command<T> var11 = var10.getCommand();
-        if (var11 instanceof CustomCommandExecutor var12) {
-            ExecutionControl<T> var13 = createExecutionControl(param1, param2);
+        CommandContext<T> var12 = var0.getTopContext();
+        Command<T> var13 = var12.getCommand();
+        if (var13 instanceof CustomCommandExecutor var14) {
+            ExecutionControl<T> var15 = createExecutionControl(param1, param2);
 
-            for(T var14 : var2) {
-                var12.run(var14, var0, var1, var13);
+            for(T var16 : var2) {
+                var14.run(var16, var0, var1, var15);
             }
         } else {
-            ExecuteCommand<T> var15 = new ExecuteCommand<>(this.commandInput, var1, var10);
-            ContinuationTask.schedule(param1, param2, var2, (param1x, param2x) -> new CommandQueueEntry<>(param1x, var15.bind(param2x)));
+            ExecuteCommand<T> var17 = new ExecuteCommand<>(this.commandInput, var1, var12);
+            ContinuationTask.schedule(param1, param2, var2, (param1x, param2x) -> new CommandQueueEntry<>(param1x, var17.bind(param2x)));
         }
 
     }
@@ -135,7 +145,7 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
         }
 
         @Override
-        public void execute(ExecutionContext<T> param0, int param1) throws CommandSyntaxException {
+        public void execute(ExecutionContext<T> param0, int param1) {
             this.execute(this.sources, param0, param1, this.startForked);
         }
     }
@@ -149,7 +159,7 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
         }
 
         @Override
-        public void execute(ExecutionContext<T> param0, int param1) throws CommandSyntaxException {
+        public void execute(ExecutionContext<T> param0, int param1) {
             this.traceCommandStart(param0, param1);
             this.execute(List.of(this.source), param0, param1, false);
         }
@@ -160,7 +170,7 @@ public class BuildContexts<T extends ExecutionCommandSource<T>> {
             super(param0, param1);
         }
 
-        public void execute(T param0, ExecutionContext<T> param1, int param2) throws CommandSyntaxException {
+        public void execute(T param0, ExecutionContext<T> param1, int param2) {
             this.traceCommandStart(param1, param2);
             this.execute(List.of(param0), param1, param2, false);
         }

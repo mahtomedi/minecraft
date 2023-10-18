@@ -17,9 +17,10 @@ import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class BufferBuilder extends DefaultedVertexConsumer implements BufferVertexConsumer {
-    private static final int GROWTH_SIZE = 2097152;
+    private static final int MAX_GROWTH_SIZE = 2097152;
     private static final Logger LOGGER = LogUtils.getLogger();
     private ByteBuffer buffer;
+    private boolean closed;
     private int renderedBufferCount;
     private int renderedBufferPointer;
     private int nextElementByte;
@@ -39,7 +40,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private boolean indexOnly;
 
     public BufferBuilder(int param0) {
-        this.buffer = MemoryTracker.create(param0 * 6);
+        this.buffer = MemoryTracker.create(param0);
     }
 
     private void ensureVertexCapacity() {
@@ -49,25 +50,13 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private void ensureCapacity(int param0) {
         if (this.nextElementByte + param0 > this.buffer.capacity()) {
             int var0 = this.buffer.capacity();
-            int var1 = var0 + roundUp(param0);
-            LOGGER.debug("Needed to grow BufferBuilder buffer: Old size {} bytes, new size {} bytes.", var0, var1);
-            ByteBuffer var2 = MemoryTracker.resize(this.buffer, var1);
-            var2.rewind();
-            this.buffer = var2;
-        }
-    }
-
-    private static int roundUp(int param0) {
-        int var0 = 2097152;
-        if (param0 == 0) {
-            return var0;
-        } else {
-            if (param0 < 0) {
-                var0 *= -1;
-            }
-
-            int var1 = param0 % var0;
-            return var1 == 0 ? param0 : param0 + var0 - var1;
+            int var1 = Math.min(var0, 2097152);
+            int var2 = var0 + param0;
+            int var3 = Math.max(var0 + var1, var2);
+            LOGGER.debug("Needed to grow BufferBuilder buffer: Old size {} bytes, new size {} bytes.", var0, var3);
+            ByteBuffer var4 = MemoryTracker.resize(this.buffer, var3);
+            var4.rewind();
+            this.buffer = var4;
         }
     }
 
@@ -85,7 +74,14 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         return new BufferBuilder.SortState(this.mode, this.vertices, this.sortingPoints, this.sorting);
     }
 
+    private void checkOpen() {
+        if (this.closed) {
+            throw new IllegalStateException("This BufferBuilder has been closed");
+        }
+    }
+
     public void restoreSortState(BufferBuilder.SortState param0) {
+        this.checkOpen();
         this.buffer.rewind();
         this.mode = param0.mode;
         this.vertices = param0.vertices;
@@ -99,6 +95,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         if (this.building) {
             throw new IllegalStateException("Already building!");
         } else {
+            this.checkOpen();
             this.building = true;
             this.mode = param0;
             this.switchFormat(param1);
@@ -203,7 +200,7 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
     private BufferBuilder.RenderedBuffer storeRenderedBuffer() {
         int var0 = this.mode.indexCount(this.vertices);
         int var1 = !this.indexOnly ? this.vertices * this.format.getVertexSize() : 0;
-        VertexFormat.IndexType var2 = VertexFormat.IndexType.least(var0);
+        VertexFormat.IndexType var2 = VertexFormat.IndexType.least(this.vertices);
         boolean var4;
         int var5;
         if (this.sortingPoints != null) {
@@ -363,6 +360,17 @@ public class BufferBuilder extends DefaultedVertexConsumer implements BufferVert
         this.renderedBufferCount = 0;
         this.renderedBufferPointer = 0;
         this.nextElementByte = 0;
+    }
+
+    public void release() {
+        if (this.renderedBufferCount > 0) {
+            throw new IllegalStateException("BufferBuilder closed with unused batches");
+        } else if (this.building) {
+            throw new IllegalStateException("Cannot close BufferBuilder while it is building");
+        } else if (!this.closed) {
+            this.closed = true;
+            MemoryTracker.free(this.buffer);
+        }
     }
 
     @Override

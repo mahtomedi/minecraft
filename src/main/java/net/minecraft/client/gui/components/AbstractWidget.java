@@ -180,8 +180,8 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener, La
             && this.visible
             && param0 >= (double)this.getX()
             && param1 >= (double)this.getY()
-            && param0 < (double)(this.getX() + this.width)
-            && param1 < (double)(this.getY() + this.height);
+            && param0 < (double)(this.getX() + this.getWidth())
+            && param1 < (double)(this.getY() + this.getHeight());
     }
 
     @Nullable

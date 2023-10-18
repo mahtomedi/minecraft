@@ -1094,6 +1094,7 @@ public class CreativeModeTabs {
                     param1.accept(Items.HONEY_BLOCK);
                     param1.accept(Items.DISPENSER);
                     param1.accept(Items.DROPPER);
+                    param1.accept(Items.CRAFTER);
                     param1.accept(Items.HOPPER);
                     param1.accept(Items.CHEST);
                     param1.accept(Items.BARREL);
@@ -1101,6 +1102,7 @@ public class CreativeModeTabs {
                     param1.accept(Items.FURNACE);
                     param1.accept(Items.TRAPPED_CHEST);
                     param1.accept(Items.JUKEBOX);
+                    param1.accept(Items.DECORATED_POT);
                     param1.accept(Items.OBSERVER);
                     param1.accept(Items.NOTE_BLOCK);
                     param1.accept(Items.COMPOSTER);

@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -246,5 +247,9 @@ public abstract class Projectile extends Entity implements TraceableEntity {
         } else {
             return var0 == null || param0.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
         }
+    }
+
+    public boolean mayBreak(Level param0) {
+        return this.getType().is(EntityTypeTags.IMPACT_PROJECTILES) && param0.getGameRules().getBoolean(GameRules.RULE_PROJECTILESCANBREAKBLOCKS);
     }
 }

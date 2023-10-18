@@ -11,11 +11,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.FittingMultiLineTextWidget;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -54,11 +54,16 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     @Override
     public void init() {
         this.getSubscription(this.serverData.id);
-        this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.subscription.extend"), param0 -> {
-            String var0 = CommonLinks.extendRealms(this.serverData.remoteSubscriptionId, this.minecraft.getUser().getProfileId());
-            this.minecraft.keyboardHandler.setClipboard(var0);
-            Util.getPlatform().openUri(var0);
-        }).bounds(this.width / 2 - 100, row(6), 200, 20).build());
+        this.addRenderableWidget(
+            Button.builder(
+                    Component.translatable("mco.configure.world.subscription.extend"),
+                    param0 -> ConfirmLinkScreen.confirmLinkNow(
+                            this, CommonLinks.extendRealms(this.serverData.remoteSubscriptionId, this.minecraft.getUser().getProfileId())
+                        )
+                )
+                .bounds(this.width / 2 - 100, row(6), 200, 20)
+                .build()
+        );
         if (this.serverData.expired) {
             this.addRenderableWidget(Button.builder(Component.translatable("mco.configure.world.delete.button"), param0 -> {
                 Component var0 = Component.translatable("mco.configure.world.delete.question.line1");
@@ -81,11 +86,7 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
             this.addRenderableWidget(new FittingMultiLineTextWidget(this.width / 2 - 100, row(8), 200, 46, RECURRING_INFO, this.font).setColor(-6250336));
         }
 
-        this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_BACK, param0 -> this.minecraft.setScreen(this.lastScreen))
-                .bounds(this.width / 2 - 100, row(12), 200, 20)
-                .build()
-        );
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.width / 2 - 100, row(12), 200, 20).build());
     }
 
     @Override
@@ -137,13 +138,8 @@ public class RealmsSubscriptionInfoScreen extends RealmsScreen {
     }
 
     @Override
-    public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 == 256) {
-            this.minecraft.setScreen(this.lastScreen);
-            return true;
-        } else {
-            return super.keyPressed(param0, param1, param2);
-        }
+    public void onClose() {
+        this.minecraft.setScreen(this.lastScreen);
     }
 
     @Override

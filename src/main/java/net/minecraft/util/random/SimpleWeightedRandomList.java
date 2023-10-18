@@ -39,6 +39,10 @@ public class SimpleWeightedRandomList<E> extends WeightedRandomList<WeightedEntr
     public static class Builder<E> {
         private final ImmutableList.Builder<WeightedEntry.Wrapper<E>> result = ImmutableList.builder();
 
+        public SimpleWeightedRandomList.Builder<E> add(E param0) {
+            return this.add(param0, 1);
+        }
+
         public SimpleWeightedRandomList.Builder<E> add(E param0, int param1) {
             this.result.add(WeightedEntry.wrap(param0, param1));
             return this;

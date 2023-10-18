@@ -4,7 +4,6 @@ import com.mojang.realmsclient.RealmsMainScreen;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
@@ -149,12 +148,6 @@ public class PauseScreen extends Screen {
     }
 
     private Button openLinkButton(Component param0, String param1) {
-        return this.openScreenButton(param0, () -> new ConfirmLinkScreen(param1x -> {
-                if (param1x) {
-                    Util.getPlatform().openUri(param1);
-                }
-
-                this.minecraft.setScreen(this);
-            }, param1, true));
+        return Button.builder(param0, ConfirmLinkScreen.confirmLink(this, param1)).width(98).build();
     }
 }

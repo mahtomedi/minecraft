@@ -3,7 +3,6 @@ package net.minecraft.client.gui.screens.reporting;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.Optionull;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -48,13 +47,11 @@ public class ReportReasonSelectionScreen extends Screen {
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Optionull.map(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
         this.reasonSelectionList.setSelected(var0);
         int var1 = this.width / 2 - 150 - 5;
-        this.addRenderableWidget(Button.builder(READ_INFO_LABEL, param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-                if (param0x) {
-                    Util.getPlatform().openUri("https://aka.ms/aboutjavareporting");
-                }
-
-                this.minecraft.setScreen(this);
-            }, "https://aka.ms/aboutjavareporting", true))).bounds(var1, this.buttonTop(), 150, 20).build());
+        this.addRenderableWidget(
+            Button.builder(READ_INFO_LABEL, ConfirmLinkScreen.confirmLink(this, "https://aka.ms/aboutjavareporting"))
+                .bounds(var1, this.buttonTop(), 150, 20)
+                .build()
+        );
         int var2 = this.width / 2 + 5;
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> {
             ReportReasonSelectionScreen.ReasonSelectionList.Entry var0x = this.reasonSelectionList.getSelected();

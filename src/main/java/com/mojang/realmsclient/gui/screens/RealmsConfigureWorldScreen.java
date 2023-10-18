@@ -60,7 +60,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     private Button resetWorldButton;
     private Button switchMinigameButton;
     private boolean stateChanged;
-    private int clicks;
     private final List<RealmsWorldSlotButton> slotButtonList = Lists.newArrayList();
 
     public RealmsConfigureWorldScreen(RealmsMainScreen param0, long param1) {
@@ -154,9 +153,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 .bounds(this.leftButton(2), row(13) - 5, 90, 20)
                 .build()
         );
-        this.addRenderableWidget(
-            Button.builder(CommonComponents.GUI_BACK, param0 -> this.backButtonClicked()).bounds(this.rightX - 80 + 8, row(13) - 5, 70, 20).build()
-        );
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.rightX - 80 + 8, row(13) - 5, 70, 20).build());
         this.backupButton.active = true;
         if (this.serverData == null) {
             this.hideMinigameButtons();
@@ -178,32 +175,34 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     private RealmsWorldSlotButton addSlotButton(int param0) {
         int var0 = this.frame(param0);
         int var1 = row(5) + 5;
-        RealmsWorldSlotButton var2 = new RealmsWorldSlotButton(
-            var0, var1, 80, 80, () -> this.serverData, param0x -> this.toolTip = param0x, param0, param1 -> {
-                RealmsWorldSlotButton.State var0x = ((RealmsWorldSlotButton)param1).getState();
-                if (var0x != null) {
-                    switch(var0x.action) {
-                        case NOTHING:
-                            break;
-                        case JOIN:
-                            this.joinRealm(this.serverData);
-                            break;
-                        case SWITCH_SLOT:
-                            if (var0x.minigame) {
-                                this.switchToMinigame();
-                            } else if (var0x.empty) {
-                                this.switchToEmptySlot(param0, this.serverData);
-                            } else {
-                                this.switchToFullSlot(param0, this.serverData);
-                            }
-                            break;
-                        default:
-                            throw new IllegalStateException("Unknown action " + var0x.action);
-                    }
+        RealmsWorldSlotButton var2 = new RealmsWorldSlotButton(var0, var1, 80, 80, param0, param1 -> {
+            RealmsWorldSlotButton.State var0x = ((RealmsWorldSlotButton)param1).getState();
+            if (var0x != null) {
+                switch(var0x.action) {
+                    case NOTHING:
+                        break;
+                    case JOIN:
+                        this.joinRealm(this.serverData);
+                        break;
+                    case SWITCH_SLOT:
+                        if (var0x.minigame) {
+                            this.switchToMinigame();
+                        } else if (var0x.empty) {
+                            this.switchToEmptySlot(param0, this.serverData);
+                        } else {
+                            this.switchToFullSlot(param0, this.serverData);
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Unknown action " + var0x.action);
                 }
-    
             }
-        );
+
+        });
+        if (this.serverData != null) {
+            var2.setServerData(this.serverData);
+        }
+
         return this.addRenderableWidget(var2);
     }
 
@@ -213,17 +212,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private int centerButton(int param0, int param1) {
         return this.width / 2 - (param1 * 105 - 5) / 2 + param0 * 105;
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        --this.clicks;
-        if (this.clicks < 0) {
-            this.clicks = 0;
-        }
-
-        this.slotButtonList.forEach(RealmsWorldSlotButton::tick);
     }
 
     @Override
@@ -253,10 +241,6 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 );
             }
 
-            if (this.toolTip != null) {
-                param0.renderTooltip(this.font, this.toolTip, param1, param2);
-            }
-
         }
     }
 
@@ -265,16 +249,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     }
 
     @Override
-    public boolean keyPressed(int param0, int param1, int param2) {
-        if (param0 == 256) {
-            this.backButtonClicked();
-            return true;
-        } else {
-            return super.keyPressed(param0, param1, param2);
-        }
-    }
-
-    private void backButtonClicked() {
+    public void onClose() {
         if (this.stateChanged) {
             this.lastScreen.resetScreen();
         }
@@ -297,6 +272,10 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                         this.show(this.optionsButton);
                         this.show(this.backupButton);
                         this.show(this.resetWorldButton);
+                    }
+
+                    for(RealmsWorldSlotButton var0x : this.slotButtonList) {
+                        var0x.setServerData(var1);
                     }
 
                 });
@@ -342,6 +321,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 new RealmsLongConfirmationScreen(
                     param2 -> {
                         if (param2) {
+                            this.stateChanged();
                             this.minecraft
                                 .setScreen(
                                     new RealmsLongRunningMcoTaskScreen(
@@ -370,6 +350,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
                 new RealmsLongConfirmationScreen(
                     param2 -> {
                         if (param2) {
+                            this.stateChanged();
                             RealmsResetWorldScreen var0x = RealmsResetWorldScreen.forEmptySlot(
                                 this, param0, param1, () -> this.minecraft.execute(() -> this.minecraft.setScreen(this.getNewScreen()))
                             );
@@ -421,7 +402,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     private void drawRealmStatus(GuiGraphics param0, int param1, int param2, int param3, int param4, ResourceLocation param5, Supplier<Component> param6) {
         param0.blitSprite(param5, param1, param2, 10, 28);
         if (param3 >= param1 && param3 <= param1 + 9 && param4 >= param2 && param4 <= param2 + 27) {
-            this.toolTip = param6.get();
+            this.setTooltipForNextRenderPass(param6.get());
         }
 
     }
@@ -474,6 +455,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
             var1.update(this.serverData.id, param0, var0);
             this.serverData.setName(param0);
             this.serverData.setDescription(var0);
+            this.stateChanged();
         } catch (RealmsServiceException var6) {
             LOGGER.error("Couldn't save settings", (Throwable)var6);
             this.minecraft.setScreen(new RealmsGenericErrorScreen(var6, this));
@@ -497,6 +479,7 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
 
     private void templateSelectionCallback(@Nullable WorldTemplate param0) {
         if (param0 != null && WorldTemplate.WorldTemplateType.MINIGAME == param0.type) {
+            this.stateChanged();
             this.minecraft
                 .setScreen(new RealmsLongRunningMcoTaskScreen(this.lastScreen, new SwitchMinigameTask(this.serverData.id, param0, this.getNewScreen())));
         } else {
@@ -506,6 +489,8 @@ public class RealmsConfigureWorldScreen extends RealmsScreen {
     }
 
     public RealmsConfigureWorldScreen getNewScreen() {
-        return new RealmsConfigureWorldScreen(this.lastScreen, this.serverId);
+        RealmsConfigureWorldScreen var0 = new RealmsConfigureWorldScreen(this.lastScreen, this.serverId);
+        var0.stateChanged = this.stateChanged;
+        return var0;
     }
 }

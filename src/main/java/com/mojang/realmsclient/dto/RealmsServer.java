@@ -236,7 +236,7 @@ public class RealmsServer extends ValueObject {
         }
     }
 
-    private static RealmsServer.Compatibility getCompatibility(@Nullable String param0) {
+    public static RealmsServer.Compatibility getCompatibility(@Nullable String param0) {
         try {
             return RealmsServer.Compatibility.valueOf(param0);
         } catch (Exception var2) {
@@ -245,15 +245,15 @@ public class RealmsServer extends ValueObject {
     }
 
     public boolean isCompatible() {
-        return this.compatibility == RealmsServer.Compatibility.COMPATIBLE;
+        return this.compatibility.isCompatible();
     }
 
     public boolean needsUpgrade() {
-        return this.compatibility == RealmsServer.Compatibility.NEEDS_UPGRADE;
+        return this.compatibility.needsUpgrade();
     }
 
     public boolean needsDowngrade() {
-        return this.compatibility == RealmsServer.Compatibility.NEEDS_DOWNGRADE;
+        return this.compatibility.needsDowngrade();
     }
 
     @Override
@@ -341,6 +341,18 @@ public class RealmsServer extends ValueObject {
         NEEDS_DOWNGRADE,
         NEEDS_UPGRADE,
         COMPATIBLE;
+
+        public boolean isCompatible() {
+            return this == COMPATIBLE;
+        }
+
+        public boolean needsUpgrade() {
+            return this == NEEDS_UPGRADE;
+        }
+
+        public boolean needsDowngrade() {
+            return this == NEEDS_DOWNGRADE;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

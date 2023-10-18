@@ -30,7 +30,7 @@ public class ListTag extends CollectionTag<Tag> {
             byte var0 = param0.readByte();
             int var1 = param0.readInt();
             if (var0 == 0 && var1 > 0) {
-                throw new RuntimeException("Missing type on ListTag");
+                throw new NbtFormatException("Missing type on ListTag");
             } else {
                 param1.accountBytes(4L, (long)var1);
                 TagType<?> var2 = TagTypes.getType(var0);

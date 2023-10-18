@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.screens;
 
-import net.minecraft.Util;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -36,6 +35,7 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
             param0.hideLightningFlash(),
             param0.darkMojangStudiosBackground(),
             param0.panoramaSpeed(),
+            param0.hideSplashTexts(),
             param0.narratorHotkey()
         };
     }
@@ -58,13 +58,11 @@ public class AccessibilityOptionsScreen extends SimpleOptionsSubScreen {
     @Override
     protected void createFooter() {
         this.addRenderableWidget(
-            Button.builder(Component.translatable("options.accessibility.link"), param0 -> this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-                    if (param0x) {
-                        Util.getPlatform().openUri("https://aka.ms/MinecraftJavaAccessibility");
-                    }
-    
-                    this.minecraft.setScreen(this);
-                }, "https://aka.ms/MinecraftJavaAccessibility", true))).bounds(this.width / 2 - 155, this.height - 27, 150, 20).build()
+            Button.builder(
+                    Component.translatable("options.accessibility.link"), ConfirmLinkScreen.confirmLink(this, "https://aka.ms/MinecraftJavaAccessibility")
+                )
+                .bounds(this.width / 2 - 155, this.height - 27, 150, 20)
+                .build()
         );
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_DONE, param0 -> this.minecraft.setScreen(this.lastScreen))

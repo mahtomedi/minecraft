@@ -41,7 +41,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import net.minecraft.world.level.storage.LevelStorageSource;
-import net.minecraft.world.level.storage.LevelSummary;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.slf4j.Logger;
@@ -213,12 +212,12 @@ public class TitleScreen extends Screen {
                     Component.translatable("menu.playdemo"),
                     param1x -> {
                         if (var0) {
-                            this.minecraft.createWorldOpenFlows().loadLevel(this, "Demo_World");
+                            this.minecraft.createWorldOpenFlows().checkForBackupAndLoad("Demo_World", () -> this.minecraft.setScreen(this));
                         } else {
                             this.minecraft
                                 .createWorldOpenFlows()
                                 .createFreshLevel(
-                                    "Demo_World", MinecraftServer.DEMO_SETTINGS, WorldOptions.DEMO_OPTIONS, WorldPresets::createNormalWorldDimensions
+                                    "Demo_World", MinecraftServer.DEMO_SETTINGS, WorldOptions.DEMO_OPTIONS, WorldPresets::createNormalWorldDimensions, this
                                 );
                         }
             
@@ -233,15 +232,14 @@ public class TitleScreen extends Screen {
                     param0x -> {
                         LevelStorageSource var0x = this.minecraft.getLevelSource();
             
-                        try (LevelStorageSource.LevelStorageAccess var3x = var0x.createAccess("Demo_World")) {
-                            LevelSummary var2x = var3x.getSummary();
-                            if (var2x != null) {
+                        try (LevelStorageSource.LevelStorageAccess var2x = var0x.createAccess("Demo_World")) {
+                            if (var2x.hasWorldData()) {
                                 this.minecraft
                                     .setScreen(
                                         new ConfirmScreen(
                                             this::confirmDemo,
                                             Component.translatable("selectWorld.deleteQuestion"),
-                                            Component.translatable("selectWorld.deleteWarning", var2x.getLevelName()),
+                                            Component.translatable("selectWorld.deleteWarning", MinecraftServer.DEMO_SETTINGS.levelName()),
                                             Component.translatable("selectWorld.deleteButton"),
                                             CommonComponents.GUI_CANCEL
                                         )
@@ -264,7 +262,7 @@ public class TitleScreen extends Screen {
         try {
             boolean var2;
             try (LevelStorageSource.LevelStorageAccess var0 = this.minecraft.getLevelSource().createAccess("Demo_World")) {
-                var2 = var0.getSummary() != null;
+                var2 = var0.hasWorldData();
             }
 
             return var2;
@@ -299,7 +297,7 @@ public class TitleScreen extends Screen {
                 this.warningLabel.render(param0, var2);
             }
 
-            if (this.splash != null) {
+            if (this.splash != null && !this.minecraft.options.hideSplashTexts().get()) {
                 this.splash.render(param0, this.width, this.font, var2);
             }
 

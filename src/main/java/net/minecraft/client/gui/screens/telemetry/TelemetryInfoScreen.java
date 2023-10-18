@@ -85,23 +85,11 @@ public class TelemetryInfoScreen extends Screen {
     }
 
     private void openPrivacyStatementLink(Button param0) {
-        this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-            if (param0x) {
-                Util.getPlatform().openUri("http://go.microsoft.com/fwlink/?LinkId=521839");
-            }
-
-            this.minecraft.setScreen(this);
-        }, "http://go.microsoft.com/fwlink/?LinkId=521839", true));
+        ConfirmLinkScreen.confirmLinkNow(this, "http://go.microsoft.com/fwlink/?LinkId=521839");
     }
 
     private void openFeedbackLink(Button param0) {
-        this.minecraft.setScreen(new ConfirmLinkScreen(param0x -> {
-            if (param0x) {
-                Util.getPlatform().openUri("https://aka.ms/javafeedback?ref=game");
-            }
-
-            this.minecraft.setScreen(this);
-        }, "https://aka.ms/javafeedback?ref=game", true));
+        ConfirmLinkScreen.confirmLinkNow(this, "https://aka.ms/javafeedback?ref=game");
     }
 
     private void openDataFolder(Button param0) {

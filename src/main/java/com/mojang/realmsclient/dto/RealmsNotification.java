@@ -196,7 +196,7 @@ public class RealmsNotification {
 
         public Button buildOpenLinkButton(Screen param0) {
             Component var0 = this.buttonText.createComponent(RealmsNotification.BUTTON_TEXT_FALLBACK);
-            return Button.builder(var0, ConfirmLinkScreen.confirmLink(this.url, param0, true)).build();
+            return Button.builder(var0, ConfirmLinkScreen.confirmLink(param0, this.url)).build();
         }
     }
 }
