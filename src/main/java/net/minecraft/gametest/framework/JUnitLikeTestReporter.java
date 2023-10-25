@@ -45,17 +45,10 @@ public class JUnitLikeTestReporter implements TestReporter {
     public void onTestFailed(GameTestInfo param0) {
         String var0 = param0.getTestName();
         String var1 = param0.getError().getMessage();
-        Element var2;
-        if (param0.isRequired()) {
-            var2 = this.document.createElement("failure");
-            var2.setAttribute("message", var1);
-        } else {
-            var2 = this.document.createElement("skipped");
-            var2.setAttribute("message", var1);
-        }
-
-        Element var4 = this.createTestCase(param0, var0);
-        var4.appendChild(var2);
+        Element var2 = this.document.createElement(param0.isRequired() ? "failure" : "skipped");
+        var2.setAttribute("message", "(" + param0.getStructureBlockPos().toShortString() + ") " + var1);
+        Element var3 = this.createTestCase(param0, var0);
+        var3.appendChild(var2);
     }
 
     @Override

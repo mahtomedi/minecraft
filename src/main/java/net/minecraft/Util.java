@@ -756,7 +756,7 @@ public class Util {
         return var0;
     }
 
-    public static <T> void shuffle(ObjectArrayList<T> param0, RandomSource param1) {
+    public static <T> void shuffle(List<T> param0, RandomSource param1) {
         int var0 = param0.size();
 
         for(int var1 = var0; var1 > 1; --var1) {

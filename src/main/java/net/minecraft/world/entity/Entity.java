@@ -2961,8 +2961,12 @@ public abstract class Entity implements CommandSource, Nameable, EntityAccess {
         return () -> this.getIndirectPassengersStream().iterator();
     }
 
+    public int countPlayerPassengers() {
+        return (int)this.getIndirectPassengersStream().filter(param0 -> param0 instanceof Player).count();
+    }
+
     public boolean hasExactlyOnePlayerPassenger() {
-        return this.getIndirectPassengersStream().filter(param0 -> param0 instanceof Player).count() == 1L;
+        return this.countPlayerPassengers() == 1;
     }
 
     public Entity getRootVehicle() {

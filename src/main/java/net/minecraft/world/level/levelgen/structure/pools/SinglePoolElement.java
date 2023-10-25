@@ -1,5 +1,6 @@
 package net.minecraft.world.level.levelgen.structure.pools;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
@@ -7,9 +8,11 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import net.minecraft.Optionull;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -102,7 +105,18 @@ public class SinglePoolElement extends StructurePoolElement {
             param1, new StructurePlaceSettings().setRotation(param2), Blocks.JIGSAW, true
         );
         Util.shuffle(var1, param3);
+        sortBySelectionPriority(var1);
         return var1;
+    }
+
+    @VisibleForTesting
+    static void sortBySelectionPriority(List<StructureTemplate.StructureBlockInfo> param0) {
+        param0.sort(
+            Comparator.<StructureTemplate.StructureBlockInfo>comparingInt(
+                    param0x -> Optionull.mapOrDefault(param0x.nbt(), param0xx -> param0xx.getInt("selection_priority"), 0)
+                )
+                .reversed()
+        );
     }
 
     @Override

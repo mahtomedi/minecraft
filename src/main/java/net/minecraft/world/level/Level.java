@@ -33,6 +33,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
@@ -385,6 +386,10 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
 
     public abstract void playSeededSound(@Nullable Player var1, Entity var2, Holder<SoundEvent> var3, SoundSource var4, float var5, float var6, long var7);
 
+    public void playSound(@Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5) {
+        this.playSound(param0, param1, param2, param3, param4, param5, 1.0F, 1.0F);
+    }
+
     public void playSound(
         @Nullable Player param0, double param1, double param2, double param3, SoundEvent param4, SoundSource param5, float param6, float param7
     ) {
@@ -436,13 +441,14 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         }
 
         Iterator<TickingBlockEntity> var1 = this.blockEntityTickers.iterator();
+        boolean var2 = this.tickRateManager().runsNormally();
 
         while(var1.hasNext()) {
-            TickingBlockEntity var2 = var1.next();
-            if (var2.isRemoved()) {
+            TickingBlockEntity var3 = var1.next();
+            if (var3.isRemoved()) {
                 var1.remove();
-            } else if (this.shouldTickBlocksAt(var2.getPos())) {
-                var2.tick();
+            } else if (var2 && this.shouldTickBlocksAt(var3.getPos())) {
+                var3.tick();
             }
         }
 
@@ -740,6 +746,8 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     public GameRules getGameRules() {
         return this.levelData.getGameRules();
     }
+
+    public abstract TickRateManager tickRateManager();
 
     public float getThunderLevel(float param0) {
         return Mth.lerp(param0, this.oThunderLevel, this.thunderLevel) * this.getRainLevel(param0);

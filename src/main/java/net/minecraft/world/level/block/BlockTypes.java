@@ -66,6 +66,7 @@ public class BlockTypes {
         Registry.register(param0, "composter", ComposterBlock.CODEC);
         Registry.register(param0, "concrete_powder", ConcretePowderBlock.CODEC);
         Registry.register(param0, "conduit", ConduitBlock.CODEC);
+        Registry.register(param0, "copper_bulb_block", CopperBulbBlock.CODEC);
         Registry.register(param0, "coral", CoralBlock.CODEC);
         Registry.register(param0, "coral_fan", CoralFanBlock.CODEC);
         Registry.register(param0, "coral_plant", CoralPlantBlock.CODEC);
@@ -102,7 +103,6 @@ public class BlockTypes {
         Registry.register(param0, "frosted_ice", FrostedIceBlock.CODEC);
         Registry.register(param0, "fungus", FungusBlock.CODEC);
         Registry.register(param0, "furnace", FurnaceBlock.CODEC);
-        Registry.register(param0, "glass", GlassBlock.CODEC);
         Registry.register(param0, "glazed_terracotta", GlazedTerracottaBlock.CODEC);
         Registry.register(param0, "glow_lichen", GlowLichenBlock.CODEC);
         Registry.register(param0, "grass", GrassBlock.CODEC);
@@ -216,6 +216,7 @@ public class BlockTypes {
         Registry.register(param0, "tnt", TntBlock.CODEC);
         Registry.register(param0, "torchflower_crop", TorchflowerCropBlock.CODEC);
         Registry.register(param0, "torch", TorchBlock.CODEC);
+        Registry.register(param0, "transparent", TransparentBlock.CODEC);
         Registry.register(param0, "trapdoor", TrapDoorBlock.CODEC);
         Registry.register(param0, "trapped_chest", TrappedChestBlock.CODEC);
         Registry.register(param0, "trip_wire_hook", TripWireHookBlock.CODEC);
@@ -231,9 +232,13 @@ public class BlockTypes {
         Registry.register(param0, "wall_torch", WallTorchBlock.CODEC);
         Registry.register(param0, "wall", WallBlock.CODEC);
         Registry.register(param0, "waterlily", WaterlilyBlock.CODEC);
+        Registry.register(param0, "weathering_copper_bulb", WeatheringCopperBulbBlock.CODEC);
+        Registry.register(param0, "weathering_copper_door", WeatheringCopperDoorBlock.CODEC);
         Registry.register(param0, "weathering_copper_full", WeatheringCopperFullBlock.CODEC);
+        Registry.register(param0, "weathering_copper_grate", WeatheringCopperGrateBlock.CODEC);
         Registry.register(param0, "weathering_copper_slab", WeatheringCopperSlabBlock.CODEC);
         Registry.register(param0, "weathering_copper_stair", WeatheringCopperStairBlock.CODEC);
+        Registry.register(param0, "weathering_copper_trap_door", WeatheringCopperTrapDoorBlock.CODEC);
         Registry.register(param0, "web", WebBlock.CODEC);
         Registry.register(param0, "weeping_vines_plant", WeepingVinesPlantBlock.CODEC);
         Registry.register(param0, "weeping_vines", WeepingVinesBlock.CODEC);

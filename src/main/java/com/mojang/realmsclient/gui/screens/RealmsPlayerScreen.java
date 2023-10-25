@@ -321,7 +321,7 @@ public class RealmsPlayerScreen extends RealmsScreen {
 
         @Override
         public int getScrollbarPosition() {
-            return RealmsPlayerScreen.this.column1X + this.width - 5;
+            return RealmsPlayerScreen.this.column1X + this.width;
         }
 
         @Override

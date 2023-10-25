@@ -13,9 +13,18 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
     private final ResourceLocation pool;
     private final String finalState;
     private final JigsawBlockEntity.JointType joint;
+    private final int selectionPriority;
+    private final int placementPriority;
 
     public ServerboundSetJigsawBlockPacket(
-        BlockPos param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, String param4, JigsawBlockEntity.JointType param5
+        BlockPos param0,
+        ResourceLocation param1,
+        ResourceLocation param2,
+        ResourceLocation param3,
+        String param4,
+        JigsawBlockEntity.JointType param5,
+        int param6,
+        int param7
     ) {
         this.pos = param0;
         this.name = param1;
@@ -23,6 +32,8 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
         this.pool = param3;
         this.finalState = param4;
         this.joint = param5;
+        this.selectionPriority = param6;
+        this.placementPriority = param7;
     }
 
     public ServerboundSetJigsawBlockPacket(FriendlyByteBuf param0) {
@@ -32,6 +43,8 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
         this.pool = param0.readResourceLocation();
         this.finalState = param0.readUtf();
         this.joint = JigsawBlockEntity.JointType.byName(param0.readUtf()).orElse(JigsawBlockEntity.JointType.ALIGNED);
+        this.selectionPriority = param0.readVarInt();
+        this.placementPriority = param0.readVarInt();
     }
 
     @Override
@@ -42,6 +55,8 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
         param0.writeResourceLocation(this.pool);
         param0.writeUtf(this.finalState);
         param0.writeUtf(this.joint.getSerializedName());
+        param0.writeVarInt(this.selectionPriority);
+        param0.writeVarInt(this.placementPriority);
     }
 
     public void handle(ServerGamePacketListener param0) {
@@ -70,5 +85,13 @@ public class ServerboundSetJigsawBlockPacket implements Packet<ServerGamePacketL
 
     public JigsawBlockEntity.JointType getJoint() {
         return this.joint;
+    }
+
+    public int getSelectionPriority() {
+        return this.selectionPriority;
+    }
+
+    public int getPlacementPriority() {
+        return this.placementPriority;
     }
 }

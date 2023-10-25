@@ -10,6 +10,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.CrafterMenu;
 import net.minecraft.world.inventory.CrafterSlot;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -35,29 +36,39 @@ public class CrafterScreen extends AbstractContainerScreen<CrafterMenu> {
 
     @Override
     protected void slotClicked(Slot param0, int param1, int param2, ClickType param3) {
-        if (this.player.isSpectator()) {
-            super.slotClicked(param0, param1, param2, param3);
-        } else {
-            if (param1 > -1 && param1 < 9 && param0 instanceof CrafterSlot) {
-                if (param0.hasItem()) {
-                    super.slotClicked(param0, param1, param2, param3);
-                    return;
-                }
-
-                boolean var0 = this.menu.isSlotDisabled(param1);
-                if (var0 || this.menu.getCarried().isEmpty()) {
-                    this.menu.setSlotState(param1, var0);
-                    super.handleSlotStateChanged(param1, this.menu.containerId, var0);
-                    if (var0) {
-                        this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.4F, 1.0F);
-                    } else {
-                        this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.4F, 0.75F);
+        if (param0 instanceof CrafterSlot && !param0.hasItem() && !this.player.isSpectator()) {
+            switch(param3) {
+                case PICKUP:
+                    if (this.menu.isSlotDisabled(param1)) {
+                        this.enableSlot(param1);
+                    } else if (this.menu.getCarried().isEmpty()) {
+                        this.disableSlot(param1);
                     }
-                }
+                    break;
+                case SWAP:
+                    ItemStack var0 = this.player.getInventory().getItem(param2);
+                    if (this.menu.isSlotDisabled(param1) && !var0.isEmpty()) {
+                        this.enableSlot(param1);
+                    }
             }
-
-            super.slotClicked(param0, param1, param2, param3);
         }
+
+        super.slotClicked(param0, param1, param2, param3);
+    }
+
+    private void enableSlot(int param0) {
+        this.updateSlotState(param0, true);
+    }
+
+    private void disableSlot(int param0) {
+        this.updateSlotState(param0, false);
+    }
+
+    private void updateSlotState(int param0, boolean param1) {
+        this.menu.setSlotState(param0, param1);
+        super.handleSlotStateChanged(param0, this.menu.containerId, param1);
+        float var0 = param1 ? 1.0F : 0.75F;
+        this.player.playSound(SoundEvents.UI_BUTTON_CLICK.value(), 0.4F, var0);
     }
 
     @Override

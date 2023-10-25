@@ -48,6 +48,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -99,6 +100,7 @@ public class ClientLevel extends Level {
     private final LevelRenderer levelRenderer;
     private final ClientLevel.ClientLevelData clientLevelData;
     private final DimensionSpecialEffects effects;
+    private final TickRateManager tickRateManager;
     private final Minecraft minecraft = Minecraft.getInstance();
     final List<AbstractClientPlayer> players = Lists.newArrayList();
     private Scoreboard scoreboard = new Scoreboard();
@@ -173,6 +175,7 @@ public class ClientLevel extends Level {
         super(param1, param2, param0.registryAccess(), param3, param6, true, param8, param9, 1000000);
         this.connection = param0;
         this.chunkSource = new ClientChunkCache(this, param4);
+        this.tickRateManager = new TickRateManager();
         this.clientLevelData = param1;
         this.levelRenderer = param7;
         this.effects = DimensionSpecialEffects.forType(param3.value());
@@ -211,7 +214,10 @@ public class ClientLevel extends Level {
 
     public void tick(BooleanSupplier param0) {
         this.getWorldBorder().tick();
-        this.tickTime();
+        if (this.tickRateManager().runsNormally()) {
+            this.tickTime();
+        }
+
         if (this.skyFlashTime > 0) {
             this.setSkyFlashTime(this.skyFlashTime - 1);
         }
@@ -252,7 +258,7 @@ public class ClientLevel extends Level {
         ProfilerFiller var0 = this.getProfiler();
         var0.push("entities");
         this.tickingEntities.forEach(param0 -> {
-            if (!param0.isRemoved() && !param0.isPassenger()) {
+            if (!param0.isRemoved() && !param0.isPassenger() && !this.tickRateManager.isEntityFrozen(param0)) {
                 this.guardEntityTick(this::tickNonPassenger, param0);
             }
         });
@@ -536,6 +542,11 @@ public class ClientLevel extends Level {
     @Override
     public RecipeManager getRecipeManager() {
         return this.connection.getRecipeManager();
+    }
+
+    @Override
+    public TickRateManager tickRateManager() {
+        return this.tickRateManager;
     }
 
     public void setScoreboard(Scoreboard param0) {

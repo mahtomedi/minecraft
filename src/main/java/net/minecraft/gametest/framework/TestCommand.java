@@ -42,7 +42,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.phys.BlockHitResult;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -233,20 +233,19 @@ public class TestCommand {
     private static int createNewStructure(CommandSourceStack param0, String param1, int param2, int param3, int param4) {
         if (param2 <= 48 && param3 <= 48 && param4 <= 48) {
             ServerLevel var0 = param0.getLevel();
-            BlockPos var1 = BlockPos.containing(param0.getPosition());
-            BlockPos var2 = new BlockPos(var1.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY(), var1.getZ() + 3);
-            StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var2, new Vec3i(param2, param3, param4), Rotation.NONE, var0);
+            BlockPos var1 = createTestPositionAround(param0);
+            StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var1, new Vec3i(param2, param3, param4), Rotation.NONE, var0);
 
-            for(int var3 = 0; var3 < param2; ++var3) {
-                for(int var4 = 0; var4 < param4; ++var4) {
-                    BlockPos var5 = new BlockPos(var2.getX() + var3, var2.getY() + 1, var2.getZ() + var4);
-                    Block var6 = Blocks.POLISHED_ANDESITE;
-                    BlockInput var7 = new BlockInput(var6.defaultBlockState(), Collections.emptySet(), null);
-                    var7.place(var0, var5, 2);
+            for(int var2 = 0; var2 < param2; ++var2) {
+                for(int var3 = 0; var3 < param4; ++var3) {
+                    BlockPos var4 = new BlockPos(var1.getX() + var2, var1.getY() + 1, var1.getZ() + var3);
+                    Block var5 = Blocks.POLISHED_ANDESITE;
+                    BlockInput var6 = new BlockInput(var5.defaultBlockState(), Collections.emptySet(), null);
+                    var6.place(var0, var4, 2);
                 }
             }
 
-            StructureUtils.addCommandBlockAndButtonToStartTest(var2, new BlockPos(1, 0, -1), Rotation.NONE, var0);
+            StructureUtils.addCommandBlockAndButtonToStartTest(var1, new BlockPos(1, 0, -1), Rotation.NONE, var0);
             return 0;
         } else {
             throw new IllegalArgumentException("The structure must be less than 48 blocks big in each axis");
@@ -317,18 +316,23 @@ public class TestCommand {
     private static void runTest(ServerLevel param0, BlockPos param1, @Nullable MultipleTestTracker param2, boolean param3) {
         StructureBlockEntity var0 = (StructureBlockEntity)param0.getBlockEntity(param1);
         String var1 = var0.getStructurePath();
-        TestFunction var2 = GameTestRegistry.getTestFunction(var1);
-        GameTestInfo var3 = new GameTestInfo(var2, var0.getRotation(), param0);
-        var3.setRerunUntilFailed(param3);
-        if (param2 != null) {
-            param2.addTestToTrack(var3);
-            var3.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));
-        }
+        Optional<TestFunction> var2 = GameTestRegistry.findTestFunction(var1);
+        if (var2.isEmpty()) {
+            say(param0, "Test function for test " + var1 + " could not be found", ChatFormatting.RED);
+        } else {
+            TestFunction var3 = var2.get();
+            GameTestInfo var4 = new GameTestInfo(var3, var0.getRotation(), param0);
+            var4.setRerunUntilFailed(param3);
+            if (param2 != null) {
+                param2.addTestToTrack(var4);
+                var4.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));
+            }
 
-        runTestPreparation(var2, param0);
-        AABB var4 = StructureUtils.getStructureBounds(var0);
-        BlockPos var5 = BlockPos.containing(var4.minX, var4.minY, var4.minZ);
-        GameTestRunner.runTest(var3, var5, GameTestTicker.SINGLETON);
+            runTestPreparation(var3, param0);
+            BoundingBox var5 = StructureUtils.getStructureBoundingBox(var0);
+            BlockPos var6 = new BlockPos(var5.minX(), var5.minY(), var5.minZ());
+            GameTestRunner.runTest(var4, var6, GameTestTicker.SINGLETON);
+        }
     }
 
     static void showTestSummaryIfAllDone(ServerLevel param0, MultipleTestTracker param1) {
@@ -361,15 +365,19 @@ public class TestCommand {
 
     private static int runTest(CommandSourceStack param0, TestFunction param1, int param2) {
         ServerLevel var0 = param0.getLevel();
-        BlockPos var1 = BlockPos.containing(param0.getPosition());
-        int var2 = param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var1).getY();
-        BlockPos var3 = new BlockPos(var1.getX(), var2, var1.getZ() + 3);
+        BlockPos var1 = createTestPositionAround(param0);
         GameTestRunner.clearMarkers(var0);
         runTestPreparation(param1, var0);
-        Rotation var4 = StructureUtils.getRotationForRotationSteps(param2);
-        GameTestInfo var5 = new GameTestInfo(param1, var4, var0);
-        GameTestRunner.runTest(var5, var3, GameTestTicker.SINGLETON);
+        Rotation var2 = StructureUtils.getRotationForRotationSteps(param2);
+        GameTestInfo var3 = new GameTestInfo(param1, var2, var0);
+        GameTestRunner.runTest(var3, var1, GameTestTicker.SINGLETON);
         return 1;
+    }
+
+    private static BlockPos createTestPositionAround(CommandSourceStack param0) {
+        BlockPos var0 = BlockPos.containing(param0.getPosition());
+        int var1 = param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var0).getY();
+        return new BlockPos(var0.getX(), var1 + 1, var0.getZ() + 3);
     }
 
     private static void runTestPreparation(TestFunction param0, ServerLevel param1) {
@@ -418,14 +426,13 @@ public class TestCommand {
     }
 
     private static void runTests(CommandSourceStack param0, Collection<TestFunction> param1, int param2, int param3) {
-        BlockPos var0 = BlockPos.containing(param0.getPosition());
-        BlockPos var1 = new BlockPos(var0.getX(), param0.getLevel().getHeightmapPos(Heightmap.Types.WORLD_SURFACE, var0).getY(), var0.getZ() + 3);
-        ServerLevel var2 = param0.getLevel();
-        Rotation var3 = StructureUtils.getRotationForRotationSteps(param2);
-        Collection<GameTestInfo> var4 = GameTestRunner.runTests(param1, var1, var3, var2, GameTestTicker.SINGLETON, param3);
-        MultipleTestTracker var5 = new MultipleTestTracker(var4);
-        var5.addListener(new TestCommand.TestSummaryDisplayer(var2, var5));
-        var5.addFailureListener(param0x -> GameTestRegistry.rememberFailedTest(param0x.getTestFunction()));
+        BlockPos var0 = createTestPositionAround(param0);
+        ServerLevel var1 = param0.getLevel();
+        Rotation var2 = StructureUtils.getRotationForRotationSteps(param2);
+        Collection<GameTestInfo> var3 = GameTestRunner.runTests(param1, var0, var2, var1, GameTestTicker.SINGLETON, param3);
+        MultipleTestTracker var4 = new MultipleTestTracker(var3);
+        var4.addListener(new TestCommand.TestSummaryDisplayer(var1, var4));
+        var4.addFailureListener(param0x -> GameTestRegistry.rememberFailedTest(param0x.getTestFunction()));
     }
 
     private static void say(CommandSourceStack param0, String param1) {

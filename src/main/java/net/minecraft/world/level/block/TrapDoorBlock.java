@@ -48,7 +48,7 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
     private final BlockSetType type;
 
     @Override
-    public MapCodec<TrapDoorBlock> codec() {
+    public MapCodec<? extends TrapDoorBlock> codec() {
         return CODEC;
     }
 
@@ -182,5 +182,9 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
         }
 
         return super.updateShape(param0, param1, param2, param3, param4, param5);
+    }
+
+    protected BlockSetType getType() {
+        return this.type;
     }
 }

@@ -47,7 +47,7 @@ public class MinecartSoundInstance extends AbstractTickableSoundInstance {
             this.y = (double)((float)this.minecart.getY());
             this.z = (double)((float)this.minecart.getZ());
             float var0 = (float)this.minecart.getDeltaMovement().horizontalDistance();
-            if (var0 >= 0.01F) {
+            if (var0 >= 0.01F && this.minecart.level().tickRateManager().runsNormally()) {
                 this.pitch = Mth.clamp(this.pitch + 0.0025F, 0.0F, 1.0F);
                 this.volume = Mth.lerp(Mth.clamp(var0, 0.0F, 0.5F), 0.0F, 0.7F);
             } else {

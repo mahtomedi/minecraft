@@ -179,6 +179,7 @@ public class CrafterBlock extends BaseEntityBlock {
                         param0x.shrink(1);
                     }
                 });
+                var0.setChanged();
             }
         }
     }

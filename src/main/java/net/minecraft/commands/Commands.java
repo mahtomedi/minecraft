@@ -56,6 +56,8 @@ import net.minecraft.server.commands.DataPackCommand;
 import net.minecraft.server.commands.DeOpCommands;
 import net.minecraft.server.commands.DebugCommand;
 import net.minecraft.server.commands.DebugConfigCommand;
+import net.minecraft.server.commands.DebugMobSpawningCommand;
+import net.minecraft.server.commands.DebugPathCommand;
 import net.minecraft.server.commands.DefaultGameModeCommands;
 import net.minecraft.server.commands.DifficultyCommand;
 import net.minecraft.server.commands.EffectCommands;
@@ -87,9 +89,11 @@ import net.minecraft.server.commands.PerfCommand;
 import net.minecraft.server.commands.PlaceCommand;
 import net.minecraft.server.commands.PlaySoundCommand;
 import net.minecraft.server.commands.PublishCommand;
+import net.minecraft.server.commands.RaidCommand;
 import net.minecraft.server.commands.RandomCommand;
 import net.minecraft.server.commands.RecipeCommand;
 import net.minecraft.server.commands.ReloadCommand;
+import net.minecraft.server.commands.ResetChunksCommand;
 import net.minecraft.server.commands.ReturnCommand;
 import net.minecraft.server.commands.RideCommand;
 import net.minecraft.server.commands.SaveAllCommand;
@@ -114,9 +118,11 @@ import net.minecraft.server.commands.TeamCommand;
 import net.minecraft.server.commands.TeamMsgCommand;
 import net.minecraft.server.commands.TeleportCommand;
 import net.minecraft.server.commands.TellRawCommand;
+import net.minecraft.server.commands.TickCommand;
 import net.minecraft.server.commands.TimeCommand;
 import net.minecraft.server.commands.TitleCommand;
 import net.minecraft.server.commands.TriggerCommand;
+import net.minecraft.server.commands.WardenSpawnTrackerCommand;
 import net.minecraft.server.commands.WeatherCommand;
 import net.minecraft.server.commands.WhitelistCommand;
 import net.minecraft.server.commands.WorldBorderCommand;
@@ -193,6 +199,7 @@ public class Commands {
         TeamMsgCommand.register(this.dispatcher);
         TeleportCommand.register(this.dispatcher);
         TellRawCommand.register(this.dispatcher);
+        TickCommand.register(this.dispatcher);
         TimeCommand.register(this.dispatcher);
         TitleCommand.register(this.dispatcher);
         TriggerCommand.register(this.dispatcher);
@@ -204,6 +211,11 @@ public class Commands {
 
         if (SharedConstants.IS_RUNNING_IN_IDE) {
             TestCommand.register(this.dispatcher);
+            ResetChunksCommand.register(this.dispatcher);
+            RaidCommand.register(this.dispatcher);
+            DebugPathCommand.register(this.dispatcher);
+            DebugMobSpawningCommand.register(this.dispatcher);
+            WardenSpawnTrackerCommand.register(this.dispatcher);
             SpawnArmorTrimsCommand.register(this.dispatcher);
             if (param0.includeDedicated) {
                 DebugConfigCommand.register(this.dispatcher);

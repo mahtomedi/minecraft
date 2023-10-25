@@ -27,7 +27,7 @@ public class WeatheringCopperFullBlock extends Block implements WeatheringCopper
 
     @Override
     public void randomTick(BlockState param0, ServerLevel param1, BlockPos param2, RandomSource param3) {
-        this.onRandomTick(param0, param1, param2, param3);
+        this.changeOverTime(param0, param1, param2, param3);
     }
 
     @Override

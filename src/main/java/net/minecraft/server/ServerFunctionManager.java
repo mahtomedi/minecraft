@@ -32,13 +32,15 @@ public class ServerFunctionManager {
     }
 
     public void tick() {
-        if (this.postReload) {
-            this.postReload = false;
-            Collection<CommandFunction<CommandSourceStack>> var0 = this.library.getTag(LOAD_FUNCTION_TAG);
-            this.executeTagFunctions(var0, LOAD_FUNCTION_TAG);
-        }
+        if (this.server.tickRateManager().runsNormally()) {
+            if (this.postReload) {
+                this.postReload = false;
+                Collection<CommandFunction<CommandSourceStack>> var0 = this.library.getTag(LOAD_FUNCTION_TAG);
+                this.executeTagFunctions(var0, LOAD_FUNCTION_TAG);
+            }
 
-        this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
+            this.executeTagFunctions(this.ticking, TICK_FUNCTION_TAG);
+        }
     }
 
     private void executeTagFunctions(Collection<CommandFunction<CommandSourceStack>> param0, ResourceLocation param1) {

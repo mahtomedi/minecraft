@@ -39,7 +39,7 @@ public abstract class WarningScreen extends Screen {
         int var0 = (this.message.getLineCount() + 1) * this.getLineHeight();
         if (this.check != null) {
             int var1 = this.font.width(this.check);
-            this.stopShowing = new Checkbox(this.width / 2 - var1 / 2 - 8, 76 + var0, var1 + 24, 20, this.check, false);
+            this.stopShowing = Checkbox.builder(this.check, this.font).pos(this.width / 2 - var1 / 2 - 8, 76 + var0).build();
             this.addRenderableWidget(this.stopShowing);
         }
 

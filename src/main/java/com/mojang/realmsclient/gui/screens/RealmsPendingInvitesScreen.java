@@ -64,6 +64,10 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
         this.pendingInvites.thenAcceptAsync(param0 -> {
             List<RealmsPendingInvitesScreen.Entry> var0 = param0.stream().map(param0x -> new RealmsPendingInvitesScreen.Entry(param0x)).toList();
             this.pendingInvitationSelectionList.replaceEntries(var0);
+            if (var0.isEmpty()) {
+                this.minecraft.getNarrator().say(NO_PENDING_INVITES_TEXT);
+            }
+
         }, this.screenExecutor);
         this.addRenderableWidget(this.pendingInvitationSelectionList);
         this.acceptButton = this.addRenderableWidget(Button.builder(ACCEPT_INVITE, param0 -> {

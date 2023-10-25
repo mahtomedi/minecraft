@@ -718,6 +718,8 @@ public class ServerGamePacketListenerImpl
                 var3.setPool(ResourceKey.create(Registries.TEMPLATE_POOL, param0.getPool()));
                 var3.setFinalState(param0.getFinalState());
                 var3.setJoint(param0.getJoint());
+                var3.setPlacementPriority(param0.getPlacementPriority());
+                var3.setSelectionPriority(param0.getSelectionPriority());
                 var3.setChanged();
                 this.player.level().sendBlockUpdated(var0, var1, var1, 3);
             }
@@ -911,22 +913,27 @@ public class ServerGamePacketListenerImpl
                             }
 
                         } else {
-                            ++this.receivedMovePacketCount;
-                            int var14 = this.receivedMovePacketCount - this.knownMovePacketCount;
-                            if (var14 > 5) {
-                                LOGGER.debug("{} is sending move packets too frequently ({} packets since last tick)", this.player.getName().getString(), var14);
-                                var14 = 1;
-                            }
+                            if (var0.tickRateManager().runsNormally()) {
+                                ++this.receivedMovePacketCount;
+                                int var14 = this.receivedMovePacketCount - this.knownMovePacketCount;
+                                if (var14 > 5) {
+                                    LOGGER.debug(
+                                        "{} is sending move packets too frequently ({} packets since last tick)", this.player.getName().getString(), var14
+                                    );
+                                    var14 = 1;
+                                }
 
-                            if (!this.player.isChangingDimension()
-                                && (!this.player.level().getGameRules().getBoolean(GameRules.RULE_DISABLE_ELYTRA_MOVEMENT_CHECK) || !this.player.isFallFlying())
-                                )
-                             {
-                                float var15 = this.player.isFallFlying() ? 300.0F : 100.0F;
-                                if (var13 - var12 > (double)(var15 * (float)var14) && !this.isSingleplayerOwner()) {
-                                    LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var9, var10, var11);
-                                    this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
-                                    return;
+                                if (!this.player.isChangingDimension()
+                                    && (
+                                        !this.player.level().getGameRules().getBoolean(GameRules.RULE_DISABLE_ELYTRA_MOVEMENT_CHECK)
+                                            || !this.player.isFallFlying()
+                                    )) {
+                                    float var15 = this.player.isFallFlying() ? 300.0F : 100.0F;
+                                    if (var13 - var12 > (double)(var15 * (float)var14) && !this.isSingleplayerOwner()) {
+                                        LOGGER.warn("{} moved too quickly! {},{},{}", this.player.getName().getString(), var9, var10, var11);
+                                        this.teleport(this.player.getX(), this.player.getY(), this.player.getZ(), this.player.getYRot(), this.player.getXRot());
+                                        return;
+                                    }
                                 }
                             }
 

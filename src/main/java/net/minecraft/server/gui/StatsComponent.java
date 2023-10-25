@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.Timer;
 import net.minecraft.Util;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.TimeUtil;
 
 public class StatsComponent extends JComponent {
     private static final DecimalFormat DECIMAL_FORMAT = Util.make(
@@ -38,19 +39,11 @@ public class StatsComponent extends JComponent {
             + " mb ("
             + Runtime.getRuntime().freeMemory() * 100L / Runtime.getRuntime().maxMemory()
             + "% free)";
-        this.msgs[1] = "Avg tick: " + DECIMAL_FORMAT.format(this.getAverage(this.server.tickTimes) * 1.0E-6) + " ms";
+        this.msgs[1] = "Avg tick: "
+            + DECIMAL_FORMAT.format((double)this.server.getAverageTickTimeNanos() / (double)TimeUtil.NANOSECONDS_PER_MILLISECOND)
+            + " ms";
         this.values[this.vp++ & 0xFF] = (int)(var0 * 100L / Runtime.getRuntime().maxMemory());
         this.repaint();
-    }
-
-    private double getAverage(long[] param0) {
-        long var0 = 0L;
-
-        for(long var1 : param0) {
-            var0 += var1;
-        }
-
-        return (double)var0 / (double)param0.length;
     }
 
     @Override

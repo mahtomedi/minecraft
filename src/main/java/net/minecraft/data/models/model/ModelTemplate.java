@@ -25,6 +25,10 @@ public class ModelTemplate {
         this.requiredSlots = ImmutableSet.copyOf(param2);
     }
 
+    public ResourceLocation getDefaultModelLocation(Block param0) {
+        return ModelLocationUtils.getModelLocation(param0, this.suffix.orElse(""));
+    }
+
     public ResourceLocation create(Block param0, TextureMapping param1, BiConsumer<ResourceLocation, Supplier<JsonElement>> param2) {
         return this.create(ModelLocationUtils.getModelLocation(param0, this.suffix.orElse("")), param1, param2);
     }

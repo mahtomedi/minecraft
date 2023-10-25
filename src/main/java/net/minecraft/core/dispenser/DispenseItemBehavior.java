@@ -83,7 +83,7 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.ARROW, new AbstractProjectileDispenseBehavior() {
             @Override
             protected Projectile getProjectile(Level param0, Position param1, ItemStack param2) {
-                Arrow var0 = new Arrow(param0, param1.x(), param1.y(), param1.z());
+                Arrow var0 = new Arrow(param0, param1.x(), param1.y(), param1.z(), param2.copyWithCount(1));
                 var0.pickup = AbstractArrow.Pickup.ALLOWED;
                 return var0;
             }
@@ -91,7 +91,7 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.TIPPED_ARROW, new AbstractProjectileDispenseBehavior() {
             @Override
             protected Projectile getProjectile(Level param0, Position param1, ItemStack param2) {
-                Arrow var0 = new Arrow(param0, param1.x(), param1.y(), param1.z());
+                Arrow var0 = new Arrow(param0, param1.x(), param1.y(), param1.z(), param2.copyWithCount(1));
                 var0.setEffectsFromItem(param2);
                 var0.pickup = AbstractArrow.Pickup.ALLOWED;
                 return var0;
@@ -100,7 +100,7 @@ public interface DispenseItemBehavior {
         DispenserBlock.registerBehavior(Items.SPECTRAL_ARROW, new AbstractProjectileDispenseBehavior() {
             @Override
             protected Projectile getProjectile(Level param0, Position param1, ItemStack param2) {
-                AbstractArrow var0 = new SpectralArrow(param0, param1.x(), param1.y(), param1.z());
+                AbstractArrow var0 = new SpectralArrow(param0, param1.x(), param1.y(), param1.z(), param2.copyWithCount(1));
                 var0.pickup = AbstractArrow.Pickup.ALLOWED;
                 return var0;
             }

@@ -26,20 +26,21 @@ public class Arrow extends AbstractArrow {
     private static final int NO_EFFECT_COLOR = -1;
     private static final EntityDataAccessor<Integer> ID_EFFECT_COLOR = SynchedEntityData.defineId(Arrow.class, EntityDataSerializers.INT);
     private static final byte EVENT_POTION_PUFF = 0;
+    private static final ItemStack DEFAULT_ARROW_STACK = new ItemStack(Items.ARROW);
     private Potion potion = Potions.EMPTY;
     private final Set<MobEffectInstance> effects = Sets.newHashSet();
     private boolean fixedColor;
 
     public Arrow(EntityType<? extends Arrow> param0, Level param1) {
-        super(param0, param1);
+        super(param0, param1, DEFAULT_ARROW_STACK);
     }
 
-    public Arrow(Level param0, double param1, double param2, double param3) {
-        super(EntityType.ARROW, param1, param2, param3, param0);
+    public Arrow(Level param0, double param1, double param2, double param3, ItemStack param4) {
+        super(EntityType.ARROW, param1, param2, param3, param0, param4);
     }
 
-    public Arrow(Level param0, LivingEntity param1) {
-        super(EntityType.ARROW, param1, param0);
+    public Arrow(Level param0, LivingEntity param1, ItemStack param2) {
+        super(EntityType.ARROW, param1, param0, param2);
     }
 
     public void setEffectsFromItem(ItemStack param0) {
@@ -201,10 +202,10 @@ public class Arrow extends AbstractArrow {
 
     @Override
     protected ItemStack getPickupItem() {
+        ItemStack var0 = super.getPickupItem();
         if (this.effects.isEmpty() && this.potion == Potions.EMPTY) {
-            return new ItemStack(Items.ARROW);
+            return var0;
         } else {
-            ItemStack var0 = new ItemStack(Items.TIPPED_ARROW);
             PotionUtils.setPotion(var0, this.potion);
             PotionUtils.setCustomEffects(var0, this.effects);
             if (this.fixedColor) {

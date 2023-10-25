@@ -9,9 +9,11 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -118,6 +120,8 @@ public class BlockModelGenerators {
             param0x.put(TextureSlot.END, TextureMapping.getBlockTexture(Blocks.RED_SANDSTONE, "_top"));
             param0x.put(TextureSlot.SIDE, TextureMapping.getBlockTexture(Blocks.CHISELED_RED_SANDSTONE));
         }))
+        .put(Blocks.CHISELED_TUFF_BRICKS, TexturedModel.COLUMN_WITH_WALL.get(Blocks.CHISELED_TUFF_BRICKS))
+        .put(Blocks.CHISELED_TUFF, TexturedModel.COLUMN_WITH_WALL.get(Blocks.CHISELED_TUFF))
         .build();
     static final Map<BlockFamily.Variant, BiConsumer<BlockModelGenerators.BlockFamilyProvider, Block>> SHAPE_CONSUMERS = ImmutableMap.<BlockFamily.Variant, BiConsumer<BlockModelGenerators.BlockFamilyProvider, Block>>builder(
             
@@ -1279,6 +1283,19 @@ public class BlockModelGenerators {
         this.blockStateOutput.accept(createDoor(param0, var1, var2, var3, var4, var5, var6, var7, var8));
     }
 
+    private void copyDoorModel(Block param0, Block param1) {
+        ResourceLocation var0 = ModelTemplates.DOOR_BOTTOM_LEFT.getDefaultModelLocation(param0);
+        ResourceLocation var1 = ModelTemplates.DOOR_BOTTOM_LEFT_OPEN.getDefaultModelLocation(param0);
+        ResourceLocation var2 = ModelTemplates.DOOR_BOTTOM_RIGHT.getDefaultModelLocation(param0);
+        ResourceLocation var3 = ModelTemplates.DOOR_BOTTOM_RIGHT_OPEN.getDefaultModelLocation(param0);
+        ResourceLocation var4 = ModelTemplates.DOOR_TOP_LEFT.getDefaultModelLocation(param0);
+        ResourceLocation var5 = ModelTemplates.DOOR_TOP_LEFT_OPEN.getDefaultModelLocation(param0);
+        ResourceLocation var6 = ModelTemplates.DOOR_TOP_RIGHT.getDefaultModelLocation(param0);
+        ResourceLocation var7 = ModelTemplates.DOOR_TOP_RIGHT_OPEN.getDefaultModelLocation(param0);
+        this.delegateItemModel(param1, ModelLocationUtils.getModelLocation(param0.asItem()));
+        this.blockStateOutput.accept(createDoor(param1, var0, var1, var2, var3, var4, var5, var6, var7));
+    }
+
     void createOrientableTrapdoor(Block param0) {
         TextureMapping var0 = TextureMapping.defaultTexture(param0);
         ResourceLocation var1 = ModelTemplates.ORIENTABLE_TRAPDOOR_TOP.create(param0, var0, this.modelOutput);
@@ -1295,6 +1312,14 @@ public class BlockModelGenerators {
         ResourceLocation var3 = ModelTemplates.TRAPDOOR_OPEN.create(param0, var0, this.modelOutput);
         this.blockStateOutput.accept(createTrapdoor(param0, var1, var2, var3));
         this.delegateItemModel(param0, var2);
+    }
+
+    private void copyTrapdoorModel(Block param0, Block param1) {
+        ResourceLocation var0 = ModelTemplates.TRAPDOOR_TOP.getDefaultModelLocation(param0);
+        ResourceLocation var1 = ModelTemplates.TRAPDOOR_BOTTOM.getDefaultModelLocation(param0);
+        ResourceLocation var2 = ModelTemplates.TRAPDOOR_OPEN.getDefaultModelLocation(param0);
+        this.delegateItemModel(param1, ModelLocationUtils.getModelLocation(param0.asItem()));
+        this.blockStateOutput.accept(createTrapdoor(param1, var0, var1, var2));
     }
 
     private void createBigDripLeafBlock() {
@@ -2739,6 +2764,37 @@ public class BlockModelGenerators {
                         Variant.variant().with(VariantProperties.MODEL, TextureMapping.getBlockTexture(Blocks.COMPOSTER, "_contents_ready"))
                     )
             );
+    }
+
+    private void createCopperBulb(Block param0) {
+        ResourceLocation var0 = ModelTemplates.CUBE_ALL.create(param0, TextureMapping.cube(param0), this.modelOutput);
+        ResourceLocation var1 = this.createSuffixedVariant(param0, "_powered", ModelTemplates.CUBE_ALL, TextureMapping::cube);
+        ResourceLocation var2 = this.createSuffixedVariant(param0, "_lit", ModelTemplates.CUBE_ALL, TextureMapping::cube);
+        ResourceLocation var3 = this.createSuffixedVariant(param0, "_lit_powered", ModelTemplates.CUBE_ALL, TextureMapping::cube);
+        this.blockStateOutput.accept(this.createCopperBulb(param0, var0, var2, var1, var3));
+    }
+
+    private BlockStateGenerator createCopperBulb(
+        Block param0, ResourceLocation param1, ResourceLocation param2, ResourceLocation param3, ResourceLocation param4
+    ) {
+        return MultiVariantGenerator.multiVariant(param0)
+            .with(
+                PropertyDispatch.properties(BlockStateProperties.LIT, BlockStateProperties.POWERED)
+                    .generate(
+                        (param4x, param5) -> param4x
+                                ? Variant.variant().with(VariantProperties.MODEL, param5 ? param4 : param2)
+                                : Variant.variant().with(VariantProperties.MODEL, param5 ? param3 : param1)
+                    )
+            );
+    }
+
+    private void copyCopperBulbModel(Block param0, Block param1) {
+        ResourceLocation var0 = ModelLocationUtils.getModelLocation(param0);
+        ResourceLocation var1 = ModelLocationUtils.getModelLocation(param0, "_powered");
+        ResourceLocation var2 = ModelLocationUtils.getModelLocation(param0, "_lit");
+        ResourceLocation var3 = ModelLocationUtils.getModelLocation(param0, "_lit_powered");
+        this.delegateItemModel(param1, ModelLocationUtils.getModelLocation(param0.asItem()));
+        this.blockStateOutput.accept(this.createCopperBulb(param1, var0, var2, var1, var3));
     }
 
     private void createAmethystCluster(Block param0) {
@@ -4269,20 +4325,32 @@ public class BlockModelGenerators {
         BlockFamilies.getAllFamilies().filter(BlockFamily::shouldGenerateModel).forEach(param0 -> this.family(param0.getBaseBlock()).generateFor(param0));
         this.family(Blocks.CUT_COPPER)
             .generateFor(BlockFamilies.CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_CUT_COPPER)
+            .donateModelTo(Blocks.CUT_COPPER, Blocks.WAXED_CUT_COPPER)
+            .donateModelTo(Blocks.CHISELED_COPPER, Blocks.WAXED_CHISELED_COPPER)
             .generateFor(BlockFamilies.WAXED_CUT_COPPER);
         this.family(Blocks.EXPOSED_CUT_COPPER)
             .generateFor(BlockFamilies.EXPOSED_CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_EXPOSED_CUT_COPPER)
+            .donateModelTo(Blocks.EXPOSED_CUT_COPPER, Blocks.WAXED_EXPOSED_CUT_COPPER)
+            .donateModelTo(Blocks.EXPOSED_CHISELED_COPPER, Blocks.WAXED_EXPOSED_CHISELED_COPPER)
             .generateFor(BlockFamilies.WAXED_EXPOSED_CUT_COPPER);
         this.family(Blocks.WEATHERED_CUT_COPPER)
             .generateFor(BlockFamilies.WEATHERED_CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_WEATHERED_CUT_COPPER)
+            .donateModelTo(Blocks.WEATHERED_CUT_COPPER, Blocks.WAXED_WEATHERED_CUT_COPPER)
+            .donateModelTo(Blocks.WEATHERED_CHISELED_COPPER, Blocks.WAXED_WEATHERED_CHISELED_COPPER)
             .generateFor(BlockFamilies.WAXED_WEATHERED_CUT_COPPER);
         this.family(Blocks.OXIDIZED_CUT_COPPER)
             .generateFor(BlockFamilies.OXIDIZED_CUT_COPPER)
-            .fullBlockCopies(Blocks.WAXED_OXIDIZED_CUT_COPPER)
+            .donateModelTo(Blocks.OXIDIZED_CUT_COPPER, Blocks.WAXED_OXIDIZED_CUT_COPPER)
+            .donateModelTo(Blocks.OXIDIZED_CHISELED_COPPER, Blocks.WAXED_OXIDIZED_CHISELED_COPPER)
             .generateFor(BlockFamilies.WAXED_OXIDIZED_CUT_COPPER);
+        this.createCopperBulb(Blocks.COPPER_BULB);
+        this.createCopperBulb(Blocks.EXPOSED_COPPER_BULB);
+        this.createCopperBulb(Blocks.WEATHERED_COPPER_BULB);
+        this.createCopperBulb(Blocks.OXIDIZED_COPPER_BULB);
+        this.copyCopperBulbModel(Blocks.COPPER_BULB, Blocks.WAXED_COPPER_BULB);
+        this.copyCopperBulbModel(Blocks.EXPOSED_COPPER_BULB, Blocks.WAXED_EXPOSED_COPPER_BULB);
+        this.copyCopperBulbModel(Blocks.WEATHERED_COPPER_BULB, Blocks.WAXED_WEATHERED_COPPER_BULB);
+        this.copyCopperBulbModel(Blocks.OXIDIZED_COPPER_BULB, Blocks.WAXED_OXIDIZED_COPPER_BULB);
         this.createNonTemplateModelBlock(Blocks.AIR);
         this.createNonTemplateModelBlock(Blocks.CAVE_AIR, Blocks.AIR);
         this.createNonTemplateModelBlock(Blocks.VOID_AIR, Blocks.AIR);
@@ -4393,7 +4461,6 @@ public class BlockModelGenerators {
         this.createTrivialCube(Blocks.AMETHYST_BLOCK);
         this.createTrivialCube(Blocks.BUDDING_AMETHYST);
         this.createTrivialCube(Blocks.CALCITE);
-        this.createTrivialCube(Blocks.TUFF);
         this.createTrivialCube(Blocks.DRIPSTONE_BLOCK);
         this.createTrivialCube(Blocks.RAW_IRON_BLOCK);
         this.createTrivialCube(Blocks.RAW_COPPER_BLOCK);
@@ -4410,6 +4477,30 @@ public class BlockModelGenerators {
         this.copyModel(Blocks.EXPOSED_COPPER, Blocks.WAXED_EXPOSED_COPPER);
         this.copyModel(Blocks.WEATHERED_COPPER, Blocks.WAXED_WEATHERED_COPPER);
         this.copyModel(Blocks.OXIDIZED_COPPER, Blocks.WAXED_OXIDIZED_COPPER);
+        this.createDoor(Blocks.COPPER_DOOR);
+        this.createDoor(Blocks.EXPOSED_COPPER_DOOR);
+        this.createDoor(Blocks.WEATHERED_COPPER_DOOR);
+        this.createDoor(Blocks.OXIDIZED_COPPER_DOOR);
+        this.copyDoorModel(Blocks.COPPER_DOOR, Blocks.WAXED_COPPER_DOOR);
+        this.copyDoorModel(Blocks.EXPOSED_COPPER_DOOR, Blocks.WAXED_EXPOSED_COPPER_DOOR);
+        this.copyDoorModel(Blocks.WEATHERED_COPPER_DOOR, Blocks.WAXED_WEATHERED_COPPER_DOOR);
+        this.copyDoorModel(Blocks.OXIDIZED_COPPER_DOOR, Blocks.WAXED_OXIDIZED_COPPER_DOOR);
+        this.createTrapdoor(Blocks.COPPER_TRAPDOOR);
+        this.createTrapdoor(Blocks.EXPOSED_COPPER_TRAPDOOR);
+        this.createTrapdoor(Blocks.WEATHERED_COPPER_TRAPDOOR);
+        this.createTrapdoor(Blocks.OXIDIZED_COPPER_TRAPDOOR);
+        this.copyTrapdoorModel(Blocks.COPPER_TRAPDOOR, Blocks.WAXED_COPPER_TRAPDOOR);
+        this.copyTrapdoorModel(Blocks.EXPOSED_COPPER_TRAPDOOR, Blocks.WAXED_EXPOSED_COPPER_TRAPDOOR);
+        this.copyTrapdoorModel(Blocks.WEATHERED_COPPER_TRAPDOOR, Blocks.WAXED_WEATHERED_COPPER_TRAPDOOR);
+        this.copyTrapdoorModel(Blocks.OXIDIZED_COPPER_TRAPDOOR, Blocks.WAXED_OXIDIZED_COPPER_TRAPDOOR);
+        this.createTrivialCube(Blocks.COPPER_GRATE);
+        this.createTrivialCube(Blocks.EXPOSED_COPPER_GRATE);
+        this.createTrivialCube(Blocks.WEATHERED_COPPER_GRATE);
+        this.createTrivialCube(Blocks.OXIDIZED_COPPER_GRATE);
+        this.copyModel(Blocks.COPPER_GRATE, Blocks.WAXED_COPPER_GRATE);
+        this.copyModel(Blocks.EXPOSED_COPPER_GRATE, Blocks.WAXED_EXPOSED_COPPER_GRATE);
+        this.copyModel(Blocks.WEATHERED_COPPER_GRATE, Blocks.WAXED_WEATHERED_COPPER_GRATE);
+        this.copyModel(Blocks.OXIDIZED_COPPER_GRATE, Blocks.WAXED_OXIDIZED_COPPER_GRATE);
         this.createWeightedPressurePlate(Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.GOLD_BLOCK);
         this.createWeightedPressurePlate(Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.IRON_BLOCK);
         this.createAmethystClusters();
@@ -5022,6 +5113,7 @@ public class BlockModelGenerators {
         private BlockFamily family;
         @Nullable
         private ResourceLocation fullBlock;
+        private final Set<Block> skipGeneratingModelsFor = new HashSet<>();
 
         public BlockFamilyProvider(TextureMapping param0) {
             this.mapping = param0;
@@ -5043,17 +5135,12 @@ public class BlockModelGenerators {
             return this;
         }
 
-        public BlockModelGenerators.BlockFamilyProvider fullBlockCopies(Block... param0) {
-            if (this.fullBlock == null) {
-                throw new IllegalStateException("Full block not generated yet");
-            } else {
-                for(Block var0 : param0) {
-                    BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(var0, this.fullBlock));
-                    BlockModelGenerators.this.delegateItemModel(var0, this.fullBlock);
-                }
-
-                return this;
-            }
+        public BlockModelGenerators.BlockFamilyProvider donateModelTo(Block param0, Block param1) {
+            ResourceLocation var0 = ModelLocationUtils.getModelLocation(param0);
+            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(param1, var0));
+            BlockModelGenerators.this.delegateItemModel(param1, var0);
+            this.skipGeneratingModelsFor.add(param1);
+            return this;
         }
 
         public BlockModelGenerators.BlockFamilyProvider button(Block param0) {
@@ -5160,8 +5247,8 @@ public class BlockModelGenerators {
 
         private BlockModelGenerators.BlockFamilyProvider fullBlockVariant(Block param0) {
             TexturedModel var0 = BlockModelGenerators.this.texturedModels.getOrDefault(param0, TexturedModel.CUBE.get(param0));
-            BlockModelGenerators.this.blockStateOutput
-                .accept(BlockModelGenerators.createSimpleBlock(param0, var0.create(param0, BlockModelGenerators.this.modelOutput)));
+            ResourceLocation var1 = var0.create(param0, BlockModelGenerators.this.modelOutput);
+            BlockModelGenerators.this.blockStateOutput.accept(BlockModelGenerators.createSimpleBlock(param0, var1));
             return this;
         }
 
@@ -5186,11 +5273,13 @@ public class BlockModelGenerators {
         public BlockModelGenerators.BlockFamilyProvider generateFor(BlockFamily param0) {
             this.family = param0;
             param0.getVariants().forEach((param0x, param1) -> {
-                BiConsumer<BlockModelGenerators.BlockFamilyProvider, Block> var0 = BlockModelGenerators.SHAPE_CONSUMERS.get(param0x);
-                if (var0 != null) {
-                    var0.accept(this, param1);
-                }
+                if (!this.skipGeneratingModelsFor.contains(param1)) {
+                    BiConsumer<BlockModelGenerators.BlockFamilyProvider, Block> var0 = BlockModelGenerators.SHAPE_CONSUMERS.get(param0x);
+                    if (var0 != null) {
+                        var0.accept(this, param1);
+                    }
 
+                }
             });
             return this;
         }

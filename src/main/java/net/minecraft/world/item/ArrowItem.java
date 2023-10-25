@@ -11,7 +11,7 @@ public class ArrowItem extends Item {
     }
 
     public AbstractArrow createArrow(Level param0, ItemStack param1, LivingEntity param2) {
-        Arrow var0 = new Arrow(param0, param2);
+        Arrow var0 = new Arrow(param0, param2, param1.copyWithCount(1));
         var0.setEffectsFromItem(param1);
         return var0;
     }

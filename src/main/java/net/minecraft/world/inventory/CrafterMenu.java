@@ -9,12 +9,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CrafterBlock;
 
 public class CrafterMenu extends AbstractContainerMenu implements ContainerListener {
-    public final ResultContainer resultSlots = new ResultContainer();
     protected static final int SLOT_COUNT = 9;
     private static final int INV_SLOT_START = 9;
     private static final int INV_SLOT_END = 36;
     private static final int USE_ROW_SLOT_START = 36;
     private static final int USE_ROW_SLOT_END = 45;
+    private final ResultContainer resultContainer = new ResultContainer();
     private final ContainerData containerData;
     private final Player player;
     private final CraftingContainer container;
@@ -56,7 +56,7 @@ public class CrafterMenu extends AbstractContainerMenu implements ContainerListe
             this.addSlot(new Slot(param0, var5, 8 + var5 * 18, 142));
         }
 
-        this.addSlot(new NonInteractiveResultSlot(this.resultSlots, 0, 134, 35));
+        this.addSlot(new NonInteractiveResultSlot(this.resultContainer, 0, 134, 35));
         this.addDataSlots(this.containerData);
         this.refreshRecipeResult();
     }
@@ -122,7 +122,7 @@ public class CrafterMenu extends AbstractContainerMenu implements ContainerListe
             ItemStack var2x = CrafterBlock.getPotentialResults(var1x, this.container)
                 .map(param1 -> param1.assemble(this.container, var1.registryAccess()))
                 .orElse(ItemStack.EMPTY);
-            this.resultSlots.setItem(0, var2x);
+            this.resultContainer.setItem(0, var2x);
         }
 
     }

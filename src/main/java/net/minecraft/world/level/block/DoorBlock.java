@@ -52,7 +52,7 @@ public class DoorBlock extends Block {
     private final BlockSetType type;
 
     @Override
-    public MapCodec<DoorBlock> codec() {
+    public MapCodec<? extends DoorBlock> codec() {
         return CODEC;
     }
 
@@ -79,17 +79,13 @@ public class DoorBlock extends Block {
         Direction var0 = param0.getValue(FACING);
         boolean var1 = !param0.getValue(OPEN);
         boolean var2 = param0.getValue(HINGE) == DoorHingeSide.RIGHT;
-        switch(var0) {
-            case EAST:
-            default:
-                return var1 ? EAST_AABB : (var2 ? NORTH_AABB : SOUTH_AABB);
-            case SOUTH:
-                return var1 ? SOUTH_AABB : (var2 ? EAST_AABB : WEST_AABB);
-            case WEST:
-                return var1 ? WEST_AABB : (var2 ? SOUTH_AABB : NORTH_AABB);
-            case NORTH:
-                return var1 ? NORTH_AABB : (var2 ? WEST_AABB : EAST_AABB);
-        }
+
+        return switch(var0) {
+            case SOUTH -> var1 ? SOUTH_AABB : (var2 ? EAST_AABB : WEST_AABB);
+            case WEST -> var1 ? WEST_AABB : (var2 ? SOUTH_AABB : NORTH_AABB);
+            case NORTH -> var1 ? NORTH_AABB : (var2 ? WEST_AABB : EAST_AABB);
+            default -> var1 ? EAST_AABB : (var2 ? NORTH_AABB : SOUTH_AABB);
+        };
     }
 
     @Override
@@ -100,12 +96,7 @@ public class DoorBlock extends Block {
                 ? Blocks.AIR.defaultBlockState()
                 : super.updateShape(param0, param1, param2, param3, param4, param5);
         } else {
-            return param2.is(this) && param2.getValue(HALF) != var0
-                ? param0.setValue(FACING, param2.getValue(FACING))
-                    .setValue(OPEN, param2.getValue(OPEN))
-                    .setValue(HINGE, param2.getValue(HINGE))
-                    .setValue(POWERED, param2.getValue(POWERED))
-                : Blocks.AIR.defaultBlockState();
+            return param2.getBlock() instanceof DoorBlock && param2.getValue(HALF) != var0 ? param2.setValue(HALF, var0) : Blocks.AIR.defaultBlockState();
         }
     }
 
@@ -120,16 +111,10 @@ public class DoorBlock extends Block {
 
     @Override
     public boolean isPathfindable(BlockState param0, BlockGetter param1, BlockPos param2, PathComputationType param3) {
-        switch(param3) {
-            case LAND:
-                return param0.getValue(OPEN);
-            case WATER:
-                return false;
-            case AIR:
-                return param0.getValue(OPEN);
-            default:
-                return false;
-        }
+        return switch(param3) {
+            case LAND, AIR -> param0.getValue(OPEN);
+            case WATER -> false;
+        };
     }
 
     @Nullable

@@ -10,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -32,7 +33,7 @@ public class ArrowLayer<T extends LivingEntity, M extends PlayerModel<T>> extend
         PoseStack param0, MultiBufferSource param1, int param2, Entity param3, float param4, float param5, float param6, float param7
     ) {
         float var0 = Mth.sqrt(param4 * param4 + param6 * param6);
-        Arrow var1 = new Arrow(param3.level(), param3.getX(), param3.getY(), param3.getZ());
+        Arrow var1 = new Arrow(param3.level(), param3.getX(), param3.getY(), param3.getZ(), ItemStack.EMPTY);
         var1.setYRot((float)(Math.atan2((double)param4, (double)param6) * 180.0F / (float)Math.PI));
         var1.setXRot((float)(Math.atan2((double)param5, (double)var0) * 180.0F / (float)Math.PI));
         var1.yRotO = var1.getYRot();

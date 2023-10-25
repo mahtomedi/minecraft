@@ -14,6 +14,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.Util;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.world.level.GameRules;
 import org.slf4j.Logger;
 
@@ -22,25 +23,25 @@ public class ServerWatchdog implements Runnable {
     private static final long MAX_SHUTDOWN_TIME = 10000L;
     private static final int SHUTDOWN_STATUS = 1;
     private final DedicatedServer server;
-    private final long maxTickTime;
+    private final long maxTickTimeNanos;
 
     public ServerWatchdog(DedicatedServer param0) {
         this.server = param0;
-        this.maxTickTime = param0.getMaxTickLength();
+        this.maxTickTimeNanos = param0.getMaxTickLength() * TimeUtil.NANOSECONDS_PER_MILLISECOND;
     }
 
     @Override
     public void run() {
         while(this.server.isRunning()) {
             long var0 = this.server.getNextTickTime();
-            long var1 = Util.getMillis();
+            long var1 = Util.getNanos();
             long var2 = var1 - var0;
-            if (var2 > this.maxTickTime) {
+            if (var2 > this.maxTickTimeNanos) {
                 LOGGER.error(
                     LogUtils.FATAL_MARKER,
                     "A single server tick took {} seconds (should be max {})",
-                    String.format(Locale.ROOT, "%.2f", (float)var2 / 1000.0F),
-                    String.format(Locale.ROOT, "%.2f", 0.05F)
+                    String.format(Locale.ROOT, "%.2f", (float)var2 / (float)TimeUtil.NANOSECONDS_PER_SECOND),
+                    String.format(Locale.ROOT, "%.2f", this.server.tickRateManager().millisecondsPerTick() / (float)TimeUtil.MILLISECONDS_PER_SECOND)
                 );
                 LOGGER.error(LogUtils.FATAL_MARKER, "Considering it to be crashed, server will forcibly shutdown.");
                 ThreadMXBean var3 = ManagementFactory.getThreadMXBean();
@@ -83,7 +84,7 @@ public class ServerWatchdog implements Runnable {
             }
 
             try {
-                Thread.sleep(var0 + this.maxTickTime - var1);
+                Thread.sleep((var0 + this.maxTickTimeNanos - var1) / TimeUtil.NANOSECONDS_PER_MILLISECOND);
             } catch (InterruptedException var15) {
             }
         }

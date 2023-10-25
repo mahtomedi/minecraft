@@ -137,6 +137,12 @@ public class GameTestInfo {
     }
 
     @Nullable
+    public BlockPos getStructureOrigin() {
+        StructureBlockEntity var0 = this.getStructureBlockEntity();
+        return var0 == null ? null : StructureUtils.getStructureOrigin(var0);
+    }
+
+    @Nullable
     public Vec3i getStructureSize() {
         StructureBlockEntity var0 = this.getStructureBlockEntity();
         return var0 == null ? null : var0.getStructureSize();
@@ -214,8 +220,8 @@ public class GameTestInfo {
         this.listeners.add(param0);
     }
 
-    public void spawnStructure(BlockPos param0, int param1) {
-        this.structureBlockEntity = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), param1, this.level, false);
+    public void spawnStructure(BlockPos param0) {
+        this.structureBlockEntity = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), this.level, false);
         this.structureBlockPos = this.structureBlockEntity.getBlockPos();
         this.structureBlockEntity.setStructureName(this.getTestName());
         StructureUtils.addCommandBlockAndButtonToStartTest(this.structureBlockPos, new BlockPos(1, 0, -1), this.getRotation(), this.level);
@@ -227,7 +233,7 @@ public class GameTestInfo {
             throw new IllegalStateException("Expected structure to be initialized, but it was null");
         } else {
             BoundingBox var0 = StructureUtils.getStructureBoundingBox(this.structureBlockEntity);
-            StructureUtils.clearSpaceForStructure(var0, this.structureBlockPos.getY(), this.level);
+            StructureUtils.clearSpaceForStructure(var0, this.level);
         }
     }
 

@@ -351,13 +351,5 @@ public class RealmsSlotOptionsScreen extends RealmsScreen {
                 )
             );
         }
-
-        @Override
-        public void onClick(double param0, double param1) {
-        }
-
-        @Override
-        public void onRelease(double param0, double param1) {
-        }
     }
 }

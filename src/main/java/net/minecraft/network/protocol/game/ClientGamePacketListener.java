@@ -126,6 +126,10 @@ public interface ClientGamePacketListener extends ClientPongPacketListener, Clie
 
     void handleTeleportEntity(ClientboundTeleportEntityPacket var1);
 
+    void handleTickingState(ClientboundTickingStatePacket var1);
+
+    void handleTickingStep(ClientboundTickingStepPacket var1);
+
     void handleUpdateAttributes(ClientboundUpdateAttributesPacket var1);
 
     void handleUpdateMobEffect(ClientboundUpdateMobEffectPacket var1);

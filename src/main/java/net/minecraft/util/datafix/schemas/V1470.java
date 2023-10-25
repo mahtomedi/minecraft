@@ -27,7 +27,11 @@ public class V1470 extends NamespacedSchema {
         registerMob(param0, var0, "minecraft:phantom");
         registerMob(param0, var0, "minecraft:dolphin");
         registerMob(param0, var0, "minecraft:drowned");
-        param0.register(var0, "minecraft:trident", param1 -> DSL.optionalFields("inBlockState", References.BLOCK_STATE.in(param0)));
+        param0.register(
+            var0,
+            "minecraft:trident",
+            param1 -> DSL.optionalFields("inBlockState", References.BLOCK_STATE.in(param0), "Trident", References.ITEM_STACK.in(param0))
+        );
         return var0;
     }
 }

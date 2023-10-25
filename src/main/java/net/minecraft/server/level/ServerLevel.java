@@ -79,6 +79,7 @@ import net.minecraft.util.valueproviders.IntProvider;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.RandomSequences;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -296,15 +297,20 @@ public class ServerLevel extends Level implements WorldGenLevel {
     public void tick(BooleanSupplier param0) {
         ProfilerFiller var0 = this.getProfiler();
         this.handlingTick = true;
-        var0.push("world border");
-        this.getWorldBorder().tick();
-        var0.popPush("weather");
-        this.advanceWeatherCycle();
-        int var1 = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
-        if (this.sleepStatus.areEnoughSleeping(var1) && this.sleepStatus.areEnoughDeepSleeping(var1, this.players)) {
+        TickRateManager var1 = this.tickRateManager();
+        boolean var2 = var1.runsNormally();
+        if (var2) {
+            var0.push("world border");
+            this.getWorldBorder().tick();
+            var0.popPush("weather");
+            this.advanceWeatherCycle();
+        }
+
+        int var3 = this.getGameRules().getInt(GameRules.RULE_PLAYERS_SLEEPING_PERCENTAGE);
+        if (this.sleepStatus.areEnoughSleeping(var3) && this.sleepStatus.areEnoughDeepSleeping(var3, this.players)) {
             if (this.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
-                long var2 = this.levelData.getDayTime() + 24000L;
-                this.setDayTime(var2 - var2 % 24000L);
+                long var4 = this.levelData.getDayTime() + 24000L;
+                this.setDayTime(var4 - var4 % 24000L);
             }
 
             this.wakeUpAllPlayers();
@@ -314,31 +320,40 @@ public class ServerLevel extends Level implements WorldGenLevel {
         }
 
         this.updateSkyBrightness();
-        this.tickTime();
+        if (var2) {
+            this.tickTime();
+        }
+
         var0.popPush("tickPending");
-        if (!this.isDebug()) {
-            long var3 = this.getGameTime();
+        if (!this.isDebug() && var2) {
+            long var5 = this.getGameTime();
             var0.push("blockTicks");
-            this.blockTicks.tick(var3, 65536, this::tickBlock);
+            this.blockTicks.tick(var5, 65536, this::tickBlock);
             var0.popPush("fluidTicks");
-            this.fluidTicks.tick(var3, 65536, this::tickFluid);
+            this.fluidTicks.tick(var5, 65536, this::tickFluid);
             var0.pop();
         }
 
         var0.popPush("raid");
-        this.raids.tick();
+        if (var2) {
+            this.raids.tick();
+        }
+
         var0.popPush("chunkSource");
         this.getChunkSource().tick(param0, true);
         var0.popPush("blockEvents");
-        this.runBlockEvents();
+        if (var2) {
+            this.runBlockEvents();
+        }
+
         this.handlingTick = false;
         var0.pop();
-        boolean var4 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
-        if (var4) {
+        boolean var6 = !this.players.isEmpty() || !this.getForcedChunks().isEmpty();
+        if (var6) {
             this.resetEmptyTime();
         }
 
-        if (var4 || this.emptyTime++ < 300) {
+        if (var6 || this.emptyTime++ < 300) {
             var0.push("entities");
             if (this.dragonFight != null) {
                 var0.push("dragonFight");
@@ -346,26 +361,26 @@ public class ServerLevel extends Level implements WorldGenLevel {
                 var0.pop();
             }
 
-            this.entityTickList.forEach(param1 -> {
-                if (!param1.isRemoved()) {
-                    if (this.shouldDiscardEntity(param1)) {
-                        param1.discard();
-                    } else {
+            this.entityTickList.forEach(param2 -> {
+                if (!param2.isRemoved()) {
+                    if (this.shouldDiscardEntity(param2)) {
+                        param2.discard();
+                    } else if (!var1.isEntityFrozen(param2)) {
                         var0.push("checkDespawn");
-                        param1.checkDespawn();
+                        param2.checkDespawn();
                         var0.pop();
-                        if (this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(param1.chunkPosition().toLong())) {
-                            Entity var0x = param1.getVehicle();
+                        if (this.chunkSource.chunkMap.getDistanceManager().inEntityTickingRange(param2.chunkPosition().toLong())) {
+                            Entity var0x = param2.getVehicle();
                             if (var0x != null) {
-                                if (!var0x.isRemoved() && var0x.hasPassenger(param1)) {
+                                if (!var0x.isRemoved() && var0x.hasPassenger(param2)) {
                                     return;
                                 }
 
-                                param1.stopRiding();
+                                param2.stopRiding();
                             }
 
                             var0.push("tick");
-                            this.guardEntityTick(this::tickNonPassenger, param1);
+                            this.guardEntityTick(this::tickNonPassenger, param2);
                             var0.pop();
                         }
                     }
@@ -545,7 +560,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         if (var1.isPresent()) {
             return var1.get();
         } else {
-            AABB var2 = new AABB(var0, new BlockPos(var0.getX(), this.getMaxBuildHeight(), var0.getZ())).inflate(3.0);
+            AABB var2 = AABB.encapsulatingFullBlocks(var0, new BlockPos(var0.atY(this.getMaxBuildHeight()))).inflate(3.0);
             List<LivingEntity> var3 = this.getEntitiesOfClass(
                 LivingEntity.class, var2, param0x -> param0x != null && param0x.isAlive() && this.canSeeSky(param0x.blockPosition())
             );
@@ -1237,6 +1252,11 @@ public class ServerLevel extends Level implements WorldGenLevel {
     @Override
     public RecipeManager getRecipeManager() {
         return this.server.getRecipeManager();
+    }
+
+    @Override
+    public TickRateManager tickRateManager() {
+        return this.server.tickRateManager();
     }
 
     @Override

@@ -69,16 +69,12 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Parrot;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.EnderDragonPart;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.monster.warden.WardenSpawnTracker;
 import net.minecraft.world.entity.projectile.FishingHook;
-import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickAction;
@@ -137,7 +133,6 @@ public abstract class Player extends LivingEntity {
         .put(Pose.CROUCHING, EntityDimensions.scalable(0.6F, 1.5F))
         .put(Pose.DYING, EntityDimensions.fixed(0.2F, 0.2F))
         .build();
-    private static final int FLY_ACHIEVEMENT_SPEED = 25;
     private static final EntityDataAccessor<Float> DATA_PLAYER_ABSORPTION_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_SCORE_ID = SynchedEntityData.defineId(Player.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(Player.class, EntityDataSerializers.BYTE);
@@ -493,13 +488,9 @@ public abstract class Player extends LivingEntity {
             this.stopRiding();
             this.setShiftKeyDown(false);
         } else {
-            double var0 = this.getX();
-            double var1 = this.getY();
-            double var2 = this.getZ();
             super.rideTick();
             this.oBob = this.bob;
             this.bob = 0.0F;
-            this.checkRidingStatistics(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
         }
     }
 
@@ -1473,32 +1464,28 @@ public abstract class Player extends LivingEntity {
 
     @Override
     public void travel(Vec3 param0) {
-        double var0 = this.getX();
-        double var1 = this.getY();
-        double var2 = this.getZ();
         if (this.isSwimming() && !this.isPassenger()) {
-            double var3 = this.getLookAngle().y;
-            double var4 = var3 < -0.2 ? 0.085 : 0.06;
-            if (var3 <= 0.0
+            double var0 = this.getLookAngle().y;
+            double var1 = var0 < -0.2 ? 0.085 : 0.06;
+            if (var0 <= 0.0
                 || this.jumping
                 || !this.level().getBlockState(BlockPos.containing(this.getX(), this.getY() + 1.0 - 0.1, this.getZ())).getFluidState().isEmpty()) {
-                Vec3 var5 = this.getDeltaMovement();
-                this.setDeltaMovement(var5.add(0.0, (var3 - var5.y) * var4, 0.0));
+                Vec3 var2 = this.getDeltaMovement();
+                this.setDeltaMovement(var2.add(0.0, (var0 - var2.y) * var1, 0.0));
             }
         }
 
         if (this.abilities.flying && !this.isPassenger()) {
-            double var6 = this.getDeltaMovement().y;
+            double var3 = this.getDeltaMovement().y;
             super.travel(param0);
-            Vec3 var7 = this.getDeltaMovement();
-            this.setDeltaMovement(var7.x, var6 * 0.6, var7.z);
+            Vec3 var4 = this.getDeltaMovement();
+            this.setDeltaMovement(var4.x, var3 * 0.6, var4.z);
             this.resetFallDistance();
             this.setSharedFlag(7, false);
         } else {
             super.travel(param0);
         }
 
-        this.checkMovementStatistics(this.getX() - var0, this.getY() - var1, this.getZ() - var2);
     }
 
     @Override
@@ -1518,78 +1505,6 @@ public abstract class Player extends LivingEntity {
     @Override
     public float getSpeed() {
         return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED);
-    }
-
-    public void checkMovementStatistics(double param0, double param1, double param2) {
-        if (!this.isPassenger()) {
-            if (this.isSwimming()) {
-                int var0 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
-                if (var0 > 0) {
-                    this.awardStat(Stats.SWIM_ONE_CM, var0);
-                    this.causeFoodExhaustion(0.01F * (float)var0 * 0.01F);
-                }
-            } else if (this.isEyeInFluid(FluidTags.WATER)) {
-                int var1 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
-                if (var1 > 0) {
-                    this.awardStat(Stats.WALK_UNDER_WATER_ONE_CM, var1);
-                    this.causeFoodExhaustion(0.01F * (float)var1 * 0.01F);
-                }
-            } else if (this.isInWater()) {
-                int var2 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
-                if (var2 > 0) {
-                    this.awardStat(Stats.WALK_ON_WATER_ONE_CM, var2);
-                    this.causeFoodExhaustion(0.01F * (float)var2 * 0.01F);
-                }
-            } else if (this.onClimbable()) {
-                if (param1 > 0.0) {
-                    this.awardStat(Stats.CLIMB_ONE_CM, (int)Math.round(param1 * 100.0));
-                }
-            } else if (this.onGround()) {
-                int var3 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
-                if (var3 > 0) {
-                    if (this.isSprinting()) {
-                        this.awardStat(Stats.SPRINT_ONE_CM, var3);
-                        this.causeFoodExhaustion(0.1F * (float)var3 * 0.01F);
-                    } else if (this.isCrouching()) {
-                        this.awardStat(Stats.CROUCH_ONE_CM, var3);
-                        this.causeFoodExhaustion(0.0F * (float)var3 * 0.01F);
-                    } else {
-                        this.awardStat(Stats.WALK_ONE_CM, var3);
-                        this.causeFoodExhaustion(0.0F * (float)var3 * 0.01F);
-                    }
-                }
-            } else if (this.isFallFlying()) {
-                int var4 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
-                this.awardStat(Stats.AVIATE_ONE_CM, var4);
-            } else {
-                int var5 = Math.round((float)Math.sqrt(param0 * param0 + param2 * param2) * 100.0F);
-                if (var5 > 25) {
-                    this.awardStat(Stats.FLY_ONE_CM, var5);
-                }
-            }
-
-        }
-    }
-
-    private void checkRidingStatistics(double param0, double param1, double param2) {
-        if (this.isPassenger()) {
-            int var0 = Math.round((float)Math.sqrt(param0 * param0 + param1 * param1 + param2 * param2) * 100.0F);
-            if (var0 > 0) {
-                Entity var1 = this.getVehicle();
-                if (var1 instanceof AbstractMinecart) {
-                    this.awardStat(Stats.MINECART_ONE_CM, var0);
-                } else if (var1 instanceof Boat) {
-                    this.awardStat(Stats.BOAT_ONE_CM, var0);
-                } else if (var1 instanceof Pig) {
-                    this.awardStat(Stats.PIG_ONE_CM, var0);
-                } else if (var1 instanceof AbstractHorse) {
-                    this.awardStat(Stats.HORSE_ONE_CM, var0);
-                } else if (var1 instanceof Strider) {
-                    this.awardStat(Stats.STRIDER_ONE_CM, var0);
-                }
-            }
-        }
-
     }
 
     @Override

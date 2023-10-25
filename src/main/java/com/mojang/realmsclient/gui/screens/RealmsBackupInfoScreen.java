@@ -143,6 +143,11 @@ public class RealmsBackupInfoScreen extends RealmsScreen {
         }
 
         @Override
+        public boolean mouseClicked(double param0, double param1, int param2) {
+            return true;
+        }
+
+        @Override
         public Component getNarration() {
             return Component.translatable("narrator.select", this.key + " " + this.value);
         }

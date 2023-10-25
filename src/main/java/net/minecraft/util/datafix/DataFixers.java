@@ -107,6 +107,7 @@ import net.minecraft.util.datafix.fixes.EntityZombifiedPiglinRenameFix;
 import net.minecraft.util.datafix.fixes.FeatureFlagRemoveFix;
 import net.minecraft.util.datafix.fixes.FilteredBooksFix;
 import net.minecraft.util.datafix.fixes.FilteredSignsFix;
+import net.minecraft.util.datafix.fixes.FixProjectileStoredItem;
 import net.minecraft.util.datafix.fixes.ForcePoiRebuild;
 import net.minecraft.util.datafix.fixes.FurnaceRecipeFix;
 import net.minecraft.util.datafix.fixes.GoatHornIdFix;
@@ -263,6 +264,7 @@ import net.minecraft.util.datafix.schemas.V3438;
 import net.minecraft.util.datafix.schemas.V3448;
 import net.minecraft.util.datafix.schemas.V3682;
 import net.minecraft.util.datafix.schemas.V3683;
+import net.minecraft.util.datafix.schemas.V3685;
 import net.minecraft.util.datafix.schemas.V501;
 import net.minecraft.util.datafix.schemas.V700;
 import net.minecraft.util.datafix.schemas.V701;
@@ -1188,6 +1190,8 @@ public class DataFixers {
         param0.addFixer(new AddNewChoices(var199, "Added Crafter", References.BLOCK_ENTITY));
         Schema var200 = param0.addSchema(3683, V3683::new);
         param0.addFixer(new PrimedTntBlockStateFixer(var200));
+        Schema var201 = param0.addSchema(3685, V3685::new);
+        param0.addFixer(new FixProjectileStoredItem(var201));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

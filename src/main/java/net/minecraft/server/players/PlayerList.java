@@ -699,6 +699,7 @@ public abstract class PlayerList {
         }
 
         param0.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.LEVEL_CHUNKS_LOAD_START, 0.0F));
+        this.server.tickRateManager().updateJoiningPlayer(param0);
     }
 
     public void sendAllPlayerInfo(ServerPlayer param0) {

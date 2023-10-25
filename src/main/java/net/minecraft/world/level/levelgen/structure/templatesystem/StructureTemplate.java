@@ -110,7 +110,7 @@ public class StructureTemplate {
             this.palettes.clear();
             this.palettes.add(new StructureTemplate.Palette(var12));
             if (param3) {
-                this.fillEntityList(param0, var4, var5.offset(1, 1, 1));
+                this.fillEntityList(param0, var4, var5);
             } else {
                 this.entityInfoList.clear();
             }
@@ -151,7 +151,7 @@ public class StructureTemplate {
     }
 
     private void fillEntityList(Level param0, BlockPos param1, BlockPos param2) {
-        List<Entity> var0 = param0.getEntitiesOfClass(Entity.class, new AABB(param1, param2), param0x -> !(param0x instanceof Player));
+        List<Entity> var0 = param0.getEntitiesOfClass(Entity.class, AABB.encapsulatingFullBlocks(param1, param2), param0x -> !(param0x instanceof Player));
         this.entityInfoList.clear();
 
         for(Entity var1 : var0) {

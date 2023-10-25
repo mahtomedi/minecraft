@@ -65,18 +65,20 @@ public abstract class AbstractArrow extends Projectile {
     private IntOpenHashSet piercingIgnoreEntityIds;
     @Nullable
     private List<Entity> piercedAndKilledEntities;
+    private ItemStack pickupItemStack;
 
-    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, Level param1) {
+    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, Level param1, ItemStack param2) {
         super(param0, param1);
+        this.pickupItemStack = param2.copy();
     }
 
-    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, double param1, double param2, double param3, Level param4) {
-        this(param0, param4);
+    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, double param1, double param2, double param3, Level param4, ItemStack param5) {
+        this(param0, param4, param5);
         this.setPos(param1, param2, param3);
     }
 
-    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, LivingEntity param1, Level param2) {
-        this(param0, param1.getX(), param1.getEyeY() - 0.1F, param1.getZ(), param2);
+    protected AbstractArrow(EntityType<? extends AbstractArrow> param0, LivingEntity param1, Level param2, ItemStack param3) {
+        this(param0, param1.getX(), param1.getEyeY() - 0.1F, param1.getZ(), param2, param3);
         this.setOwner(param1);
         if (param1 instanceof Player) {
             this.pickup = AbstractArrow.Pickup.ALLOWED;
@@ -462,6 +464,7 @@ public abstract class AbstractArrow extends Projectile {
         param0.putByte("PierceLevel", this.getPierceLevel());
         param0.putString("SoundEvent", BuiltInRegistries.SOUND_EVENT.getKey(this.soundEvent).toString());
         param0.putBoolean("ShotFromCrossbow", this.shotFromCrossbow());
+        param0.put("item", this.pickupItemStack.save(new CompoundTag()));
     }
 
     @Override
@@ -488,6 +491,10 @@ public abstract class AbstractArrow extends Projectile {
         }
 
         this.setShotFromCrossbow(param0.getBoolean("ShotFromCrossbow"));
+        if (param0.contains("item", 10)) {
+            this.pickupItemStack = ItemStack.of(param0.getCompound("item"));
+        }
+
     }
 
     @Override
@@ -521,11 +528,17 @@ public abstract class AbstractArrow extends Projectile {
         }
     }
 
-    protected abstract ItemStack getPickupItem();
+    protected ItemStack getPickupItem() {
+        return this.pickupItemStack.copy();
+    }
 
     @Override
     protected Entity.MovementEmission getMovementEmission() {
         return Entity.MovementEmission.NONE;
+    }
+
+    public ItemStack getPickupItemStackOrigin() {
+        return this.pickupItemStack;
     }
 
     public void setBaseDamage(double param0) {

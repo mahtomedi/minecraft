@@ -9,10 +9,11 @@ public class LogTestReporter implements TestReporter {
 
     @Override
     public void onTestFailed(GameTestInfo param0) {
+        String var0 = param0.getStructureBlockPos().toShortString();
         if (param0.isRequired()) {
-            LOGGER.error("{} failed! {}", param0.getTestName(), Util.describeError(param0.getError()));
+            LOGGER.error("{} failed at {}! {}", param0.getTestName(), var0, Util.describeError(param0.getError()));
         } else {
-            LOGGER.warn("(optional) {} failed. {}", param0.getTestName(), Util.describeError(param0.getError()));
+            LOGGER.warn("(optional) {} failed at {}. {}", param0.getTestName(), var0, Util.describeError(param0.getError()));
         }
 
     }

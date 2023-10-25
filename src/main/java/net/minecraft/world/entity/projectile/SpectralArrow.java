@@ -11,18 +11,19 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
 public class SpectralArrow extends AbstractArrow {
+    private static final ItemStack DEFAULT_ARROW_STACK = new ItemStack(Items.SPECTRAL_ARROW);
     private int duration = 200;
 
     public SpectralArrow(EntityType<? extends SpectralArrow> param0, Level param1) {
-        super(param0, param1);
+        super(param0, param1, DEFAULT_ARROW_STACK);
     }
 
-    public SpectralArrow(Level param0, LivingEntity param1) {
-        super(EntityType.SPECTRAL_ARROW, param1, param0);
+    public SpectralArrow(Level param0, LivingEntity param1, ItemStack param2) {
+        super(EntityType.SPECTRAL_ARROW, param1, param0, param2);
     }
 
-    public SpectralArrow(Level param0, double param1, double param2, double param3) {
-        super(EntityType.SPECTRAL_ARROW, param1, param2, param3, param0);
+    public SpectralArrow(Level param0, double param1, double param2, double param3, ItemStack param4) {
+        super(EntityType.SPECTRAL_ARROW, param1, param2, param3, param0, param4);
     }
 
     @Override
@@ -32,11 +33,6 @@ public class SpectralArrow extends AbstractArrow {
             this.level().addParticle(ParticleTypes.INSTANT_EFFECT, this.getX(), this.getY(), this.getZ(), 0.0, 0.0, 0.0);
         }
 
-    }
-
-    @Override
-    protected ItemStack getPickupItem() {
-        return new ItemStack(Items.SPECTRAL_ARROW);
     }
 
     @Override
