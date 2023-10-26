@@ -491,7 +491,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
             }
         }
 
-        this.nextTickTimeNanos = Util.getMillis() + PREPARE_LEVELS_DEFAULT_DELAY_NANOS;
+        this.nextTickTimeNanos = Util.getNanos() + PREPARE_LEVELS_DEFAULT_DELAY_NANOS;
         this.waitUntilNextTick();
         param0.stop();
         this.updateMobSpawningFlags();

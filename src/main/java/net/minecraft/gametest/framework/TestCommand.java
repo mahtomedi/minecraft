@@ -20,6 +20,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
+import net.minecraft.FileUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.blocks.BlockInput;
@@ -485,7 +486,7 @@ public class TestCommand {
             return 1;
         } else {
             try {
-                Files.createDirectories(var3.getParent());
+                FileUtil.createDirectoriesSafe(var3.getParent());
             } catch (IOException var7) {
                 say(param0, "Could not create folder " + var3.getParent());
                 LOGGER.error("Could not create export folder", (Throwable)var7);
