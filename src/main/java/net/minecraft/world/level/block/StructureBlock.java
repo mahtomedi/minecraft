@@ -97,7 +97,7 @@ public class StructureBlock extends BaseEntityBlock implements GameMasterBlock {
                 param1.saveStructure(false);
                 break;
             case LOAD:
-                param1.loadStructure(param0, false);
+                param1.placeStructure(param0);
                 break;
             case CORNER:
                 param1.unloadStructure();

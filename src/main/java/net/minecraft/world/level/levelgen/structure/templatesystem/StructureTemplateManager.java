@@ -31,6 +31,7 @@ import net.minecraft.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.gametest.framework.StructureUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
@@ -48,7 +49,6 @@ import org.slf4j.Logger;
 public class StructureTemplateManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final String STRUCTURE_DIRECTORY_NAME = "structures";
-    private static final String TEST_STRUCTURES_DIR = "gameteststructures";
     private static final String STRUCTURE_FILE_EXTENSION = ".nbt";
     private static final String STRUCTURE_TEXT_FILE_EXTENSION = ".snbt";
     private final Map<ResourceLocation, Optional<StructureTemplate>> structureRepository = Maps.newConcurrentMap();
@@ -122,11 +122,11 @@ public class StructureTemplateManager {
     }
 
     private Optional<StructureTemplate> loadFromTestStructures(ResourceLocation param0x) {
-        return this.loadFromSnbt(param0x, Paths.get("gameteststructures"));
+        return this.loadFromSnbt(param0x, Paths.get(StructureUtils.testStructuresDir));
     }
 
     private Stream<ResourceLocation> listTestStructures() {
-        return this.listFolderContents(Paths.get("gameteststructures"), "minecraft", ".snbt");
+        return this.listFolderContents(Paths.get(StructureUtils.testStructuresDir), "minecraft", ".snbt");
     }
 
     private Optional<StructureTemplate> loadFromGenerated(ResourceLocation param0x) {

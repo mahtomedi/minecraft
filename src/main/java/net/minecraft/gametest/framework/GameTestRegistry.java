@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class GameTestRegistry {
     private static final Collection<TestFunction> LAST_FAILED_TESTS = Sets.newHashSet();
 
     public static void register(Class<?> param0) {
-        Arrays.stream(param0.getDeclaredMethods()).forEach(GameTestRegistry::register);
+        Arrays.stream(param0.getDeclaredMethods()).sorted(Comparator.comparing(Method::getName)).forEach(GameTestRegistry::register);
     }
 
     public static void register(Method param0x) {

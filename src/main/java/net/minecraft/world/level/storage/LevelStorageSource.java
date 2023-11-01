@@ -7,7 +7,6 @@ import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.FileVisitResult;
@@ -238,7 +237,7 @@ public class LevelStorageSource {
     }
 
     static CompoundTag readLevelDataTagRaw(Path param0) throws IOException {
-        return NbtIo.readCompressed(param0.toFile(), NbtAccounter.create(104857600L));
+        return NbtIo.readCompressed(param0, NbtAccounter.create(104857600L));
     }
 
     static Dynamic<?> readLevelDataTagFixed(Path param0, DataFixer param1) throws IOException {
@@ -329,7 +328,7 @@ public class LevelStorageSource {
     @Nullable
     private static Tag readLightweightData(Path param0) throws IOException {
         SkipFields var0 = new SkipFields(new FieldSelector("Data", CompoundTag.TYPE, "Player"), new FieldSelector("Data", CompoundTag.TYPE, "WorldGenSettings"));
-        NbtIo.parseCompressed(param0.toFile(), var0, NbtAccounter.create(104857600L));
+        NbtIo.parseCompressed(param0, var0, NbtAccounter.create(104857600L));
         return var0.getResult();
     }
 
@@ -512,50 +511,48 @@ public class LevelStorageSource {
         }
 
         private void saveLevelData(CompoundTag param0) {
-            File var0 = this.levelDirectory.path().toFile();
+            Path var0 = this.levelDirectory.path();
             Exception var1 = null;
 
             try {
-                File var2 = File.createTempFile("level", ".dat", var0);
+                Path var2 = Files.createTempFile(var0, "level", ".dat");
                 NbtIo.writeCompressed(param0, var2);
-                File var3 = this.levelDirectory.oldDataFile().toFile();
-                File var4 = this.levelDirectory.dataFile().toFile();
+                Path var3 = this.levelDirectory.oldDataFile();
+                Path var4 = this.levelDirectory.dataFile();
                 Util.safeReplaceFile(var4, var2, var3);
-            } catch (Exception var101) {
-                LevelStorageSource.LOGGER.error("Failed to save level {}", var0, var101);
-                var1 = var101;
+            } catch (Exception var91) {
+                LevelStorageSource.LOGGER.error("Failed to save level {}", var0, var91);
+                var1 = var91;
             }
 
             Path var6 = this.levelDirectory.dataFile();
             if (Files.exists(var6)) {
-                File var7 = var6.toFile();
-
                 try {
-                    NbtIo.readCompressed(var7, NbtAccounter.create(104857600L));
-                } catch (Exception var11) {
+                    NbtIo.readCompressed(var6, NbtAccounter.create(104857600L));
+                } catch (Exception var10) {
                     if (LevelStorageSource.this.crashedWhileSaving) {
-                        LevelStorageSource.LOGGER.error("Failed to save level {}. Skipping further handling, reported errors earlier already.", var0, var11);
+                        LevelStorageSource.LOGGER.error("Failed to save level {}. Skipping further handling, reported errors earlier already.", var0, var10);
                     } else {
                         LevelStorageSource.this.crashedWhileSaving = true;
-                        CrashReport var9 = new CrashReport("Won the zlib-lottery?", new IllegalStateException("Failed to read back written world data", var1));
-                        CrashReportCategory var10 = var9.addCategory("level.dat");
-                        var10.setDetail("World folder", this.levelDirectory.directoryName());
-                        var10.setDetail("Reading Exception", ((Throwable)(var11 instanceof ReportedException var11 ? var11.getCause() : var11)).toString());
-                        var10.setDetail("Uncompressed", () -> Base64.getEncoder().encodeToString(NbtIo.writeToByteArray(param0)));
-                        var10.setDetail("Compressed saved", () -> Base64.getEncoder().encodeToString(Files.readAllBytes(var7.toPath())));
-                        var10.setDetail("Compressed array", () -> Base64.getEncoder().encodeToString(NbtIo.writeToByteArrayCompressed(param0)));
-                        LocalDateTime var12 = LocalDateTime.now();
-                        var10.setDetail("Corrupted file", () -> {
-                            Path var0x = this.levelDirectory.corruptedDataFile(var12);
-                            Files.move(var7.toPath(), var0x);
+                        CrashReport var8 = new CrashReport("Won the zlib-lottery?", new IllegalStateException("Failed to read back written world data", var1));
+                        CrashReportCategory var9 = var8.addCategory("level.dat");
+                        var9.setDetail("World folder", this.levelDirectory.directoryName());
+                        var9.setDetail("Reading Exception", ((Throwable)(var10 instanceof ReportedException var10 ? var10.getCause() : var10)).toString());
+                        var9.setDetail("Uncompressed", () -> Base64.getEncoder().encodeToString(NbtIo.writeToByteArray(param0)));
+                        var9.setDetail("Compressed saved", () -> Base64.getEncoder().encodeToString(Files.readAllBytes(var6)));
+                        var9.setDetail("Compressed array", () -> Base64.getEncoder().encodeToString(NbtIo.writeToByteArrayCompressed(param0)));
+                        LocalDateTime var11 = LocalDateTime.now();
+                        var9.setDetail("Corrupted file", () -> {
+                            Path var0x = this.levelDirectory.corruptedDataFile(var11);
+                            Files.move(var6, var0x);
                             return var0x.getFileName().toString();
                         });
-                        var10.setDetail("Raw file", () -> {
-                            Path var0x = this.levelDirectory.rawDataFile(var12);
+                        var9.setDetail("Raw file", () -> {
+                            Path var0x = this.levelDirectory.rawDataFile(var11);
                             Files.write(var0x, NbtIo.writeToByteArray(param0));
                             return var0x.getFileName().toString();
                         });
-                        throw new ReportedException(var9);
+                        throw new ReportedException(var8);
                     }
                 }
             }

@@ -834,6 +834,12 @@ public class RealmsMainScreen extends RealmsScreen {
         }
 
         @Override
+        public void setFocused(boolean param0) {
+            super.setFocused(param0);
+            this.button.setFocused(param0);
+        }
+
+        @Override
         public Component getNarration() {
             return this.button.getMessage();
         }

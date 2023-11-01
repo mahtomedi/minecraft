@@ -30,6 +30,9 @@ public class GameTestInfo {
     private final Collection<GameTestSequence> sequences = Lists.newCopyOnWriteArrayList();
     private final Object2LongMap<Runnable> runAtTickTimeMap = new Object2LongOpenHashMap<>();
     private long startTick;
+    private int ticksToWaitForChunkLoading = 20;
+    private boolean placedStructure;
+    private boolean chunksLoaded;
     private long tickCount;
     private boolean started;
     private boolean rerunUntilFailed;
@@ -53,21 +56,44 @@ public class GameTestInfo {
     }
 
     void startExecution() {
-        this.startTick = this.level.getGameTime() + 1L + this.testFunction.getSetupTicks();
+        this.startTick = this.level.getGameTime() + this.testFunction.getSetupTicks();
         this.timer.start();
     }
 
     public void tick() {
         if (!this.isDone()) {
-            this.tickInternal();
-            if (this.isDone()) {
-                if (this.error != null) {
-                    this.listeners.forEach(param0 -> param0.testFailed(this));
-                } else {
-                    this.listeners.forEach(param0 -> param0.testPassed(this));
-                }
+            if (this.structureBlockEntity == null) {
+                this.fail(new IllegalStateException("Running test without structure block entity"));
             }
 
+            if (this.chunksLoaded
+                || StructureUtils.getStructureBoundingBox(this.structureBlockEntity)
+                    .intersectingChunks()
+                    .allMatch(param0 -> this.level.isPositionEntityTicking(param0.getWorldPosition()))) {
+                this.chunksLoaded = true;
+                if (this.ticksToWaitForChunkLoading > 0) {
+                    --this.ticksToWaitForChunkLoading;
+                } else {
+                    if (!this.placedStructure) {
+                        this.placedStructure = true;
+                        this.structureBlockEntity.placeStructure(this.level);
+                        BoundingBox var0 = StructureUtils.getStructureBoundingBox(this.structureBlockEntity);
+                        this.level.getBlockTicks().clearArea(var0);
+                        this.level.clearBlockEvents(var0);
+                        this.startExecution();
+                    }
+
+                    this.tickInternal();
+                    if (this.isDone()) {
+                        if (this.error != null) {
+                            this.listeners.forEach(param0 -> param0.testFailed(this));
+                        } else {
+                            this.listeners.forEach(param0 -> param0.testPassed(this));
+                        }
+                    }
+
+                }
+            }
         }
     }
 
@@ -186,7 +212,9 @@ public class GameTestInfo {
     private void finish() {
         if (!this.done) {
             this.done = true;
-            this.timer.stop();
+            if (this.timer.isRunning()) {
+                this.timer.stop();
+            }
         }
 
     }
@@ -220,10 +248,10 @@ public class GameTestInfo {
         this.listeners.add(param0);
     }
 
-    public void spawnStructure(BlockPos param0) {
-        this.structureBlockEntity = StructureUtils.spawnStructure(this.getStructureName(), param0, this.getRotation(), this.level, false);
+    public void prepareTestStructure(BlockPos param0) {
+        this.structureBlockEntity = StructureUtils.prepareTestStructure(this.getStructureName(), param0, this.getRotation(), this.level);
         this.structureBlockPos = this.structureBlockEntity.getBlockPos();
-        this.structureBlockEntity.setStructureName(this.getTestName());
+        this.structureBlockEntity.setStructureName(this.getStructureName());
         StructureUtils.addCommandBlockAndButtonToStartTest(this.structureBlockPos, new BlockPos(1, 0, -1), this.getRotation(), this.level);
         this.listeners.forEach(param0x -> param0x.testStructureLoaded(this));
     }

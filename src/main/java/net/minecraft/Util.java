@@ -583,10 +583,6 @@ public class Util {
         return false;
     }
 
-    public static void safeReplaceFile(File param0, File param1, File param2) {
-        safeReplaceFile(param0.toPath(), param1.toPath(), param2.toPath());
-    }
-
     public static void safeReplaceFile(Path param0, Path param1, Path param2) {
         safeReplaceOrMoveFile(param0, param1, param2, false);
     }

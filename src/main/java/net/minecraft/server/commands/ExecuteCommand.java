@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.BiPredicate;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
@@ -32,7 +31,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.commands.CommandBuildContext;
-import net.minecraft.commands.CommandResultConsumer;
+import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.ExecutionCommandSource;
@@ -55,10 +54,13 @@ import net.minecraft.commands.arguments.coordinates.RotationArgument;
 import net.minecraft.commands.arguments.coordinates.SwizzleArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.commands.execution.ChainModifiers;
 import net.minecraft.commands.execution.CustomModifierExecutor;
 import net.minecraft.commands.execution.ExecutionControl;
 import net.minecraft.commands.execution.tasks.BuildContexts;
 import net.minecraft.commands.execution.tasks.CallFunction;
+import net.minecraft.commands.execution.tasks.FallthroughTask;
+import net.minecraft.commands.execution.tasks.IsolatedCall;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.commands.synchronization.SuggestionProviders;
@@ -106,7 +108,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.Score;
 import net.minecraft.world.scores.Scoreboard;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class ExecuteCommand {
     private static final int MAX_TEST_AREA = 32768;
@@ -123,10 +124,6 @@ public class ExecuteCommand {
     public static final Dynamic2CommandExceptionType ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE = new Dynamic2CommandExceptionType(
         (param0, param1) -> Component.translatableEscape("commands.execute.function.instantiationFailure", param0, param1)
     );
-    private static final BinaryOperator<CommandResultConsumer<CommandSourceStack>> CALLBACK_CHAINER = (param0, param1) -> (param2, param3, param4) -> {
-            param0.storeResult(param2, param3, param4);
-            param1.storeResult(param2, param3, param4);
-        };
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_PREDICATE = (param0, param1) -> {
         LootDataManager var0 = param0.getSource().getServer().getLootData();
         return SharedSuggestionProvider.suggestResource(var0.getKeys(LootDataType.PREDICATE), param1);
@@ -431,41 +428,41 @@ public class ExecuteCommand {
 
     private static CommandSourceStack storeValue(CommandSourceStack param0, Collection<String> param1, Objective param2, boolean param3) {
         Scoreboard var0 = param0.getServer().getScoreboard();
-        return param0.withCallback((param4, param5, param6) -> {
+        return param0.withCallback((param4, param5) -> {
             for(String var0x : param1) {
                 Score var1x = var0.getOrCreatePlayerScore(var0x, param2);
-                int var2x = param3 ? param6 : (param5 ? 1 : 0);
+                int var2x = param3 ? param5 : (param4 ? 1 : 0);
                 var1x.setScore(var2x);
             }
 
-        }, CALLBACK_CHAINER);
+        }, CommandResultCallback::chain);
     }
 
     private static CommandSourceStack storeValue(CommandSourceStack param0, CustomBossEvent param1, boolean param2, boolean param3) {
-        return param0.withCallback((param3x, param4, param5) -> {
-            int var0x = param3 ? param5 : (param4 ? 1 : 0);
+        return param0.withCallback((param3x, param4) -> {
+            int var0x = param3 ? param4 : (param3x ? 1 : 0);
             if (param2) {
                 param1.setValue(var0x);
             } else {
                 param1.setMax(var0x);
             }
 
-        }, CALLBACK_CHAINER);
+        }, CommandResultCallback::chain);
     }
 
     private static CommandSourceStack storeData(
         CommandSourceStack param0, DataAccessor param1, NbtPathArgument.NbtPath param2, IntFunction<Tag> param3, boolean param4
     ) {
-        return param0.withCallback((param4x, param5, param6) -> {
+        return param0.withCallback((param4x, param5) -> {
             try {
                 CompoundTag var0x = param1.getData();
-                int var1x = param4 ? param6 : (param5 ? 1 : 0);
+                int var1x = param4 ? param5 : (param4x ? 1 : 0);
                 param2.set(var0x, param3.apply(var1x));
                 param1.setData(var0x);
-            } catch (CommandSyntaxException var9) {
+            } catch (CommandSyntaxException var8) {
             }
 
-        }, CALLBACK_CHAINER);
+        }, CommandResultCallback::chain);
     }
 
     private static boolean isChunkLoaded(ServerLevel param0, BlockPos param1) {
@@ -927,64 +924,62 @@ public class ExecuteCommand {
     }
 
     public static <T extends ExecutionCommandSource<T>> void scheduleFunctionConditionsAndTest(
-        List<T> param0,
-        Function<T, T> param1,
-        IntPredicate param2,
-        ContextChain<T> param3,
-        @Nullable CompoundTag param4,
-        ExecutionControl<T> param5,
-        ExecuteCommand.CommandGetter<T, Collection<CommandFunction<T>>> param6,
-        boolean param7
+        T param0,
+        List<T> param1,
+        Function<T, T> param2,
+        IntPredicate param3,
+        ContextChain<T> param4,
+        @Nullable CompoundTag param5,
+        ExecutionControl<T> param6,
+        ExecuteCommand.CommandGetter<T, Collection<CommandFunction<T>>> param7,
+        ChainModifiers param8
     ) {
-        List<T> var0 = new ArrayList<>(param0.size());
-        CommandContext<T> var1 = param3.getTopContext();
+        List<T> var0 = new ArrayList<>(param1.size());
 
-        for(T var2 : param0) {
-            try {
-                Collection<CommandFunction<T>> var3 = param6.get(var1.copyFor(var2));
-                int var4 = var3.size();
-                if (var4 != 0) {
-                    T var5 = prepareCallback(param1, param2, var0, var2, var4 == 1);
-
-                    for(CommandFunction<T> var6 : var3) {
-                        InstantiatedFunction<T> var7;
-                        try {
-                            var7 = var6.instantiate(param4, var5.dispatcher(), var5);
-                        } catch (FunctionInstantiationException var19) {
-                            throw ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE.create(var6.id(), var19.messageComponent());
-                        }
-
-                        param5.queueNext(new CallFunction<>(var7).bind(var5));
-                    }
-                }
-            } catch (CommandSyntaxException var20) {
-                var2.handleError(var20, param7, param5.tracer());
-            }
+        Collection<CommandFunction<T>> var1;
+        try {
+            var1 = param7.get(param4.getTopContext().copyFor(param0));
+        } catch (CommandSyntaxException var18) {
+            param0.handleError(var18, param8.isForked(), param6.tracer());
+            return;
         }
 
-        ContextChain<T> var11 = param3.nextStage();
-        String var12 = var1.getInput();
-        param5.queueNext(new BuildContexts.Continuation<>(var12, var11, param7, var0));
-    }
+        int var4 = var1.size();
+        if (var4 != 0) {
+            List<InstantiatedFunction<T>> var5 = new ArrayList<>(var4);
 
-    private static <T extends ExecutionCommandSource<T>> T prepareCallback(Function<T, T> param0, IntPredicate param1, List<T> param2, T param3, boolean param4) {
-        T var0 = param0.apply(param3).clearCallbacks();
-        if (param4) {
-            return var0.withReturnValueConsumer(param3x -> {
-                if (param1.test(param3x)) {
-                    param2.add(param3);
+            try {
+                for(CommandFunction<T> var6 : var1) {
+                    try {
+                        var5.add(var6.instantiate(param5, param0.dispatcher(), param0));
+                    } catch (FunctionInstantiationException var17) {
+                        throw ERROR_FUNCTION_CONDITION_INSTANTATION_FAILURE.create(var6.id(), var17.messageComponent());
+                    }
                 }
+            } catch (CommandSyntaxException var19) {
+                param0.handleError(var19, param8.isForked(), param6.tracer());
+            }
 
-            });
-        } else {
-            MutableBoolean var1 = new MutableBoolean();
-            return var0.withReturnValueConsumer(param4x -> {
-                if (var1.isFalse() && param1.test(param4x)) {
-                    param2.add(param3);
-                    var1.setTrue();
-                }
+            for(T var9 : param1) {
+                T var10 = param2.apply(var9.clearCallbacks());
+                CommandResultCallback var11 = (param3x, param4x) -> {
+                    if (param3.test(param4x)) {
+                        var0.add(var9);
+                    }
 
-            });
+                };
+                param6.queueNext(new IsolatedCall<>(param2x -> {
+                    for(InstantiatedFunction<T> var0x : var5) {
+                        param2x.queueNext(new CallFunction<>(var0x, param2x.currentFrame().returnValueConsumer(), true).bind(var10));
+                    }
+
+                    param2x.queueNext(FallthroughTask.instance());
+                }, var11));
+            }
+
+            ContextChain<T> var12 = param4.nextStage();
+            String var13 = param4.getTopContext().getInput();
+            param6.queueNext(new BuildContexts.Continuation<>(var13, var12, param8, param0, var0));
         }
     }
 
@@ -1010,17 +1005,23 @@ public class ExecuteCommand {
             this.check = param0 ? param0x -> param0x != 0 : param0x -> param0x == 0;
         }
 
-        @Override
-        public void apply(List<CommandSourceStack> param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) {
+        public void apply(
+            CommandSourceStack param0,
+            List<CommandSourceStack> param1,
+            ContextChain<CommandSourceStack> param2,
+            ChainModifiers param3,
+            ExecutionControl<CommandSourceStack> param4
+        ) {
             ExecuteCommand.scheduleFunctionConditionsAndTest(
                 param0,
+                param1,
                 FunctionCommand::modifySenderForExecution,
                 this.check,
-                param1,
+                param2,
                 null,
-                param3,
+                param4,
                 param0x -> FunctionArgument.getFunctions(param0x, "name"),
-                param2
+                param3
             );
         }
     }

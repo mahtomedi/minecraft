@@ -61,6 +61,14 @@ public class UpdateOneTwentyOneRecipeProvider extends RecipeProvider {
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_EXPOSED_CHISELED_COPPER, Blocks.WAXED_EXPOSED_COPPER, 4);
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_WEATHERED_CHISELED_COPPER, Blocks.WAXED_WEATHERED_COPPER, 4);
         stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_OXIDIZED_CHISELED_COPPER, Blocks.WAXED_OXIDIZED_COPPER, 4);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.CHISELED_COPPER, Blocks.CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.EXPOSED_CHISELED_COPPER, Blocks.EXPOSED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WEATHERED_CHISELED_COPPER, Blocks.WEATHERED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.OXIDIZED_CHISELED_COPPER, Blocks.OXIDIZED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_CHISELED_COPPER, Blocks.WAXED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_EXPOSED_CHISELED_COPPER, Blocks.WAXED_EXPOSED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_WEATHERED_CHISELED_COPPER, Blocks.WAXED_WEATHERED_CUT_COPPER, 1);
+        stonecutterResultFromBase(param0, RecipeCategory.BUILDING_BLOCKS, Blocks.WAXED_OXIDIZED_CHISELED_COPPER, Blocks.WAXED_OXIDIZED_CUT_COPPER, 1);
         grate(param0, Blocks.COPPER_GRATE, Blocks.COPPER_BLOCK);
         grate(param0, Blocks.EXPOSED_COPPER_GRATE, Blocks.EXPOSED_COPPER);
         grate(param0, Blocks.WEATHERED_COPPER_GRATE, Blocks.WEATHERED_COPPER);

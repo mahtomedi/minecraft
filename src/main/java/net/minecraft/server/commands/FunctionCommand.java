@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.ExecutionCommandSource;
@@ -22,9 +23,11 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.CompoundTagArgument;
 import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.commands.execution.ChainModifiers;
 import net.minecraft.commands.execution.CustomCommandExecutor;
 import net.minecraft.commands.execution.ExecutionControl;
 import net.minecraft.commands.execution.tasks.CallFunction;
+import net.minecraft.commands.execution.tasks.FallthroughTask;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +38,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.ServerFunctionManager;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
-import org.apache.commons.lang3.mutable.MutableInt;
 
 public class FunctionCommand {
     private static final DynamicCommandExceptionType ERROR_ARGUMENT_NOT_COMPOUND = new DynamicCommandExceptionType(
@@ -115,27 +117,119 @@ public class FunctionCommand {
         T param2,
         T param3,
         ExecutionControl<T> param4,
+        FunctionCommand.Callbacks<T> param5,
+        ChainModifiers param6
+    ) throws CommandSyntaxException {
+        if (param6.isReturn()) {
+            queueFunctionsAsReturn(param0, param1, param2, param3, param4, param5);
+        } else {
+            queueFunctionsNoReturn(param0, param1, param2, param3, param4, param5);
+        }
+
+    }
+
+    private static <T extends ExecutionCommandSource<T>> void instantiateAndQueueFunctions(
+        @Nullable CompoundTag param0,
+        ExecutionControl<T> param1,
+        CommandDispatcher<T> param2,
+        T param3,
+        CommandFunction<T> param4,
+        ResourceLocation param5,
+        CommandResultCallback param6,
+        boolean param7
+    ) throws CommandSyntaxException {
+        try {
+            InstantiatedFunction<T> var0 = param4.instantiate(param0, param2, param3);
+            param1.queueNext(new CallFunction<>(var0, param6, param7).bind(param3));
+        } catch (FunctionInstantiationException var9) {
+            throw ERROR_FUNCTION_INSTANTATION_FAILURE.create(param5, var9.messageComponent());
+        }
+    }
+
+    private static <T extends ExecutionCommandSource<T>> CommandResultCallback decorateOutputIfNeeded(
+        T param0, FunctionCommand.Callbacks<T> param1, ResourceLocation param2, CommandResultCallback param3
+    ) {
+        return param0.isSilent() ? param3 : (param4, param5) -> {
+            param1.signalResult(param0, param2, param5);
+            param3.onSuccess(param5);
+        };
+    }
+
+    private static <T extends ExecutionCommandSource<T>> void queueFunctionsAsReturn(
+        Collection<CommandFunction<T>> param0,
+        @Nullable CompoundTag param1,
+        T param2,
+        T param3,
+        ExecutionControl<T> param4,
         FunctionCommand.Callbacks<T> param5
     ) throws CommandSyntaxException {
         CommandDispatcher<T> var0 = param2.dispatcher();
-        MutableInt var1 = new MutableInt();
+        T var1 = param3.clearCallbacks();
+        CommandResultCallback var2 = CommandResultCallback.chain(param2.callback(), param4.currentFrame().returnValueConsumer());
 
-        for(CommandFunction<T> var2 : param0) {
-            ResourceLocation var3 = var2.id();
-
-            try {
-                T var4 = param3.clearCallbacks().withReturnValueConsumer(param4x -> {
-                    int var0x = var1.addAndGet(param4x);
-                    param5.signalResult(param2, var3, var0x);
-                    param2.storeResults(true, var0x);
-                });
-                InstantiatedFunction<T> var5 = var2.instantiate(param1, var0, var4);
-                param4.queueNext(new CallFunction<>(var5).bind(var4));
-            } catch (FunctionInstantiationException var13) {
-                throw ERROR_FUNCTION_INSTANTATION_FAILURE.create(var3, var13.messageComponent());
-            }
+        for(CommandFunction<T> var3 : param0) {
+            ResourceLocation var4 = var3.id();
+            CommandResultCallback var5 = decorateOutputIfNeeded(param2, param5, var4, var2);
+            instantiateAndQueueFunctions(param1, param4, var0, var1, var3, var4, var5, true);
         }
 
+        if (var2 != CommandResultCallback.EMPTY) {
+            param4.queueNext(FallthroughTask.instance());
+        }
+    }
+
+    private static <T extends ExecutionCommandSource<T>> void queueFunctionsNoReturn(
+        Collection<CommandFunction<T>> param0,
+        @Nullable CompoundTag param1,
+        T param2,
+        T param3,
+        ExecutionControl<T> param4,
+        FunctionCommand.Callbacks<T> param5
+    ) throws CommandSyntaxException {
+        CommandDispatcher<T> var0 = param2.dispatcher();
+        T var1 = param3.clearCallbacks();
+        CommandResultCallback var2 = param2.callback();
+        if (!param0.isEmpty()) {
+            if (param0.size() == 1) {
+                CommandFunction<T> var3 = param0.iterator().next();
+                ResourceLocation var4 = var3.id();
+                CommandResultCallback var5 = decorateOutputIfNeeded(param2, param5, var4, var2);
+                instantiateAndQueueFunctions(param1, param4, var0, var1, var3, var4, var5, false);
+            } else if (var2 == CommandResultCallback.EMPTY) {
+                for(CommandFunction<T> var6 : param0) {
+                    ResourceLocation var7 = var6.id();
+                    CommandResultCallback var8 = decorateOutputIfNeeded(param2, param5, var7, var2);
+                    instantiateAndQueueFunctions(param1, param4, var0, var1, var6, var7, var8, false);
+                }
+            } else {
+                class Accumulator {
+                    boolean anyResult;
+                    int sum;
+
+                    public void add(int param0) {
+                        this.anyResult = true;
+                        this.sum += param0;
+                    }
+                }
+
+                Accumulator var9 = new Accumulator();
+                CommandResultCallback var10 = (param1x, param2x) -> var9.add(param2x);
+
+                for(CommandFunction<T> var11 : param0) {
+                    ResourceLocation var12 = var11.id();
+                    CommandResultCallback var13 = decorateOutputIfNeeded(param2, param5, var12, var10);
+                    instantiateAndQueueFunctions(param1, param4, var0, var1, var11, var12, var13, false);
+                }
+
+                param4.queueNext((param2x, param3x) -> {
+                    if (var9.anyResult) {
+                        var2.onSuccess(var9.sum);
+                    }
+
+                });
+            }
+
+        }
     }
 
     public interface Callbacks<T> {
@@ -148,7 +242,9 @@ public class FunctionCommand {
         @Nullable
         protected abstract CompoundTag arguments(CommandContext<CommandSourceStack> var1) throws CommandSyntaxException;
 
-        public void runGuarded(CommandSourceStack param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) throws CommandSyntaxException {
+        public void runGuarded(
+            CommandSourceStack param0, ContextChain<CommandSourceStack> param1, ChainModifiers param2, ExecutionControl<CommandSourceStack> param3
+        ) throws CommandSyntaxException {
             CommandContext<CommandSourceStack> var0 = param1.getTopContext().copyFor(param0);
             Pair<ResourceLocation, Collection<CommandFunction<CommandSourceStack>>> var1 = FunctionArgument.getFunctionOrTag(var0, "name")
                 .mapSecond(param0x -> param0x.map(Collections::singleton, Function.identity()));
@@ -172,7 +268,7 @@ public class FunctionCommand {
                     );
                 }
 
-                FunctionCommand.queueFunctions(var2, var3, param0, var4, param3, FunctionCommand.FULL_CONTEXT_CALLBACKS);
+                FunctionCommand.queueFunctions(var2, var3, param0, var4, param3, FunctionCommand.FULL_CONTEXT_CALLBACKS, param2);
             }
         }
     }

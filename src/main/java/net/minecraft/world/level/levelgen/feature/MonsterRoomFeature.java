@@ -8,11 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -109,7 +109,7 @@ public class MonsterRoomFeature extends Feature<NoneFeatureConfiguration> {
 
                         if (var30 == 1) {
                             this.safeSetBlock(var3, var29, StructurePiece.reorient(var3, var29, Blocks.CHEST.defaultBlockState()), var0);
-                            RandomizableContainerBlockEntity.setLootTable(var3, var2, var29, BuiltInLootTables.SIMPLE_DUNGEON);
+                            RandomizableContainer.setBlockEntityLootTable(var3, var2, var29, BuiltInLootTables.SIMPLE_DUNGEON);
                             break;
                         }
                     }

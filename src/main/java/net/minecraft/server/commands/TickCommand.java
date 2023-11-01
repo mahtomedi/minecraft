@@ -31,6 +31,7 @@ public class TickCommand {
                 )
                 .then(
                     Commands.literal("step")
+                        .executes(param0x -> step(param0x.getSource(), 1))
                         .then(Commands.literal("stop").executes(param0x -> stopStepping(param0x.getSource())))
                         .then(
                             Commands.argument("time", TimeArgument.time(1))

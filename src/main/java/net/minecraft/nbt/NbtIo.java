@@ -6,12 +6,12 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
@@ -20,9 +20,9 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.util.FastBufferedInputStream;
 
 public class NbtIo {
-    public static CompoundTag readCompressed(File param0, NbtAccounter param1) throws IOException {
+    public static CompoundTag readCompressed(Path param0, NbtAccounter param1) throws IOException {
         CompoundTag var3;
-        try (InputStream var0 = new FileInputStream(param0)) {
+        try (InputStream var0 = Files.newInputStream(param0)) {
             var3 = readCompressed(var0, param1);
         }
 
@@ -31,6 +31,10 @@ public class NbtIo {
 
     private static DataInputStream createDecompressorStream(InputStream param0) throws IOException {
         return new DataInputStream(new FastBufferedInputStream(new GZIPInputStream(param0)));
+    }
+
+    private static DataOutputStream createCompressorStream(OutputStream param0) throws IOException {
+        return new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(param0)));
     }
 
     public static CompoundTag readCompressed(InputStream param0, NbtAccounter param1) throws IOException {
@@ -42,8 +46,8 @@ public class NbtIo {
         return var3;
     }
 
-    public static void parseCompressed(File param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
-        try (InputStream var0 = new FileInputStream(param0)) {
+    public static void parseCompressed(Path param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
+        try (InputStream var0 = Files.newInputStream(param0)) {
             parseCompressed(var0, param1, param2);
         }
 
@@ -59,7 +63,7 @@ public class NbtIo {
     public static byte[] writeToByteArrayCompressed(CompoundTag param0) throws IOException {
         ByteArrayOutputStream var0 = new ByteArrayOutputStream();
 
-        try (DataOutputStream var1 = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(var0)))) {
+        try (DataOutputStream var1 = createCompressorStream(var0)) {
             write(param0, var1);
         }
 
@@ -76,38 +80,42 @@ public class NbtIo {
         return var0.toByteArray();
     }
 
-    public static void writeCompressed(CompoundTag param0, File param1) throws IOException {
-        try (OutputStream var0 = new FileOutputStream(param1)) {
-            writeCompressed(param0, var0);
+    public static void writeCompressed(CompoundTag param0, Path param1) throws IOException {
+        try (
+            OutputStream var0 = Files.newOutputStream(param1, StandardOpenOption.SYNC);
+            OutputStream var1 = new BufferedOutputStream(var0);
+        ) {
+            writeCompressed(param0, var1);
         }
 
     }
 
     public static void writeCompressed(CompoundTag param0, OutputStream param1) throws IOException {
-        try (DataOutputStream var0 = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(param1)))) {
+        try (DataOutputStream var0 = createCompressorStream(param1)) {
             write(param0, var0);
         }
 
     }
 
-    public static void write(CompoundTag param0, File param1) throws IOException {
+    public static void write(CompoundTag param0, Path param1) throws IOException {
         try (
-            FileOutputStream var0 = new FileOutputStream(param1);
-            DataOutputStream var1 = new DataOutputStream(var0);
+            OutputStream var0 = Files.newOutputStream(param1, StandardOpenOption.SYNC);
+            OutputStream var1 = new BufferedOutputStream(var0);
+            DataOutputStream var2 = new DataOutputStream(var1);
         ) {
-            write(param0, var1);
+            write(param0, var2);
         }
 
     }
 
     @Nullable
-    public static CompoundTag read(File param0) throws IOException {
-        if (!param0.exists()) {
+    public static CompoundTag read(Path param0) throws IOException {
+        if (Files.exists(param0)) {
             return null;
         } else {
             CompoundTag var3;
             try (
-                FileInputStream var0 = new FileInputStream(param0);
+                InputStream var0 = Files.newInputStream(param0);
                 DataInputStream var1 = new DataInputStream(var0);
             ) {
                 var3 = read(var1, NbtAccounter.unlimitedHeap());

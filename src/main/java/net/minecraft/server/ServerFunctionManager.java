@@ -5,9 +5,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.FunctionInstantiationException;
+import net.minecraft.commands.execution.ExecutionContext;
 import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.resources.ResourceLocation;
@@ -59,7 +61,7 @@ public class ServerFunctionManager {
 
         try {
             InstantiatedFunction<CommandSourceStack> var1 = param0.instantiate(null, this.getDispatcher(), param1);
-            Commands.executeCommandInContext(param1, param2 -> param2.queueInitialFunctionCall(var1, param1));
+            Commands.executeCommandInContext(param1, param2 -> ExecutionContext.queueInitialFunctionCall(param2, var1, param1, CommandResultCallback.EMPTY));
         } catch (FunctionInstantiationException var8) {
         } finally {
             var0.pop();

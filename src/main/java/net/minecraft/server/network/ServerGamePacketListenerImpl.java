@@ -682,7 +682,7 @@ public class ServerGamePacketListenerImpl
                     } else if (param0.getUpdateType() == StructureBlockEntity.UpdateType.LOAD_AREA) {
                         if (!var3.isStructureLoadable()) {
                             this.player.displayClientMessage(Component.translatable("structure_block.load_not_found", var4), false);
-                        } else if (var3.loadStructure(this.player.serverLevel())) {
+                        } else if (var3.placeStructureIfSameSize(this.player.serverLevel())) {
                             this.player.displayClientMessage(Component.translatable("structure_block.load_success", var4), false);
                         } else {
                             this.player.displayClientMessage(Component.translatable("structure_block.load_prepare", var4), false);

@@ -2,7 +2,7 @@ package net.minecraft.client;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.logging.LogUtils;
-import java.io.File;
+import java.nio.file.Path;
 import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
@@ -16,13 +16,13 @@ import org.slf4j.Logger;
 public class HotbarManager {
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final int NUM_HOTBAR_GROUPS = 9;
-    private final File optionsFile;
+    private final Path optionsFile;
     private final DataFixer fixerUpper;
     private final Hotbar[] hotbars = new Hotbar[9];
     private boolean loaded;
 
-    public HotbarManager(File param0, DataFixer param1) {
-        this.optionsFile = new File(param0, "hotbar.nbt");
+    public HotbarManager(Path param0, DataFixer param1) {
+        this.optionsFile = param0.resolve("hotbar.nbt");
         this.fixerUpper = param1;
 
         for(int var0 = 0; var0 < 9; ++var0) {

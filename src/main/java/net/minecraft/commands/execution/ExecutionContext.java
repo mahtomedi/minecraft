@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import java.util.Deque;
 import java.util.List;
 import javax.annotation.Nullable;
+import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.ExecutionCommandSource;
 import net.minecraft.commands.execution.tasks.BuildContexts;
 import net.minecraft.commands.execution.tasks.CallFunction;
@@ -34,14 +35,20 @@ public class ExecutionContext<T> implements AutoCloseable {
         this.commandQuota = param0;
     }
 
-    public void queueInitialFunctionCall(InstantiatedFunction<T> param0, T param1) {
-        this.queueNext(new CommandQueueEntry<>(0, new CallFunction<>(param0).bind(param1)));
+    private static <T extends ExecutionCommandSource<T>> Frame createTopFrame(ExecutionContext<T> param0, CommandResultCallback param1) {
+        return new Frame(0, param1, param0.commandQueue::clear);
+    }
+
+    public static <T extends ExecutionCommandSource<T>> void queueInitialFunctionCall(
+        ExecutionContext<T> param0, InstantiatedFunction<T> param1, T param2, CommandResultCallback param3
+    ) {
+        param0.queueNext(new CommandQueueEntry<>(createTopFrame(param0, param3), new CallFunction<>(param1, param2.callback(), false).bind(param2)));
     }
 
     public static <T extends ExecutionCommandSource<T>> void queueInitialCommandExecution(
-        ExecutionContext<T> param0, String param1, ContextChain<T> param2, T param3
+        ExecutionContext<T> param0, String param1, ContextChain<T> param2, T param3, CommandResultCallback param4
     ) {
-        param0.queueNext(new CommandQueueEntry<>(0, new BuildContexts.TopLevel<>(param1, param2, param3)));
+        param0.queueNext(new CommandQueueEntry<>(createTopFrame(param0, param4), new BuildContexts.TopLevel<>(param1, param2, param3)));
     }
 
     private void handleQueueOverflow() {
@@ -62,10 +69,14 @@ public class ExecutionContext<T> implements AutoCloseable {
     }
 
     public void discardAtDepthOrHigher(int param0) {
-        while(!this.commandQueue.isEmpty() && this.commandQueue.peek().depth() >= param0) {
+        while(!this.commandQueue.isEmpty() && this.commandQueue.peek().frame().depth() >= param0) {
             this.commandQueue.removeFirst();
         }
 
+    }
+
+    public Frame.FrameControl frameControlForDepth(int param0) {
+        return () -> this.discardAtDepthOrHigher(param0);
     }
 
     public void runCommandQueue() {

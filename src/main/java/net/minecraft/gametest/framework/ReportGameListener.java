@@ -117,10 +117,9 @@ class ReportGameListener implements GameTestListener {
         this.originalTestInfo.clearStructure();
         GameTestInfo var0 = new GameTestInfo(this.originalTestInfo.getTestFunction(), this.originalTestInfo.getRotation(), this.originalTestInfo.getLevel());
         var0.setRerunUntilFailed(this.originalTestInfo.rerunUntilFailed());
-        var0.startExecution();
         this.testTicker.add(var0);
         var0.addListener(this);
-        var0.spawnStructure(this.structurePos);
+        var0.prepareTestStructure(this.structurePos);
     }
 
     protected static void spawnBeacon(GameTestInfo param0, Block param1) {

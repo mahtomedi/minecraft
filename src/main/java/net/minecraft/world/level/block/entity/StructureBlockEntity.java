@@ -35,6 +35,7 @@ public class StructureBlockEntity extends BlockEntity {
     public static final int MAX_OFFSET_PER_AXIS = 48;
     public static final int MAX_SIZE_PER_AXIS = 48;
     public static final String AUTHOR_TAG = "author";
+    @Nullable
     private ResourceLocation structureName;
     private String author = "";
     private String metaData = "";
@@ -313,11 +314,13 @@ public class StructureBlockEntity extends BlockEntity {
     }
 
     public boolean saveStructure() {
-        return this.saveStructure(true);
+        return this.mode != StructureMode.SAVE ? false : this.saveStructure(true);
     }
 
     public boolean saveStructure(boolean param0) {
-        if (this.mode == StructureMode.SAVE && !this.level.isClientSide && this.structureName != null) {
+        if (this.structureName == null) {
+            return false;
+        } else {
             BlockPos var0 = this.getBlockPos().offset(this.structurePos);
             ServerLevel var1 = (ServerLevel)this.level;
             StructureTemplateManager var2 = var1.getStructureManager();
@@ -340,63 +343,68 @@ public class StructureBlockEntity extends BlockEntity {
             } else {
                 return true;
             }
-        } else {
-            return false;
         }
-    }
-
-    public boolean loadStructure(ServerLevel param0) {
-        return this.loadStructure(param0, true);
     }
 
     public static RandomSource createRandom(long param0) {
         return param0 == 0L ? RandomSource.create(Util.getMillis()) : RandomSource.create(param0);
     }
 
-    public boolean loadStructure(ServerLevel param0, boolean param1) {
+    public boolean placeStructureIfSameSize(ServerLevel param0) {
         if (this.mode == StructureMode.LOAD && this.structureName != null) {
-            StructureTemplateManager var0 = param0.getStructureManager();
-
-            Optional<StructureTemplate> var1;
-            try {
-                var1 = var0.get(this.structureName);
-            } catch (ResourceLocationException var6) {
+            StructureTemplate var0 = param0.getStructureManager().get(this.structureName).orElse(null);
+            if (var0 == null) {
+                return false;
+            } else if (var0.getSize().equals(this.structureSize)) {
+                this.placeStructure(param0, var0);
+                return true;
+            } else {
+                this.loadStructureInfo(var0);
                 return false;
             }
-
-            return var1.isEmpty() ? false : this.loadStructure(param0, param1, var1.get());
         } else {
             return false;
         }
     }
 
-    public boolean loadStructure(ServerLevel param0, boolean param1, StructureTemplate param2) {
-        BlockPos var0 = this.getBlockPos();
-        if (!StringUtil.isNullOrEmpty(param2.getAuthor())) {
-            this.author = param2.getAuthor();
-        }
-
-        Vec3i var1 = param2.getSize();
-        boolean var2 = this.structureSize.equals(var1);
-        if (!var2) {
-            this.structureSize = var1;
-            this.setChanged();
-            BlockState var3 = param0.getBlockState(var0);
-            param0.sendBlockUpdated(var0, var3, var3, 3);
-        }
-
-        if (param1 && !var2) {
+    public boolean loadStructureInfo(ServerLevel param0) {
+        StructureTemplate var0 = this.getStructureTemplate(param0);
+        if (var0 == null) {
             return false;
         } else {
-            StructurePlaceSettings var4 = new StructurePlaceSettings().setMirror(this.mirror).setRotation(this.rotation).setIgnoreEntities(this.ignoreEntities);
-            if (this.integrity < 1.0F) {
-                var4.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
-            }
-
-            BlockPos var5 = var0.offset(this.structurePos);
-            param2.placeInWorld(param0, var5, var5, var4, createRandom(this.seed), 2);
+            this.loadStructureInfo(var0);
             return true;
         }
+    }
+
+    private void loadStructureInfo(StructureTemplate param0) {
+        this.author = !StringUtil.isNullOrEmpty(param0.getAuthor()) ? param0.getAuthor() : "";
+        this.structureSize = param0.getSize();
+        this.setChanged();
+    }
+
+    public void placeStructure(ServerLevel param0) {
+        StructureTemplate var0 = this.getStructureTemplate(param0);
+        if (var0 != null) {
+            this.placeStructure(param0, var0);
+        }
+
+    }
+
+    @Nullable
+    private StructureTemplate getStructureTemplate(ServerLevel param0) {
+        return this.structureName == null ? null : param0.getStructureManager().get(this.structureName).orElse(null);
+    }
+
+    private void placeStructure(ServerLevel param0, StructureTemplate param1) {
+        this.loadStructureInfo(param1);
+        StructurePlaceSettings var0 = new StructurePlaceSettings().setMirror(this.mirror).setRotation(this.rotation).setIgnoreEntities(this.ignoreEntities);
+        if (this.integrity < 1.0F) {
+            var0.clearProcessors().addProcessor(new BlockRotProcessor(Mth.clamp(this.integrity, 0.0F, 1.0F))).setRandom(createRandom(this.seed));
+        }
+
+        BlockPos var1 = this.getBlockPos().offset(this.structurePos);
+        param1.placeInWorld(param0, var1, var1, var0, createRandom(this.seed), 2);
     }
 
     public void unloadStructure() {

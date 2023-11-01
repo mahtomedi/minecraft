@@ -234,7 +234,7 @@ public class TestCommand {
     private static int createNewStructure(CommandSourceStack param0, String param1, int param2, int param3, int param4) {
         if (param2 <= 48 && param3 <= 48 && param4 <= 48) {
             ServerLevel var0 = param0.getLevel();
-            BlockPos var1 = createTestPositionAround(param0);
+            BlockPos var1 = createTestPositionAround(param0).below();
             StructureUtils.createNewEmptyStructureBlock(param1.toLowerCase(), var1, new Vec3i(param2, param3, param4), Rotation.NONE, var0);
 
             for(int var2 = 0; var2 < param2; ++var2) {
@@ -329,10 +329,21 @@ public class TestCommand {
                 var4.addListener(new TestCommand.TestSummaryDisplayer(param0, param2));
             }
 
-            runTestPreparation(var3, param0);
-            BoundingBox var5 = StructureUtils.getStructureBoundingBox(var0);
-            BlockPos var6 = new BlockPos(var5.minX(), var5.minY(), var5.minZ());
-            GameTestRunner.runTest(var4, var6, GameTestTicker.SINGLETON);
+            if (verifyStructureExists(param0, var4)) {
+                runTestPreparation(var3, param0);
+                BoundingBox var5 = StructureUtils.getStructureBoundingBox(var0);
+                BlockPos var6 = new BlockPos(var5.minX(), var5.minY(), var5.minZ());
+                GameTestRunner.runTest(var4, var6, GameTestTicker.SINGLETON);
+            }
+        }
+    }
+
+    private static boolean verifyStructureExists(ServerLevel param0, GameTestInfo param1) {
+        if (param0.getStructureManager().get(new ResourceLocation(param1.getStructureName())).isEmpty()) {
+            say(param0, "Test structure " + param1.getStructureName() + " could not be found", ChatFormatting.RED);
+            return false;
+        } else {
+            return true;
         }
     }
 
@@ -371,8 +382,12 @@ public class TestCommand {
         runTestPreparation(param1, var0);
         Rotation var2 = StructureUtils.getRotationForRotationSteps(param2);
         GameTestInfo var3 = new GameTestInfo(param1, var2, var0);
-        GameTestRunner.runTest(var3, var1, GameTestTicker.SINGLETON);
-        return 1;
+        if (!verifyStructureExists(var0, var3)) {
+            return 0;
+        } else {
+            GameTestRunner.runTest(var3, var1, GameTestTicker.SINGLETON);
+            return 1;
+        }
     }
 
     private static BlockPos createTestPositionAround(CommandSourceStack param0) {
@@ -449,8 +464,7 @@ public class TestCommand {
             return 0;
         } else {
             StructureBlockEntity var3 = (StructureBlockEntity)var1.getBlockEntity(var2);
-            String var4 = var3.getStructurePath();
-            return exportTestStructure(param0, var4);
+            return saveAndExportTestStructure(param0, var3);
         }
     }
 
@@ -466,14 +480,21 @@ public class TestCommand {
 
             for(BlockPos var4 : var2) {
                 StructureBlockEntity var5 = (StructureBlockEntity)var1.getBlockEntity(var4);
-                String var6 = var5.getStructurePath();
-                if (exportTestStructure(param0, var6) != 0) {
+                if (saveAndExportTestStructure(param0, var5) != 0) {
                     var3 = false;
                 }
             }
 
             return var3 ? 0 : 1;
         }
+    }
+
+    private static int saveAndExportTestStructure(CommandSourceStack param0, StructureBlockEntity param1) {
+        if (!param1.saveStructure(true)) {
+            say(param0, "Failed to save structure " + param1.getStructureName());
+        }
+
+        return exportTestStructure(param0, param1.getStructureName());
     }
 
     private static int exportTestStructure(CommandSourceStack param0, String param1) {

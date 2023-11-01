@@ -264,7 +264,7 @@ public class Commands {
 
         try {
             if (var1 != null) {
-                executeCommandInContext(var0, param3 -> ExecutionContext.queueInitialCommandExecution(param3, param1, var1, var0));
+                executeCommandInContext(var0, param3 -> ExecutionContext.queueInitialCommandExecution(param3, param1, var1, var0, CommandResultCallback.EMPTY));
             }
         } catch (CommandRuntimeException var13) {
             var0.sendFailure(var13.getComponent());

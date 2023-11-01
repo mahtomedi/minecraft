@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface CustomModifierExecutor<T> {
-    void apply(List<T> var1, ContextChain<T> var2, boolean var3, ExecutionControl<T> var4);
+    void apply(T var1, List<T> var2, ContextChain<T> var3, ChainModifiers var4, ExecutionControl<T> var5);
 
     public interface ModifierAdapter<T> extends RedirectModifier<T>, CustomModifierExecutor<T> {
         @Override

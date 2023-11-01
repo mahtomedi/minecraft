@@ -16,14 +16,17 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Locale;
 import net.minecraft.Util;
+import net.minecraft.commands.CommandResultCallback;
 import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.FunctionInstantiationException;
 import net.minecraft.commands.arguments.item.FunctionArgument;
+import net.minecraft.commands.execution.ChainModifiers;
 import net.minecraft.commands.execution.CustomCommandExecutor;
 import net.minecraft.commands.execution.ExecutionContext;
 import net.minecraft.commands.execution.ExecutionControl;
+import net.minecraft.commands.execution.Frame;
 import net.minecraft.commands.execution.TraceCallbacks;
 import net.minecraft.commands.execution.tasks.CallFunction;
 import net.minecraft.commands.functions.CommandFunction;
@@ -43,6 +46,7 @@ public class DebugCommand {
         Component.translatable("commands.debug.alreadyRunning")
     );
     static final SimpleCommandExceptionType NO_RECURSIVE_TRACES = new SimpleCommandExceptionType(Component.translatable("commands.debug.function.noRecursion"));
+    static final SimpleCommandExceptionType NO_RETURN_RUN = new SimpleCommandExceptionType(Component.translatable("commands.debug.function.noReturnRun"));
 
     public static void register(CommandDispatcher<CommandSourceStack> param0) {
         param0.register(
@@ -94,8 +98,12 @@ public class DebugCommand {
     static class TraceCustomExecutor
         extends CustomCommandExecutor.WithErrorHandling<CommandSourceStack>
         implements CustomCommandExecutor.CommandAdapter<CommandSourceStack> {
-        public void runGuarded(CommandSourceStack param0, ContextChain<CommandSourceStack> param1, boolean param2, ExecutionControl<CommandSourceStack> param3) throws CommandSyntaxException {
-            if (param3.tracer() != null) {
+        public void runGuarded(
+            CommandSourceStack param0, ContextChain<CommandSourceStack> param1, ChainModifiers param2, ExecutionControl<CommandSourceStack> param3
+        ) throws CommandSyntaxException {
+            if (param2.isReturn()) {
+                throw DebugCommand.NO_RETURN_RUN.create();
+            } else if (param3.tracer() != null) {
                 throw DebugCommand.NO_RECURSIVE_TRACES.create();
             } else {
                 CommandContext<CommandSourceStack> var0 = param1.getTopContext();
@@ -116,8 +124,8 @@ public class DebugCommand {
                         try {
                             CommandSourceStack var10 = param0.withSource(var8).withMaximumPermission(2);
                             InstantiatedFunction<CommandSourceStack> var11 = var9.instantiate(null, var4, var10);
-                            param3.queueNext((new CallFunction<CommandSourceStack>(var11) {
-                                public void execute(CommandSourceStack param0, ExecutionContext<CommandSourceStack> param1, int param2) {
+                            param3.queueNext((new CallFunction<CommandSourceStack>(var11, CommandResultCallback.EMPTY, false) {
+                                public void execute(CommandSourceStack param0, ExecutionContext<CommandSourceStack> param1, Frame param2) {
                                     var7.println(var9.id());
                                     super.execute(param0, param1, param2);
                                 }

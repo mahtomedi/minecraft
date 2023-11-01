@@ -11,6 +11,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.ticks.ContainerSingleItem;
 
-public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSingleItem {
+public class DecoratedPotBlockEntity extends BlockEntity implements RandomizableContainer, ContainerSingleItem {
     public static final String TAG_SHERDS = "sherds";
     public static final String TAG_ITEM = "item";
     public static final int EVENT_POT_WOBBLES = 1;
@@ -28,6 +29,9 @@ public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSin
     public DecoratedPotBlockEntity.WobbleStyle lastWobbleStyle;
     private DecoratedPotBlockEntity.Decorations decorations;
     private ItemStack item = ItemStack.EMPTY;
+    @Nullable
+    protected ResourceLocation lootTable;
+    protected long lootTableSeed;
 
     public DecoratedPotBlockEntity(BlockPos param0, BlockState param1) {
         super(BlockEntityType.DECORATED_POT, param0, param1);
@@ -38,7 +42,7 @@ public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSin
     protected void saveAdditional(CompoundTag param0) {
         super.saveAdditional(param0);
         this.decorations.save(param0);
-        if (!this.item.isEmpty()) {
+        if (!this.trySaveLootTable(param0) && !this.item.isEmpty()) {
             param0.put("item", this.item.save(new CompoundTag()));
         }
 
@@ -48,10 +52,12 @@ public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSin
     public void load(CompoundTag param0) {
         super.load(param0);
         this.decorations = DecoratedPotBlockEntity.Decorations.load(param0);
-        if (param0.contains("item", 10)) {
-            this.item = ItemStack.of(param0.getCompound("item"));
-        } else {
-            this.item = ItemStack.EMPTY;
+        if (!this.tryLoadLootTable(param0)) {
+            if (param0.contains("item", 10)) {
+                this.item = ItemStack.of(param0.getCompound("item"));
+            } else {
+                this.item = ItemStack.EMPTY;
+            }
         }
 
     }
@@ -88,13 +94,36 @@ public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSin
         return var0;
     }
 
+    @Nullable
+    @Override
+    public ResourceLocation getLootTable() {
+        return this.lootTable;
+    }
+
+    @Override
+    public void setLootTable(@Nullable ResourceLocation param0) {
+        this.lootTable = param0;
+    }
+
+    @Override
+    public long getLootTableSeed() {
+        return this.lootTableSeed;
+    }
+
+    @Override
+    public void setLootTableSeed(long param0) {
+        this.lootTableSeed = param0;
+    }
+
     @Override
     public ItemStack getTheItem() {
+        this.unpackLootTable(null);
         return this.item;
     }
 
     @Override
     public ItemStack splitTheItem(int param0) {
+        this.unpackLootTable(null);
         ItemStack var0 = this.item.split(param0);
         if (this.item.isEmpty()) {
             this.item = ItemStack.EMPTY;
@@ -105,6 +134,7 @@ public class DecoratedPotBlockEntity extends BlockEntity implements ContainerSin
 
     @Override
     public void setTheItem(ItemStack param0) {
+        this.unpackLootTable(null);
         this.item = param0;
     }
 
