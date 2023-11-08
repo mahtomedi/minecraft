@@ -3459,6 +3459,25 @@ public class BlockModelGenerators {
             );
     }
 
+    private void createTrialSpawner() {
+        Block var0 = Blocks.TRIAL_SPAWNER;
+        TextureMapping var1 = TextureMapping.trialSpawner(var0, "_side_inactive", "_top_inactive");
+        TextureMapping var2 = TextureMapping.trialSpawner(var0, "_side_active", "_top_active");
+        TextureMapping var3 = TextureMapping.trialSpawner(var0, "_side_active", "_top_ejecting_reward");
+        ResourceLocation var4 = ModelTemplates.CUBE_BOTTOM_TOP_INNER_FACES.create(var0, var1, this.modelOutput);
+        ResourceLocation var5 = ModelTemplates.CUBE_BOTTOM_TOP_INNER_FACES.createWithSuffix(var0, "_active", var2, this.modelOutput);
+        ResourceLocation var6 = ModelTemplates.CUBE_BOTTOM_TOP_INNER_FACES.createWithSuffix(var0, "_ejecting_reward", var3, this.modelOutput);
+        this.delegateItemModel(var0, var4);
+        this.blockStateOutput
+            .accept(MultiVariantGenerator.multiVariant(var0).with(PropertyDispatch.property(BlockStateProperties.TRIAL_SPAWNER_STATE).generate(param3 -> {
+                return switch(param3) {
+                    case INACTIVE, COOLDOWN -> Variant.variant().with(VariantProperties.MODEL, var4);
+                    case WAITING_FOR_PLAYERS, ACTIVE, WAITING_FOR_REWARD_EJECTION -> Variant.variant().with(VariantProperties.MODEL, var5);
+                    case EJECTING_REWARD -> Variant.variant().with(VariantProperties.MODEL, var6);
+                };
+            })));
+    }
+
     private void createSculkSensor() {
         ResourceLocation var0 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_inactive");
         ResourceLocation var1 = ModelLocationUtils.getModelLocation(Blocks.SCULK_SENSOR, "_active");
@@ -4450,7 +4469,7 @@ public class BlockModelGenerators {
         this.createTrivialCube(Blocks.SHROOMLIGHT);
         this.createTrivialCube(Blocks.SOUL_SAND);
         this.createTrivialCube(Blocks.SOUL_SOIL);
-        this.createTrivialCube(Blocks.SPAWNER);
+        this.createTrivialBlock(Blocks.SPAWNER, TexturedModel.CUBE_INNER_FACES);
         this.createTrivialCube(Blocks.SPONGE);
         this.createTrivialBlock(Blocks.SEAGRASS, TexturedModel.SEAGRASS);
         this.createSimpleFlatItemModel(Items.SEAGRASS);
@@ -4560,6 +4579,7 @@ public class BlockModelGenerators {
         this.createFrogspawnBlock();
         this.createMangrovePropagule();
         this.createMuddyMangroveRoots();
+        this.createTrialSpawner();
         this.createNonTemplateHorizontalBlock(Blocks.LADDER);
         this.createSimpleFlatItemModel(Blocks.LADDER);
         this.createNonTemplateHorizontalBlock(Blocks.LECTERN);

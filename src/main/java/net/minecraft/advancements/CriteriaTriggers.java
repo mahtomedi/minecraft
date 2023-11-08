@@ -1,8 +1,6 @@
 package net.minecraft.advancements;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import javax.annotation.Nullable;
+import com.mojang.serialization.Codec;
 import net.minecraft.advancements.critereon.BeeNestDestroyedTrigger;
 import net.minecraft.advancements.critereon.BredAnimalsTrigger;
 import net.minecraft.advancements.critereon.BrewedPotionTrigger;
@@ -43,10 +41,11 @@ import net.minecraft.advancements.critereon.TradeTrigger;
 import net.minecraft.advancements.critereon.UsedEnderEyeTrigger;
 import net.minecraft.advancements.critereon.UsedTotemTrigger;
 import net.minecraft.advancements.critereon.UsingItemTrigger;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class CriteriaTriggers {
-    private static final BiMap<ResourceLocation, CriterionTrigger<?>> CRITERIA = HashBiMap.create();
+    public static final Codec<CriterionTrigger<?>> CODEC = BuiltInRegistries.TRIGGER_TYPES.byNameCodec();
     public static final ImpossibleTrigger IMPOSSIBLE = register("impossible", new ImpossibleTrigger());
     public static final KilledTrigger PLAYER_KILLED_ENTITY = register("player_killed_entity", new KilledTrigger());
     public static final KilledTrigger ENTITY_KILLED_PLAYER = register("entity_killed_player", new KilledTrigger());
@@ -101,25 +100,10 @@ public class CriteriaTriggers {
     public static final RecipeCraftedTrigger RECIPE_CRAFTED = register("recipe_crafted", new RecipeCraftedTrigger());
 
     private static <T extends CriterionTrigger<?>> T register(String param0, T param1) {
-        ResourceLocation var0 = new ResourceLocation(param0);
-        if (CRITERIA.putIfAbsent(var0, param1) != null) {
-            throw new IllegalArgumentException("Duplicate criterion id " + var0);
-        } else {
-            return param1;
-        }
+        return Registry.register(BuiltInRegistries.TRIGGER_TYPES, param0, param1);
     }
 
-    @Nullable
-    public static <T extends CriterionTriggerInstance> CriterionTrigger<T> getCriterion(ResourceLocation param0) {
-        return (CriterionTrigger<T>)CRITERIA.get(param0);
-    }
-
-    @Nullable
-    public static ResourceLocation getId(CriterionTrigger<?> param0) {
-        return CRITERIA.inverse().get(param0);
-    }
-
-    public static Iterable<? extends CriterionTrigger<?>> all() {
-        return CRITERIA.values();
+    public static CriterionTrigger<?> bootstrap(Registry<CriterionTrigger<?>> param0) {
+        return IMPOSSIBLE;
     }
 }

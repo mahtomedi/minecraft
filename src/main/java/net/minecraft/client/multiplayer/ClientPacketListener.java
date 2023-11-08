@@ -88,6 +88,7 @@ import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.common.custom.BeeDebugPayload;
 import net.minecraft.network.protocol.common.custom.BrainDebugPayload;
+import net.minecraft.network.protocol.common.custom.BreezeDebugPayload;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.GameEventDebugPayload;
 import net.minecraft.network.protocol.common.custom.GameEventListenerDebugPayload;
@@ -1149,7 +1150,19 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     @Override
     public void handleExplosion(ClientboundExplodePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
-        Explosion var0 = new Explosion(this.minecraft.level, null, param0.getX(), param0.getY(), param0.getZ(), param0.getPower(), param0.getToBlow());
+        Explosion var0 = new Explosion(
+            this.minecraft.level,
+            null,
+            param0.getX(),
+            param0.getY(),
+            param0.getZ(),
+            param0.getPower(),
+            param0.getToBlow(),
+            param0.getBlockInteraction(),
+            param0.getSmallExplosionParticles(),
+            param0.getLargeExplosionParticles(),
+            param0.getExplosionSound()
+        );
         var0.finalizeExplosion(true);
         this.minecraft
             .player
@@ -1935,6 +1948,8 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
             this.minecraft.debugRenderer.gameEventListenerRenderer.trackGameEvent(var16.type(), var16.pos());
         } else if (param0 instanceof GameEventListenerDebugPayload var17) {
             this.minecraft.debugRenderer.gameEventListenerRenderer.trackListener(var17.listenerPos(), var17.listenerRange());
+        } else if (param0 instanceof BreezeDebugPayload var18) {
+            this.minecraft.debugRenderer.breezeDebugRenderer.add(var18.breezeInfo());
         } else {
             this.handleUnknownCustomPayload(param0);
         }

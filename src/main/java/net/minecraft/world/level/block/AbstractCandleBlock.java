@@ -1,6 +1,7 @@
 package net.minecraft.world.level.block;
 
 import com.mojang.serialization.MapCodec;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -10,6 +11,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -102,5 +105,14 @@ public abstract class AbstractCandleBlock extends Block {
 
     private static void setLit(LevelAccessor param0, BlockState param1, BlockPos param2, boolean param3) {
         param0.setBlock(param2, param1.setValue(LIT, Boolean.valueOf(param3)), 11);
+    }
+
+    @Override
+    public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
+        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK && !param1.isClientSide() && param0.getValue(LIT)) {
+            extinguish(null, param0, param1, param2);
+        }
+
+        super.onExplosionHit(param0, param1, param2, param3, param4);
     }
 }

@@ -24,10 +24,9 @@ import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.Spawner;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
@@ -58,36 +57,33 @@ public class SpawnEggItem extends Item {
             BlockPos var2 = param0.getClickedPos();
             Direction var3 = param0.getClickedFace();
             BlockState var4 = var0.getBlockState(var2);
-            if (var4.is(Blocks.SPAWNER)) {
-                BlockEntity var5 = var0.getBlockEntity(var2);
-                if (var5 instanceof SpawnerBlockEntity var6) {
-                    EntityType<?> var7 = this.getType(var1.getTag());
-                    var6.setEntityId(var7, var0.getRandom());
-                    var5.setChanged();
-                    var0.sendBlockUpdated(var2, var4, var4, 3);
-                    var0.gameEvent(param0.getPlayer(), GameEvent.BLOCK_CHANGE, var2);
-                    var1.shrink(1);
-                    return InteractionResult.CONSUME;
-                }
-            }
-
-            BlockPos var8;
-            if (var4.getCollisionShape(var0, var2).isEmpty()) {
-                var8 = var2;
-            } else {
-                var8 = var2.relative(var3);
-            }
-
-            EntityType<?> var10 = this.getType(var1.getTag());
-            if (var10.spawn(
-                    (ServerLevel)var0, var1, param0.getPlayer(), var8, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var8) && var3 == Direction.UP
-                )
-                != null) {
+            BlockEntity var9 = var0.getBlockEntity(var2);
+            if (var9 instanceof Spawner var5) {
+                EntityType<?> var6 = this.getType(var1.getTag());
+                var5.setEntityId(var6, var0.getRandom());
+                var0.sendBlockUpdated(var2, var4, var4, 3);
+                var0.gameEvent(param0.getPlayer(), GameEvent.BLOCK_CHANGE, var2);
                 var1.shrink(1);
-                var0.gameEvent(param0.getPlayer(), GameEvent.ENTITY_PLACE, var2);
-            }
+                return InteractionResult.CONSUME;
+            } else {
+                BlockPos var7;
+                if (var4.getCollisionShape(var0, var2).isEmpty()) {
+                    var7 = var2;
+                } else {
+                    var7 = var2.relative(var3);
+                }
 
-            return InteractionResult.CONSUME;
+                EntityType<?> var9 = this.getType(var1.getTag());
+                if (var9.spawn(
+                        (ServerLevel)var0, var1, param0.getPlayer(), var7, MobSpawnType.SPAWN_EGG, true, !Objects.equals(var2, var7) && var3 == Direction.UP
+                    )
+                    != null) {
+                    var1.shrink(1);
+                    var0.gameEvent(param0.getPlayer(), GameEvent.ENTITY_PLACE, var2);
+                }
+
+                return InteractionResult.CONSUME;
+            }
         }
     }
 

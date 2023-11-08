@@ -78,6 +78,7 @@ public class EntityRenderers {
         register(EntityType.BLAZE, BlazeRenderer::new);
         register(EntityType.BLOCK_DISPLAY, DisplayRenderer.BlockDisplayRenderer::new);
         register(EntityType.BOAT, param0 -> new BoatRenderer(param0, false));
+        register(EntityType.BREEZE, BreezeRenderer::new);
         register(EntityType.CAT, CatRenderer::new);
         register(EntityType.CAMEL, param0 -> new CamelRenderer(param0, ModelLayers.CAMEL));
         register(EntityType.CAVE_SPIDER, CaveSpiderRenderer::new);
@@ -186,6 +187,7 @@ public class EntityRenderers {
         register(EntityType.VINDICATOR, VindicatorRenderer::new);
         register(EntityType.WARDEN, WardenRenderer::new);
         register(EntityType.WANDERING_TRADER, WanderingTraderRenderer::new);
+        register(EntityType.WIND_CHARGE, WindChargeRenderer::new);
         register(EntityType.WITCH, WitchRenderer::new);
         register(EntityType.WITHER, WitherBossRenderer::new);
         register(EntityType.WITHER_SKELETON, WitherSkeletonRenderer::new);

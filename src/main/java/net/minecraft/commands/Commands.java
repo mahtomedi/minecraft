@@ -266,30 +266,28 @@ public class Commands {
             if (var1 != null) {
                 executeCommandInContext(var0, param3 -> ExecutionContext.queueInitialCommandExecution(param3, param1, var1, var0, CommandResultCallback.EMPTY));
             }
-        } catch (CommandRuntimeException var13) {
-            var0.sendFailure(var13.getComponent());
-        } catch (Exception var14) {
-            MutableComponent var4 = Component.literal(var14.getMessage() == null ? var14.getClass().getName() : var14.getMessage());
+        } catch (Exception var12) {
+            MutableComponent var3 = Component.literal(var12.getMessage() == null ? var12.getClass().getName() : var12.getMessage());
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.error("Command exception: /{}", param1, var14);
-                StackTraceElement[] var5 = var14.getStackTrace();
+                LOGGER.error("Command exception: /{}", param1, var12);
+                StackTraceElement[] var4 = var12.getStackTrace();
 
-                for(int var6 = 0; var6 < Math.min(var5.length, 3); ++var6) {
-                    var4.append("\n\n")
-                        .append(var5[var6].getMethodName())
+                for(int var5 = 0; var5 < Math.min(var4.length, 3); ++var5) {
+                    var3.append("\n\n")
+                        .append(var4[var5].getMethodName())
                         .append("\n ")
-                        .append(var5[var6].getFileName())
+                        .append(var4[var5].getFileName())
                         .append(":")
-                        .append(String.valueOf(var5[var6].getLineNumber()));
+                        .append(String.valueOf(var4[var5].getLineNumber()));
                 }
             }
 
             var0.sendFailure(
-                Component.translatable("command.failed").withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var4)))
+                Component.translatable("command.failed").withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var3)))
             );
             if (SharedConstants.IS_RUNNING_IN_IDE) {
-                var0.sendFailure(Component.literal(Util.describeError(var14)));
-                LOGGER.error("'/{}' threw an exception", param1, var14);
+                var0.sendFailure(Component.literal(Util.describeError(var12)));
+                LOGGER.error("'/{}' threw an exception", param1, var12);
             }
         } finally {
             var0.getServer().getProfiler().pop();

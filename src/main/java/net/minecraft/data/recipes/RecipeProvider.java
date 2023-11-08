@@ -2,7 +2,6 @@ package net.minecraft.data.recipes;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,8 +34,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.BlastingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -73,32 +75,36 @@ public abstract class RecipeProvider implements DataProvider {
     public CompletableFuture<?> run(final CachedOutput param0) {
         final Set<ResourceLocation> var0 = Sets.newHashSet();
         final List<CompletableFuture<?>> var1 = new ArrayList<>();
-        this.buildRecipes(new RecipeOutput() {
-            @Override
-            public void accept(FinishedRecipe param0x) {
-                if (!var0.add(param0.id())) {
-                    throw new IllegalStateException("Duplicate recipe " + param0.id());
-                } else {
-                    var1.add(DataProvider.saveStable(param0, param0.serializeRecipe(), RecipeProvider.this.recipePathProvider.json(param0.id())));
-                    AdvancementHolder var0 = param0.advancement();
-                    if (var0 != null) {
-                        JsonObject var1 = var0.value().serializeToJson();
-                        var1.add(DataProvider.saveStable(param0, var1, RecipeProvider.this.advancementPathProvider.json(var0.id())));
+        this.buildRecipes(
+            new RecipeOutput() {
+                @Override
+                public void accept(ResourceLocation param0x, Recipe<?> param1, @Nullable AdvancementHolder param2) {
+                    if (!var0.add(param0)) {
+                        throw new IllegalStateException("Duplicate recipe " + param0);
+                    } else {
+                        var1.add(DataProvider.saveStable(param0, Recipe.CODEC, param1, RecipeProvider.this.recipePathProvider.json(param0)));
+                        if (param2 != null) {
+                            var1.add(
+                                DataProvider.saveStable(
+                                    param0, Advancement.CODEC, param2.value(), RecipeProvider.this.advancementPathProvider.json(param2.id())
+                                )
+                            );
+                        }
+    
                     }
-
+                }
+    
+                @Override
+                public Advancement.Builder advancement() {
+                    return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
                 }
             }
-
-            @Override
-            public Advancement.Builder advancement() {
-                return Advancement.Builder.recipeAdvancement().parent(RecipeBuilder.ROOT_RECIPE_ADVANCEMENT);
-            }
-        });
+        );
         return CompletableFuture.allOf(var1.toArray(param0x -> new CompletableFuture[param0x]));
     }
 
     protected CompletableFuture<?> buildAdvancement(CachedOutput param0, AdvancementHolder param1) {
-        return DataProvider.saveStable(param0, param1.value().serializeToJson(), this.advancementPathProvider.json(param1.id()));
+        return DataProvider.saveStable(param0, Advancement.CODEC, param1.value(), this.advancementPathProvider.json(param1.id()));
     }
 
     protected abstract void buildRecipes(RecipeOutput var1);
@@ -122,31 +128,32 @@ public abstract class RecipeProvider implements DataProvider {
     protected static void oreSmelting(
         RecipeOutput param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
     ) {
-        oreCooking(param0, RecipeSerializer.SMELTING_RECIPE, param1, param2, param3, param4, param5, param6, "_from_smelting");
+        oreCooking(param0, RecipeSerializer.SMELTING_RECIPE, SmeltingRecipe::new, param1, param2, param3, param4, param5, param6, "_from_smelting");
     }
 
     protected static void oreBlasting(
         RecipeOutput param0, List<ItemLike> param1, RecipeCategory param2, ItemLike param3, float param4, int param5, String param6
     ) {
-        oreCooking(param0, RecipeSerializer.BLASTING_RECIPE, param1, param2, param3, param4, param5, param6, "_from_blasting");
+        oreCooking(param0, RecipeSerializer.BLASTING_RECIPE, BlastingRecipe::new, param1, param2, param3, param4, param5, param6, "_from_blasting");
     }
 
-    private static void oreCooking(
+    private static <T extends AbstractCookingRecipe> void oreCooking(
         RecipeOutput param0,
-        RecipeSerializer<? extends AbstractCookingRecipe> param1,
-        List<ItemLike> param2,
-        RecipeCategory param3,
-        ItemLike param4,
-        float param5,
-        int param6,
-        String param7,
-        String param8
+        RecipeSerializer<T> param1,
+        AbstractCookingRecipe.Factory<T> param2,
+        List<ItemLike> param3,
+        RecipeCategory param4,
+        ItemLike param5,
+        float param6,
+        int param7,
+        String param8,
+        String param9
     ) {
-        for(ItemLike var0 : param2) {
-            SimpleCookingRecipeBuilder.generic(Ingredient.of(var0), param3, param4, param5, param6, param1)
-                .group(param7)
+        for(ItemLike var0 : param3) {
+            SimpleCookingRecipeBuilder.generic(Ingredient.of(var0), param4, param5, param6, param7, param1, param2)
+                .group(param8)
                 .unlockedBy(getHasName(var0), has(var0))
-                .save(param0, getItemName(param4) + param8 + "_" + getItemName(var0));
+                .save(param0, getItemName(param5) + param9 + "_" + getItemName(var0));
         }
 
     }
@@ -519,30 +526,33 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void cookRecipes(RecipeOutput param0, String param1, RecipeSerializer<? extends AbstractCookingRecipe> param2, int param3) {
-        simpleCookingRecipe(param0, param1, param2, param3, Items.BEEF, Items.COOKED_BEEF, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.CHICKEN, Items.COOKED_CHICKEN, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.COD, Items.COOKED_COD, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.KELP, Items.DRIED_KELP, 0.1F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.SALMON, Items.COOKED_SALMON, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.MUTTON, Items.COOKED_MUTTON, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.PORKCHOP, Items.COOKED_PORKCHOP, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.POTATO, Items.BAKED_POTATO, 0.35F);
-        simpleCookingRecipe(param0, param1, param2, param3, Items.RABBIT, Items.COOKED_RABBIT, 0.35F);
+    protected static <T extends AbstractCookingRecipe> void cookRecipes(
+        RecipeOutput param0, String param1, RecipeSerializer<T> param2, AbstractCookingRecipe.Factory<T> param3, int param4
+    ) {
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.BEEF, Items.COOKED_BEEF, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.CHICKEN, Items.COOKED_CHICKEN, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.COD, Items.COOKED_COD, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.KELP, Items.DRIED_KELP, 0.1F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.SALMON, Items.COOKED_SALMON, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.MUTTON, Items.COOKED_MUTTON, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.PORKCHOP, Items.COOKED_PORKCHOP, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.POTATO, Items.BAKED_POTATO, 0.35F);
+        simpleCookingRecipe(param0, param1, param2, param3, param4, Items.RABBIT, Items.COOKED_RABBIT, 0.35F);
     }
 
-    private static void simpleCookingRecipe(
+    private static <T extends AbstractCookingRecipe> void simpleCookingRecipe(
         RecipeOutput param0,
         String param1,
-        RecipeSerializer<? extends AbstractCookingRecipe> param2,
-        int param3,
-        ItemLike param4,
+        RecipeSerializer<T> param2,
+        AbstractCookingRecipe.Factory<T> param3,
+        int param4,
         ItemLike param5,
-        float param6
+        ItemLike param6,
+        float param7
     ) {
-        SimpleCookingRecipeBuilder.generic(Ingredient.of(param4), RecipeCategory.FOOD, param5, param6, param3, param2)
-            .unlockedBy(getHasName(param4), has(param4))
-            .save(param0, getItemName(param5) + "_from_" + param1);
+        SimpleCookingRecipeBuilder.generic(Ingredient.of(param5), RecipeCategory.FOOD, param6, param7, param4, param2, param3)
+            .unlockedBy(getHasName(param5), has(param5))
+            .save(param0, getItemName(param6) + "_from_" + param1);
     }
 
     protected static void waxRecipes(RecipeOutput param0) {
@@ -615,7 +625,8 @@ public abstract class RecipeProvider implements DataProvider {
     }
 
     private static Criterion<EnterBlockTrigger.TriggerInstance> insideOf(Block param0) {
-        return CriteriaTriggers.ENTER_BLOCK.createCriterion(new EnterBlockTrigger.TriggerInstance(Optional.empty(), param0, Optional.empty()));
+        return CriteriaTriggers.ENTER_BLOCK
+            .createCriterion(new EnterBlockTrigger.TriggerInstance(Optional.empty(), Optional.of(param0.builtInRegistryHolder()), Optional.empty()));
     }
 
     private static Criterion<InventoryChangeTrigger.TriggerInstance> has(MinMaxBounds.Ints param0, ItemLike param1) {
@@ -636,11 +647,7 @@ public abstract class RecipeProvider implements DataProvider {
 
     private static Criterion<InventoryChangeTrigger.TriggerInstance> inventoryTrigger(ItemPredicate... param0) {
         return CriteriaTriggers.INVENTORY_CHANGED
-            .createCriterion(
-                new InventoryChangeTrigger.TriggerInstance(
-                    Optional.empty(), MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, MinMaxBounds.Ints.ANY, List.of(param0)
-                )
-            );
+            .createCriterion(new InventoryChangeTrigger.TriggerInstance(Optional.empty(), InventoryChangeTrigger.TriggerInstance.Slots.ANY, List.of(param0)));
     }
 
     protected static String getHasName(ItemLike param0) {

@@ -99,14 +99,16 @@ public class Drowned extends Zombie implements RangedAttackMob {
     public static boolean checkDrownedSpawnRules(
         EntityType<Drowned> param0, ServerLevelAccessor param1, MobSpawnType param2, BlockPos param3, RandomSource param4
     ) {
-        if (!param1.getFluidState(param3.below()).is(FluidTags.WATER)) {
+        if (!param1.getFluidState(param3.below()).is(FluidTags.WATER) && !MobSpawnType.isSpawner(param2)) {
             return false;
         } else {
             Holder<Biome> var0 = param1.getBiome(param3);
             boolean var1 = param1.getDifficulty() != Difficulty.PEACEFUL
-                && isDarkEnoughToSpawn(param1, param3, param4)
-                && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER));
-            if (var0.is(BiomeTags.MORE_FREQUENT_DROWNED_SPAWNS)) {
+                && (MobSpawnType.ignoresLightRequirements(param2) || isDarkEnoughToSpawn(param1, param3, param4))
+                && (MobSpawnType.isSpawner(param2) || param1.getFluidState(param3).is(FluidTags.WATER));
+            if (var1 && MobSpawnType.isSpawner(param2)) {
+                return true;
+            } else if (var0.is(BiomeTags.MORE_FREQUENT_DROWNED_SPAWNS)) {
                 return param4.nextInt(15) == 0 && var1;
             } else {
                 return param4.nextInt(40) == 0 && isDeepEnoughToSpawn(param1, param3) && var1;

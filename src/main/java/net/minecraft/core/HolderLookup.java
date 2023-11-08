@@ -68,6 +68,8 @@ public interface HolderLookup<T> extends HolderGetter<T> {
     }
 
     public interface Provider {
+        Stream<ResourceKey<? extends Registry<?>>> listRegistries();
+
         <T> Optional<HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> var1);
 
         default <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> param0) {
@@ -91,6 +93,11 @@ public interface HolderLookup<T> extends HolderGetter<T> {
                 )
             );
             return new HolderLookup.Provider() {
+                @Override
+                public Stream<ResourceKey<? extends Registry<?>>> listRegistries() {
+                    return var0.keySet().stream();
+                }
+
                 @Override
                 public <T> Optional<HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> param0) {
                     return Optional.ofNullable((HolderLookup.RegistryLookup<T>)var0.get(param0));

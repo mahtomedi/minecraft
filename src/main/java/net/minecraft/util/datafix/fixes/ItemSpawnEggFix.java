@@ -12,6 +12,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import java.util.Objects;
 import java.util.Optional;
+import net.minecraft.Util;
 import net.minecraft.util.datafix.schemas.NamespacedSchema;
 
 public class ItemSpawnEggFix extends DataFix {
@@ -99,43 +100,35 @@ public class ItemSpawnEggFix extends DataFix {
         OpticFinder<?> var5 = var4.type().findField("EntityTag");
         OpticFinder<?> var6 = DSL.typeFinder(var0.getTypeRaw(References.ENTITY));
         Type<?> var7 = this.getOutputSchema().getTypeRaw(References.ENTITY);
-        return this.fixTypeEverywhereTyped(
-            "ItemSpawnEggFix",
-            var1,
-            param6 -> {
-                Optional<Pair<String, String>> var0x = param6.getOptional(var2);
-                if (var0x.isPresent() && Objects.equals(var0x.get().getSecond(), "minecraft:spawn_egg")) {
-                    Dynamic<?> var1x = param6.get(DSL.remainderFinder());
-                    short var2x = var1x.get("Damage").asShort((short)0);
-                    Optional<? extends Typed<?>> var3x = param6.getOptionalTyped(var4);
-                    Optional<? extends Typed<?>> var4x = var3x.flatMap(param1x -> param1x.getOptionalTyped(var5));
-                    Optional<? extends Typed<?>> var5x = var4x.flatMap(param1x -> param1x.getOptionalTyped(var6));
-                    Optional<String> var6x = var5x.flatMap(param1x -> param1x.getOptional(var3));
-                    Typed<?> var7x = param6;
-                    String var8x = ID_TO_ENTITY[var2x & 255];
-                    if (var8x != null && (var6x.isEmpty() || !Objects.equals(var6x.get(), var8x))) {
-                        Typed<?> var9 = param6.getOrCreateTyped(var4);
-                        Typed<?> var10 = var9.getOrCreateTyped(var5);
-                        Typed<?> var11 = var10.getOrCreateTyped(var6);
-                        Dynamic<?> var12 = var1x;
-                        Typed<?> var13 = var11.write()
-                            .flatMap(param3x -> var7.readTyped(param3x.set("id", var12.createString(var8x))))
-                            .result()
-                            .orElseThrow(() -> new IllegalStateException("Could not parse new entity"))
-                            .getFirst();
-                        var7x = param6.set(var4, var9.set(var5, var10.set(var6, var13)));
-                    }
-    
-                    if (var2x != 0) {
-                        var1x = var1x.set("Damage", var1x.createShort((short)0));
-                        var7x = var7x.set(DSL.remainderFinder(), var1x);
-                    }
-    
-                    return var7x;
-                } else {
-                    return param6;
+        return this.fixTypeEverywhereTyped("ItemSpawnEggFix", var1, param6 -> {
+            Optional<Pair<String, String>> var0x = param6.getOptional(var2);
+            if (var0x.isPresent() && Objects.equals(var0x.get().getSecond(), "minecraft:spawn_egg")) {
+                Dynamic<?> var1x = param6.get(DSL.remainderFinder());
+                short var2x = var1x.get("Damage").asShort((short)0);
+                Optional<? extends Typed<?>> var3x = param6.getOptionalTyped(var4);
+                Optional<? extends Typed<?>> var4x = var3x.flatMap(param1x -> param1x.getOptionalTyped(var5));
+                Optional<? extends Typed<?>> var5x = var4x.flatMap(param1x -> param1x.getOptionalTyped(var6));
+                Optional<String> var6x = var5x.flatMap(param1x -> param1x.getOptional(var3));
+                Typed<?> var7x = param6;
+                String var8x = ID_TO_ENTITY[var2x & 255];
+                if (var8x != null && (var6x.isEmpty() || !Objects.equals(var6x.get(), var8x))) {
+                    Typed<?> var9 = param6.getOrCreateTyped(var4);
+                    Typed<?> var10 = var9.getOrCreateTyped(var5);
+                    Typed<?> var11 = var10.getOrCreateTyped(var6);
+                    Dynamic<?> var12 = var1x;
+                    Typed<?> var13 = Util.writeAndReadTypedOrThrow(var11, var7, param2x -> param2x.set("id", var12.createString(var8x)));
+                    var7x = param6.set(var4, var9.set(var5, var10.set(var6, var13)));
                 }
+
+                if (var2x != 0) {
+                    var1x = var1x.set("Damage", var1x.createShort((short)0));
+                    var7x = var7x.set(DSL.remainderFinder(), var1x);
+                }
+
+                return var7x;
+            } else {
+                return param6;
             }
-        );
+        });
     }
 }

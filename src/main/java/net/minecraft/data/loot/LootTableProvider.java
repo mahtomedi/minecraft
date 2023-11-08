@@ -17,6 +17,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.RandomSequence;
 import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.storage.loot.LootDataId;
@@ -55,7 +56,8 @@ public class LootTableProvider implements DataProvider {
                     throw new IllegalStateException("Duplicate loot table " + param3);
                 }
             }));
-        ValidationContext var2 = new ValidationContext(LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
+        ProblemReporter.Collector var2 = new ProblemReporter.Collector();
+        ValidationContext var3 = new ValidationContext(var2, LootContextParamSets.ALL_PARAMS, new LootDataResolver() {
             @Nullable
             @Override
             public <T> T getElement(LootDataId<T> param0) {
@@ -63,18 +65,18 @@ public class LootTableProvider implements DataProvider {
             }
         });
 
-        for(ResourceLocation var4 : Sets.difference(this.requiredTables, var0.keySet())) {
-            var2.reportProblem("Missing built-in table: " + var4);
+        for(ResourceLocation var5 : Sets.difference(this.requiredTables, var0.keySet())) {
+            var2.report("Missing built-in table: " + var5);
         }
 
         var0.forEach(
             (param1, param2) -> param2.validate(
-                    var2.setParams(param2.getParamSet()).enterElement("{" + param1 + "}", new LootDataId<>(LootDataType.TABLE, param1))
+                    var3.setParams(param2.getParamSet()).enterElement("{" + param1 + "}", new LootDataId<>(LootDataType.TABLE, param1))
                 )
         );
-        Multimap<String, String> var5 = var2.getProblems();
-        if (!var5.isEmpty()) {
-            var5.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
+        Multimap<String, String> var6 = var2.get();
+        if (!var6.isEmpty()) {
+            var6.forEach((param0x, param1) -> LOGGER.warn("Found validation problem in {}: {}", param0x, param1));
             throw new IllegalStateException("Failed to validate loot tables, see logs");
         } else {
             return CompletableFuture.allOf(var0.entrySet().stream().map(param1 -> {

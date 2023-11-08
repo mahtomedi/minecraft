@@ -3,6 +3,9 @@ package net.minecraft.server.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +15,6 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementNode;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.AdvancementTree;
-import net.minecraft.commands.CommandRuntimeException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -22,6 +24,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public class AdvancementCommands {
+    private static final DynamicCommandExceptionType ERROR_NO_ACTION_PERFORMED = new DynamicCommandExceptionType(param0 -> (Component)param0);
+    private static final Dynamic2CommandExceptionType ERROR_CRITERION_NOT_FOUND = new Dynamic2CommandExceptionType(
+        (param0, param1) -> Component.translatable("commands.advancement.criterionNotFound", param0, param1)
+    );
     private static final SuggestionProvider<CommandSourceStack> SUGGEST_ADVANCEMENTS = (param0, param1) -> {
         Collection<AdvancementHolder> var0 = param0.getSource().getServer().getAdvancements().getAllAdvancements();
         return SharedSuggestionProvider.suggestResource(var0.stream().map(AdvancementHolder::id), param1);
@@ -258,7 +264,7 @@ public class AdvancementCommands {
 
     private static int perform(
         CommandSourceStack param0, Collection<ServerPlayer> param1, AdvancementCommands.Action param2, Collection<AdvancementHolder> param3
-    ) {
+    ) throws CommandSyntaxException {
         int var0 = 0;
 
         for(ServerPlayer var1 : param1) {
@@ -268,22 +274,22 @@ public class AdvancementCommands {
         if (var0 == 0) {
             if (param3.size() == 1) {
                 if (param1.size() == 1) {
-                    throw new CommandRuntimeException(
+                    throw ERROR_NO_ACTION_PERFORMED.create(
                         Component.translatable(
                             param2.getKey() + ".one.to.one.failure", Advancement.name(param3.iterator().next()), param1.iterator().next().getDisplayName()
                         )
                     );
                 } else {
-                    throw new CommandRuntimeException(
+                    throw ERROR_NO_ACTION_PERFORMED.create(
                         Component.translatable(param2.getKey() + ".one.to.many.failure", Advancement.name(param3.iterator().next()), param1.size())
                     );
                 }
             } else if (param1.size() == 1) {
-                throw new CommandRuntimeException(
+                throw ERROR_NO_ACTION_PERFORMED.create(
                     Component.translatable(param2.getKey() + ".many.to.one.failure", param3.size(), param1.iterator().next().getDisplayName())
                 );
             } else {
-                throw new CommandRuntimeException(Component.translatable(param2.getKey() + ".many.to.many.failure", param3.size(), param1.size()));
+                throw ERROR_NO_ACTION_PERFORMED.create(Component.translatable(param2.getKey() + ".many.to.many.failure", param3.size(), param1.size()));
             }
         } else {
             if (param3.size() == 1) {
@@ -313,11 +319,11 @@ public class AdvancementCommands {
 
     private static int performCriterion(
         CommandSourceStack param0, Collection<ServerPlayer> param1, AdvancementCommands.Action param2, AdvancementHolder param3, String param4
-    ) {
+    ) throws CommandSyntaxException {
         int var0 = 0;
         Advancement var1 = param3.value();
         if (!var1.criteria().containsKey(param4)) {
-            throw new CommandRuntimeException(Component.translatable("commands.advancement.criterionNotFound", Advancement.name(param3), param4));
+            throw ERROR_CRITERION_NOT_FOUND.create(Advancement.name(param3), param4);
         } else {
             for(ServerPlayer var2 : param1) {
                 if (param2.performCriterion(var2, param3, param4)) {
@@ -327,13 +333,13 @@ public class AdvancementCommands {
 
             if (var0 == 0) {
                 if (param1.size() == 1) {
-                    throw new CommandRuntimeException(
+                    throw ERROR_NO_ACTION_PERFORMED.create(
                         Component.translatable(
                             param2.getKey() + ".criterion.to.one.failure", param4, Advancement.name(param3), param1.iterator().next().getDisplayName()
                         )
                     );
                 } else {
-                    throw new CommandRuntimeException(
+                    throw ERROR_NO_ACTION_PERFORMED.create(
                         Component.translatable(param2.getKey() + ".criterion.to.many.failure", param4, Advancement.name(param3), param1.size())
                     );
                 }

@@ -10,7 +10,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.critereon.BeeNestDestroyedTrigger;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.BredAnimalsTrigger;
@@ -127,7 +127,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.root.title"),
                 Component.translatable("advancements.husbandry.root.description"),
                 new ResourceLocation("textures/gui/advancements/backgrounds/husbandry.png"),
-                FrameType.TASK,
+                AdvancementType.TASK,
                 false,
                 false,
                 false
@@ -141,7 +141,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.plant_seed.title"),
                 Component.translatable("advancements.husbandry.plant_seed.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -162,7 +162,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.breed_an_animal.title"),
                 Component.translatable("advancements.husbandry.breed_an_animal.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -178,7 +178,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.balanced_diet.title"),
                 Component.translatable("advancements.husbandry.balanced_diet.description"),
                 null,
-                FrameType.CHALLENGE,
+                AdvancementType.CHALLENGE,
                 true,
                 true,
                 false
@@ -192,7 +192,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.netherite_hoe.title"),
                 Component.translatable("advancements.husbandry.netherite_hoe.description"),
                 null,
-                FrameType.CHALLENGE,
+                AdvancementType.CHALLENGE,
                 true,
                 true,
                 false
@@ -207,7 +207,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.tame_an_animal.title"),
                 Component.translatable("advancements.husbandry.tame_an_animal.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -222,7 +222,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.fishy_business.title"),
                 Component.translatable("advancements.husbandry.fishy_business.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -236,7 +236,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.tactical_fishing.title"),
                 Component.translatable("advancements.husbandry.tactical_fishing.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -254,7 +254,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.axolotl_in_a_bucket.title"),
                 Component.translatable("advancements.husbandry.axolotl_in_a_bucket.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -268,7 +268,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.kill_axolotl_target.title"),
                 Component.translatable("advancements.husbandry.kill_axolotl_target.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -281,7 +281,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.complete_catalogue.title"),
                 Component.translatable("advancements.husbandry.complete_catalogue.description"),
                 null,
-                FrameType.CHALLENGE,
+                AdvancementType.CHALLENGE,
                 true,
                 true,
                 false
@@ -302,7 +302,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.safely_harvest_honey.title"),
                 Component.translatable("advancements.husbandry.safely_harvest_honey.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -315,7 +315,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.wax_on.title"),
                 Component.translatable("advancements.husbandry.wax_on.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -335,7 +335,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.wax_off.title"),
                 Component.translatable("advancements.husbandry.wax_off.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -359,7 +359,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.tadpole_in_a_bucket.title"),
                 Component.translatable("advancements.husbandry.tadpole_in_a_bucket.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -372,7 +372,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.leash_all_frog_variants.title"),
                 Component.translatable("advancements.husbandry.leash_all_frog_variants.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -385,7 +385,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.froglights.title"),
                 Component.translatable("advancements.husbandry.froglights.description"),
                 null,
-                FrameType.CHALLENGE,
+                AdvancementType.CHALLENGE,
                 true,
                 true,
                 false
@@ -409,7 +409,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.silk_touch_nest.title"),
                 Component.translatable("advancements.husbandry.silk_touch_nest.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -422,7 +422,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.ride_a_boat_with_a_goat.title"),
                 Component.translatable("advancements.husbandry.ride_a_boat_with_a_goat.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -442,7 +442,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.make_a_sign_glow.title"),
                 Component.translatable("advancements.husbandry.make_a_sign_glow.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 false
@@ -462,7 +462,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.allay_deliver_item_to_player.title"),
                 Component.translatable("advancements.husbandry.allay_deliver_item_to_player.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -481,7 +481,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.allay_deliver_cake_to_note_block.title"),
                 Component.translatable("advancements.husbandry.allay_deliver_cake_to_note_block.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -501,7 +501,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.obtain_sniffer_egg.title"),
                 Component.translatable("advancements.husbandry.obtain_sniffer_egg.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -515,7 +515,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.feed_snifflet.title"),
                 Component.translatable("advancements.husbandry.feed_snifflet.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -539,7 +539,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.plant_any_sniffer_seed.title"),
                 Component.translatable("advancements.husbandry.plant_any_sniffer_seed.description"),
                 null,
-                FrameType.TASK,
+                AdvancementType.TASK,
                 true,
                 true,
                 true
@@ -560,7 +560,7 @@ public class VanillaHusbandryAdvancements implements AdvancementSubProvider {
                 Component.translatable("advancements.husbandry.breed_all_animals.title"),
                 Component.translatable("advancements.husbandry.breed_all_animals.description"),
                 null,
-                FrameType.CHALLENGE,
+                AdvancementType.CHALLENGE,
                 true,
                 true,
                 false

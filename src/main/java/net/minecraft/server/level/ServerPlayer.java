@@ -1,6 +1,5 @@
 package net.minecraft.server.level;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.mojang.authlib.GameProfile;
 import com.mojang.datafixers.util.Either;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.BlockUtil;
 import net.minecraft.ChatFormatting;
@@ -1192,13 +1192,8 @@ public class ServerPlayer extends Player {
     }
 
     @Override
-    public void awardRecipesByKey(ResourceLocation[] param0) {
-        List<RecipeHolder<?>> var0 = Lists.newArrayList();
-
-        for(ResourceLocation var1 : param0) {
-            this.server.getRecipeManager().byKey(var1).ifPresent(var0::add);
-        }
-
+    public void awardRecipesByKey(List<ResourceLocation> param0) {
+        List<RecipeHolder<?>> var0 = param0.stream().flatMap(param0x -> this.server.getRecipeManager().byKey(param0x).stream()).collect(Collectors.toList());
         this.awardRecipes(var0);
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.WorldVersion;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.advancements.packs.VanillaAdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
@@ -47,7 +48,10 @@ import net.minecraft.data.tags.PoiTypeTagsProvider;
 import net.minecraft.data.tags.StructureTagsProvider;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.data.tags.TradeRebalanceStructureTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyOneBiomeTagsProvider;
 import net.minecraft.data.tags.UpdateOneTwentyOneBlockTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyOneDamageTypeTagsProvider;
+import net.minecraft.data.tags.UpdateOneTwentyOneEntityTypeTagsProvider;
 import net.minecraft.data.tags.UpdateOneTwentyOneItemTagsProvider;
 import net.minecraft.data.tags.VanillaBlockTagsProvider;
 import net.minecraft.data.tags.VanillaItemTagsProvider;
@@ -57,6 +61,7 @@ import net.minecraft.obfuscate.DontObfuscate;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 
 public class Main {
@@ -129,8 +134,8 @@ public class Main {
         var4.addProvider(VanillaRecipeProvider::new);
         TagsProvider<Block> var5 = var4.addProvider(bindRegistries(VanillaBlockTagsProvider::new, var2));
         TagsProvider<Item> var6 = var4.addProvider(param2x -> new VanillaItemTagsProvider(param2x, var2, var5.contentsGetter()));
+        TagsProvider<Biome> var7 = var4.addProvider(bindRegistries(BiomeTagsProvider::new, var2));
         var4.addProvider(bindRegistries(BannerPatternTagsProvider::new, var2));
-        var4.addProvider(bindRegistries(BiomeTagsProvider::new, var2));
         var4.addProvider(bindRegistries(CatVariantTagsProvider::new, var2));
         var4.addProvider(bindRegistries(DamageTypeTagsProvider::new, var2));
         var4.addProvider(bindRegistries(EntityTypeTagsProvider::new, var2));
@@ -164,18 +169,23 @@ public class Main {
         );
         var4.addProvider(TradeRebalanceLootTableProvider::create);
         var4.addProvider(bindRegistries(TradeRebalanceStructureTagsProvider::new, var2));
-        CompletableFuture<HolderLookup.Provider> var11 = UpdateOneTwentyOneRegistries.createLookup(var2);
-        DataGenerator.PackGenerator var12 = var0.getBuiltinDatapack(param3, "update_1_21");
-        var12.addProvider(UpdateOneTwentyOneRecipeProvider::new);
-        TagsProvider<Block> var13 = var12.addProvider(param2x -> new UpdateOneTwentyOneBlockTagsProvider(param2x, var11, var5.contentsGetter()));
-        var12.addProvider(param3x -> new UpdateOneTwentyOneItemTagsProvider(param3x, var11, var6.contentsGetter(), var13.contentsGetter()));
-        var12.addProvider(UpdateOneTwentyOneLootTableProvider::create);
-        var12.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var11));
-        var12.addProvider(
+        CompletableFuture<RegistrySetBuilder.PatchedRegistries> var12 = UpdateOneTwentyOneRegistries.createLookup(var2);
+        CompletableFuture<HolderLookup.Provider> var13 = var12.thenApply(RegistrySetBuilder.PatchedRegistries::full);
+        CompletableFuture<HolderLookup.Provider> var14 = var12.thenApply(RegistrySetBuilder.PatchedRegistries::patches);
+        DataGenerator.PackGenerator var15 = var0.getBuiltinDatapack(param3, "update_1_21");
+        var15.addProvider(UpdateOneTwentyOneRecipeProvider::new);
+        TagsProvider<Block> var16 = var15.addProvider(param2x -> new UpdateOneTwentyOneBlockTagsProvider(param2x, var14, var5.contentsGetter()));
+        var15.addProvider(param3x -> new UpdateOneTwentyOneItemTagsProvider(param3x, var14, var6.contentsGetter(), var16.contentsGetter()));
+        var15.addProvider(param2x -> new UpdateOneTwentyOneBiomeTagsProvider(param2x, var14, var7.contentsGetter()));
+        var15.addProvider(UpdateOneTwentyOneLootTableProvider::create);
+        var15.addProvider(bindRegistries(RegistriesDatapackGenerator::new, var14));
+        var15.addProvider(
             param0x -> PackMetadataGenerator.forFeaturePack(
                     param0x, Component.translatable("dataPack.update_1_21.description"), FeatureFlagSet.of(FeatureFlags.UPDATE_1_21)
                 )
         );
+        var15.addProvider(bindRegistries(UpdateOneTwentyOneEntityTypeTagsProvider::new, var13));
+        var15.addProvider(bindRegistries(UpdateOneTwentyOneDamageTypeTagsProvider::new, var13));
         return var0;
     }
 }

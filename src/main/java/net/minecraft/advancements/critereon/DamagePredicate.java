@@ -1,11 +1,10 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.damagesource.DamageSource;
 
 public record DamagePredicate(
@@ -15,6 +14,17 @@ public record DamagePredicate(
     Optional<Boolean> blocked,
     Optional<DamageSourcePredicate> type
 ) {
+    public static final Codec<DamagePredicate> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(MinMaxBounds.Doubles.CODEC, "dealt", MinMaxBounds.Doubles.ANY).forGetter(DamagePredicate::dealtDamage),
+                    ExtraCodecs.strictOptionalField(MinMaxBounds.Doubles.CODEC, "taken", MinMaxBounds.Doubles.ANY).forGetter(DamagePredicate::takenDamage),
+                    ExtraCodecs.strictOptionalField(EntityPredicate.CODEC, "source_entity").forGetter(DamagePredicate::sourceEntity),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "blocked").forGetter(DamagePredicate::blocked),
+                    ExtraCodecs.strictOptionalField(DamageSourcePredicate.CODEC, "type").forGetter(DamagePredicate::type)
+                )
+                .apply(param0, DamagePredicate::new)
+    );
+
     public boolean matches(ServerPlayer param0, DamageSource param1, float param2, float param3, boolean param4) {
         if (!this.dealtDamage.matches((double)param2)) {
             return false;
@@ -27,32 +37,6 @@ public record DamagePredicate(
         } else {
             return !this.type.isPresent() || this.type.get().matches(param0, param1);
         }
-    }
-
-    public static Optional<DamagePredicate> fromJson(@Nullable JsonElement param0) {
-        if (param0 != null && !param0.isJsonNull()) {
-            JsonObject var0 = GsonHelper.convertToJsonObject(param0, "damage");
-            MinMaxBounds.Doubles var1 = MinMaxBounds.Doubles.fromJson(var0.get("dealt"));
-            MinMaxBounds.Doubles var2 = MinMaxBounds.Doubles.fromJson(var0.get("taken"));
-            Optional<Boolean> var3 = var0.has("blocked") ? Optional.of(GsonHelper.getAsBoolean(var0, "blocked")) : Optional.empty();
-            Optional<EntityPredicate> var4 = EntityPredicate.fromJson(var0.get("source_entity"));
-            Optional<DamageSourcePredicate> var5 = DamageSourcePredicate.fromJson(var0.get("type"));
-            return var1.isAny() && var2.isAny() && var4.isEmpty() && var3.isEmpty() && var5.isEmpty()
-                ? Optional.empty()
-                : Optional.of(new DamagePredicate(var1, var2, var4, var3, var5));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public JsonElement serializeToJson() {
-        JsonObject var0 = new JsonObject();
-        var0.add("dealt", this.dealtDamage.serializeToJson());
-        var0.add("taken", this.takenDamage.serializeToJson());
-        this.sourceEntity.ifPresent(param1 -> var0.add("source_entity", param1.serializeToJson()));
-        this.type.ifPresent(param1 -> var0.add("type", param1.serializeToJson()));
-        this.blocked.ifPresent(param1 -> var0.addProperty("blocked", param1));
-        return var0;
     }
 
     public static class Builder {

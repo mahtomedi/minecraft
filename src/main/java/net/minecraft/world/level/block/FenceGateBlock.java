@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.BiConsumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
@@ -9,8 +10,10 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -171,6 +174,25 @@ public class FenceGateBlock extends HorizontalDirectionalBlock {
         );
         param1.gameEvent(param3, var1 ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, param2);
         return InteractionResult.sidedSuccess(param1.isClientSide);
+    }
+
+    @Override
+    public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
+        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK && !param1.isClientSide() && !param0.getValue(POWERED)) {
+            boolean var0 = param0.getValue(OPEN);
+            param1.setBlockAndUpdate(param2, param0.setValue(OPEN, Boolean.valueOf(!var0)));
+            param1.playSound(
+                null,
+                param2,
+                var0 ? this.type.fenceGateClose() : this.type.fenceGateOpen(),
+                SoundSource.BLOCKS,
+                1.0F,
+                param1.getRandom().nextFloat() * 0.1F + 0.9F
+            );
+            param1.gameEvent(var0 ? GameEvent.BLOCK_CLOSE : GameEvent.BLOCK_OPEN, param2, GameEvent.Context.of(param0));
+        }
+
+        super.onExplosionHit(param0, param1, param2, param3, param4);
     }
 
     @Override

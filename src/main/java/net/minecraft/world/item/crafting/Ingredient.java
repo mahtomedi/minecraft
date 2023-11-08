@@ -1,11 +1,9 @@
 package net.minecraft.world.item.crafting;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonElement;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntComparators;
@@ -17,7 +15,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -90,11 +87,6 @@ public final class Ingredient implements Predicate<ItemStack> {
         param0.writeCollection(Arrays.asList(this.getItems()), FriendlyByteBuf::writeItem);
     }
 
-    public JsonElement toJson(boolean param0) {
-        Codec<Ingredient> var0 = param0 ? CODEC : CODEC_NONEMPTY;
-        return Util.getOrThrow(var0.encodeStart(JsonOps.INSTANCE, this), IllegalStateException::new);
-    }
-
     public boolean isEmpty() {
         return this.values.length == 0;
     }
@@ -158,8 +150,7 @@ public final class Ingredient implements Predicate<ItemStack> {
 
     static record ItemValue(ItemStack item) implements Ingredient.Value {
         static final Codec<Ingredient.ItemValue> CODEC = RecordCodecBuilder.create(
-            param0 -> param0.group(CraftingRecipeCodecs.ITEMSTACK_NONAIR_CODEC.fieldOf("item").forGetter(param0x -> param0x.item))
-                    .apply(param0, Ingredient.ItemValue::new)
+            param0 -> param0.group(ItemStack.SINGLE_ITEM_CODEC.fieldOf("item").forGetter(param0x -> param0x.item)).apply(param0, Ingredient.ItemValue::new)
         );
 
         @Override

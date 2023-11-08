@@ -95,6 +95,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.FIRE, var2);
         param0.put(Blocks.SOUL_FIRE, var2);
         param0.put(Blocks.SPAWNER, var2);
+        param0.put(Blocks.TRIAL_SPAWNER, var2);
         param0.put(Blocks.REDSTONE_WIRE, var2);
         param0.put(Blocks.WHEAT, var2);
         param0.put(Blocks.OAK_DOOR, var2);

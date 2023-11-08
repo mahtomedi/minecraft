@@ -44,6 +44,7 @@ public class DebugRenderer {
     public final GameTestDebugRenderer gameTestDebugRenderer;
     public final GameEventListenerRenderer gameEventListenerRenderer;
     public final LightSectionDebugRenderer skyLightSectionDebugRenderer;
+    public final BreezeDebugRenderer breezeDebugRenderer;
     private boolean renderChunkborder;
 
     public DebugRenderer(Minecraft param0) {
@@ -66,6 +67,7 @@ public class DebugRenderer {
         this.gameTestDebugRenderer = new GameTestDebugRenderer();
         this.gameEventListenerRenderer = new GameEventListenerRenderer(param0);
         this.skyLightSectionDebugRenderer = new LightSectionDebugRenderer(param0, LightLayer.SKY);
+        this.breezeDebugRenderer = new BreezeDebugRenderer(param0);
     }
 
     public void clear() {
@@ -89,6 +91,7 @@ public class DebugRenderer {
         this.gameTestDebugRenderer.clear();
         this.gameEventListenerRenderer.clear();
         this.skyLightSectionDebugRenderer.clear();
+        this.breezeDebugRenderer.clear();
     }
 
     public boolean switchRenderChunkborder() {

@@ -18,6 +18,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.AbortableIterationConsumer;
 import net.minecraft.util.Mth;
@@ -404,6 +406,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         this.playLocalSound((double)param0.getX() + 0.5, (double)param0.getY() + 0.5, (double)param0.getZ() + 0.5, param1, param2, param3, param4, param5);
     }
 
+    public void playLocalSound(Entity param0, SoundEvent param1, SoundSource param2, float param3, float param4) {
+    }
+
     public void playLocalSound(double param0, double param1, double param2, SoundEvent param3, SoundSource param4, float param5, float param6, boolean param7) {
     }
 
@@ -480,13 +485,39 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
     }
 
     public Explosion explode(@Nullable Entity param0, double param1, double param2, double param3, float param4, Level.ExplosionInteraction param5) {
-        return this.explode(param0, null, null, param1, param2, param3, param4, false, param5);
+        return this.explode(
+            param0,
+            Explosion.getDefaultDamageSource(this, param0),
+            null,
+            param1,
+            param2,
+            param3,
+            param4,
+            false,
+            param5,
+            ParticleTypes.EXPLOSION,
+            ParticleTypes.EXPLOSION_EMITTER,
+            SoundEvents.GENERIC_EXPLODE
+        );
     }
 
     public Explosion explode(
         @Nullable Entity param0, double param1, double param2, double param3, float param4, boolean param5, Level.ExplosionInteraction param6
     ) {
-        return this.explode(param0, null, null, param1, param2, param3, param4, param5, param6);
+        return this.explode(
+            param0,
+            Explosion.getDefaultDamageSource(this, param0),
+            null,
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            param6,
+            ParticleTypes.EXPLOSION,
+            ParticleTypes.EXPLOSION_EMITTER,
+            SoundEvents.GENERIC_EXPLODE
+        );
     }
 
     public Explosion explode(
@@ -498,7 +529,20 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         boolean param5,
         Level.ExplosionInteraction param6
     ) {
-        return this.explode(param0, param1, param2, param3.x(), param3.y(), param3.z(), param4, param5, param6);
+        return this.explode(
+            param0,
+            param1,
+            param2,
+            param3.x(),
+            param3.y(),
+            param3.z(),
+            param4,
+            param5,
+            param6,
+            ParticleTypes.EXPLOSION,
+            ParticleTypes.EXPLOSION_EMITTER,
+            SoundEvents.GENERIC_EXPLODE
+        );
     }
 
     public Explosion explode(
@@ -512,7 +556,20 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         boolean param7,
         Level.ExplosionInteraction param8
     ) {
-        return this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, true);
+        return this.explode(
+            param0,
+            param1,
+            param2,
+            param3,
+            param4,
+            param5,
+            param6,
+            param7,
+            param8,
+            ParticleTypes.EXPLOSION,
+            ParticleTypes.EXPLOSION_EMITTER,
+            SoundEvents.GENERIC_EXPLODE
+        );
     }
 
     public Explosion explode(
@@ -525,7 +582,27 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         float param6,
         boolean param7,
         Level.ExplosionInteraction param8,
-        boolean param9
+        ParticleOptions param9,
+        ParticleOptions param10,
+        SoundEvent param11
+    ) {
+        return this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, true, param9, param10, param11);
+    }
+
+    public Explosion explode(
+        @Nullable Entity param0,
+        @Nullable DamageSource param1,
+        @Nullable ExplosionDamageCalculator param2,
+        double param3,
+        double param4,
+        double param5,
+        float param6,
+        boolean param7,
+        Level.ExplosionInteraction param8,
+        boolean param9,
+        ParticleOptions param10,
+        ParticleOptions param11,
+        SoundEvent param12
     ) {
         Explosion.BlockInteraction var0 = switch(param8) {
             case NONE -> Explosion.BlockInteraction.KEEP;
@@ -534,8 +611,9 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
             ? this.getDestroyType(GameRules.RULE_MOB_EXPLOSION_DROP_DECAY)
             : Explosion.BlockInteraction.KEEP;
             case TNT -> this.getDestroyType(GameRules.RULE_TNT_EXPLOSION_DROP_DECAY);
+            case BLOW -> Explosion.BlockInteraction.TRIGGER_BLOCK;
         };
-        Explosion var1 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, var0);
+        Explosion var1 = new Explosion(this, param0, param1, param2, param3, param4, param5, param6, param7, var0, param10, param11, param12);
         var1.explode();
         var1.finalizeExplosion(param9);
         return var1;
@@ -955,6 +1033,7 @@ public abstract class Level implements AutoCloseable, LevelAccessor {
         NONE,
         BLOCK,
         MOB,
-        TNT;
+        TNT,
+        BLOW;
     }
 }

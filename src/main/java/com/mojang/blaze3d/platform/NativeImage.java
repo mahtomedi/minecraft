@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.function.IntUnaryOperator;
 import javax.annotation.Nullable;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.PngInfo;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.IOUtils;
@@ -134,6 +135,8 @@ public final class NativeImage implements AutoCloseable {
         } else if (MemoryUtil.memAddress(param1) == 0L) {
             throw new IllegalArgumentException("Invalid buffer");
         } else {
+            PngInfo.validateHeader(param1);
+
             NativeImage var7;
             try (MemoryStack var0 = MemoryStack.stackPush()) {
                 IntBuffer var1 = var0.mallocInt(1);

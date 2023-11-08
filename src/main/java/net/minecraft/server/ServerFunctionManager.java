@@ -2,6 +2,7 @@ package net.minecraft.server;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.logging.LogUtils;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -14,8 +15,10 @@ import net.minecraft.commands.functions.CommandFunction;
 import net.minecraft.commands.functions.InstantiatedFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.slf4j.Logger;
 
 public class ServerFunctionManager {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final ResourceLocation TICK_FUNCTION_TAG = new ResourceLocation("tick");
     private static final ResourceLocation LOAD_FUNCTION_TAG = new ResourceLocation("load");
     private final MinecraftServer server;
@@ -62,7 +65,9 @@ public class ServerFunctionManager {
         try {
             InstantiatedFunction<CommandSourceStack> var1 = param0.instantiate(null, this.getDispatcher(), param1);
             Commands.executeCommandInContext(param1, param2 -> ExecutionContext.queueInitialFunctionCall(param2, var1, param1, CommandResultCallback.EMPTY));
-        } catch (FunctionInstantiationException var8) {
+        } catch (FunctionInstantiationException var9) {
+        } catch (Exception var10) {
+            LOGGER.warn("Failed to execute function {}", param0.id(), var10);
         } finally {
             var0.pop();
         }

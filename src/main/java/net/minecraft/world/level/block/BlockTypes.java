@@ -219,6 +219,7 @@ public class BlockTypes {
         Registry.register(param0, "transparent", TransparentBlock.CODEC);
         Registry.register(param0, "trapdoor", TrapDoorBlock.CODEC);
         Registry.register(param0, "trapped_chest", TrappedChestBlock.CODEC);
+        Registry.register(param0, "trial_spawner", TrialSpawnerBlock.CODEC);
         Registry.register(param0, "trip_wire_hook", TripWireHookBlock.CODEC);
         Registry.register(param0, "tripwire", TripWireBlock.CODEC);
         Registry.register(param0, "turtle_egg", TurtleEggBlock.CODEC);

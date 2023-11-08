@@ -2,31 +2,26 @@ package net.minecraft.data.recipes;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.level.ItemLike;
 
-public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
+public class ShapedRecipeBuilder implements RecipeBuilder {
     private final RecipeCategory category;
     private final Item result;
     private final int count;
@@ -101,131 +96,27 @@ public class ShapedRecipeBuilder extends CraftingRecipeBuilder implements Recipe
 
     @Override
     public void save(RecipeOutput param0, ResourceLocation param1) {
-        this.ensureValid(param1);
-        Advancement.Builder var0 = param0.advancement()
+        ShapedRecipePattern var0 = this.ensureValid(param1);
+        Advancement.Builder var1 = param0.advancement()
             .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(param1))
             .rewards(AdvancementRewards.Builder.recipe(param1))
             .requirements(AdvancementRequirements.Strategy.OR);
-        this.criteria.forEach(var0::addCriterion);
-        param0.accept(
-            new ShapedRecipeBuilder.Result(
-                param1,
-                this.result,
-                this.count,
-                this.group == null ? "" : this.group,
-                determineBookCategory(this.category),
-                this.rows,
-                this.key,
-                var0.build(param1.withPrefix("recipes/" + this.category.getFolderName() + "/")),
-                this.showNotification
-            )
+        this.criteria.forEach(var1::addCriterion);
+        ShapedRecipe var2 = new ShapedRecipe(
+            Objects.requireNonNullElse(this.group, ""),
+            RecipeBuilder.determineBookCategory(this.category),
+            var0,
+            new ItemStack(this.result, this.count),
+            this.showNotification
         );
+        param0.accept(param1, var2, var1.build(param1.withPrefix("recipes/" + this.category.getFolderName() + "/")));
     }
 
-    private void ensureValid(ResourceLocation param0) {
-        if (this.rows.isEmpty()) {
-            throw new IllegalStateException("No pattern is defined for shaped recipe " + param0 + "!");
+    private ShapedRecipePattern ensureValid(ResourceLocation param0) {
+        if (this.criteria.isEmpty()) {
+            throw new IllegalStateException("No way of obtaining recipe " + param0);
         } else {
-            Set<Character> var0 = Sets.newHashSet(this.key.keySet());
-            var0.remove(' ');
-
-            for(String var1 : this.rows) {
-                for(int var2 = 0; var2 < var1.length(); ++var2) {
-                    char var3 = var1.charAt(var2);
-                    if (!this.key.containsKey(var3) && var3 != ' ') {
-                        throw new IllegalStateException("Pattern in recipe " + param0 + " uses undefined symbol '" + var3 + "'");
-                    }
-
-                    var0.remove(var3);
-                }
-            }
-
-            if (!var0.isEmpty()) {
-                throw new IllegalStateException("Ingredients are defined but not used in pattern for recipe " + param0);
-            } else if (this.rows.size() == 1 && this.rows.get(0).length() == 1) {
-                throw new IllegalStateException("Shaped recipe " + param0 + " only takes in a single item - should it be a shapeless recipe instead?");
-            } else if (this.criteria.isEmpty()) {
-                throw new IllegalStateException("No way of obtaining recipe " + param0);
-            }
-        }
-    }
-
-    static class Result extends CraftingRecipeBuilder.CraftingResult {
-        private final ResourceLocation id;
-        private final Item result;
-        private final int count;
-        private final String group;
-        private final List<String> pattern;
-        private final Map<Character, Ingredient> key;
-        private final AdvancementHolder advancement;
-        private final boolean showNotification;
-
-        public Result(
-            ResourceLocation param0,
-            Item param1,
-            int param2,
-            String param3,
-            CraftingBookCategory param4,
-            List<String> param5,
-            Map<Character, Ingredient> param6,
-            AdvancementHolder param7,
-            boolean param8
-        ) {
-            super(param4);
-            this.id = param0;
-            this.result = param1;
-            this.count = param2;
-            this.group = param3;
-            this.pattern = param5;
-            this.key = param6;
-            this.advancement = param7;
-            this.showNotification = param8;
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject param0) {
-            super.serializeRecipeData(param0);
-            if (!this.group.isEmpty()) {
-                param0.addProperty("group", this.group);
-            }
-
-            JsonArray var0 = new JsonArray();
-
-            for(String var1 : this.pattern) {
-                var0.add(var1);
-            }
-
-            param0.add("pattern", var0);
-            JsonObject var2 = new JsonObject();
-
-            for(Entry<Character, Ingredient> var3 : this.key.entrySet()) {
-                var2.add(String.valueOf(var3.getKey()), var3.getValue().toJson(false));
-            }
-
-            param0.add("key", var2);
-            JsonObject var4 = new JsonObject();
-            var4.addProperty("item", BuiltInRegistries.ITEM.getKey(this.result).toString());
-            if (this.count > 1) {
-                var4.addProperty("count", this.count);
-            }
-
-            param0.add("result", var4);
-            param0.addProperty("show_notification", this.showNotification);
-        }
-
-        @Override
-        public RecipeSerializer<?> type() {
-            return RecipeSerializer.SHAPED_RECIPE;
-        }
-
-        @Override
-        public ResourceLocation id() {
-            return this.id;
-        }
-
-        @Override
-        public AdvancementHolder advancement() {
-            return this.advancement;
+            return ShapedRecipePattern.of(this.key, this.rows);
         }
     }
 }

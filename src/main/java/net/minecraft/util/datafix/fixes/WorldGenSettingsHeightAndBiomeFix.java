@@ -5,13 +5,12 @@ import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
-import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.OptionalDynamic;
 import java.util.stream.Stream;
+import net.minecraft.Util;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public class WorldGenSettingsHeightAndBiomeFix extends DataFix {
@@ -40,63 +39,62 @@ public class WorldGenSettingsHeightAndBiomeFix extends DataFix {
                     .updateTyped(
                         var1,
                         var3,
-                        param3 -> {
-                            Dynamic<?> var0xx = param3.write().result().orElseThrow(() -> new IllegalStateException("Malformed WorldGenSettings.dimensions"));
-                            var0xx = var0xx.update(
-                                "minecraft:overworld",
+                        param3 -> Util.writeAndReadTypedOrThrow(
+                                param3,
+                                var3,
                                 param2x -> param2x.update(
-                                        "generator",
-                                        param2xx -> {
-                                            String var0xxx = param2xx.get("type").asString("");
-                                            if ("minecraft:noise".equals(var0xxx)) {
-                                                MutableBoolean var1xx = new MutableBoolean();
-                                                param2xx = param2xx.update(
-                                                    "biome_source",
-                                                    param2xxx -> {
-                                                        String var0xxxx = param2xxx.get("type").asString("");
-                                                        if ("minecraft:vanilla_layered".equals(var0xxxx) || var1x && "minecraft:multi_noise".equals(var0xxxx)) {
-                                                            if (param2xxx.get("large_biomes").asBoolean(false)) {
-                                                                var1xx.setTrue();
+                                        "minecraft:overworld",
+                                        param2xx -> param2xx.update(
+                                                "generator",
+                                                param2xxx -> {
+                                                    String var0xx = param2xxx.get("type").asString("");
+                                                    if ("minecraft:noise".equals(var0xx)) {
+                                                        MutableBoolean var1xx = new MutableBoolean();
+                                                        param2xxx = param2xxx.update(
+                                                            "biome_source",
+                                                            param2xxxx -> {
+                                                                String var0xxx = param2xxxx.get("type").asString("");
+                                                                if ("minecraft:vanilla_layered".equals(var0xxx)
+                                                                    || var1x && "minecraft:multi_noise".equals(var0xxx)) {
+                                                                    if (param2xxxx.get("large_biomes").asBoolean(false)) {
+                                                                        var1xx.setTrue();
+                                                                    }
+                            
+                                                                    return param2xxxx.createMap(
+                                                                        ImmutableMap.of(
+                                                                            param2xxxx.createString("preset"),
+                                                                            param2xxxx.createString("minecraft:overworld"),
+                                                                            param2xxxx.createString("type"),
+                                                                            param2xxxx.createString("minecraft:multi_noise")
+                                                                        )
+                                                                    );
+                                                                } else {
+                                                                    return param2xxxx;
+                                                                }
                                                             }
-                        
-                                                            return param2xxx.createMap(
-                                                                ImmutableMap.of(
-                                                                    param2xxx.createString("preset"),
-                                                                    param2xxx.createString("minecraft:overworld"),
-                                                                    param2xxx.createString("type"),
-                                                                    param2xxx.createString("minecraft:multi_noise")
-                                                                )
+                                                        );
+                                                        return var1xx.booleanValue()
+                                                            ? param2xxx.update(
+                                                                "settings",
+                                                                param0x -> "minecraft:overworld".equals(param0x.asString(""))
+                                                                        ? param0x.createString("minecraft:large_biomes")
+                                                                        : param0x
+                                                            )
+                                                            : param2xxx;
+                                                    } else if ("minecraft:flat".equals(var0xx)) {
+                                                        return var2x
+                                                            ? param2xxx
+                                                            : param2xxx.update(
+                                                                "settings",
+                                                                param0x -> param0x.update("layers", WorldGenSettingsHeightAndBiomeFix::updateLayers)
                                                             );
-                                                        } else {
-                                                            return param2xxx;
-                                                        }
+                                                    } else {
+                                                        return param2xxx;
                                                     }
-                                                );
-                                                return var1xx.booleanValue()
-                                                    ? param2xx.update(
-                                                        "settings",
-                                                        param0x -> "minecraft:overworld".equals(param0x.asString(""))
-                                                                ? param0x.createString("minecraft:large_biomes")
-                                                                : param0x
-                                                    )
-                                                    : param2xx;
-                                            } else if ("minecraft:flat".equals(var0xxx)) {
-                                                return var2x
-                                                    ? param2xx
-                                                    : param2xx.update(
-                                                        "settings", param0x -> param0x.update("layers", WorldGenSettingsHeightAndBiomeFix::updateLayers)
-                                                    );
-                                            } else {
-                                                return param2xx;
-                                            }
-                                        }
+                                                }
+                                            )
                                     )
-                            );
-                            return (Typed<?>)((Pair)var3.readTyped(var0xx)
-                                    .result()
-                                    .orElseThrow(() -> new IllegalStateException("WorldGenSettingsHeightAndBiomeFix failed.")))
-                                .getFirst();
-                        }
+                            )
                     );
             }
         );

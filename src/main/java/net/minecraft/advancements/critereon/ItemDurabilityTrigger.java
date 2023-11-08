@@ -1,35 +1,38 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurabilityTrigger.TriggerInstance> {
-    public ItemDurabilityTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("item"));
-        MinMaxBounds.Ints var1 = MinMaxBounds.Ints.fromJson(param0.get("durability"));
-        MinMaxBounds.Ints var2 = MinMaxBounds.Ints.fromJson(param0.get("delta"));
-        return new ItemDurabilityTrigger.TriggerInstance(param1, var0, var1, var2);
+    @Override
+    public Codec<ItemDurabilityTrigger.TriggerInstance> codec() {
+        return ItemDurabilityTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, ItemStack param1, int param2) {
         this.trigger(param0, param2x -> param2x.matches(param1, param2));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ItemPredicate> item;
-        private final MinMaxBounds.Ints durability;
-        private final MinMaxBounds.Ints delta;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, MinMaxBounds.Ints param2, MinMaxBounds.Ints param3) {
-            super(param0);
-            this.item = param1;
-            this.durability = param2;
-            this.delta = param3;
-        }
+    public static record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<ItemPredicate> item, MinMaxBounds.Ints durability, MinMaxBounds.Ints delta
+    ) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<ItemDurabilityTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(ItemDurabilityTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(ItemPredicate.CODEC, "item").forGetter(ItemDurabilityTrigger.TriggerInstance::item),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Ints.CODEC, "durability", MinMaxBounds.Ints.ANY)
+                            .forGetter(ItemDurabilityTrigger.TriggerInstance::durability),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Ints.CODEC, "delta", MinMaxBounds.Ints.ANY)
+                            .forGetter(ItemDurabilityTrigger.TriggerInstance::delta)
+                    )
+                    .apply(param0, ItemDurabilityTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<ItemDurabilityTrigger.TriggerInstance> changedDurability(Optional<ItemPredicate> param0, MinMaxBounds.Ints param1) {
             return changedDurability(Optional.empty(), param0, param1);
@@ -50,15 +53,6 @@ public class ItemDurabilityTrigger extends SimpleCriterionTrigger<ItemDurability
             } else {
                 return this.delta.matches(param0.getDamageValue() - param1);
             }
-        }
-
-        @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
-            var0.add("durability", this.durability.serializeToJson());
-            var0.add("delta", this.delta.serializeToJson());
-            return var0;
         }
     }
 }

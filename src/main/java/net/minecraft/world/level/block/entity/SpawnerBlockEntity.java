@@ -10,10 +10,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
+import net.minecraft.world.level.Spawner;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class SpawnerBlockEntity extends BlockEntity {
+public class SpawnerBlockEntity extends BlockEntity implements Spawner {
     private final BaseSpawner spawner = new BaseSpawner() {
         @Override
         public void broadcastEvent(Level param0, BlockPos param1, int param2) {
@@ -76,8 +77,10 @@ public class SpawnerBlockEntity extends BlockEntity {
         return true;
     }
 
+    @Override
     public void setEntityId(EntityType<?> param0, RandomSource param1) {
         this.spawner.setEntityId(param0, this.level, param1, this.worldPosition);
+        this.setChanged();
     }
 
     public BaseSpawner getSpawner() {

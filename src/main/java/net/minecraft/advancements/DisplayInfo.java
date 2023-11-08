@@ -1,29 +1,34 @@
 package net.minecraft.advancements;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import javax.annotation.Nullable;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.TagParser;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.Optional;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.Item;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
 public class DisplayInfo {
+    public static final Codec<DisplayInfo> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ItemStack.ADVANCEMENT_ICON_CODEC.fieldOf("icon").forGetter(DisplayInfo::getIcon),
+                    ComponentSerialization.CODEC.fieldOf("title").forGetter(DisplayInfo::getTitle),
+                    ComponentSerialization.CODEC.fieldOf("description").forGetter(DisplayInfo::getDescription),
+                    ExtraCodecs.strictOptionalField(ResourceLocation.CODEC, "background").forGetter(DisplayInfo::getBackground),
+                    ExtraCodecs.strictOptionalField(AdvancementType.CODEC, "frame", AdvancementType.TASK).forGetter(DisplayInfo::getType),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "show_toast", true).forGetter(DisplayInfo::shouldShowToast),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "announce_to_chat", true).forGetter(DisplayInfo::shouldAnnounceChat),
+                    ExtraCodecs.strictOptionalField(Codec.BOOL, "hidden", false).forGetter(DisplayInfo::isHidden)
+                )
+                .apply(param0, DisplayInfo::new)
+    );
     private final Component title;
     private final Component description;
     private final ItemStack icon;
-    @Nullable
-    private final ResourceLocation background;
-    private final FrameType frame;
+    private final Optional<ResourceLocation> background;
+    private final AdvancementType type;
     private final boolean showToast;
     private final boolean announceChat;
     private final boolean hidden;
@@ -34,8 +39,8 @@ public class DisplayInfo {
         ItemStack param0,
         Component param1,
         Component param2,
-        @Nullable ResourceLocation param3,
-        FrameType param4,
+        Optional<ResourceLocation> param3,
+        AdvancementType param4,
         boolean param5,
         boolean param6,
         boolean param7
@@ -44,7 +49,7 @@ public class DisplayInfo {
         this.description = param2;
         this.icon = param0;
         this.background = param3;
-        this.frame = param4;
+        this.type = param4;
         this.showToast = param5;
         this.announceChat = param6;
         this.hidden = param7;
@@ -67,13 +72,12 @@ public class DisplayInfo {
         return this.icon;
     }
 
-    @Nullable
-    public ResourceLocation getBackground() {
+    public Optional<ResourceLocation> getBackground() {
         return this.background;
     }
 
-    public FrameType getFrame() {
-        return this.frame;
+    public AdvancementType getType() {
+        return this.type;
     }
 
     public float getX() {
@@ -96,52 +100,13 @@ public class DisplayInfo {
         return this.hidden;
     }
 
-    public static DisplayInfo fromJson(JsonObject param0) {
-        Component var0 = Component.Serializer.fromJson(param0.get("title"));
-        Component var1 = Component.Serializer.fromJson(param0.get("description"));
-        if (var0 != null && var1 != null) {
-            ItemStack var2 = getIcon(GsonHelper.getAsJsonObject(param0, "icon"));
-            ResourceLocation var3 = param0.has("background") ? new ResourceLocation(GsonHelper.getAsString(param0, "background")) : null;
-            FrameType var4 = param0.has("frame") ? FrameType.byName(GsonHelper.getAsString(param0, "frame")) : FrameType.TASK;
-            boolean var5 = GsonHelper.getAsBoolean(param0, "show_toast", true);
-            boolean var6 = GsonHelper.getAsBoolean(param0, "announce_to_chat", true);
-            boolean var7 = GsonHelper.getAsBoolean(param0, "hidden", false);
-            return new DisplayInfo(var2, var0, var1, var3, var4, var5, var6, var7);
-        } else {
-            throw new JsonSyntaxException("Both title and description must be set");
-        }
-    }
-
-    private static ItemStack getIcon(JsonObject param0) {
-        if (!param0.has("item")) {
-            throw new JsonSyntaxException("Unsupported icon type, currently only items are supported (add 'item' key)");
-        } else {
-            Holder<Item> var0 = GsonHelper.getAsItem(param0, "item");
-            if (param0.has("data")) {
-                throw new JsonParseException("Disallowed data tag found");
-            } else {
-                ItemStack var1 = new ItemStack(var0);
-                if (param0.has("nbt")) {
-                    try {
-                        CompoundTag var2 = TagParser.parseTag(GsonHelper.convertToString(param0.get("nbt"), "nbt"));
-                        var1.setTag(var2);
-                    } catch (CommandSyntaxException var4) {
-                        throw new JsonSyntaxException("Invalid nbt tag: " + var4.getMessage());
-                    }
-                }
-
-                return var1;
-            }
-        }
-    }
-
     public void serializeToNetwork(FriendlyByteBuf param0) {
         param0.writeComponent(this.title);
         param0.writeComponent(this.description);
         param0.writeItem(this.icon);
-        param0.writeEnum(this.frame);
+        param0.writeEnum(this.type);
         int var0 = 0;
-        if (this.background != null) {
+        if (this.background.isPresent()) {
             var0 |= 1;
         }
 
@@ -154,10 +119,7 @@ public class DisplayInfo {
         }
 
         param0.writeInt(var0);
-        if (this.background != null) {
-            param0.writeResourceLocation(this.background);
-        }
-
+        this.background.ifPresent(param0::writeResourceLocation);
         param0.writeFloat(this.x);
         param0.writeFloat(this.y);
     }
@@ -166,39 +128,13 @@ public class DisplayInfo {
         Component var0 = param0.readComponentTrusted();
         Component var1 = param0.readComponentTrusted();
         ItemStack var2 = param0.readItem();
-        FrameType var3 = param0.readEnum(FrameType.class);
+        AdvancementType var3 = param0.readEnum(AdvancementType.class);
         int var4 = param0.readInt();
-        ResourceLocation var5 = (var4 & 1) != 0 ? param0.readResourceLocation() : null;
+        Optional<ResourceLocation> var5 = (var4 & 1) != 0 ? Optional.of(param0.readResourceLocation()) : Optional.empty();
         boolean var6 = (var4 & 2) != 0;
         boolean var7 = (var4 & 4) != 0;
         DisplayInfo var8 = new DisplayInfo(var2, var0, var1, var5, var3, var6, false, var7);
         var8.setLocation(param0.readFloat(), param0.readFloat());
         return var8;
-    }
-
-    public JsonElement serializeToJson() {
-        JsonObject var0 = new JsonObject();
-        var0.add("icon", this.serializeIcon());
-        var0.add("title", Component.Serializer.toJsonTree(this.title));
-        var0.add("description", Component.Serializer.toJsonTree(this.description));
-        var0.addProperty("frame", this.frame.getName());
-        var0.addProperty("show_toast", this.showToast);
-        var0.addProperty("announce_to_chat", this.announceChat);
-        var0.addProperty("hidden", this.hidden);
-        if (this.background != null) {
-            var0.addProperty("background", this.background.toString());
-        }
-
-        return var0;
-    }
-
-    private JsonObject serializeIcon() {
-        JsonObject var0 = new JsonObject();
-        var0.addProperty("item", BuiltInRegistries.ITEM.getKey(this.icon.getItem()).toString());
-        if (this.icon.hasTag()) {
-            var0.addProperty("nbt", this.icon.getTag().toString());
-        }
-
-        return var0;
     }
 }

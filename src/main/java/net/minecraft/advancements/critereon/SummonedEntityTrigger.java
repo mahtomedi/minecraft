@@ -1,17 +1,19 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class SummonedEntityTrigger extends SimpleCriterionTrigger<SummonedEntityTrigger.TriggerInstance> {
-    public SummonedEntityTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "entity", param2);
-        return new SummonedEntityTrigger.TriggerInstance(param1, var0);
+    @Override
+    public Codec<SummonedEntityTrigger.TriggerInstance> codec() {
+        return SummonedEntityTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Entity param1) {
@@ -19,13 +21,15 @@ public class SummonedEntityTrigger extends SimpleCriterionTrigger<SummonedEntity
         this.trigger(param0, param1x -> param1x.matches(var0));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ContextAwarePredicate> entity;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1) {
-            super(param0);
-            this.entity = param1;
-        }
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity)
+        implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<SummonedEntityTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(SummonedEntityTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "entity").forGetter(SummonedEntityTrigger.TriggerInstance::entity)
+                    )
+                    .apply(param0, SummonedEntityTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<SummonedEntityTrigger.TriggerInstance> summonedEntity(EntityPredicate.Builder param0) {
             return CriteriaTriggers.SUMMONED_ENTITY
@@ -37,10 +41,9 @@ public class SummonedEntityTrigger extends SimpleCriterionTrigger<SummonedEntity
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.entity.ifPresent(param1 -> var0.add("entity", param1.toJson()));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.entity, ".entity");
         }
     }
 }

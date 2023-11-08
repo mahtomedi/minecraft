@@ -17,9 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
@@ -185,81 +183,13 @@ public class LongJumpToRandomPos<E extends Mob> extends Behavior<E> {
         Collections.shuffle(var0);
 
         for(int var1 : var0) {
-            Vec3 var2 = this.calculateJumpVectorForAngle(param0, param1, var1);
-            if (var2 != null) {
-                return var2;
+            Optional<Vec3> var2 = LongJumpUtil.calculateJumpVectorForAngle(param0, param1, this.maxJumpVelocity, var1, true);
+            if (var2.isPresent()) {
+                return var2.get();
             }
         }
 
         return null;
-    }
-
-    @Nullable
-    private Vec3 calculateJumpVectorForAngle(Mob param0, Vec3 param1, int param2) {
-        Vec3 var0 = param0.position();
-        Vec3 var1 = new Vec3(param1.x - var0.x, 0.0, param1.z - var0.z).normalize().scale(0.5);
-        param1 = param1.subtract(var1);
-        Vec3 var2 = param1.subtract(var0);
-        float var3 = (float)param2 * (float) Math.PI / 180.0F;
-        double var4 = Math.atan2(var2.z, var2.x);
-        double var5 = var2.subtract(0.0, var2.y, 0.0).lengthSqr();
-        double var6 = Math.sqrt(var5);
-        double var7 = var2.y;
-        double var8 = Math.sin((double)(2.0F * var3));
-        double var9 = 0.08;
-        double var10 = Math.pow(Math.cos((double)var3), 2.0);
-        double var11 = Math.sin((double)var3);
-        double var12 = Math.cos((double)var3);
-        double var13 = Math.sin(var4);
-        double var14 = Math.cos(var4);
-        double var15 = var5 * 0.08 / (var6 * var8 - 2.0 * var7 * var10);
-        if (var15 < 0.0) {
-            return null;
-        } else {
-            double var16 = Math.sqrt(var15);
-            if (var16 > (double)this.maxJumpVelocity) {
-                return null;
-            } else {
-                double var17 = var16 * var12;
-                double var18 = var16 * var11;
-                int var19 = Mth.ceil(var6 / var17) * 2;
-                double var20 = 0.0;
-                Vec3 var21 = null;
-                EntityDimensions var22 = param0.getDimensions(Pose.LONG_JUMPING);
-
-                for(int var23 = 0; var23 < var19 - 1; ++var23) {
-                    var20 += var6 / (double)var19;
-                    double var24 = var11 / var12 * var20 - Math.pow(var20, 2.0) * 0.08 / (2.0 * var15 * Math.pow(var12, 2.0));
-                    double var25 = var20 * var14;
-                    double var26 = var20 * var13;
-                    Vec3 var27 = new Vec3(var0.x + var25, var0.y + var24, var0.z + var26);
-                    if (var21 != null && !this.isClearTransition(param0, var22, var21, var27)) {
-                        return null;
-                    }
-
-                    var21 = var27;
-                }
-
-                return new Vec3(var17 * var14, var18, var17 * var13).scale(0.95F);
-            }
-        }
-    }
-
-    private boolean isClearTransition(Mob param0, EntityDimensions param1, Vec3 param2, Vec3 param3) {
-        Vec3 var0 = param3.subtract(param2);
-        double var1 = (double)Math.min(param1.width, param1.height);
-        int var2 = Mth.ceil(var0.length() / var1);
-        Vec3 var3 = var0.normalize();
-        Vec3 var4 = param2;
-
-        for(int var5 = 0; var5 < var2; ++var5) {
-            var4 = var5 == var2 - 1 ? param3 : var4.add(var3.scale(var1 * 0.9F));
-            if (!param0.level().noCollision(param0, param1.makeBoundingBox(var4))) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public static class PossibleJump extends WeightedEntry.IntrusiveBase {

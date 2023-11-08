@@ -3,6 +3,7 @@ package net.minecraft.world.level.block;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,7 +16,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -115,6 +118,15 @@ public class ButtonBlock extends FaceAttachedHorizontalDirectionalBlock {
             param1.gameEvent(param3, GameEvent.BLOCK_ACTIVATE, param2);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         }
+    }
+
+    @Override
+    public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
+        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK && !param1.isClientSide() && !param0.getValue(POWERED)) {
+            this.press(param0, param1, param2);
+        }
+
+        super.onExplosionHit(param0, param1, param2, param3, param4);
     }
 
     public void press(BlockState param0, Level param1, BlockPos param2) {

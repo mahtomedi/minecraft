@@ -2,6 +2,7 @@ package net.minecraft.world.level.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,8 +10,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -104,15 +107,31 @@ public class TrapDoorBlock extends HorizontalDirectionalBlock implements SimpleW
         if (!this.type.canOpenByHand()) {
             return InteractionResult.PASS;
         } else {
-            param0 = param0.cycle(OPEN);
-            param1.setBlock(param2, param0, 2);
-            if (param0.getValue(WATERLOGGED)) {
-                param1.scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
-            }
-
-            this.playSound(param3, param1, param2, param0.getValue(OPEN));
+            this.toggle(param0, param1, param2, param3);
             return InteractionResult.sidedSuccess(param1.isClientSide);
         }
+    }
+
+    @Override
+    public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
+        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK
+            && !param1.isClientSide()
+            && this.type.canOpenByWindCharge()
+            && !param0.getValue(POWERED)) {
+            this.toggle(param0, param1, param2, null);
+        }
+
+        super.onExplosionHit(param0, param1, param2, param3, param4);
+    }
+
+    private void toggle(BlockState param0, Level param1, BlockPos param2, @Nullable Player param3) {
+        BlockState var0 = param0.cycle(OPEN);
+        param1.setBlock(param2, var0, 2);
+        if (var0.getValue(WATERLOGGED)) {
+            param1.scheduleTick(param2, Fluids.WATER, Fluids.WATER.getTickDelay(param1));
+        }
+
+        this.playSound(param3, param1, param2, var0.getValue(OPEN));
     }
 
     protected void playSound(@Nullable Player param0, Level param1, BlockPos param2, boolean param3) {

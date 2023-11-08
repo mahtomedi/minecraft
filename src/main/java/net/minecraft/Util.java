@@ -5,11 +5,13 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.mojang.datafixers.DataFixUtils;
+import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.types.Type;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DataResult.PartialResult;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -64,6 +66,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -829,6 +832,25 @@ public class Util {
             throw param1.apply(var0.get().message());
         } else {
             return param0.result().orElseThrow();
+        }
+    }
+
+    public static <A, B> Typed<B> writeAndReadTypedOrThrow(Typed<A> param0, Type<B> param1, UnaryOperator<Dynamic<?>> param2) {
+        Dynamic<?> var0 = getOrThrow(param0.write(), IllegalStateException::new);
+        return readTypedOrThrow(param1, param2.apply(var0));
+    }
+
+    public static <T> Typed<T> readTypedOrThrow(Type<T> param0, Dynamic<?> param1) {
+        DataResult<Typed<T>> var0 = param0.readTyped(param1).map(Pair::getFirst);
+        Optional<PartialResult<Typed<T>>> var1 = var0.error();
+        if (var1.isPresent()) {
+            CrashReport var2 = CrashReport.forThrowable(new IllegalStateException(var1.get().message()), "Reading type");
+            CrashReportCategory var3 = var2.addCategory("Info");
+            var3.setDetail("Data", param1);
+            var3.setDetail("Type", param0);
+            throw new ReportedException(var2);
+        } else {
+            return var0.result().orElseThrow();
         }
     }
 

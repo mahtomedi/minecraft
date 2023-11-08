@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -44,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.EmptyBlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -166,6 +168,31 @@ public abstract class BlockBehaviour implements FeatureElement {
             param1.removeBlockEntity(param2);
         }
 
+    }
+
+    @Deprecated
+    public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
+        if (!param0.isAir() && param3.getBlockInteraction() != Explosion.BlockInteraction.TRIGGER_BLOCK) {
+            Block var0 = param0.getBlock();
+            boolean var1 = param3.getIndirectSourceEntity() instanceof Player;
+            if (var0.dropFromExplosion(param3) && param1 instanceof ServerLevel var2) {
+                BlockEntity var3 = param0.hasBlockEntity() ? param1.getBlockEntity(param2) : null;
+                LootParams.Builder var4 = new LootParams.Builder(var2)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(param2))
+                    .withParameter(LootContextParams.TOOL, ItemStack.EMPTY)
+                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, var3)
+                    .withOptionalParameter(LootContextParams.THIS_ENTITY, param3.getDirectSourceEntity());
+                if (param3.getBlockInteraction() == Explosion.BlockInteraction.DESTROY_WITH_DECAY) {
+                    var4.withParameter(LootContextParams.EXPLOSION_RADIUS, param3.radius());
+                }
+
+                param0.spawnAfterBreak(var2, param2, ItemStack.EMPTY, var1);
+                param0.getDrops(var4).forEach(param2x -> param4.accept(param2x, param2));
+            }
+
+            param1.setBlock(param2, Blocks.AIR.defaultBlockState(), 3);
+            var0.wasExploded(param1, param2, param3);
+        }
     }
 
     @Deprecated
@@ -700,6 +727,10 @@ public abstract class BlockBehaviour implements FeatureElement {
             this.getBlock().onRemove(this.asState(), param0, param1, param2, param3);
         }
 
+        public void onExplosionHit(Level param0, BlockPos param1, Explosion param2, BiConsumer<ItemStack, BlockPos> param3) {
+            this.getBlock().onExplosionHit(this.asState(), param0, param1, param2, param3);
+        }
+
         public void tick(ServerLevel param0, BlockPos param1, RandomSource param2) {
             this.getBlock().tick(this.asState(), param0, param1, param2);
         }
@@ -971,32 +1002,47 @@ public abstract class BlockBehaviour implements FeatureElement {
             return new BlockBehaviour.Properties();
         }
 
-        public static BlockBehaviour.Properties copy(BlockBehaviour param0) {
+        public static BlockBehaviour.Properties ofFullCopy(BlockBehaviour param0) {
+            BlockBehaviour.Properties var0 = ofLegacyCopy(param0);
+            BlockBehaviour.Properties var1 = param0.properties;
+            var0.jumpFactor = var1.jumpFactor;
+            var0.isRedstoneConductor = var1.isRedstoneConductor;
+            var0.isValidSpawn = var1.isValidSpawn;
+            var0.hasPostProcess = var1.hasPostProcess;
+            var0.isSuffocating = var1.isSuffocating;
+            var0.isViewBlocking = var1.isViewBlocking;
+            var0.drops = var1.drops;
+            return var0;
+        }
+
+        @Deprecated
+        public static BlockBehaviour.Properties ofLegacyCopy(BlockBehaviour param0) {
             BlockBehaviour.Properties var0 = new BlockBehaviour.Properties();
-            var0.destroyTime = param0.properties.destroyTime;
-            var0.explosionResistance = param0.properties.explosionResistance;
-            var0.hasCollision = param0.properties.hasCollision;
-            var0.isRandomlyTicking = param0.properties.isRandomlyTicking;
-            var0.lightEmission = param0.properties.lightEmission;
-            var0.mapColor = param0.properties.mapColor;
-            var0.soundType = param0.properties.soundType;
-            var0.friction = param0.properties.friction;
-            var0.speedFactor = param0.properties.speedFactor;
-            var0.dynamicShape = param0.properties.dynamicShape;
-            var0.canOcclude = param0.properties.canOcclude;
-            var0.isAir = param0.properties.isAir;
-            var0.ignitedByLava = param0.properties.ignitedByLava;
-            var0.liquid = param0.properties.liquid;
-            var0.forceSolidOff = param0.properties.forceSolidOff;
-            var0.forceSolidOn = param0.properties.forceSolidOn;
-            var0.pushReaction = param0.properties.pushReaction;
-            var0.requiresCorrectToolForDrops = param0.properties.requiresCorrectToolForDrops;
-            var0.offsetFunction = param0.properties.offsetFunction;
-            var0.spawnTerrainParticles = param0.properties.spawnTerrainParticles;
-            var0.requiredFeatures = param0.properties.requiredFeatures;
-            var0.emissiveRendering = param0.properties.emissiveRendering;
-            var0.instrument = param0.properties.instrument;
-            var0.replaceable = param0.properties.replaceable;
+            BlockBehaviour.Properties var1 = param0.properties;
+            var0.destroyTime = var1.destroyTime;
+            var0.explosionResistance = var1.explosionResistance;
+            var0.hasCollision = var1.hasCollision;
+            var0.isRandomlyTicking = var1.isRandomlyTicking;
+            var0.lightEmission = var1.lightEmission;
+            var0.mapColor = var1.mapColor;
+            var0.soundType = var1.soundType;
+            var0.friction = var1.friction;
+            var0.speedFactor = var1.speedFactor;
+            var0.dynamicShape = var1.dynamicShape;
+            var0.canOcclude = var1.canOcclude;
+            var0.isAir = var1.isAir;
+            var0.ignitedByLava = var1.ignitedByLava;
+            var0.liquid = var1.liquid;
+            var0.forceSolidOff = var1.forceSolidOff;
+            var0.forceSolidOn = var1.forceSolidOn;
+            var0.pushReaction = var1.pushReaction;
+            var0.requiresCorrectToolForDrops = var1.requiresCorrectToolForDrops;
+            var0.offsetFunction = var1.offsetFunction;
+            var0.spawnTerrainParticles = var1.spawnTerrainParticles;
+            var0.requiredFeatures = var1.requiredFeatures;
+            var0.emissiveRendering = var1.emissiveRendering;
+            var0.instrument = var1.instrument;
+            var0.replaceable = var1.replaceable;
             return var0;
         }
 

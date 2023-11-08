@@ -1,21 +1,21 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigger.TriggerInstance> {
-    public BredAnimalsTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "parent", param2);
-        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "partner", param2);
-        Optional<ContextAwarePredicate> var2 = EntityPredicate.fromJson(param0, "child", param2);
-        return new BredAnimalsTrigger.TriggerInstance(param1, var0, var1, var2);
+    @Override
+    public Codec<BredAnimalsTrigger.TriggerInstance> codec() {
+        return BredAnimalsTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Animal param1, Animal param2, @Nullable AgeableMob param3) {
@@ -25,22 +25,21 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
         this.trigger(param0, param3x -> param3x.matches(var0, var1, var2));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ContextAwarePredicate> parent;
-        private final Optional<ContextAwarePredicate> partner;
-        private final Optional<ContextAwarePredicate> child;
-
-        public TriggerInstance(
-            Optional<ContextAwarePredicate> param0,
-            Optional<ContextAwarePredicate> param1,
-            Optional<ContextAwarePredicate> param2,
-            Optional<ContextAwarePredicate> param3
-        ) {
-            super(param0);
-            this.parent = param1;
-            this.partner = param2;
-            this.child = param3;
-        }
+    public static record TriggerInstance(
+        Optional<ContextAwarePredicate> player,
+        Optional<ContextAwarePredicate> parent,
+        Optional<ContextAwarePredicate> partner,
+        Optional<ContextAwarePredicate> child
+    ) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<BredAnimalsTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(BredAnimalsTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "parent").forGetter(BredAnimalsTrigger.TriggerInstance::parent),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "partner").forGetter(BredAnimalsTrigger.TriggerInstance::partner),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "child").forGetter(BredAnimalsTrigger.TriggerInstance::child)
+                    )
+                    .apply(param0, BredAnimalsTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<BredAnimalsTrigger.TriggerInstance> bredAnimals() {
             return CriteriaTriggers.BRED_ANIMALS
@@ -78,12 +77,11 @@ public class BredAnimalsTrigger extends SimpleCriterionTrigger<BredAnimalsTrigge
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.parent.ifPresent(param1 -> var0.add("parent", param1.toJson()));
-            this.partner.ifPresent(param1 -> var0.add("partner", param1.toJson()));
-            this.child.ifPresent(param1 -> var0.add("child", param1.toJson()));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.parent, ".parent");
+            param0.validateEntity(this.partner, ".partner");
+            param0.validateEntity(this.child, ".child");
         }
     }
 }

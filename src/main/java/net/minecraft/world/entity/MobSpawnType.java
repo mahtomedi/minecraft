@@ -16,5 +16,14 @@ public enum MobSpawnType {
     SPAWN_EGG,
     COMMAND,
     DISPENSER,
-    PATROL;
+    PATROL,
+    TRIAL_SPAWNER;
+
+    public static boolean isSpawner(MobSpawnType param0) {
+        return param0 == SPAWNER || param0 == TRIAL_SPAWNER;
+    }
+
+    public static boolean ignoresLightRequirements(MobSpawnType param0) {
+        return param0 == TRIAL_SPAWNER;
+    }
 }

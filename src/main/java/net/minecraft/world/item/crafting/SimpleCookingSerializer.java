@@ -8,10 +8,10 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
 public class SimpleCookingSerializer<T extends AbstractCookingRecipe> implements RecipeSerializer<T> {
-    private final SimpleCookingSerializer.CookieBaker<T> factory;
+    private final AbstractCookingRecipe.Factory<T> factory;
     private final Codec<T> codec;
 
-    public SimpleCookingSerializer(SimpleCookingSerializer.CookieBaker<T> param0, int param1) {
+    public SimpleCookingSerializer(AbstractCookingRecipe.Factory<T> param0, int param1) {
         this.factory = param0;
         this.codec = RecordCodecBuilder.create(
             param2 -> param2.group(
@@ -50,7 +50,7 @@ public class SimpleCookingSerializer<T extends AbstractCookingRecipe> implements
         param0.writeVarInt(param1.cookingTime);
     }
 
-    interface CookieBaker<T extends AbstractCookingRecipe> {
-        T create(String var1, CookingBookCategory var2, Ingredient var3, ItemStack var4, float var5, int var6);
+    public AbstractCookingRecipe create(String param0, CookingBookCategory param1, Ingredient param2, ItemStack param3, float param4, int param5) {
+        return this.factory.create(param0, param1, param2, param3, param4, param5);
     }
 }

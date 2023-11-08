@@ -9,7 +9,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UTFDataFormatException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.zip.GZIPInputStream;
@@ -17,9 +19,15 @@ import java.util.zip.GZIPOutputStream;
 import javax.annotation.Nullable;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
+import net.minecraft.Util;
+import net.minecraft.util.DelegateDataOutput;
 import net.minecraft.util.FastBufferedInputStream;
 
 public class NbtIo {
+    private static final OpenOption[] SYNC_OUTPUT_OPTIONS = new OpenOption[]{
+        StandardOpenOption.SYNC, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING
+    };
+
     public static CompoundTag readCompressed(Path param0, NbtAccounter param1) throws IOException {
         CompoundTag var3;
         try (InputStream var0 = Files.newInputStream(param0)) {
@@ -82,7 +90,7 @@ public class NbtIo {
 
     public static void writeCompressed(CompoundTag param0, Path param1) throws IOException {
         try (
-            OutputStream var0 = Files.newOutputStream(param1, StandardOpenOption.SYNC);
+            OutputStream var0 = Files.newOutputStream(param1, SYNC_OUTPUT_OPTIONS);
             OutputStream var1 = new BufferedOutputStream(var0);
         ) {
             writeCompressed(param0, var1);
@@ -99,7 +107,7 @@ public class NbtIo {
 
     public static void write(CompoundTag param0, Path param1) throws IOException {
         try (
-            OutputStream var0 = Files.newOutputStream(param1, StandardOpenOption.SYNC);
+            OutputStream var0 = Files.newOutputStream(param1, SYNC_OUTPUT_OPTIONS);
             OutputStream var1 = new BufferedOutputStream(var0);
             DataOutputStream var2 = new DataOutputStream(var1);
         ) {
@@ -110,7 +118,7 @@ public class NbtIo {
 
     @Nullable
     public static CompoundTag read(Path param0) throws IOException {
-        if (Files.exists(param0)) {
+        if (!Files.exists(param0)) {
             return null;
         } else {
             CompoundTag var3;
@@ -139,7 +147,7 @@ public class NbtIo {
     }
 
     public static void write(CompoundTag param0, DataOutput param1) throws IOException {
-        writeUnnamedTag(param0, param1);
+        writeUnnamedTagWithFallback(param0, param1);
     }
 
     public static void parse(DataInput param0, StreamTagVisitor param1, NbtAccounter param2) throws IOException {
@@ -186,6 +194,10 @@ public class NbtIo {
         }
     }
 
+    public static void writeUnnamedTagWithFallback(Tag param0, DataOutput param1) throws IOException {
+        writeUnnamedTag(param0, new NbtIo.StringFallbackDataOutput(param1));
+    }
+
     private static Tag readUnnamedTag(DataInput param0, NbtAccounter param1) throws IOException {
         byte var0 = param0.readByte();
         if (var0 == 0) {
@@ -204,6 +216,23 @@ public class NbtIo {
             CrashReportCategory var2 = var1.addCategory("NBT Tag");
             var2.setDetail("Tag type", param2);
             throw new ReportedNbtException(var1);
+        }
+    }
+
+    public static class StringFallbackDataOutput extends DelegateDataOutput {
+        public StringFallbackDataOutput(DataOutput param0) {
+            super(param0);
+        }
+
+        @Override
+        public void writeUTF(String param0) throws IOException {
+            try {
+                super.writeUTF(param0);
+            } catch (UTFDataFormatException var3) {
+                Util.logAndPauseIfInIde("Failed to write NBT String", var3);
+                super.writeUTF("");
+            }
+
         }
     }
 }

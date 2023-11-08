@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public record PngInfo(int width, int height) {
     private static final long PNG_HEADER = -8552249625308161526L;
@@ -27,5 +29,19 @@ public record PngInfo(int width, int height) {
 
     public static PngInfo fromBytes(byte[] param0) throws IOException {
         return fromStream(new ByteArrayInputStream(param0));
+    }
+
+    public static void validateHeader(ByteBuffer param0) throws IOException {
+        ByteOrder var0 = param0.order();
+        param0.order(ByteOrder.BIG_ENDIAN);
+        if (param0.getLong(0) != -8552249625308161526L) {
+            throw new IOException("Bad PNG Signature");
+        } else if (param0.getInt(8) != 13) {
+            throw new IOException("Bad length for IHDR chunk!");
+        } else if (param0.getInt(12) != 1229472850) {
+            throw new IOException("Bad type for IHDR chunk!");
+        } else {
+            param0.order(var0);
+        }
     }
 }

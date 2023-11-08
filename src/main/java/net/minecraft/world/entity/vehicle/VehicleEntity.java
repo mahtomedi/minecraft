@@ -35,7 +35,7 @@ public abstract class VehicleEntity extends Entity {
             this.setDamage(this.getDamage() + param1 * 10.0F);
             this.gameEvent(GameEvent.ENTITY_DAMAGE, param0.getEntity());
             boolean var0 = param0.getEntity() instanceof Player && ((Player)param0.getEntity()).getAbilities().instabuild;
-            if ((var0 || !(this.getDamage() > 40.0F)) && (!var0 || !this.shouldVehicleAlwaysReactToDamageSource())) {
+            if ((var0 || !(this.getDamage() > 40.0F)) && !this.shouldSourceDestroy(param0)) {
                 if (var0) {
                     this.discard();
                 }
@@ -47,7 +47,7 @@ public abstract class VehicleEntity extends Entity {
         }
     }
 
-    boolean shouldVehicleAlwaysReactToDamageSource() {
+    boolean shouldSourceDestroy(DamageSource param0) {
         return false;
     }
 

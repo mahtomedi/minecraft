@@ -4,9 +4,14 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.phys.Vec3;
 
 public class ClientboundExplodePacket implements Packet<ClientGamePacketListener> {
@@ -18,13 +23,29 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
     private final float knockbackX;
     private final float knockbackY;
     private final float knockbackZ;
+    private final ParticleOptions smallExplosionParticles;
+    private final ParticleOptions largeExplosionParticles;
+    private final Explosion.BlockInteraction blockInteraction;
+    private final SoundEvent explosionSound;
 
-    public ClientboundExplodePacket(double param0, double param1, double param2, float param3, List<BlockPos> param4, @Nullable Vec3 param5) {
+    public ClientboundExplodePacket(
+        double param0,
+        double param1,
+        double param2,
+        float param3,
+        List<BlockPos> param4,
+        @Nullable Vec3 param5,
+        Explosion.BlockInteraction param6,
+        ParticleOptions param7,
+        ParticleOptions param8,
+        SoundEvent param9
+    ) {
         this.x = param0;
         this.y = param1;
         this.z = param2;
         this.power = param3;
         this.toBlow = Lists.newArrayList(param4);
+        this.explosionSound = param9;
         if (param5 != null) {
             this.knockbackX = (float)param5.x;
             this.knockbackY = (float)param5.y;
@@ -35,6 +56,9 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
             this.knockbackZ = 0.0F;
         }
 
+        this.blockInteraction = param6;
+        this.smallExplosionParticles = param7;
+        this.largeExplosionParticles = param8;
     }
 
     public ClientboundExplodePacket(FriendlyByteBuf param0) {
@@ -54,6 +78,14 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
         this.knockbackX = param0.readFloat();
         this.knockbackY = param0.readFloat();
         this.knockbackZ = param0.readFloat();
+        this.blockInteraction = param0.readEnum(Explosion.BlockInteraction.class);
+        this.smallExplosionParticles = readParticle(param0, param0.readById(BuiltInRegistries.PARTICLE_TYPE));
+        this.largeExplosionParticles = readParticle(param0, param0.readById(BuiltInRegistries.PARTICLE_TYPE));
+        this.explosionSound = SoundEvent.readFromNetwork(param0);
+    }
+
+    private static <T extends ParticleOptions> T readParticle(FriendlyByteBuf param0, ParticleType<T> param1) {
+        return param1.getDeserializer().fromNetwork(param1, param0);
     }
 
     @Override
@@ -76,6 +108,10 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
         param0.writeFloat(this.knockbackX);
         param0.writeFloat(this.knockbackY);
         param0.writeFloat(this.knockbackZ);
+        param0.writeEnum(this.blockInteraction);
+        param0.writeId(BuiltInRegistries.PARTICLE_TYPE, this.smallExplosionParticles.getType());
+        param0.writeId(BuiltInRegistries.PARTICLE_TYPE, this.largeExplosionParticles.getType());
+        this.explosionSound.writeToNetwork(param0);
     }
 
     public void handle(ClientGamePacketListener param0) {
@@ -112,5 +148,21 @@ public class ClientboundExplodePacket implements Packet<ClientGamePacketListener
 
     public List<BlockPos> getToBlow() {
         return this.toBlow;
+    }
+
+    public Explosion.BlockInteraction getBlockInteraction() {
+        return this.blockInteraction;
+    }
+
+    public ParticleOptions getSmallExplosionParticles() {
+        return this.smallExplosionParticles;
+    }
+
+    public ParticleOptions getLargeExplosionParticles() {
+        return this.largeExplosionParticles;
+    }
+
+    public SoundEvent getExplosionSound() {
+        return this.explosionSound;
     }
 }

@@ -8,6 +8,8 @@ import com.mojang.serialization.MapCodec;
 import java.util.Map;
 import java.util.function.Supplier;
 import net.minecraft.Util;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.core.DefaultedMappedRegistry;
@@ -19,6 +21,7 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.Bootstrap;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.StatType;
@@ -113,9 +116,8 @@ import org.slf4j.Logger;
 public class BuiltInRegistries {
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Map<ResourceLocation, Supplier<?>> LOADERS = Maps.newLinkedHashMap();
-    public static final ResourceLocation ROOT_REGISTRY_NAME = new ResourceLocation("root");
     private static final WritableRegistry<WritableRegistry<?>> WRITABLE_REGISTRY = new MappedRegistry<>(
-        ResourceKey.createRegistryKey(ROOT_REGISTRY_NAME), Lifecycle.stable()
+        ResourceKey.createRegistryKey(Registries.ROOT_REGISTRY_NAME), Lifecycle.stable()
     );
     public static final DefaultedRegistry<GameEvent> GAME_EVENT = registerDefaultedWithIntrusiveHolders(Registries.GAME_EVENT, "step", param0 -> GameEvent.STEP);
     public static final Registry<SoundEvent> SOUND_EVENT = registerSimple(Registries.SOUND_EVENT, param0 -> SoundEvents.ITEM_PICKUP);
@@ -243,6 +245,7 @@ public class BuiltInRegistries {
     public static final Registry<Instrument> INSTRUMENT = registerSimple(Registries.INSTRUMENT, Instruments::bootstrap);
     public static final Registry<String> DECORATED_POT_PATTERNS = registerSimple(Registries.DECORATED_POT_PATTERNS, DecoratedPotPatterns::bootstrap);
     public static final Registry<CreativeModeTab> CREATIVE_MODE_TAB = registerSimple(Registries.CREATIVE_MODE_TAB, CreativeModeTabs::bootstrap);
+    public static final Registry<CriterionTrigger<?>> TRIGGER_TYPES = registerSimple(Registries.TRIGGER_TYPE, CriteriaTriggers::bootstrap);
     public static final Registry<? extends Registry<?>> REGISTRY = WRITABLE_REGISTRY;
 
     private static <T> Registry<T> registerSimple(ResourceKey<? extends Registry<T>> param0, BuiltInRegistries.RegistryBootstrap<T> param1) {
@@ -284,6 +287,7 @@ public class BuiltInRegistries {
     private static <T, R extends WritableRegistry<T>> R internalRegister(
         ResourceKey<? extends Registry<T>> param0, R param1, BuiltInRegistries.RegistryBootstrap<T> param2, Lifecycle param3
     ) {
+        Bootstrap.checkBootstrapCalled(() -> "registry " + param0);
         ResourceLocation var0 = param0.location();
         LOADERS.put(var0, () -> param2.run(param1));
         WRITABLE_REGISTRY.register(param0, param1, param3);

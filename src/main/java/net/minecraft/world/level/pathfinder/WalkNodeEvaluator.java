@@ -440,36 +440,19 @@ public class WalkNodeEvaluator extends NodeEvaluator {
         int var2 = param1.getZ();
         BlockPathTypes var3 = getBlockPathTypeRaw(param0, param1);
         if (var3 == BlockPathTypes.OPEN && var1 >= param0.getMinBuildHeight() + 1) {
-            BlockPathTypes var4 = getBlockPathTypeRaw(param0, param1.set(var0, var1 - 1, var2));
-            var3 = var4 != BlockPathTypes.WALKABLE && var4 != BlockPathTypes.OPEN && var4 != BlockPathTypes.WATER && var4 != BlockPathTypes.LAVA
-                ? BlockPathTypes.WALKABLE
-                : BlockPathTypes.OPEN;
-            if (var4 == BlockPathTypes.DAMAGE_FIRE) {
-                var3 = BlockPathTypes.DAMAGE_FIRE;
-            }
-
-            if (var4 == BlockPathTypes.DAMAGE_OTHER) {
-                var3 = BlockPathTypes.DAMAGE_OTHER;
-            }
-
-            if (var4 == BlockPathTypes.STICKY_HONEY) {
-                var3 = BlockPathTypes.STICKY_HONEY;
-            }
-
-            if (var4 == BlockPathTypes.POWDER_SNOW) {
-                var3 = BlockPathTypes.DANGER_POWDER_SNOW;
-            }
-
-            if (var4 == BlockPathTypes.DAMAGE_CAUTIOUS) {
-                var3 = BlockPathTypes.DAMAGE_CAUTIOUS;
-            }
+            return switch(getBlockPathTypeRaw(param0, param1.set(var0, var1 - 1, var2))) {
+                case OPEN, WATER, LAVA, WALKABLE -> BlockPathTypes.OPEN;
+                case DAMAGE_FIRE -> BlockPathTypes.DAMAGE_FIRE;
+                case DAMAGE_OTHER -> BlockPathTypes.DAMAGE_OTHER;
+                case STICKY_HONEY -> BlockPathTypes.STICKY_HONEY;
+                case POWDER_SNOW -> BlockPathTypes.DANGER_POWDER_SNOW;
+                case DAMAGE_CAUTIOUS -> BlockPathTypes.DAMAGE_CAUTIOUS;
+                case TRAPDOOR -> BlockPathTypes.DANGER_TRAPDOOR;
+                default -> checkNeighbourBlocks(param0, param1.set(var0, var1, var2), BlockPathTypes.WALKABLE);
+            };
+        } else {
+            return var3;
         }
-
-        if (var3 == BlockPathTypes.WALKABLE) {
-            var3 = checkNeighbourBlocks(param0, param1.set(var0, var1, var2), var3);
-        }
-
-        return var3;
     }
 
     public static BlockPathTypes checkNeighbourBlocks(BlockGetter param0, BlockPos.MutableBlockPos param1, BlockPathTypes param2) {

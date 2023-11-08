@@ -1,44 +1,34 @@
 package net.minecraft.advancements;
 
-import com.google.common.collect.Lists;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
-import javax.annotation.Nullable;
+import java.util.Optional;
 import net.minecraft.commands.CacheableFunction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
-public class AdvancementRewards {
-    public static final AdvancementRewards EMPTY = new AdvancementRewards(0, new ResourceLocation[0], new ResourceLocation[0], CacheableFunction.NONE);
-    private final int experience;
-    private final ResourceLocation[] loot;
-    private final ResourceLocation[] recipes;
-    private final CacheableFunction function;
-
-    public AdvancementRewards(int param0, ResourceLocation[] param1, ResourceLocation[] param2, CacheableFunction param3) {
-        this.experience = param0;
-        this.loot = param1;
-        this.recipes = param2;
-        this.function = param3;
-    }
-
-    public ResourceLocation[] getRecipes() {
-        return this.recipes;
-    }
+public record AdvancementRewards(int experience, List<ResourceLocation> loot, List<ResourceLocation> recipes, Optional<CacheableFunction> function) {
+    public static final Codec<AdvancementRewards> CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ExtraCodecs.strictOptionalField(Codec.INT, "experience", 0).forGetter(AdvancementRewards::experience),
+                    ExtraCodecs.strictOptionalField(ResourceLocation.CODEC.listOf(), "loot", List.of()).forGetter(AdvancementRewards::loot),
+                    ExtraCodecs.strictOptionalField(ResourceLocation.CODEC.listOf(), "recipes", List.of()).forGetter(AdvancementRewards::recipes),
+                    ExtraCodecs.strictOptionalField(CacheableFunction.CODEC, "function").forGetter(AdvancementRewards::function)
+                )
+                .apply(param0, AdvancementRewards::new)
+    );
+    public static final AdvancementRewards EMPTY = new AdvancementRewards(0, List.of(), List.of(), Optional.empty());
 
     public void grant(ServerPlayer param0) {
         param0.giveExperiencePoints(this.experience);
@@ -77,98 +67,21 @@ public class AdvancementRewards {
             param0.containerMenu.broadcastChanges();
         }
 
-        if (this.recipes.length > 0) {
+        if (!this.recipes.isEmpty()) {
             param0.awardRecipesByKey(this.recipes);
         }
 
         MinecraftServer var5 = param0.server;
         this.function
-            .get(var5.getFunctions())
+            .flatMap(param1 -> param1.get(var5.getFunctions()))
             .ifPresent(param2 -> var5.getFunctions().execute(param2, param0.createCommandSourceStack().withSuppressedOutput().withPermission(2)));
-    }
-
-    @Override
-    public String toString() {
-        return "AdvancementRewards{experience="
-            + this.experience
-            + ", loot="
-            + Arrays.toString((Object[])this.loot)
-            + ", recipes="
-            + Arrays.toString((Object[])this.recipes)
-            + ", function="
-            + this.function
-            + "}";
-    }
-
-    public JsonElement serializeToJson() {
-        if (this == EMPTY) {
-            return JsonNull.INSTANCE;
-        } else {
-            JsonObject var0 = new JsonObject();
-            if (this.experience != 0) {
-                var0.addProperty("experience", this.experience);
-            }
-
-            if (this.loot.length > 0) {
-                JsonArray var1 = new JsonArray();
-
-                for(ResourceLocation var2 : this.loot) {
-                    var1.add(var2.toString());
-                }
-
-                var0.add("loot", var1);
-            }
-
-            if (this.recipes.length > 0) {
-                JsonArray var3 = new JsonArray();
-
-                for(ResourceLocation var4 : this.recipes) {
-                    var3.add(var4.toString());
-                }
-
-                var0.add("recipes", var3);
-            }
-
-            if (this.function.getId() != null) {
-                var0.addProperty("function", this.function.getId().toString());
-            }
-
-            return var0;
-        }
-    }
-
-    public static AdvancementRewards deserialize(JsonObject param0) throws JsonParseException {
-        int var0 = GsonHelper.getAsInt(param0, "experience", 0);
-        JsonArray var1 = GsonHelper.getAsJsonArray(param0, "loot", new JsonArray());
-        ResourceLocation[] var2 = new ResourceLocation[var1.size()];
-
-        for(int var3 = 0; var3 < var2.length; ++var3) {
-            var2[var3] = new ResourceLocation(GsonHelper.convertToString(var1.get(var3), "loot[" + var3 + "]"));
-        }
-
-        JsonArray var4 = GsonHelper.getAsJsonArray(param0, "recipes", new JsonArray());
-        ResourceLocation[] var5 = new ResourceLocation[var4.size()];
-
-        for(int var6 = 0; var6 < var5.length; ++var6) {
-            var5[var6] = new ResourceLocation(GsonHelper.convertToString(var4.get(var6), "recipes[" + var6 + "]"));
-        }
-
-        CacheableFunction var7;
-        if (param0.has("function")) {
-            var7 = new CacheableFunction(new ResourceLocation(GsonHelper.getAsString(param0, "function")));
-        } else {
-            var7 = CacheableFunction.NONE;
-        }
-
-        return new AdvancementRewards(var0, var2, var5, var7);
     }
 
     public static class Builder {
         private int experience;
-        private final List<ResourceLocation> loot = Lists.newArrayList();
-        private final List<ResourceLocation> recipes = Lists.newArrayList();
-        @Nullable
-        private ResourceLocation function;
+        private final ImmutableList.Builder<ResourceLocation> loot = ImmutableList.builder();
+        private final ImmutableList.Builder<ResourceLocation> recipes = ImmutableList.builder();
+        private Optional<ResourceLocation> function = Optional.empty();
 
         public static AdvancementRewards.Builder experience(int param0) {
             return new AdvancementRewards.Builder().addExperience(param0);
@@ -202,17 +115,12 @@ public class AdvancementRewards {
         }
 
         public AdvancementRewards.Builder runs(ResourceLocation param0) {
-            this.function = param0;
+            this.function = Optional.of(param0);
             return this;
         }
 
         public AdvancementRewards build() {
-            return new AdvancementRewards(
-                this.experience,
-                this.loot.toArray(new ResourceLocation[0]),
-                this.recipes.toArray(new ResourceLocation[0]),
-                this.function == null ? CacheableFunction.NONE : new CacheableFunction(this.function)
-            );
+            return new AdvancementRewards(this.experience, this.loot.build(), this.recipes.build(), this.function.map(CacheableFunction::new));
         }
     }
 }

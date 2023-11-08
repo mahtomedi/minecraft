@@ -76,7 +76,7 @@ public class MinecartTNT extends AbstractMinecart {
     @Override
     public void destroy(DamageSource param0) {
         double var0 = this.getDeltaMovement().horizontalDistanceSqr();
-        if (!param0.is(DamageTypeTags.IS_FIRE) && !param0.is(DamageTypeTags.IS_EXPLOSION) && !(var0 >= 0.01F)) {
+        if (!damageSourceIgnitesTnt(param0) && !(var0 >= 0.01F)) {
             this.destroy(this.getDropItem());
         } else {
             if (this.fuse < 0) {
@@ -197,7 +197,11 @@ public class MinecartTNT extends AbstractMinecart {
     }
 
     @Override
-    boolean shouldVehicleAlwaysReactToDamageSource() {
-        return true;
+    boolean shouldSourceDestroy(DamageSource param0) {
+        return damageSourceIgnitesTnt(param0);
+    }
+
+    private static boolean damageSourceIgnitesTnt(DamageSource param0) {
+        return param0.is(DamageTypeTags.IS_FIRE) || param0.is(DamageTypeTags.IS_EXPLOSION);
     }
 }

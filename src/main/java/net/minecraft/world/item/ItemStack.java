@@ -6,6 +6,8 @@ import com.google.common.collect.Multimap;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,6 +35,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -44,6 +47,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -79,9 +83,35 @@ import org.slf4j.Logger;
 public final class ItemStack {
     public static final Codec<ItemStack> CODEC = RecordCodecBuilder.create(
         param0 -> param0.group(
-                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("id").forGetter(ItemStack::getItem),
+                    BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("id").forGetter(ItemStack::getItemHolder),
                     Codec.INT.fieldOf("Count").forGetter(ItemStack::getCount),
                     CompoundTag.CODEC.optionalFieldOf("tag").forGetter(param0x -> Optional.ofNullable(param0x.getTag()))
+                )
+                .apply(param0, ItemStack::new)
+    );
+    private static final Codec<Item> ITEM_NON_AIR_CODEC = ExtraCodecs.validate(
+        BuiltInRegistries.ITEM.byNameCodec(),
+        param0 -> param0 == Items.AIR ? DataResult.error(() -> "Item must not be minecraft:air") : DataResult.success(param0)
+    );
+    public static final Codec<ItemStack> ADVANCEMENT_ICON_CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("item").forGetter(ItemStack::getItemHolder),
+                    ExtraCodecs.strictOptionalField(TagParser.AS_CODEC, "nbt").forGetter(param0x -> Optional.ofNullable(param0x.getTag()))
+                )
+                .apply(param0, (param0x, param1) -> new ItemStack(param0x, 1, param1))
+    );
+    public static final Codec<ItemStack> ITEM_WITH_COUNT_CODEC = RecordCodecBuilder.create(
+        param0 -> param0.group(
+                    ITEM_NON_AIR_CODEC.fieldOf("item").forGetter(ItemStack::getItem),
+                    ExtraCodecs.strictOptionalField(ExtraCodecs.POSITIVE_INT, "count", 1).forGetter(ItemStack::getCount)
+                )
+                .apply(param0, ItemStack::new)
+    );
+    public static final Codec<ItemStack> SINGLE_ITEM_CODEC = ITEM_NON_AIR_CODEC.xmap(ItemStack::new, ItemStack::getItem);
+    public static final MapCodec<ItemStack> RESULT_CODEC = RecordCodecBuilder.mapCodec(
+        param0 -> param0.group(
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("result").forGetter(ItemStack::getItem),
+                    Codec.INT.fieldOf("count").forGetter(ItemStack::getCount)
                 )
                 .apply(param0, ItemStack::new)
     );
@@ -130,7 +160,7 @@ public final class ItemStack {
         this(param0.value(), 1);
     }
 
-    private ItemStack(ItemLike param0, int param1, Optional<CompoundTag> param2) {
+    public ItemStack(Holder<Item> param0, int param1, Optional<CompoundTag> param2) {
         this(param0, param1);
         param2.ifPresent(this::setTag);
     }
@@ -156,7 +186,7 @@ public final class ItemStack {
         this.item = BuiltInRegistries.ITEM.get(new ResourceLocation(param0.getString("id")));
         this.count = param0.getByte("Count");
         if (param0.contains("tag", 10)) {
-            this.tag = param0.getCompound("tag");
+            this.tag = param0.getCompound("tag").copy();
             this.getItem().verifyTagAfterLoad(this.tag);
         }
 

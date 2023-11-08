@@ -1,6 +1,6 @@
 package net.minecraft.client.gui.screens.advancements;
 
-import net.minecraft.advancements.FrameType;
+import net.minecraft.advancements.AdvancementType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -36,7 +36,7 @@ public enum AdvancementWidgetType {
         return this.boxSprite;
     }
 
-    public ResourceLocation frameSprite(FrameType param0) {
+    public ResourceLocation frameSprite(AdvancementType param0) {
         return switch(param0) {
             case TASK -> this.taskFrameSprite;
             case CHALLENGE -> this.challengeFrameSprite;

@@ -1,17 +1,19 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class TameAnimalTrigger extends SimpleCriterionTrigger<TameAnimalTrigger.TriggerInstance> {
-    public TameAnimalTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "entity", param2);
-        return new TameAnimalTrigger.TriggerInstance(param1, var0);
+    @Override
+    public Codec<TameAnimalTrigger.TriggerInstance> codec() {
+        return TameAnimalTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Animal param1) {
@@ -19,13 +21,15 @@ public class TameAnimalTrigger extends SimpleCriterionTrigger<TameAnimalTrigger.
         this.trigger(param0, param1x -> param1x.matches(var0));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ContextAwarePredicate> entity;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1) {
-            super(param0);
-            this.entity = param1;
-        }
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity)
+        implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<TameAnimalTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(TameAnimalTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "entity").forGetter(TameAnimalTrigger.TriggerInstance::entity)
+                    )
+                    .apply(param0, TameAnimalTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<TameAnimalTrigger.TriggerInstance> tamedAnimal() {
             return CriteriaTriggers.TAME_ANIMAL.createCriterion(new TameAnimalTrigger.TriggerInstance(Optional.empty(), Optional.empty()));
@@ -41,10 +45,9 @@ public class TameAnimalTrigger extends SimpleCriterionTrigger<TameAnimalTrigger.
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.entity.ifPresent(param1 -> var0.add("entity", param1.toJson()));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.entity, ".entity");
         }
     }
 }

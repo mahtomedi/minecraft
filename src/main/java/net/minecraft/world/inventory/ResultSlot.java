@@ -82,4 +82,9 @@ public class ResultSlot extends Slot {
         }
 
     }
+
+    @Override
+    public boolean isFake() {
+        return true;
+    }
 }

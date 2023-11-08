@@ -20,10 +20,16 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 
 public class CompoundTag implements Tag {
-    public static final Codec<CompoundTag> CODEC = Codec.PASSTHROUGH.comapFlatMap(param0 -> {
-        Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
-        return var0 instanceof CompoundTag var1 ? DataResult.success(var1) : DataResult.error(() -> "Not a compound tag: " + var0);
-    }, param0 -> new Dynamic<>(NbtOps.INSTANCE, param0));
+    public static final Codec<CompoundTag> CODEC = Codec.PASSTHROUGH
+        .comapFlatMap(
+            param0 -> {
+                Tag var0 = param0.convert(NbtOps.INSTANCE).getValue();
+                return var0 instanceof CompoundTag var1
+                    ? DataResult.success(var1 == param0.getValue() ? var1.copy() : var1)
+                    : DataResult.error(() -> "Not a compound tag: " + var0);
+            },
+            param0 -> new Dynamic<>(NbtOps.INSTANCE, param0.copy())
+        );
     private static final int SELF_SIZE_IN_BYTES = 48;
     private static final int MAP_ENTRY_SIZE_IN_BYTES = 32;
     public static final TagType<CompoundTag> TYPE = new TagType.VariableSize<CompoundTag>() {

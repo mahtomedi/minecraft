@@ -110,21 +110,21 @@ public class LevelDataGeneratorOptionsFix extends DataFix {
     protected TypeRewriteRule makeRule() {
         Type<?> var0 = this.getOutputSchema().getType(References.LEVEL);
         return this.fixTypeEverywhereTyped(
-            "LevelDataGeneratorOptionsFix", this.getInputSchema().getType(References.LEVEL), var0, param1 -> param1.write().flatMap(param1x -> {
-                    Optional<String> var0x = param1x.get("generatorOptions").asString().result();
-                    Dynamic<?> var2;
-                    if ("flat".equalsIgnoreCase(param1x.get("generatorName").asString(""))) {
+            "LevelDataGeneratorOptionsFix",
+            this.getInputSchema().getType(References.LEVEL),
+            var0,
+            param1 -> Util.writeAndReadTypedOrThrow(param1, var0, param0x -> {
+                    Optional<String> var0x = param0x.get("generatorOptions").asString().result();
+                    if ("flat".equalsIgnoreCase(param0x.get("generatorName").asString(""))) {
                         String var1 = var0x.orElse("");
-                        var2 = param1x.set("generatorOptions", convert(var1, param1x.getOps()));
-                    } else if ("buffet".equalsIgnoreCase(param1x.get("generatorName").asString("")) && var0x.isPresent()) {
-                        Dynamic<JsonElement> var3 = new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse(var0x.get(), true));
-                        var2 = param1x.set("generatorOptions", var3.convert(param1x.getOps()));
+                        return param0x.set("generatorOptions", convert(var1, param0x.getOps()));
+                    } else if ("buffet".equalsIgnoreCase(param0x.get("generatorName").asString("")) && var0x.isPresent()) {
+                        Dynamic<JsonElement> var2 = new Dynamic<>(JsonOps.INSTANCE, GsonHelper.parse(var0x.get(), true));
+                        return param0x.set("generatorOptions", var2.convert(param0x.getOps()));
                     } else {
-                        var2 = param1x;
+                        return param0x;
                     }
-    
-                    return var0.readTyped(var2);
-                }).map(Pair::getFirst).result().orElseThrow(() -> new IllegalStateException("Could not read new level type."))
+                })
         );
     }
 

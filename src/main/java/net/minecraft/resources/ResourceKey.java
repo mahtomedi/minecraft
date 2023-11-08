@@ -5,7 +5,7 @@ import com.mojang.serialization.Codec;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 
 public class ResourceKey<T> {
     private static final ConcurrentMap<ResourceKey.InternKey, ResourceKey<?>> VALUES = new MapMaker().weakValues().makeMap();
@@ -21,7 +21,7 @@ public class ResourceKey<T> {
     }
 
     public static <T> ResourceKey<Registry<T>> createRegistryKey(ResourceLocation param0) {
-        return create(BuiltInRegistries.ROOT_REGISTRY_NAME, param0);
+        return create(Registries.ROOT_REGISTRY_NAME, param0);
     }
 
     private static <T> ResourceKey<T> create(ResourceLocation param0, ResourceLocation param1) {

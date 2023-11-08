@@ -1,19 +1,20 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZombieVillagerTrigger.TriggerInstance> {
-    public CuredZombieVillagerTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "zombie", param2);
-        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "villager", param2);
-        return new CuredZombieVillagerTrigger.TriggerInstance(param1, var0, var1);
+    @Override
+    public Codec<CuredZombieVillagerTrigger.TriggerInstance> codec() {
+        return CuredZombieVillagerTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Zombie param1, Villager param2) {
@@ -22,15 +23,20 @@ public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZomb
         this.trigger(param0, param2x -> param2x.matches(var0, var1));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ContextAwarePredicate> zombie;
-        private final Optional<ContextAwarePredicate> villager;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, Optional<ContextAwarePredicate> param1, Optional<ContextAwarePredicate> param2) {
-            super(param0);
-            this.zombie = param1;
-            this.villager = param2;
-        }
+    public static record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> zombie, Optional<ContextAwarePredicate> villager
+    ) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<CuredZombieVillagerTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player")
+                            .forGetter(CuredZombieVillagerTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "zombie")
+                            .forGetter(CuredZombieVillagerTrigger.TriggerInstance::zombie),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "villager")
+                            .forGetter(CuredZombieVillagerTrigger.TriggerInstance::villager)
+                    )
+                    .apply(param0, CuredZombieVillagerTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<CuredZombieVillagerTrigger.TriggerInstance> curedZombieVillager() {
             return CriteriaTriggers.CURED_ZOMBIE_VILLAGER
@@ -46,11 +52,10 @@ public class CuredZombieVillagerTrigger extends SimpleCriterionTrigger<CuredZomb
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.zombie.ifPresent(param1 -> var0.add("zombie", param1.toJson()));
-            this.villager.ifPresent(param1 -> var0.add("villager", param1.toJson()));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.zombie, ".zombie");
+            param0.validateEntity(this.villager, ".villager");
         }
     }
 }

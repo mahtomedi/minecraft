@@ -25,19 +25,28 @@ public final class ProjectileUtil {
         Vec3 var0 = param0.getDeltaMovement();
         Level var1 = param0.level();
         Vec3 var2 = param0.position();
-        return getHitResult(var2, param0, param1, var0, var1, 0.3F);
+        return getHitResult(var2, param0, param1, var0, var1, 0.3F, ClipContext.Block.COLLIDER);
+    }
+
+    public static HitResult getHitResultOnMoveVector(Entity param0, Predicate<Entity> param1, ClipContext.Block param2) {
+        Vec3 var0 = param0.getDeltaMovement();
+        Level var1 = param0.level();
+        Vec3 var2 = param0.position();
+        return getHitResult(var2, param0, param1, var0, var1, 0.3F, param2);
     }
 
     public static HitResult getHitResultOnViewVector(Entity param0, Predicate<Entity> param1, double param2) {
         Vec3 var0 = param0.getViewVector(0.0F).scale(param2);
         Level var1 = param0.level();
         Vec3 var2 = param0.getEyePosition();
-        return getHitResult(var2, param0, param1, var0, var1, 0.0F);
+        return getHitResult(var2, param0, param1, var0, var1, 0.0F, ClipContext.Block.COLLIDER);
     }
 
-    private static HitResult getHitResult(Vec3 param0, Entity param1, Predicate<Entity> param2, Vec3 param3, Level param4, float param5) {
+    private static HitResult getHitResult(
+        Vec3 param0, Entity param1, Predicate<Entity> param2, Vec3 param3, Level param4, float param5, ClipContext.Block param6
+    ) {
         Vec3 var0 = param0.add(param3);
-        HitResult var1 = param4.clip(new ClipContext(param0, var0, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, param1));
+        HitResult var1 = param4.clip(new ClipContext(param0, var0, param6, ClipContext.Fluid.NONE, param1));
         if (var1.getType() != HitResult.Type.MISS) {
             var0 = var1.getLocation();
         }

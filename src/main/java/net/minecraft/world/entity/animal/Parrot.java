@@ -84,6 +84,7 @@ public class Parrot extends ShoulderRidingEntity implements VariantHolder<Parrot
     );
     static final Map<EntityType<?>, SoundEvent> MOB_SOUND_MAP = Util.make(Maps.newHashMap(), param0 -> {
         param0.put(EntityType.BLAZE, SoundEvents.PARROT_IMITATE_BLAZE);
+        param0.put(EntityType.BREEZE, SoundEvents.PARROT_IMITATE_BREEZE);
         param0.put(EntityType.CAVE_SPIDER, SoundEvents.PARROT_IMITATE_SPIDER);
         param0.put(EntityType.CREEPER, SoundEvents.PARROT_IMITATE_CREEPER);
         param0.put(EntityType.DROWNED, SoundEvents.PARROT_IMITATE_DROWNED);

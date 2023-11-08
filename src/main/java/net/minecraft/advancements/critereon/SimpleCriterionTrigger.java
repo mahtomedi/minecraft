@@ -3,7 +3,6 @@ package net.minecraft.advancements.critereon;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,13 +39,6 @@ public abstract class SimpleCriterionTrigger<T extends SimpleCriterionTrigger.Si
         this.players.remove(param0);
     }
 
-    protected abstract T createInstance(JsonObject var1, Optional<ContextAwarePredicate> var2, DeserializationContext var3);
-
-    public final T createInstance(JsonObject param0, DeserializationContext param1) {
-        Optional<ContextAwarePredicate> var0 = EntityPredicate.fromJson(param0, "player", param1);
-        return this.createInstance(param0, var0, param1);
-    }
-
     protected void trigger(ServerPlayer param0, Predicate<T> param1) {
         PlayerAdvancements var0 = param0.getAdvancements();
         Set<CriterionTrigger.Listener<T>> var1 = this.players.get(var0);
@@ -57,7 +49,7 @@ public abstract class SimpleCriterionTrigger<T extends SimpleCriterionTrigger.Si
             for(CriterionTrigger.Listener<T> var4 : var1) {
                 T var5 = var4.trigger();
                 if (param1.test(var5)) {
-                    Optional<ContextAwarePredicate> var6 = var5.playerPredicate();
+                    Optional<ContextAwarePredicate> var6 = var5.player();
                     if (var6.isEmpty() || var6.get().matches(var2)) {
                         if (var3 == null) {
                             var3 = Lists.newArrayList();
@@ -78,6 +70,11 @@ public abstract class SimpleCriterionTrigger<T extends SimpleCriterionTrigger.Si
     }
 
     public interface SimpleInstance extends CriterionTriggerInstance {
-        Optional<ContextAwarePredicate> playerPredicate();
+        @Override
+        default void validate(CriterionValidator param0) {
+            param0.validateEntity(this.player(), ".player");
+        }
+
+        Optional<ContextAwarePredicate> player();
     }
 }

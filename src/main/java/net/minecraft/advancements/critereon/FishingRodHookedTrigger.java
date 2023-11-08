@@ -1,11 +1,13 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Collection;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -14,11 +16,9 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHookedTrigger.TriggerInstance> {
-    public FishingRodHookedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        Optional<ItemPredicate> var0 = ItemPredicate.fromJson(param0.get("rod"));
-        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "entity", param2);
-        Optional<ItemPredicate> var2 = ItemPredicate.fromJson(param0.get("item"));
-        return new FishingRodHookedTrigger.TriggerInstance(param1, var0, var1, var2);
+    @Override
+    public Codec<FishingRodHookedTrigger.TriggerInstance> codec() {
+        return FishingRodHookedTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, ItemStack param1, FishingHook param2, Collection<ItemStack> param3) {
@@ -26,19 +26,18 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         this.trigger(param0, param3x -> param3x.matches(param1, var0, param3));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final Optional<ItemPredicate> rod;
-        private final Optional<ContextAwarePredicate> entity;
-        private final Optional<ItemPredicate> item;
-
-        public TriggerInstance(
-            Optional<ContextAwarePredicate> param0, Optional<ItemPredicate> param1, Optional<ContextAwarePredicate> param2, Optional<ItemPredicate> param3
-        ) {
-            super(param0);
-            this.rod = param1;
-            this.entity = param2;
-            this.item = param3;
-        }
+    public static record TriggerInstance(
+        Optional<ContextAwarePredicate> player, Optional<ItemPredicate> rod, Optional<ContextAwarePredicate> entity, Optional<ItemPredicate> item
+    ) implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<FishingRodHookedTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(FishingRodHookedTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(ItemPredicate.CODEC, "rod").forGetter(FishingRodHookedTrigger.TriggerInstance::rod),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "entity").forGetter(FishingRodHookedTrigger.TriggerInstance::entity),
+                        ExtraCodecs.strictOptionalField(ItemPredicate.CODEC, "item").forGetter(FishingRodHookedTrigger.TriggerInstance::item)
+                    )
+                    .apply(param0, FishingRodHookedTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<FishingRodHookedTrigger.TriggerInstance> fishedItem(
             Optional<ItemPredicate> param0, Optional<EntityPredicate> param1, Optional<ItemPredicate> param2
@@ -77,12 +76,9 @@ public class FishingRodHookedTrigger extends SimpleCriterionTrigger<FishingRodHo
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            this.rod.ifPresent(param1 -> var0.add("rod", param1.serializeToJson()));
-            this.entity.ifPresent(param1 -> var0.add("entity", param1.toJson()));
-            this.item.ifPresent(param1 -> var0.add("item", param1.serializeToJson()));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.entity, ".entity");
         }
     }
 }

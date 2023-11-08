@@ -1082,16 +1082,33 @@ public class ServerLevel extends Level implements WorldGenLevel {
         double param5,
         float param6,
         boolean param7,
-        Level.ExplosionInteraction param8
+        Level.ExplosionInteraction param8,
+        ParticleOptions param9,
+        ParticleOptions param10,
+        SoundEvent param11
     ) {
-        Explosion var0 = this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, false);
+        Explosion var0 = this.explode(param0, param1, param2, param3, param4, param5, param6, param7, param8, false, param9, param10, param11);
         if (!var0.interactsWithBlocks()) {
             var0.clearToBlow();
         }
 
         for(ServerPlayer var1 : this.players) {
             if (var1.distanceToSqr(param3, param4, param5) < 4096.0) {
-                var1.connection.send(new ClientboundExplodePacket(param3, param4, param5, param6, var0.getToBlow(), var0.getHitPlayers().get(var1)));
+                var1.connection
+                    .send(
+                        new ClientboundExplodePacket(
+                            param3,
+                            param4,
+                            param5,
+                            param6,
+                            var0.getToBlow(),
+                            var0.getHitPlayers().get(var1),
+                            var0.getBlockInteraction(),
+                            var0.getSmallExplosionParticles(),
+                            var0.getLargeExplosionParticles(),
+                            var0.getExplosionSound()
+                        )
+                    );
             }
         }
 

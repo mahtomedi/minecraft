@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -8,13 +9,14 @@ import java.util.stream.Collectors;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 
 public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledLightningTrigger.TriggerInstance> {
-    public ChanneledLightningTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        List<ContextAwarePredicate> var0 = EntityPredicate.fromJsonArray(param0, "victims", param2);
-        return new ChanneledLightningTrigger.TriggerInstance(param1, var0);
+    @Override
+    public Codec<ChanneledLightningTrigger.TriggerInstance> codec() {
+        return ChanneledLightningTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Collection<? extends Entity> param1) {
@@ -22,13 +24,17 @@ public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledL
         this.trigger(param0, param1x -> param1x.matches(var0));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final List<ContextAwarePredicate> victims;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, List<ContextAwarePredicate> param1) {
-            super(param0);
-            this.victims = param1;
-        }
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> victims)
+        implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<ChanneledLightningTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player")
+                            .forGetter(ChanneledLightningTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC.listOf(), "victims", List.of())
+                            .forGetter(ChanneledLightningTrigger.TriggerInstance::victims)
+                    )
+                    .apply(param0, ChanneledLightningTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<ChanneledLightningTrigger.TriggerInstance> channeledLightning(EntityPredicate.Builder... param0) {
             return CriteriaTriggers.CHANNELED_LIGHTNING
@@ -55,10 +61,9 @@ public class ChanneledLightningTrigger extends SimpleCriterionTrigger<ChanneledL
         }
 
         @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            var0.add("victims", ContextAwarePredicate.toJson(this.victims));
-            return var0;
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntities(this.victims, ".victims");
         }
     }
 }

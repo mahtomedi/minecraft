@@ -4,7 +4,6 @@ import com.mojang.datafixers.DSL;
 import com.mojang.datafixers.DataFix;
 import com.mojang.datafixers.OpticFinder;
 import com.mojang.datafixers.TypeRewriteRule;
-import com.mojang.datafixers.Typed;
 import com.mojang.datafixers.DSL.TypeReference;
 import com.mojang.datafixers.schemas.Schema;
 import com.mojang.datafixers.types.Type;
@@ -31,18 +30,7 @@ public abstract class NamedEntityWriteReadFix extends DataFix {
         Type<?> var3 = this.getOutputSchema().getChoiceType(this.type, this.entityName);
         OpticFinder<?> var4 = DSL.namedChoice(this.entityName, var1);
         return this.fixTypeEverywhereTyped(
-            this.name,
-            var0,
-            var2,
-            param2 -> param2.updateTyped(
-                    var4,
-                    var3,
-                    param1x -> (Typed<?>)Util.getOrThrow(
-                                param1x.write().map(this::fix).flatMap(var3::readTyped),
-                                param0x -> new IllegalStateException("Could not parse the value " + param0x)
-                            )
-                            .getFirst()
-                )
+            this.name, var0, var2, param2 -> param2.updateTyped(var4, var3, param1x -> Util.writeAndReadTypedOrThrow(param1x, var3, this::fix))
         );
     }
 

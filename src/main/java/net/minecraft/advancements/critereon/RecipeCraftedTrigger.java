@@ -1,6 +1,7 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -9,29 +10,30 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 
 public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTrigger.TriggerInstance> {
-    protected RecipeCraftedTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        ResourceLocation var0 = new ResourceLocation(GsonHelper.getAsString(param0, "recipe_id"));
-        List<ItemPredicate> var1 = ItemPredicate.fromJsonArray(param0.get("ingredients"));
-        return new RecipeCraftedTrigger.TriggerInstance(param1, var0, var1);
+    @Override
+    public Codec<RecipeCraftedTrigger.TriggerInstance> codec() {
+        return RecipeCraftedTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, ResourceLocation param1, List<ItemStack> param2) {
         this.trigger(param0, param2x -> param2x.matches(param1, param2));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final ResourceLocation recipeId;
-        private final List<ItemPredicate> predicates;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, ResourceLocation param1, List<ItemPredicate> param2) {
-            super(param0);
-            this.recipeId = param1;
-            this.predicates = param2;
-        }
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player, ResourceLocation recipeId, List<ItemPredicate> ingredients)
+        implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<RecipeCraftedTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(RecipeCraftedTrigger.TriggerInstance::player),
+                        ResourceLocation.CODEC.fieldOf("recipe_id").forGetter(RecipeCraftedTrigger.TriggerInstance::recipeId),
+                        ExtraCodecs.strictOptionalField(ItemPredicate.CODEC.listOf(), "ingredients", List.of())
+                            .forGetter(RecipeCraftedTrigger.TriggerInstance::ingredients)
+                    )
+                    .apply(param0, RecipeCraftedTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<RecipeCraftedTrigger.TriggerInstance> craftedItem(ResourceLocation param0, List<ItemPredicate.Builder> param1) {
             return CriteriaTriggers.RECIPE_CRAFTED
@@ -48,7 +50,7 @@ public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTr
             } else {
                 List<ItemStack> var0 = new ArrayList<>(param1);
 
-                for(ItemPredicate var1 : this.predicates) {
+                for(ItemPredicate var1 : this.ingredients) {
                     boolean var2 = false;
                     Iterator<ItemStack> var3 = var0.iterator();
 
@@ -67,17 +69,6 @@ public class RecipeCraftedTrigger extends SimpleCriterionTrigger<RecipeCraftedTr
 
                 return true;
             }
-        }
-
-        @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            var0.addProperty("recipe_id", this.recipeId.toString());
-            if (!this.predicates.isEmpty()) {
-                var0.add("ingredients", ItemPredicate.serializeToJsonArray(this.predicates));
-            }
-
-            return var0;
         }
     }
 }

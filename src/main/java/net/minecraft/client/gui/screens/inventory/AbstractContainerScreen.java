@@ -234,7 +234,13 @@ public abstract class AbstractContainerScreen<T extends AbstractContainerMenu> e
                 param0.fill(var0, var1, var0 + 16, var1 + 16, -2130706433);
             }
 
-            param0.renderItem(var2, var0, var1, param1.x + param1.y * this.imageWidth);
+            int var12 = param1.x + param1.y * this.imageWidth;
+            if (param1.isFake()) {
+                param0.renderFakeItem(var2, var0, var1, var12);
+            } else {
+                param0.renderItem(var2, var0, var1, var12);
+            }
+
             param0.renderItemDecorations(this.font, var2, var0, var1, var6);
         }
 

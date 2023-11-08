@@ -392,12 +392,12 @@ public class ExtraCodecs {
         );
     }
 
-    public static <T> Codec<T> recursive(Function<Codec<T>, Codec<T>> param0) {
-        return new ExtraCodecs.RecursiveCodec<>(param0);
+    public static <T> Codec<T> recursive(String param0, Function<Codec<T>, Codec<T>> param1) {
+        return new ExtraCodecs.RecursiveCodec<>(param0, param1);
     }
 
     public static <A> Codec<A> lazyInitializedCodec(Supplier<Codec<A>> param0) {
-        return new ExtraCodecs.RecursiveCodec<>(param1 -> param0.get());
+        return new ExtraCodecs.RecursiveCodec<>(param0.toString(), param1 -> param0.get());
     }
 
     public static <A> MapCodec<Optional<A>> strictOptionalField(Codec<A> param0, String param1) {
@@ -509,6 +509,47 @@ public class ExtraCodecs {
         return Codec.unboundedMap(param0, Codec.BOOL).xmap(Object2BooleanOpenHashMap::new, Object2ObjectOpenHashMap::new);
     }
 
+    @Deprecated
+    public static <K, V> MapCodec<V> dispatchOptionalValue(
+        final String param0,
+        final String param1,
+        final Codec<K> param2,
+        final Function<? super V, ? extends K> param3,
+        final Function<? super K, ? extends Codec<? extends V>> param4
+    ) {
+        return new MapCodec<V>() {
+            @Override
+            public <T> Stream<T> keys(DynamicOps<T> param0x) {
+                return Stream.of(param0.createString(param0), param0.createString(param1));
+            }
+
+            @Override
+            public <T> DataResult<V> decode(DynamicOps<T> param0x, MapLike<T> param1x) {
+                T var0 = param1.get(param0);
+                return var0 == null ? DataResult.error(() -> "Missing \"" + param0 + "\" in: " + param1) : param2.decode(param0, var0).flatMap(param4xx -> {
+                    T var0x = Objects.requireNonNullElseGet(param1.get(param1), param0::emptyMap);
+                    return param4.apply(param4xx.getFirst()).decode(param0, var0x).map(Pair::getFirst);
+                });
+            }
+
+            @Override
+            public <T> RecordBuilder<T> encode(V param0x, DynamicOps<T> param1x, RecordBuilder<T> param2x) {
+                K var0 = param3.apply(param0);
+                param2.add(param0, param2.encodeStart(param1, var0));
+                DataResult<T> var1 = this.encode(param4.apply(var0), param0, param1);
+                if (var1.result().isEmpty() || !Objects.equals(var1.result().get(), param1.emptyMap())) {
+                    param2.add(param1, var1);
+                }
+
+                return param2;
+            }
+
+            private <T, V2 extends V> DataResult<T> encode(Codec<V2> param0x, V param1x, DynamicOps<T> param2x) {
+                return param0.encodeStart(param2, param1);
+            }
+        };
+    }
+
     public static final class EitherCodec<F, S> implements Codec<Either<F, S>> {
         private final Codec<F> first;
         private final Codec<S> second;
@@ -557,10 +598,12 @@ public class ExtraCodecs {
     }
 
     static class RecursiveCodec<T> implements Codec<T> {
+        private final String name;
         private final Supplier<Codec<T>> wrapped;
 
-        RecursiveCodec(Function<Codec<T>, Codec<T>> param0) {
-            this.wrapped = Suppliers.memoize(() -> param0.apply(this));
+        RecursiveCodec(String param0, Function<Codec<T>, Codec<T>> param1) {
+            this.name = param0;
+            this.wrapped = Suppliers.memoize(() -> param1.apply(this));
         }
 
         @Override
@@ -575,7 +618,7 @@ public class ExtraCodecs {
 
         @Override
         public String toString() {
-            return "RecursiveCodec[" + this.wrapped + "]";
+            return "RecursiveCodec[" + this.name + "]";
         }
     }
 

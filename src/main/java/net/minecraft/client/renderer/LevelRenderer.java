@@ -112,6 +112,7 @@ import net.minecraft.world.level.block.PointedDripstoneBlock;
 import net.minecraft.world.level.block.SculkShriekerBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.trialspawner.TrialSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.border.WorldBorder;
@@ -3147,6 +3148,33 @@ public class LevelRenderer implements ResourceManagerReloadListener, AutoCloseab
                 break;
             case 3009:
                 ParticleUtils.spawnParticlesOnBlockFaces(this.level, param1, ParticleTypes.EGG_CRACK, UniformInt.of(3, 6));
+                break;
+            case 3010:
+                ParticleUtils.spawnParticlesOnBlockFaces(this.level, param1, ParticleTypes.GUST_DUST, UniformInt.of(3, 6));
+                break;
+            case 3011:
+                TrialSpawner.addSpawnParticles(this.level, param1, var0);
+                break;
+            case 3012:
+                this.level
+                    .playLocalSound(
+                        param1, SoundEvents.TRIAL_SPAWNER_SPAWN_MOB, SoundSource.BLOCKS, 1.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, true
+                    );
+                TrialSpawner.addSpawnParticles(this.level, param1, var0);
+                break;
+            case 3013:
+                this.level
+                    .playLocalSound(
+                        param1, SoundEvents.TRIAL_SPAWNER_DETECT_PLAYER, SoundSource.BLOCKS, 1.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, true
+                    );
+                TrialSpawner.addDetectPlayerParticles(this.level, param1, var0, param2);
+                break;
+            case 3014:
+                this.level
+                    .playLocalSound(
+                        param1, SoundEvents.TRIAL_SPAWNER_EJECT_ITEM, SoundSource.BLOCKS, 1.0F, (var0.nextFloat() - var0.nextFloat()) * 0.2F + 1.0F, true
+                    );
+                TrialSpawner.addEjectItemParticles(this.level, param1, var0);
         }
 
     }

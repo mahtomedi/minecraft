@@ -330,7 +330,7 @@ public class Guardian extends Monster {
     ) {
         return (param4.nextInt(20) == 0 || !param1.canSeeSkyFromBelowWater(param3))
             && param1.getDifficulty() != Difficulty.PEACEFUL
-            && (param2 == MobSpawnType.SPAWNER || param1.getFluidState(param3).is(FluidTags.WATER))
+            && (MobSpawnType.isSpawner(param2) || param1.getFluidState(param3).is(FluidTags.WATER))
             && param1.getFluidState(param3.below()).is(FluidTags.WATER);
     }
 

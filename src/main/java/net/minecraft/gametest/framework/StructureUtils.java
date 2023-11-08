@@ -97,10 +97,10 @@ public class StructureUtils {
         var1.setShowBoundingBox(true);
     }
 
-    public static StructureBlockEntity prepareTestStructure(String param0, BlockPos param1, Rotation param2, ServerLevel param3) {
+    public static StructureBlockEntity prepareTestStructure(GameTestInfo param0, BlockPos param1, Rotation param2, ServerLevel param3) {
         Vec3i var0 = param3.getStructureManager()
-            .get(new ResourceLocation(param0))
-            .orElseThrow(() -> new IllegalStateException("Missing test structure: " + param0))
+            .get(new ResourceLocation(param0.getStructureName()))
+            .orElseThrow(() -> new IllegalStateException("Missing test structure: " + param0.getStructureName()))
             .getSize();
         BoundingBox var1 = getStructureBoundingBox(param1, var0, param2);
         BlockPos var2;
@@ -175,15 +175,16 @@ public class StructureUtils {
         return var0;
     }
 
-    private static StructureBlockEntity createStructureBlock(String param0, BlockPos param1, Rotation param2, ServerLevel param3) {
+    private static StructureBlockEntity createStructureBlock(GameTestInfo param0, BlockPos param1, Rotation param2, ServerLevel param3) {
         param3.setBlockAndUpdate(param1, Blocks.STRUCTURE_BLOCK.defaultBlockState());
         StructureBlockEntity var0 = (StructureBlockEntity)param3.getBlockEntity(param1);
         var0.setMode(StructureMode.LOAD);
         var0.setRotation(param2);
         var0.setIgnoreEntities(false);
-        var0.setStructureName(new ResourceLocation(param0));
+        var0.setStructureName(new ResourceLocation(param0.getStructureName()));
+        var0.setMetaData(param0.getTestName());
         if (!var0.loadStructureInfo(param3)) {
-            throw new RuntimeException("Failed to load structure info " + param0);
+            throw new RuntimeException("Failed to load structure info for test: " + param0.getTestName() + ". Structure name: " + param0.getStructureName());
         } else {
             return var0;
         }

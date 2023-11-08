@@ -8,11 +8,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class HugeExplosionSeedParticle extends NoRenderParticle {
-    private int life;
-    private final int lifeTime = 8;
-
     HugeExplosionSeedParticle(ClientLevel param0, double param1, double param2, double param3) {
         super(param0, param1, param2, param3, 0.0, 0.0, 0.0);
+        this.lifetime = 8;
     }
 
     @Override
@@ -21,11 +19,11 @@ public class HugeExplosionSeedParticle extends NoRenderParticle {
             double var1 = this.x + (this.random.nextDouble() - this.random.nextDouble()) * 4.0;
             double var2 = this.y + (this.random.nextDouble() - this.random.nextDouble()) * 4.0;
             double var3 = this.z + (this.random.nextDouble() - this.random.nextDouble()) * 4.0;
-            this.level.addParticle(ParticleTypes.EXPLOSION, var1, var2, var3, (double)((float)this.life / (float)this.lifeTime), 0.0, 0.0);
+            this.level.addParticle(ParticleTypes.EXPLOSION, var1, var2, var3, (double)((float)this.age / (float)this.lifetime), 0.0, 0.0);
         }
 
-        ++this.life;
-        if (this.life == this.lifeTime) {
+        ++this.age;
+        if (this.age == this.lifetime) {
             this.remove();
         }
 

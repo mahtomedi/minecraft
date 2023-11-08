@@ -58,11 +58,7 @@ public class FixProjectileStoredItem extends DataFix {
     }
 
     private static <T> Typed<T> fixArrow(Typed<?> param0, Type<T> param1) {
-        return (Typed<T>)Util.getOrThrow(
-                param0.write().map(param0x -> param0x.set("item", createItemStack(param0x, getArrowType(param0x)))).flatMap(param1::readTyped),
-                param0x -> new IllegalStateException("Could not parse the value " + param0x)
-            )
-            .getFirst();
+        return Util.writeAndReadTypedOrThrow(param0, param1, param0x -> param0x.set("item", createItemStack(param0x, getArrowType(param0x))));
     }
 
     private static String getArrowType(Dynamic<?> param0) {
@@ -70,11 +66,7 @@ public class FixProjectileStoredItem extends DataFix {
     }
 
     private static <T> Typed<T> fixSpectralArrow(Typed<?> param0, Type<T> param1) {
-        return (Typed<T>)Util.getOrThrow(
-                param0.write().map(param0x -> param0x.set("item", createItemStack(param0x, "minecraft:spectral_arrow"))).flatMap(param1::readTyped),
-                param0x -> new IllegalStateException("Could not parse the value " + param0x)
-            )
-            .getFirst();
+        return Util.writeAndReadTypedOrThrow(param0, param1, param0x -> param0x.set("item", createItemStack(param0x, "minecraft:spectral_arrow")));
     }
 
     private static Dynamic<?> createItemStack(Dynamic<?> param0, String param1) {

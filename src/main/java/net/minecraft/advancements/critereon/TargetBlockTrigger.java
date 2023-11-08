@@ -1,19 +1,20 @@
 package net.minecraft.advancements.critereon;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.Vec3;
 
 public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigger.TriggerInstance> {
-    public TargetBlockTrigger.TriggerInstance createInstance(JsonObject param0, Optional<ContextAwarePredicate> param1, DeserializationContext param2) {
-        MinMaxBounds.Ints var0 = MinMaxBounds.Ints.fromJson(param0.get("signal_strength"));
-        Optional<ContextAwarePredicate> var1 = EntityPredicate.fromJson(param0, "projectile", param2);
-        return new TargetBlockTrigger.TriggerInstance(param1, var0, var1);
+    @Override
+    public Codec<TargetBlockTrigger.TriggerInstance> codec() {
+        return TargetBlockTrigger.TriggerInstance.CODEC;
     }
 
     public void trigger(ServerPlayer param0, Entity param1, Vec3 param2, int param3) {
@@ -21,26 +22,21 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
         this.trigger(param0, param3x -> param3x.matches(var0, param2, param3));
     }
 
-    public static class TriggerInstance extends AbstractCriterionTriggerInstance {
-        private final MinMaxBounds.Ints signalStrength;
-        private final Optional<ContextAwarePredicate> projectile;
-
-        public TriggerInstance(Optional<ContextAwarePredicate> param0, MinMaxBounds.Ints param1, Optional<ContextAwarePredicate> param2) {
-            super(param0);
-            this.signalStrength = param1;
-            this.projectile = param2;
-        }
+    public static record TriggerInstance(Optional<ContextAwarePredicate> player, MinMaxBounds.Ints signalStrength, Optional<ContextAwarePredicate> projectile)
+        implements SimpleCriterionTrigger.SimpleInstance {
+        public static final Codec<TargetBlockTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "player").forGetter(TargetBlockTrigger.TriggerInstance::player),
+                        ExtraCodecs.strictOptionalField(MinMaxBounds.Ints.CODEC, "signal_strength", MinMaxBounds.Ints.ANY)
+                            .forGetter(TargetBlockTrigger.TriggerInstance::signalStrength),
+                        ExtraCodecs.strictOptionalField(EntityPredicate.ADVANCEMENT_CODEC, "projectile")
+                            .forGetter(TargetBlockTrigger.TriggerInstance::projectile)
+                    )
+                    .apply(param0, TargetBlockTrigger.TriggerInstance::new)
+        );
 
         public static Criterion<TargetBlockTrigger.TriggerInstance> targetHit(MinMaxBounds.Ints param0, Optional<ContextAwarePredicate> param1) {
             return CriteriaTriggers.TARGET_BLOCK_HIT.createCriterion(new TargetBlockTrigger.TriggerInstance(Optional.empty(), param0, param1));
-        }
-
-        @Override
-        public JsonObject serializeToJson() {
-            JsonObject var0 = super.serializeToJson();
-            var0.add("signal_strength", this.signalStrength.serializeToJson());
-            this.projectile.ifPresent(param1 -> var0.add("projectile", param1.toJson()));
-            return var0;
         }
 
         public boolean matches(LootContext param0, Vec3 param1, int param2) {
@@ -49,6 +45,12 @@ public class TargetBlockTrigger extends SimpleCriterionTrigger<TargetBlockTrigge
             } else {
                 return !this.projectile.isPresent() || this.projectile.get().matches(param0);
             }
+        }
+
+        @Override
+        public void validate(CriterionValidator param0) {
+            SimpleCriterionTrigger.SimpleInstance.super.validate(param0);
+            param0.validateEntity(this.projectile, ".projectile");
         }
     }
 }

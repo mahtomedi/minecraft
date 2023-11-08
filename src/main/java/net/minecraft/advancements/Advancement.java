@@ -1,25 +1,26 @@
 package net.minecraft.advancements;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Map.Entry;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.advancements.critereon.DeserializationContext;
+import net.minecraft.advancements.critereon.CriterionValidator;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.storage.loot.LootDataResolver;
 
 public record Advancement(
     Optional<ResourceLocation> parent,
@@ -30,6 +31,29 @@ public record Advancement(
     boolean sendsTelemetryEvent,
     Optional<Component> name
 ) {
+    private static final Codec<Map<String, Criterion<?>>> CRITERIA_CODEC = ExtraCodecs.validate(
+        Codec.unboundedMap(Codec.STRING, Criterion.CODEC),
+        param0 -> param0.isEmpty() ? DataResult.error(() -> "Advancement criteria cannot be empty") : DataResult.success(param0)
+    );
+    public static final Codec<Advancement> CODEC = ExtraCodecs.validate(
+        RecordCodecBuilder.create(
+            param0 -> param0.group(
+                        ExtraCodecs.strictOptionalField(ResourceLocation.CODEC, "parent").forGetter(Advancement::parent),
+                        ExtraCodecs.strictOptionalField(DisplayInfo.CODEC, "display").forGetter(Advancement::display),
+                        ExtraCodecs.strictOptionalField(AdvancementRewards.CODEC, "rewards", AdvancementRewards.EMPTY).forGetter(Advancement::rewards),
+                        CRITERIA_CODEC.fieldOf("criteria").forGetter(Advancement::criteria),
+                        ExtraCodecs.strictOptionalField(AdvancementRequirements.CODEC, "requirements")
+                            .forGetter(param0x -> Optional.of(param0x.requirements())),
+                        ExtraCodecs.strictOptionalField(Codec.BOOL, "sends_telemetry_event", false).forGetter(Advancement::sendsTelemetryEvent)
+                    )
+                    .apply(param0, (param0x, param1, param2, param3, param4, param5) -> {
+                        AdvancementRequirements var0x = param4.orElseGet(() -> AdvancementRequirements.allOf(param3.keySet()));
+                        return new Advancement(param0x, param1, param2, param3, var0x, param5);
+                    })
+        ),
+        Advancement::validate
+    );
+
     public Advancement(
         Optional<ResourceLocation> param0,
         Optional<DisplayInfo> param1,
@@ -41,9 +65,13 @@ public record Advancement(
         this(param0, param1, param2, Map.copyOf(param3), param4, param5, param1.map(Advancement::decorateName));
     }
 
+    private static DataResult<Advancement> validate(Advancement param0) {
+        return param0.requirements().validate(param0.criteria().keySet()).map(param1 -> param0);
+    }
+
     private static Component decorateName(DisplayInfo param0x) {
         Component var0 = param0x.getTitle();
-        ChatFormatting var1 = param0x.getFrame().getChatColor();
+        ChatFormatting var1 = param0x.getType().getChatColor();
         Component var2 = ComponentUtils.mergeStyles(var0.copy(), Style.EMPTY.withColor(var1)).append("\n").append(param0x.getDescription());
         Component var3 = var0.copy().withStyle(param1x -> param1x.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, var2)));
         return ComponentUtils.wrapInSquareBrackets(var3).withStyle(var1);
@@ -51,48 +79,6 @@ public record Advancement(
 
     public static Component name(AdvancementHolder param0) {
         return param0.value().name().orElseGet(() -> Component.literal(param0.id().toString()));
-    }
-
-    public JsonObject serializeToJson() {
-        JsonObject var0 = new JsonObject();
-        this.parent.ifPresent(param1 -> var0.addProperty("parent", param1.toString()));
-        this.display.ifPresent(param1 -> var0.add("display", param1.serializeToJson()));
-        var0.add("rewards", this.rewards.serializeToJson());
-        JsonObject var1 = new JsonObject();
-
-        for(Entry<String, Criterion<?>> var2 : this.criteria.entrySet()) {
-            var1.add(var2.getKey(), var2.getValue().serializeToJson());
-        }
-
-        var0.add("criteria", var1);
-        var0.add("requirements", this.requirements.toJson());
-        var0.addProperty("sends_telemetry_event", this.sendsTelemetryEvent);
-        return var0;
-    }
-
-    public static Advancement fromJson(JsonObject param0, DeserializationContext param1) {
-        Optional<ResourceLocation> var0 = param0.has("parent") ? Optional.of(new ResourceLocation(GsonHelper.getAsString(param0, "parent"))) : Optional.empty();
-        Optional<DisplayInfo> var1 = param0.has("display")
-            ? Optional.of(DisplayInfo.fromJson(GsonHelper.getAsJsonObject(param0, "display")))
-            : Optional.empty();
-        AdvancementRewards var2 = param0.has("rewards")
-            ? AdvancementRewards.deserialize(GsonHelper.getAsJsonObject(param0, "rewards"))
-            : AdvancementRewards.EMPTY;
-        Map<String, Criterion<?>> var3 = Criterion.criteriaFromJson(GsonHelper.getAsJsonObject(param0, "criteria"), param1);
-        if (var3.isEmpty()) {
-            throw new JsonSyntaxException("Advancement criteria cannot be empty");
-        } else {
-            JsonArray var4 = GsonHelper.getAsJsonArray(param0, "requirements", new JsonArray());
-            AdvancementRequirements var5;
-            if (var4.isEmpty()) {
-                var5 = AdvancementRequirements.allOf(var3.keySet());
-            } else {
-                var5 = AdvancementRequirements.fromJson(var4, var3.keySet());
-            }
-
-            boolean var7 = GsonHelper.getAsBoolean(param0, "sends_telemetry_event", false);
-            return new Advancement(var0, var1, var2, var3, var5, var7);
-        }
     }
 
     public void write(FriendlyByteBuf param0) {
@@ -115,6 +101,13 @@ public record Advancement(
 
     public boolean isRoot() {
         return this.parent.isEmpty();
+    }
+
+    public void validate(ProblemReporter param0, LootDataResolver param1) {
+        this.criteria.forEach((param2, param3) -> {
+            CriterionValidator var0 = new CriterionValidator(param0.forChild(param2), param1);
+            param3.triggerInstance().validate(var0);
+        });
     }
 
     public static class Builder {
@@ -152,12 +145,12 @@ public record Advancement(
             Component param1,
             Component param2,
             @Nullable ResourceLocation param3,
-            FrameType param4,
+            AdvancementType param4,
             boolean param5,
             boolean param6,
             boolean param7
         ) {
-            return this.display(new DisplayInfo(param0, param1, param2, param3, param4, param5, param6, param7));
+            return this.display(new DisplayInfo(param0, param1, param2, Optional.ofNullable(param3), param4, param5, param6, param7));
         }
 
         public Advancement.Builder display(
@@ -165,12 +158,12 @@ public record Advancement(
             Component param1,
             Component param2,
             @Nullable ResourceLocation param3,
-            FrameType param4,
+            AdvancementType param4,
             boolean param5,
             boolean param6,
             boolean param7
         ) {
-            return this.display(new DisplayInfo(new ItemStack(param0.asItem()), param1, param2, param3, param4, param5, param6, param7));
+            return this.display(new DisplayInfo(new ItemStack(param0.asItem()), param1, param2, Optional.ofNullable(param3), param4, param5, param6, param7));
         }
 
         public Advancement.Builder display(DisplayInfo param0) {

@@ -20,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -391,6 +392,8 @@ public abstract class AbstractArrow extends Projectile {
             if (this.getPierceLevel() <= 0) {
                 this.discard();
             }
+        } else if (var0.getType().is(EntityTypeTags.DEFLECTS_ARROWS)) {
+            this.deflect();
         } else {
             var0.setRemainingFireTicks(var8);
             this.setDeltaMovement(this.getDeltaMovement().scale(-0.1));
@@ -405,6 +408,13 @@ public abstract class AbstractArrow extends Projectile {
             }
         }
 
+    }
+
+    public void deflect() {
+        float var0 = this.random.nextFloat() * 360.0F;
+        this.setDeltaMovement(this.getDeltaMovement().yRot(var0 * (float) (Math.PI / 180.0)).scale(0.5));
+        this.setYRot(this.getYRot() + var0);
+        this.yRotO += var0;
     }
 
     @Override
