@@ -17,8 +17,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class OptionsList extends ContainerObjectSelectionList<OptionsList.Entry> {
-    public OptionsList(Minecraft param0, int param1, int param2, int param3, int param4, int param5) {
-        super(param0, param1, param2, param3, param4, param5);
+    public OptionsList(Minecraft param0, int param1, int param2, int param3, int param4) {
+        super(param0, param1, param2, param3, param4);
         this.centerListVertically = false;
     }
 

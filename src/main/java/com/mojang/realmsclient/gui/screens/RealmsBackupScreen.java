@@ -58,7 +58,6 @@ public class RealmsBackupScreen extends RealmsScreen {
 
     @Override
     public void init() {
-        this.backupObjectSelectionList = new RealmsBackupScreen.BackupObjectSelectionList();
         (new Thread("Realms-fetch-backups") {
             @Override
             public void run() {
@@ -101,7 +100,7 @@ public class RealmsBackupScreen extends RealmsScreen {
                 .bounds(this.width - 100, this.height - 35, 85, 20)
                 .build()
         );
-        this.addWidget(this.backupObjectSelectionList);
+        this.backupObjectSelectionList = this.addRenderableWidget(new RealmsBackupScreen.BackupObjectSelectionList());
         this.magicalSpecialHackyFocus(this.backupObjectSelectionList);
         this.updateButtonStates();
     }
@@ -196,7 +195,6 @@ public class RealmsBackupScreen extends RealmsScreen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
-        this.backupObjectSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 12, -1);
         if (this.noBackups) {
             param0.drawString(this.font, NO_BACKUPS_LABEL, 20, this.height / 2 - 10, -1, false);
@@ -208,7 +206,7 @@ public class RealmsBackupScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class BackupObjectSelectionList extends RealmsObjectSelectionList<RealmsBackupScreen.Entry> {
         public BackupObjectSelectionList() {
-            super(RealmsBackupScreen.this.width - 150, RealmsBackupScreen.this.height, 32, RealmsBackupScreen.this.height - 15, 36);
+            super(RealmsBackupScreen.this.width - 150, RealmsBackupScreen.this.height - 47, 32, 36);
         }
 
         public void addEntry(Backup param0) {

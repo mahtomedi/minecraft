@@ -68,6 +68,7 @@ public class TestCommand {
                         .executes(param0x -> runNearbyTest(param0x.getSource(), false))
                         .then(Commands.literal("untilFailed").executes(param0x -> runNearbyTest(param0x.getSource(), true)))
                 )
+                .then(Commands.literal("resetthis").executes(param0x -> resetNearbyTest(param0x.getSource())))
                 .then(Commands.literal("runthese").executes(param0x -> runAllNearbyTests(param0x.getSource(), false)))
                 .then(
                     Commands.literal("runfailed")
@@ -294,6 +295,23 @@ public class TestCommand {
         } else {
             GameTestRunner.clearMarkers(var1);
             runTest(var1, var2, null, param1);
+            return 1;
+        }
+    }
+
+    private static int resetNearbyTest(CommandSourceStack param0) {
+        BlockPos var0 = BlockPos.containing(param0.getPosition());
+        ServerLevel var1 = param0.getLevel();
+        BlockPos var2 = StructureUtils.findNearestStructureBlock(var0, 15, var1);
+        if (var2 == null) {
+            say(var1, "Couldn't find any structure block within 15 radius", ChatFormatting.RED);
+            return 0;
+        } else {
+            StructureBlockEntity var3 = (StructureBlockEntity)var1.getBlockEntity(var2);
+            var3.placeStructure(var1);
+            String var4 = var3.getMetaData();
+            TestFunction var5 = GameTestRegistry.getTestFunction(var4);
+            say(var1, "Reset succeded for: " + var5, ChatFormatting.GREEN);
             return 1;
         }
     }
@@ -543,7 +561,7 @@ public class TestCommand {
     }
 
     private static void say(ServerLevel param0, String param1, ChatFormatting param2) {
-        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendSystemMessage(Component.literal(param2 + param1)));
+        param0.getPlayers(param0x -> true).forEach(param2x -> param2x.sendSystemMessage(Component.literal(param1).withStyle(param2)));
     }
 
     static class TestSummaryDisplayer implements GameTestListener {

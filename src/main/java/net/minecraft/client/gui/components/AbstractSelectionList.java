@@ -10,16 +10,15 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenDirection;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -27,21 +26,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>>
-    extends AbstractContainerEventHandler
-    implements Renderable,
-    NarratableEntry {
+public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entry<E>> extends AbstractContainerWidget {
     protected static final int SCROLLBAR_WIDTH = 6;
     private static final ResourceLocation SCROLLER_SPRITE = new ResourceLocation("widget/scroller");
     protected final Minecraft minecraft;
     protected final int itemHeight;
     private final List<E> children = new AbstractSelectionList.TrackedList();
-    protected int width;
-    protected int height;
-    protected int y0;
-    protected int y1;
-    protected int x1;
-    protected int x0;
     protected boolean centerListVertically = true;
     private double scrollAmount;
     private boolean renderHeader;
@@ -53,15 +43,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     @Nullable
     private E hovered;
 
-    public AbstractSelectionList(Minecraft param0, int param1, int param2, int param3, int param4, int param5) {
+    public AbstractSelectionList(Minecraft param0, int param1, int param2, int param3, int param4) {
+        super(0, param3, param1, param2, CommonComponents.EMPTY);
         this.minecraft = param0;
-        this.width = param1;
-        this.height = param2;
-        this.y0 = param3;
-        this.y1 = param4;
-        this.itemHeight = param5;
-        this.x0 = 0;
-        this.x1 = param1;
+        this.itemHeight = param4;
     }
 
     protected void setRenderHeader(boolean param0, int param1) {
@@ -147,10 +132,10 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     @Nullable
     protected final E getEntryAtPosition(double param0, double param1) {
         int var0 = this.getRowWidth() / 2;
-        int var1 = this.x0 + this.width / 2;
+        int var1 = this.getX() + this.width / 2;
         int var2 = var1 - var0;
         int var3 = var1 + var0;
-        int var4 = Mth.floor(param1 - (double)this.y0) - this.headerHeight + (int)this.getScrollAmount() - 4;
+        int var4 = Mth.floor(param1 - (double)this.getY()) - this.headerHeight + (int)this.getScrollAmount() - 4;
         int var5 = var4 / this.itemHeight;
         return param0 < (double)this.getScrollbarPosition()
                 && param0 >= (double)var2
@@ -160,20 +145,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                 && var5 < this.getItemCount()
             ? this.children().get(var5)
             : null;
-    }
-
-    public void updateSize(int param0, int param1, int param2, int param3) {
-        this.width = param0;
-        this.height = param1;
-        this.y0 = param2;
-        this.y1 = param3;
-        this.x0 = 0;
-        this.x1 = param0;
-    }
-
-    public void setLeftPos(int param0) {
-        this.x0 = param0;
-        this.x1 = param0 + this.width;
     }
 
     protected int getMaxPosition() {
@@ -191,19 +162,19 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         this.hovered = this.isMouseOver((double)param1, (double)param2) ? this.getEntryAtPosition((double)param1, (double)param2) : null;
         if (this.renderBackground) {
             param0.setColor(0.125F, 0.125F, 0.125F, 1.0F);
             int var0 = 32;
             param0.blit(
                 Screen.BACKGROUND_LOCATION,
-                this.x0,
-                this.y0,
-                (float)this.x1,
-                (float)(this.y1 + (int)this.getScrollAmount()),
-                this.x1 - this.x0,
-                this.y1 - this.y0,
+                this.getX(),
+                this.getY(),
+                (float)this.getRight(),
+                (float)(this.getBottom() + (int)this.getScrollAmount()),
+                this.width,
+                this.height,
                 32,
                 32
             );
@@ -213,7 +184,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         this.enableScissor(param0);
         if (this.renderHeader) {
             int var1 = this.getRowLeft();
-            int var2 = this.y0 + 4 - (int)this.getScrollAmount();
+            int var2 = this.getY() + 4 - (int)this.getScrollAmount();
             this.renderHeader(param0, var1, var2);
         }
 
@@ -221,21 +192,21 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         param0.disableScissor();
         if (this.renderBackground) {
             int var3 = 4;
-            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y0, this.x1, this.y0 + 4, -16777216, 0, 0);
-            param0.fillGradient(RenderType.guiOverlay(), this.x0, this.y1 - 4, this.x1, this.y1, 0, -16777216, 0);
+            param0.fillGradient(RenderType.guiOverlay(), this.getX(), this.getY(), this.getRight(), this.getY() + 4, -16777216, 0, 0);
+            param0.fillGradient(RenderType.guiOverlay(), this.getX(), this.getBottom() - 4, this.getRight(), this.getBottom(), 0, -16777216, 0);
         }
 
         int var4 = this.getMaxScroll();
         if (var4 > 0) {
             int var5 = this.getScrollbarPosition();
-            int var6 = (int)((float)((this.y1 - this.y0) * (this.y1 - this.y0)) / (float)this.getMaxPosition());
-            var6 = Mth.clamp(var6, 32, this.y1 - this.y0 - 8);
-            int var7 = (int)this.getScrollAmount() * (this.y1 - this.y0 - var6) / var4 + this.y0;
-            if (var7 < this.y0) {
-                var7 = this.y0;
+            int var6 = (int)((float)(this.height * this.height) / (float)this.getMaxPosition());
+            var6 = Mth.clamp(var6, 32, this.height - 8);
+            int var7 = (int)this.getScrollAmount() * (this.height - var6) / var4 + this.getY();
+            if (var7 < this.getY()) {
+                var7 = this.getY();
             }
 
-            param0.fill(var5, this.y0, var5 + 6, this.y1, -16777216);
+            param0.fill(var5, this.getY(), var5 + 6, this.getBottom(), -16777216);
             param0.blitSprite(SCROLLER_SPRITE, var5, var7, 6, var6);
         }
 
@@ -244,21 +215,21 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     protected void enableScissor(GuiGraphics param0) {
-        param0.enableScissor(this.x0, this.y0, this.x1, this.y1);
+        param0.enableScissor(this.getX(), this.getY(), this.getRight(), this.getBottom());
     }
 
     protected void centerScrollOn(E param0) {
-        this.setScrollAmount((double)(this.children().indexOf(param0) * this.itemHeight + this.itemHeight / 2 - (this.y1 - this.y0) / 2));
+        this.setScrollAmount((double)(this.children().indexOf(param0) * this.itemHeight + this.itemHeight / 2 - this.height / 2));
     }
 
     protected void ensureVisible(E param0) {
         int var0 = this.getRowTop(this.children().indexOf(param0));
-        int var1 = var0 - this.y0 - 4 - this.itemHeight;
+        int var1 = var0 - this.getY() - 4 - this.itemHeight;
         if (var1 < 0) {
             this.scroll(var1);
         }
 
-        int var2 = this.y1 - var0 - this.itemHeight - this.itemHeight;
+        int var2 = this.getBottom() - var0 - this.itemHeight - this.itemHeight;
         if (var2 < 0) {
             this.scroll(-var2);
         }
@@ -278,11 +249,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     public int getMaxScroll() {
-        return Math.max(0, this.getMaxPosition() - (this.y1 - this.y0 - 4));
-    }
-
-    public int getScrollBottom() {
-        return (int)this.getScrollAmount() - this.height - this.headerHeight;
+        return Math.max(0, this.getMaxPosition() - (this.height - 4));
     }
 
     protected void updateScrollingState(double param0, double param1, int param2) {
@@ -319,8 +286,8 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
                         return true;
                     }
                 } else if (this.clickedHeader(
-                    (int)(param0 - (double)(this.x0 + this.width / 2 - this.getRowWidth() / 2)),
-                    (int)(param1 - (double)this.y0) + (int)this.getScrollAmount() - 4
+                    (int)(param0 - (double)(this.getX() + this.width / 2 - this.getRowWidth() / 2)),
+                    (int)(param1 - (double)this.getY()) + (int)this.getScrollAmount() - 4
                 )) {
                     return true;
                 }
@@ -344,13 +311,13 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         if (super.mouseDragged(param0, param1, param2, param3, param4)) {
             return true;
         } else if (param2 == 0 && this.scrolling) {
-            if (param1 < (double)this.y0) {
+            if (param1 < (double)this.getY()) {
                 this.setScrollAmount(0.0);
-            } else if (param1 > (double)this.y1) {
+            } else if (param1 > (double)this.getBottom()) {
                 this.setScrollAmount((double)this.getMaxScroll());
             } else {
                 double var0 = (double)Math.max(1, this.getMaxScroll());
-                int var1 = this.y1 - this.y0;
+                int var1 = this.height;
                 int var2 = Mth.clamp((int)((float)(var1 * var1) / (float)this.getMaxPosition()), 32, var1 - 8);
                 double var3 = Math.max(1.0, var0 / (double)(var1 - var2));
                 this.setScrollAmount(this.getScrollAmount() + param4 * var3);
@@ -420,7 +387,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
 
     @Override
     public boolean isMouseOver(double param0, double param1) {
-        return param1 >= (double)this.y0 && param1 <= (double)this.y1 && param0 >= (double)this.x0 && param0 <= (double)this.x1;
+        return param1 >= (double)this.getY() && param1 <= (double)this.getBottom() && param0 >= (double)this.getX() && param0 <= (double)this.getRight();
     }
 
     protected void renderList(GuiGraphics param0, int param1, int param2, float param3) {
@@ -432,7 +399,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
         for(int var4 = 0; var4 < var3; ++var4) {
             int var5 = this.getRowTop(var4);
             int var6 = this.getRowBottom(var4);
-            if (var6 >= this.y0 && var5 <= this.y1) {
+            if (var6 >= this.getY() && var5 <= this.getBottom()) {
                 this.renderItem(param0, param1, param2, param3, var4, var0, var5, var1, var2);
             }
         }
@@ -451,14 +418,14 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     protected void renderSelection(GuiGraphics param0, int param1, int param2, int param3, int param4, int param5) {
-        int var0 = this.x0 + (this.width - param2) / 2;
-        int var1 = this.x0 + (this.width + param2) / 2;
+        int var0 = this.getX() + (this.width - param2) / 2;
+        int var1 = this.getX() + (this.width + param2) / 2;
         param0.fill(var0, param1 - 2, var1, param1 + param3 + 2, param4);
         param0.fill(var0 + 1, param1 - 1, var1 - 1, param1 + param3 + 1, param5);
     }
 
     public int getRowLeft() {
-        return this.x0 + this.width / 2 - this.getRowWidth() / 2 + 2;
+        return this.getX() + this.width / 2 - this.getRowWidth() / 2 + 2;
     }
 
     public int getRowRight() {
@@ -466,7 +433,7 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
     }
 
     protected int getRowTop(int param0) {
-        return this.y0 + 4 - (int)this.getScrollAmount() + param0 * this.itemHeight + this.headerHeight;
+        return this.getY() + 4 - (int)this.getScrollAmount() + param0 * this.itemHeight + this.headerHeight;
     }
 
     protected int getRowBottom(int param0) {
@@ -515,11 +482,6 @@ public abstract class AbstractSelectionList<E extends AbstractSelectionList.Entr
             }
         }
 
-    }
-
-    @Override
-    public ScreenRectangle getRectangle() {
-        return new ScreenRectangle(this.x0, this.y0, this.x1 - this.x0, this.y1 - this.y0);
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -51,8 +51,7 @@ public class EditGameRulesScreen extends Screen {
 
     @Override
     protected void init() {
-        this.rules = new EditGameRulesScreen.RuleList(this.gameRules);
-        this.addWidget(this.rules);
+        this.rules = this.addRenderableWidget(new EditGameRulesScreen.RuleList(this.gameRules));
         GridLayout.RowHelper var0 = new GridLayout().columnSpacing(10).createRowHelper(2);
         this.doneButton = var0.addChild(Button.builder(CommonComponents.GUI_DONE, param0 -> this.exitCallback.accept(Optional.of(this.gameRules))).build());
         var0.addChild(Button.builder(CommonComponents.GUI_CANCEL, param0 -> this.exitCallback.accept(Optional.empty())).build());
@@ -71,7 +70,6 @@ public class EditGameRulesScreen extends Screen {
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         this.tooltip = null;
-        this.rules.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
     }
 
@@ -226,14 +224,7 @@ public class EditGameRulesScreen extends Screen {
     @OnlyIn(Dist.CLIENT)
     public class RuleList extends ContainerObjectSelectionList<EditGameRulesScreen.RuleEntry> {
         public RuleList(final GameRules param1) {
-            super(
-                EditGameRulesScreen.this.minecraft,
-                EditGameRulesScreen.this.width,
-                EditGameRulesScreen.this.height,
-                43,
-                EditGameRulesScreen.this.height - 32,
-                24
-            );
+            super(EditGameRulesScreen.this.minecraft, EditGameRulesScreen.this.width, EditGameRulesScreen.this.height - 75, 43, 24);
             final Map<GameRules.Category, Map<GameRules.Key<?>, EditGameRulesScreen.RuleEntry>> var0 = Maps.newHashMap();
             GameRules.visitGameRuleTypes(
                 new GameRules.GameRuleTypeVisitor() {
@@ -295,8 +286,8 @@ public class EditGameRulesScreen extends Screen {
         }
 
         @Override
-        public void render(GuiGraphics param0, int param1, int param2, float param3) {
-            super.render(param0, param1, param2, param3);
+        public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
+            super.renderWidget(param0, param1, param2, param3);
             EditGameRulesScreen.RuleEntry var0 = this.getHovered();
             if (var0 != null && var0.tooltip != null) {
                 EditGameRulesScreen.this.setTooltipForNextRenderPass(var0.tooltip);

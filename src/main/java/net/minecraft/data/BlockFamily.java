@@ -5,15 +5,11 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import net.minecraft.Util;
-import net.minecraft.world.flag.FeatureFlag;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 
 public class BlockFamily {
     private final Block baseBlock;
     final Map<BlockFamily.Variant, Block> variants = Maps.newHashMap();
-    FeatureFlagSet requiredFeatures = FeatureFlags.VANILLA_SET;
     boolean generateModel = true;
     boolean generateRecipe = true;
     @Nullable
@@ -41,8 +37,8 @@ public class BlockFamily {
         return this.generateModel;
     }
 
-    public boolean shouldGenerateRecipe(FeatureFlagSet param0) {
-        return this.generateRecipe && this.requiredFeatures.isSubsetOf(param0);
+    public boolean shouldGenerateRecipe() {
+        return this.generateRecipe;
     }
 
     public Optional<String> getRecipeGroupPrefix() {
@@ -157,11 +153,6 @@ public class BlockFamily {
 
         public BlockFamily.Builder dontGenerateRecipe() {
             this.family.generateRecipe = false;
-            return this;
-        }
-
-        public BlockFamily.Builder featureLockedBehind(FeatureFlag... param0) {
-            this.family.requiredFeatures = FeatureFlags.REGISTRY.subset(param0);
             return this;
         }
 

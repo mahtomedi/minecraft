@@ -72,7 +72,7 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     protected void init() {
-        this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+        this.list = this.addRenderableWidget(new OptionsList(this.minecraft, this.width, this.height - 64, 32, 25));
         int var0 = -1;
         Window var1 = this.minecraft.getWindow();
         Monitor var2 = var1.findBestMonitor();
@@ -117,7 +117,6 @@ public class VideoSettingsScreen extends OptionsSubScreen {
         this.list.addBig(var6);
         this.list.addBig(this.options.biomeBlendRadius());
         this.list.addSmall(options(this.options));
-        this.addWidget(this.list);
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param1 -> {
             this.minecraft.options.save();
             var1.changeFullscreenVideoMode();
@@ -206,7 +205,8 @@ public class VideoSettingsScreen extends OptionsSubScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.basicListRender(param0, this.list, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
     }
 
     @Override

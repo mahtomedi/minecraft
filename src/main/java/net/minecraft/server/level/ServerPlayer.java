@@ -147,7 +147,8 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Team;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.slf4j.Logger;
@@ -592,7 +593,7 @@ public class ServerPlayer extends Player {
     }
 
     private void updateScoreForCriteria(ObjectiveCriteria param0, int param1) {
-        this.getScoreboard().forAllObjectives(param0, this.getScoreboardName(), param1x -> param1x.setScore(param1));
+        this.getScoreboard().forAllObjectives(param0, this, param1x -> param1x.set(param1));
     }
 
     @Override
@@ -636,7 +637,7 @@ public class ServerPlayer extends Player {
             this.dropAllDeathLoot(param0);
         }
 
-        this.getScoreboard().forAllObjectives(ObjectiveCriteria.DEATH_COUNT, this.getScoreboardName(), Score::increment);
+        this.getScoreboard().forAllObjectives(ObjectiveCriteria.DEATH_COUNT, this, ScoreAccess::increment);
         LivingEntity var3 = this.getKillCredit();
         if (var3 != null) {
             this.awardStat(Stats.ENTITY_KILLED_BY.get(var3.getType()));
@@ -669,28 +670,26 @@ public class ServerPlayer extends Player {
         if (param0 != this) {
             super.awardKillScore(param0, param1, param2);
             this.increaseScore(param1);
-            String var0 = this.getScoreboardName();
-            String var1 = param0.getScoreboardName();
-            this.getScoreboard().forAllObjectives(ObjectiveCriteria.KILL_COUNT_ALL, var0, Score::increment);
+            this.getScoreboard().forAllObjectives(ObjectiveCriteria.KILL_COUNT_ALL, this, ScoreAccess::increment);
             if (param0 instanceof Player) {
                 this.awardStat(Stats.PLAYER_KILLS);
-                this.getScoreboard().forAllObjectives(ObjectiveCriteria.KILL_COUNT_PLAYERS, var0, Score::increment);
+                this.getScoreboard().forAllObjectives(ObjectiveCriteria.KILL_COUNT_PLAYERS, this, ScoreAccess::increment);
             } else {
                 this.awardStat(Stats.MOB_KILLS);
             }
 
-            this.handleTeamKill(var0, var1, ObjectiveCriteria.TEAM_KILL);
-            this.handleTeamKill(var1, var0, ObjectiveCriteria.KILLED_BY_TEAM);
+            this.handleTeamKill(this, param0, ObjectiveCriteria.TEAM_KILL);
+            this.handleTeamKill(param0, this, ObjectiveCriteria.KILLED_BY_TEAM);
             CriteriaTriggers.PLAYER_KILLED_ENTITY.trigger(this, param0, param2);
         }
     }
 
-    private void handleTeamKill(String param0, String param1, ObjectiveCriteria[] param2) {
-        PlayerTeam var0 = this.getScoreboard().getPlayersTeam(param1);
+    private void handleTeamKill(ScoreHolder param0, ScoreHolder param1, ObjectiveCriteria[] param2) {
+        PlayerTeam var0 = this.getScoreboard().getPlayersTeam(param1.getScoreboardName());
         if (var0 != null) {
             int var1 = var0.getColor().getId();
             if (var1 >= 0 && var1 < param2.length) {
-                this.getScoreboard().forAllObjectives(param2[var1], param0, Score::increment);
+                this.getScoreboard().forAllObjectives(param2[var1], param0, ScoreAccess::increment);
             }
         }
 
@@ -1172,13 +1171,13 @@ public class ServerPlayer extends Player {
     @Override
     public void awardStat(Stat<?> param0, int param1) {
         this.stats.increment(this, param0, param1);
-        this.getScoreboard().forAllObjectives(param0, this.getScoreboardName(), param1x -> param1x.add(param1));
+        this.getScoreboard().forAllObjectives(param0, this, param1x -> param1x.add(param1));
     }
 
     @Override
     public void resetStat(Stat<?> param0) {
         this.stats.setValue(this, param0, 0);
-        this.getScoreboard().forAllObjectives(param0, this.getScoreboardName(), Score::reset);
+        this.getScoreboard().forAllObjectives(param0, this, ScoreAccess::reset);
     }
 
     @Override

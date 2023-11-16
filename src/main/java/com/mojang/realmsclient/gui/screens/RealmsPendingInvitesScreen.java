@@ -239,7 +239,7 @@ public class RealmsPendingInvitesScreen extends RealmsScreen {
     @OnlyIn(Dist.CLIENT)
     class PendingInvitationSelectionList extends RealmsObjectSelectionList<RealmsPendingInvitesScreen.Entry> {
         public PendingInvitationSelectionList() {
-            super(RealmsPendingInvitesScreen.this.width, RealmsPendingInvitesScreen.this.height, 32, RealmsPendingInvitesScreen.this.height - 40, 36);
+            super(RealmsPendingInvitesScreen.this.width, RealmsPendingInvitesScreen.this.height - 72, 32, 36);
         }
 
         public void removeAtIndex(int param0) {

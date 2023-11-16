@@ -167,6 +167,7 @@ import net.minecraft.network.protocol.game.ClientboundPlayerPositionPacket;
 import net.minecraft.network.protocol.game.ClientboundRecipePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundResetScorePacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.network.protocol.game.ClientboundRotateHeadPacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
@@ -294,7 +295,8 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
@@ -1966,7 +1968,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
         Scoreboard var0 = this.level.getScoreboard();
         String var1 = param0.getObjectiveName();
         if (param0.getMethod() == 0) {
-            var0.addObjective(var1, ObjectiveCriteria.DUMMY, param0.getDisplayName(), param0.getRenderType());
+            var0.addObjective(var1, ObjectiveCriteria.DUMMY, param0.getDisplayName(), param0.getRenderType(), false, param0.getNumberFormat());
         } else {
             Objective var2 = var0.getObjective(var1);
             if (var2 != null) {
@@ -1975,6 +1977,7 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
                 } else if (param0.getMethod() == 2) {
                     var2.setRenderType(param0.getRenderType());
                     var2.setDisplayName(param0.getDisplayName());
+                    var2.setNumberFormat(param0.getNumberFormat());
                 }
             }
         }
@@ -1985,19 +1988,35 @@ public class ClientPacketListener extends ClientCommonPacketListenerImpl impleme
     public void handleSetScore(ClientboundSetScorePacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
         Scoreboard var0 = this.level.getScoreboard();
-        String var1 = param0.getObjectiveName();
-        switch(param0.getMethod()) {
-            case CHANGE:
-                Objective var2 = var0.getObjective(var1);
-                if (var2 != null) {
-                    Score var3 = var0.getOrCreatePlayerScore(param0.getOwner(), var2);
-                    var3.setScore(param0.getScore());
-                } else {
-                    LOGGER.warn("Received packet for unknown scoreboard: {}", var1);
-                }
-                break;
-            case REMOVE:
-                var0.resetPlayerScore(param0.getOwner(), var0.getObjective(var1));
+        String var1 = param0.objectiveName();
+        ScoreHolder var2 = ScoreHolder.forNameOnly(param0.owner());
+        Objective var3 = var0.getObjective(var1);
+        if (var3 != null) {
+            ScoreAccess var4 = var0.getOrCreatePlayerScore(var2, var3, true);
+            var4.set(param0.score());
+            var4.display(param0.display());
+            var4.numberFormatOverride(param0.numberFormat());
+        } else {
+            LOGGER.warn("Received packet for unknown scoreboard objective: {}", var1);
+        }
+
+    }
+
+    @Override
+    public void handleResetScore(ClientboundResetScorePacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        Scoreboard var0 = this.level.getScoreboard();
+        String var1 = param0.objectiveName();
+        ScoreHolder var2 = ScoreHolder.forNameOnly(param0.owner());
+        if (var1 == null) {
+            var0.resetAllPlayerScores(var2);
+        } else {
+            Objective var3 = var0.getObjective(var1);
+            if (var3 != null) {
+                var0.resetSinglePlayerScore(var2, var3);
+            } else {
+                LOGGER.warn("Received packet for unknown scoreboard objective: {}", var1);
+            }
         }
 
     }

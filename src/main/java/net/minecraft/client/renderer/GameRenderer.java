@@ -1196,46 +1196,46 @@ public class GameRenderer implements AutoCloseable {
         boolean var0 = this.shouldRenderBlockOutline();
         this.minecraft.getProfiler().popPush("camera");
         Camera var1 = this.mainCamera;
-        this.renderDistance = (float)(this.minecraft.options.getEffectiveRenderDistance() * 16);
-        PoseStack var2 = new PoseStack();
-        double var3 = this.getFov(var1, param0, true);
-        var2.mulPoseMatrix(this.getProjectionMatrix(var3));
-        this.bobHurt(var2, param0);
-        if (this.minecraft.options.bobView().get()) {
-            this.bobView(var2, param0);
-        }
-
-        float var4 = this.minecraft.options.screenEffectScale().get().floatValue();
-        float var5 = Mth.lerp(param0, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * var4 * var4;
-        if (var5 > 0.0F) {
-            int var6 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
-            float var7 = 5.0F / (var5 * var5 + 5.0F) - var5 * 0.04F;
-            var7 *= var7;
-            Axis var8 = Axis.of(new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F));
-            var2.mulPose(var8.rotationDegrees(((float)this.confusionAnimationTick + param0) * (float)var6));
-            var2.scale(1.0F / var7, 1.0F, 1.0F);
-            float var9 = -((float)this.confusionAnimationTick + param0) * (float)var6;
-            var2.mulPose(var8.rotationDegrees(var9));
-        }
-
-        Matrix4f var10 = var2.last().pose();
-        this.resetProjectionMatrix(var10);
-        Entity var11 = (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
+        Entity var2 = (Entity)(this.minecraft.getCameraEntity() == null ? this.minecraft.player : this.minecraft.getCameraEntity());
         var1.setup(
             this.minecraft.level,
-            var11,
+            var2,
             !this.minecraft.options.getCameraType().isFirstPerson(),
             this.minecraft.options.getCameraType().isMirrored(),
-            this.minecraft.level.tickRateManager().isEntityFrozen(var11) ? 1.0F : param0
+            this.minecraft.level.tickRateManager().isEntityFrozen(var2) ? 1.0F : param0
         );
+        this.renderDistance = (float)(this.minecraft.options.getEffectiveRenderDistance() * 16);
+        PoseStack var3 = new PoseStack();
+        double var4 = this.getFov(var1, param0, true);
+        var3.mulPoseMatrix(this.getProjectionMatrix(var4));
+        this.bobHurt(var3, var1.getPartialTickTime());
+        if (this.minecraft.options.bobView().get()) {
+            this.bobView(var3, var1.getPartialTickTime());
+        }
+
+        float var5 = this.minecraft.options.screenEffectScale().get().floatValue();
+        float var6 = Mth.lerp(param0, this.minecraft.player.oSpinningEffectIntensity, this.minecraft.player.spinningEffectIntensity) * var5 * var5;
+        if (var6 > 0.0F) {
+            int var7 = this.minecraft.player.hasEffect(MobEffects.CONFUSION) ? 7 : 20;
+            float var8 = 5.0F / (var6 * var6 + 5.0F) - var6 * 0.04F;
+            var8 *= var8;
+            Axis var9 = Axis.of(new Vector3f(0.0F, Mth.SQRT_OF_TWO / 2.0F, Mth.SQRT_OF_TWO / 2.0F));
+            var3.mulPose(var9.rotationDegrees(((float)this.confusionAnimationTick + param0) * (float)var7));
+            var3.scale(1.0F / var8, 1.0F, 1.0F);
+            float var10 = -((float)this.confusionAnimationTick + param0) * (float)var7;
+            var3.mulPose(var9.rotationDegrees(var10));
+        }
+
+        Matrix4f var11 = var3.last().pose();
+        this.resetProjectionMatrix(var11);
         param2.mulPose(Axis.XP.rotationDegrees(var1.getXRot()));
         param2.mulPose(Axis.YP.rotationDegrees(var1.getYRot() + 180.0F));
         Matrix3f var12 = new Matrix3f(param2.last().normal()).invert();
         RenderSystem.setInverseViewRotationMatrix(var12);
         this.minecraft
             .levelRenderer
-            .prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var3, (double)this.minecraft.options.fov().get().intValue())));
-        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var10);
+            .prepareCullFrustum(param2, var1.getPosition(), this.getProjectionMatrix(Math.max(var4, (double)this.minecraft.options.fov().get().intValue())));
+        this.minecraft.levelRenderer.renderLevel(param2, param0, param1, var0, var1, this, this.lightTexture, var11);
         this.minecraft.getProfiler().popPush("hand");
         if (this.renderHand) {
             RenderSystem.clear(256, Minecraft.ON_OSX);

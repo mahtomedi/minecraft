@@ -109,7 +109,7 @@ public class LeverBlock extends FaceAttachedHorizontalDirectionalBlock {
 
     @Override
     public void onExplosionHit(BlockState param0, Level param1, BlockPos param2, Explosion param3, BiConsumer<ItemStack, BlockPos> param4) {
-        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK && !param1.isClientSide() && !param0.getValue(POWERED)) {
+        if (param3.getBlockInteraction() == Explosion.BlockInteraction.TRIGGER_BLOCK && !param1.isClientSide()) {
             this.pull(param0, param1, param2);
         }
 

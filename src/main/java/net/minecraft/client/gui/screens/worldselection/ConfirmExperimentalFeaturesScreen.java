@@ -94,21 +94,21 @@ public class ConfirmExperimentalFeaturesScreen extends Screen {
             this.addRenderableWidget(
                 Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.width / 2 - 100, this.height / 4 + 120 + 24, 200, 20).build()
             );
-            this.packList = new ConfirmExperimentalFeaturesScreen.DetailsScreen.PackList(this.minecraft, ConfirmExperimentalFeaturesScreen.this.enabledPacks);
-            this.addWidget(this.packList);
+            this.packList = this.addRenderableWidget(
+                new ConfirmExperimentalFeaturesScreen.DetailsScreen.PackList(this.minecraft, ConfirmExperimentalFeaturesScreen.this.enabledPacks)
+            );
         }
 
         @Override
         public void render(GuiGraphics param0, int param1, int param2, float param3) {
             super.render(param0, param1, param2, param3);
-            this.packList.render(param0, param1, param2, param3);
             param0.drawCenteredString(this.font, this.title, this.width / 2, 10, 16777215);
         }
 
         @OnlyIn(Dist.CLIENT)
         class PackList extends ObjectSelectionList<ConfirmExperimentalFeaturesScreen.DetailsScreen.PackListEntry> {
             public PackList(Minecraft param0, Collection<Pack> param1) {
-                super(param0, DetailsScreen.this.width, DetailsScreen.this.height, 32, DetailsScreen.this.height - 64, (9 + 2) * 3);
+                super(param0, DetailsScreen.this.width, DetailsScreen.this.height - 96, 32, (9 + 2) * 3);
 
                 for(Pack param2 : param1) {
                     String var0 = FeatureFlags.printMissingFlags(FeatureFlags.VANILLA_SET, param2.getRequestedFeatures());

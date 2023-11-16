@@ -92,22 +92,14 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
     private final WorldSelectionList.LoadingHeader loadingHeader;
 
     public WorldSelectionList(
-        SelectWorldScreen param0,
-        Minecraft param1,
-        int param2,
-        int param3,
-        int param4,
-        int param5,
-        int param6,
-        String param7,
-        @Nullable WorldSelectionList param8
+        SelectWorldScreen param0, Minecraft param1, int param2, int param3, int param4, int param5, String param6, @Nullable WorldSelectionList param7
     ) {
-        super(param1, param2, param3, param4, param5, param6);
+        super(param1, param2, param3, param4, param5);
         this.screen = param0;
         this.loadingHeader = new WorldSelectionList.LoadingHeader(param1);
-        this.filter = param7;
-        if (param8 != null) {
-            this.pendingLevels = param8.pendingLevels;
+        this.filter = param6;
+        if (param7 != null) {
+            this.pendingLevels = param7.pendingLevels;
         } else {
             this.pendingLevels = this.loadLevels();
         }
@@ -152,13 +144,13 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
+    public void renderWidget(GuiGraphics param0, int param1, int param2, float param3) {
         List<LevelSummary> var0 = this.pollLevelsIgnoreErrors();
         if (var0 != this.currentlyDisplayedLevels) {
             this.handleNewLevels(var0);
         }
 
-        super.render(param0, param1, param2, param3);
+        super.renderWidget(param0, param1, param2, param3);
     }
 
     private void handleNewLevels(@Nullable List<LevelSummary> param0) {
@@ -257,11 +249,11 @@ public class WorldSelectionList extends ObjectSelectionList<WorldSelectionList.E
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
         if (this.children().contains(this.loadingHeader)) {
             this.loadingHeader.updateNarration(param0);
         } else {
-            super.updateNarration(param0);
+            super.updateWidgetNarration(param0);
         }
     }
 

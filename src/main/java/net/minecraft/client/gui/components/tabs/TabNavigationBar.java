@@ -28,7 +28,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class TabNavigationBar extends AbstractContainerEventHandler implements Renderable, GuiEventListener, NarratableEntry {
+public class TabNavigationBar extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
     private static final int NO_TAB = -1;
     private static final int MAX_WIDTH = 400;
     private static final int HEIGHT = 24;

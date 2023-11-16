@@ -47,7 +47,7 @@ public class DimensionDataStorage {
     }
 
     @Nullable
-    public <T extends SavedData> T get(SavedData.Factory param0, String param1) {
+    public <T extends SavedData> T get(SavedData.Factory<T> param0, String param1) {
         SavedData var0 = this.cache.get(param1);
         if (var0 == null && !this.cache.containsKey(param1)) {
             var0 = this.readSavedData(param0.deserializer(), param0.type(), param1);

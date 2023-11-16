@@ -35,9 +35,10 @@ public class SelectWorldScreen extends Screen {
     protected void init() {
         this.searchBox = new EditBox(this.font, this.width / 2 - 100, 22, 200, 20, this.searchBox, Component.translatable("selectWorld.search"));
         this.searchBox.setResponder(param0 -> this.list.updateFilter(param0));
-        this.list = new WorldSelectionList(this, this.minecraft, this.width, this.height, 48, this.height - 64, 36, this.searchBox.getValue(), this.list);
         this.addWidget(this.searchBox);
-        this.addWidget(this.list);
+        this.list = this.addRenderableWidget(
+            new WorldSelectionList(this, this.minecraft, this.width, this.height - 112, 48, 36, this.searchBox.getValue(), this.list)
+        );
         this.selectButton = this.addRenderableWidget(
             Button.builder(LevelSummary.PLAY_WORLD, param0 -> this.list.getSelectedOpt().ifPresent(WorldSelectionList.WorldListEntry::joinWorld))
                 .bounds(this.width / 2 - 154, this.height - 52, 150, 20)
@@ -98,7 +99,6 @@ public class SelectWorldScreen extends Screen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
-        this.list.render(param0, param1, param2, param3);
         this.searchBox.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
     }

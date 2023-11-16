@@ -55,7 +55,7 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener, La
     }
 
     @Override
-    public void render(GuiGraphics param0, int param1, int param2, float param3) {
+    public final void render(GuiGraphics param0, int param1, int param2, float param3) {
         if (this.visible) {
             this.isHovered = param1 >= this.getX() && param2 >= this.getY() && param1 < this.getX() + this.width && param2 < this.getY() + this.height;
             this.renderWidget(param0, param1, param2, param3);
@@ -308,14 +308,32 @@ public abstract class AbstractWidget implements Renderable, GuiEventListener, La
         this.y = param0;
     }
 
+    public int getRight() {
+        return this.getX() + this.getWidth();
+    }
+
+    public int getBottom() {
+        return this.getY() + this.getHeight();
+    }
+
     @Override
     public void visitWidgets(Consumer<AbstractWidget> param0) {
         param0.accept(this);
     }
 
+    public void setSize(int param0, int param1) {
+        this.width = param0;
+        this.height = param1;
+    }
+
     @Override
     public ScreenRectangle getRectangle() {
         return LayoutElement.super.getRectangle();
+    }
+
+    public void setRectangle(int param0, int param1, int param2, int param3) {
+        this.setSize(param0, param1);
+        this.setPosition(param2, param3);
     }
 
     @Override

@@ -16,10 +16,12 @@ import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
@@ -128,8 +130,8 @@ public abstract class BaseSpawner {
                             return;
                         }
 
-                        int var14 = param0.getEntitiesOfClass(
-                                var13.getClass(),
+                        int var14 = param0.getEntities(
+                                EntityTypeTest.forExactClass(var13.getClass()),
                                 new AABB(
                                         (double)param1.getX(),
                                         (double)param1.getY(),
@@ -138,7 +140,8 @@ public abstract class BaseSpawner {
                                         (double)(param1.getY() + 1),
                                         (double)(param1.getZ() + 1)
                                     )
-                                    .inflate((double)this.spawnRange)
+                                    .inflate((double)this.spawnRange),
+                                EntitySelector.NO_SPECTATORS
                             )
                             .size();
                         if (var14 >= this.maxNearbyEntities) {

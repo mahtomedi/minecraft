@@ -1637,6 +1637,7 @@ public class CreativeModeTabs {
                     param1.accept(Items.BAT_SPAWN_EGG);
                     param1.accept(Items.BEE_SPAWN_EGG);
                     param1.accept(Items.BLAZE_SPAWN_EGG);
+                    param1.accept(Items.BREEZE_SPAWN_EGG);
                     param1.accept(Items.CAMEL_SPAWN_EGG);
                     param1.accept(Items.CAT_SPAWN_EGG);
                     param1.accept(Items.CAVE_SPIDER_SPAWN_EGG);
@@ -1651,7 +1652,6 @@ public class CreativeModeTabs {
                     param1.accept(Items.ENDERMAN_SPAWN_EGG);
                     param1.accept(Items.ENDERMITE_SPAWN_EGG);
                     param1.accept(Items.EVOKER_SPAWN_EGG);
-                    param1.accept(Items.BREEZE_SPAWN_EGG);
                     param1.accept(Items.FOX_SPAWN_EGG);
                     param1.accept(Items.FROG_SPAWN_EGG);
                     param1.accept(Items.GHAST_SPAWN_EGG);

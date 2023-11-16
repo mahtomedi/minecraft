@@ -41,6 +41,7 @@ public class CrafterBlock extends BaseEntityBlock {
     public static final BooleanProperty TRIGGERED = BlockStateProperties.TRIGGERED;
     private static final EnumProperty<FrontAndTop> ORIENTATION = BlockStateProperties.ORIENTATION;
     private static final int MAX_CRAFTING_TICKS = 6;
+    private static final int CRAFTING_TICK_DELAY = 4;
     private static final RecipeCache RECIPE_CACHE = new RecipeCache(10);
 
     public CrafterBlock(BlockBehaviour.Properties param0) {
@@ -76,7 +77,7 @@ public class CrafterBlock extends BaseEntityBlock {
         boolean var1 = param0.getValue(TRIGGERED);
         BlockEntity var2 = param1.getBlockEntity(param2);
         if (var0 && !var1) {
-            param1.scheduleTick(param2, this, 1);
+            param1.scheduleTick(param2, this, 4);
             param1.setBlock(param2, param0.setValue(TRIGGERED, Boolean.valueOf(true)), 2);
             this.setBlockEntityTriggered(var2, true);
         } else if (!var0 && var1) {
@@ -135,7 +136,7 @@ public class CrafterBlock extends BaseEntityBlock {
         }
 
         if (param2.getValue(TRIGGERED)) {
-            param0.scheduleTick(param1, this, 1);
+            param0.scheduleTick(param1, this, 4);
         }
 
     }
@@ -192,7 +193,7 @@ public class CrafterBlock extends BaseEntityBlock {
         Direction var0 = param4.getValue(ORIENTATION).front();
         Container var1 = HopperBlockEntity.getContainerAt(param0, param1.relative(var0));
         ItemStack var2 = param3.copy();
-        if (var1 instanceof CrafterBlockEntity) {
+        if (var1 != null && (var1 instanceof CrafterBlockEntity || param3.getCount() > var1.getMaxStackSize())) {
             while(!var2.isEmpty()) {
                 ItemStack var3 = var2.copyWithCount(1);
                 ItemStack var4 = HopperBlockEntity.addItem(param2, var1, var3, var0.getOpposite());

@@ -32,15 +32,15 @@ public class SocialInteractionsPlayerList extends ContainerObjectSelectionList<P
     @Nullable
     private String filter;
 
-    public SocialInteractionsPlayerList(SocialInteractionsScreen param0, Minecraft param1, int param2, int param3, int param4, int param5, int param6) {
-        super(param1, param2, param3, param4, param5, param6);
+    public SocialInteractionsPlayerList(SocialInteractionsScreen param0, Minecraft param1, int param2, int param3, int param4, int param5) {
+        super(param1, param2, param3, param4, param5);
         this.socialInteractionsScreen = param0;
         this.setRenderBackground(false);
     }
 
     @Override
     protected void enableScissor(GuiGraphics param0) {
-        param0.enableScissor(this.x0, this.y0 + 4, this.x1, this.y1);
+        param0.enableScissor(this.getX(), this.getY() + 4, this.getRight(), this.getBottom());
     }
 
     public void updatePlayerList(Collection<UUID> param0, double param1, boolean param2) {

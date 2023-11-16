@@ -264,7 +264,11 @@ public class Options {
     );
     private final OptionInstance<Boolean> narratorHotkey = OptionInstance.createBoolean(
         "options.accessibility.narrator_hotkey",
-        OptionInstance.cachedConstantTooltip(Component.translatable("options.accessibility.narrator_hotkey.tooltip")),
+        OptionInstance.cachedConstantTooltip(
+            Minecraft.ON_OSX
+                ? Component.translatable("options.accessibility.narrator_hotkey.mac.tooltip")
+                : Component.translatable("options.accessibility.narrator_hotkey.tooltip")
+        ),
         true
     );
     @Nullable

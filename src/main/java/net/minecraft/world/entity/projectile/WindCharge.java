@@ -5,12 +5,15 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.monster.breeze.Breeze;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -23,6 +26,26 @@ public class WindCharge extends AbstractHurtingProjectile implements ItemSupplie
     public WindCharge(EntityType<? extends WindCharge> param0, Breeze param1, Level param2) {
         super(param0, param1.getX(), param1.getSnoutYPosition(), param1.getZ(), param2);
         this.setOwner(param1);
+    }
+
+    @Override
+    protected AABB makeBoundingBox() {
+        float var0 = this.getType().getDimensions().width / 2.0F;
+        float var1 = this.getType().getDimensions().height;
+        float var2 = 0.15F;
+        return new AABB(
+            this.position().x - (double)var0,
+            this.position().y - 0.15F,
+            this.position().z - (double)var0,
+            this.position().x + (double)var0,
+            this.position().y - 0.15F + (double)var1,
+            this.position().z + (double)var0
+        );
+    }
+
+    @Override
+    protected float getEyeHeight(Pose param0, EntityDimensions param1) {
+        return 0.0F;
     }
 
     @Override

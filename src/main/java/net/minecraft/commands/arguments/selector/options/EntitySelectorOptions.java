@@ -46,7 +46,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ReadOnlyScoreInfo;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
 
@@ -380,21 +380,19 @@ public class EntitySelectorOptions {
                 if (!var1.isEmpty()) {
                     param0.addPredicate(param1 -> {
                         Scoreboard var0x = param1.getServer().getScoreboard();
-                        String var1x = param1.getScoreboardName();
 
-                        for(Entry<String, MinMaxBounds.Ints> var2x : var1.entrySet()) {
-                            Objective var3x = var0x.getObjective(var2x.getKey());
+                        for(Entry<String, MinMaxBounds.Ints> var1x : var1.entrySet()) {
+                            Objective var2x = var0x.getObjective(var1x.getKey());
+                            if (var2x == null) {
+                                return false;
+                            }
+
+                            ReadOnlyScoreInfo var3x = var0x.getPlayerScoreInfo(param1, var2x);
                             if (var3x == null) {
                                 return false;
                             }
 
-                            if (!var0x.hasPlayerScore(var1x, var3x)) {
-                                return false;
-                            }
-
-                            Score var4x = var0x.getOrCreatePlayerScore(var1x, var3x);
-                            int var5 = var4x.getScore();
-                            if (!var2x.getValue().matches(var5)) {
+                            if (!var1x.getValue().matches(var3x.value())) {
                                 return false;
                             }
                         }

@@ -89,9 +89,9 @@ public class SocialInteractionsScreen extends Screen {
     @Override
     protected void init() {
         if (this.initialized) {
-            this.socialInteractionsPlayerList.updateSize(this.width, this.height, 88, this.listEnd());
+            this.socialInteractionsPlayerList.setRectangle(this.width, this.listEnd() - 88, 0, 88);
         } else {
-            this.socialInteractionsPlayerList = new SocialInteractionsPlayerList(this, this.minecraft, this.width, this.height, 88, this.listEnd(), 36);
+            this.socialInteractionsPlayerList = new SocialInteractionsPlayerList(this, this.minecraft, this.width, this.listEnd() - 88, 88, 36);
         }
 
         int var0 = this.socialInteractionsPlayerList.getRowWidth() / 3;

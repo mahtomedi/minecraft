@@ -1,8 +1,6 @@
 package net.minecraft.client.gui.screens;
 
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -26,11 +24,5 @@ public class OptionsSubScreen extends Screen {
     @Override
     public void onClose() {
         this.minecraft.setScreen(this.lastScreen);
-    }
-
-    protected void basicListRender(GuiGraphics param0, OptionsList param1, int param2, int param3, float param4) {
-        super.render(param0, param2, param3, param4);
-        param1.render(param0, param2, param3, param4);
-        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
     }
 }

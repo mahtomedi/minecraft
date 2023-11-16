@@ -110,7 +110,7 @@ public abstract class RecipeProvider implements DataProvider {
     protected abstract void buildRecipes(RecipeOutput var1);
 
     protected static void generateForEnabledBlockFamilies(RecipeOutput param0, FeatureFlagSet param1) {
-        BlockFamilies.getAllFamilies().filter(param1x -> param1x.shouldGenerateRecipe(param1)).forEach(param1x -> generateRecipes(param0, param1x));
+        BlockFamilies.getAllFamilies().filter(BlockFamily::shouldGenerateRecipe).forEach(param2 -> generateRecipes(param0, param2, param1));
     }
 
     protected static void oneToOneConversionRecipe(RecipeOutput param0, ItemLike param1, ItemLike param2, @Nullable String param3) {
@@ -555,16 +555,20 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0, getItemName(param6) + "_from_" + param1);
     }
 
-    protected static void waxRecipes(RecipeOutput param0) {
+    protected static void waxRecipes(RecipeOutput param0, FeatureFlagSet param1) {
         HoneycombItem.WAXABLES
             .get()
             .forEach(
-                (param1, param2) -> ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param2)
-                        .requires(param1)
-                        .requires(Items.HONEYCOMB)
-                        .group(getItemName(param2))
-                        .unlockedBy(getHasName(param1), has(param1))
-                        .save(param0, getConversionRecipeName(param2, Items.HONEYCOMB))
+                (param2, param3) -> {
+                    if (param3.requiredFeatures().isSubsetOf(param1)) {
+                        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, param3)
+                            .requires(param2)
+                            .requires(Items.HONEYCOMB)
+                            .group(getItemName(param3))
+                            .unlockedBy(getHasName(param2), has(param2))
+                            .save(param0, getConversionRecipeName(param3, Items.HONEYCOMB));
+                    }
+                }
             );
     }
 
@@ -590,24 +594,26 @@ public abstract class RecipeProvider implements DataProvider {
             .save(param0);
     }
 
-    protected static void generateRecipes(RecipeOutput param0, BlockFamily param1) {
+    protected static void generateRecipes(RecipeOutput param0, BlockFamily param1, FeatureFlagSet param2) {
         param1.getVariants()
             .forEach(
-                (param2, param3) -> {
-                    BiFunction<ItemLike, ItemLike, RecipeBuilder> var0x = SHAPE_BUILDERS.get(param2);
-                    ItemLike var1x = getBaseBlock(param1, param2);
-                    if (var0x != null) {
-                        RecipeBuilder var2 = (RecipeBuilder)var0x.apply(param3, var1x);
-                        param1.getRecipeGroupPrefix()
-                            .ifPresent(param2x -> var2.group(param2x + (param2 == BlockFamily.Variant.CUT ? "" : "_" + param2.getRecipeGroup())));
-                        var2.unlockedBy(param1.getRecipeUnlockedBy().orElseGet(() -> getHasName(var1x)), has(var1x));
-                        var2.save(param0);
-                    }
+                (param3, param4) -> {
+                    if (param4.requiredFeatures().isSubsetOf(param2)) {
+                        BiFunction<ItemLike, ItemLike, RecipeBuilder> var0x = SHAPE_BUILDERS.get(param3);
+                        ItemLike var1x = getBaseBlock(param1, param3);
+                        if (var0x != null) {
+                            RecipeBuilder var2x = (RecipeBuilder)var0x.apply(param4, var1x);
+                            param1.getRecipeGroupPrefix()
+                                .ifPresent(param2x -> var2x.group(param2x + (param3 == BlockFamily.Variant.CUT ? "" : "_" + param3.getRecipeGroup())));
+                            var2x.unlockedBy(param1.getRecipeUnlockedBy().orElseGet(() -> getHasName(var1x)), has(var1x));
+                            var2x.save(param0);
+                        }
         
-                    if (param2 == BlockFamily.Variant.CRACKED) {
-                        smeltingResultFromBase(param0, param3, var1x);
-                    }
+                        if (param3 == BlockFamily.Variant.CRACKED) {
+                            smeltingResultFromBase(param0, param4, var1x);
+                        }
         
+                    }
                 }
             );
     }

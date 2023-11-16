@@ -8,8 +8,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class RealmsObjectSelectionList<E extends ObjectSelectionList.Entry<E>> extends ObjectSelectionList<E> {
-    protected RealmsObjectSelectionList(int param0, int param1, int param2, int param3, int param4) {
-        super(Minecraft.getInstance(), param0, param1, param2, param3, param4);
+    protected RealmsObjectSelectionList(int param0, int param1, int param2, int param3) {
+        super(Minecraft.getInstance(), param0, param1, param2, param3);
     }
 
     public void setSelectedItem(int param0) {

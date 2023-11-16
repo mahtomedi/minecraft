@@ -4,8 +4,11 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.numbers.NumberFormat;
+import net.minecraft.network.chat.numbers.NumberFormatTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 import org.slf4j.Logger;
@@ -125,7 +128,9 @@ public class ScoreboardSaveData extends SavedData {
             String var4 = var1.getString("Name");
             Component var5 = Component.Serializer.fromJson(var1.getString("DisplayName"));
             ObjectiveCriteria.RenderType var6 = ObjectiveCriteria.RenderType.byId(var1.getString("RenderType"));
-            this.scoreboard.addObjective(var4, var3, var5, var6);
+            boolean var7 = var1.getBoolean("display_auto_update");
+            NumberFormat var8 = NumberFormatTypes.CODEC.parse(NbtOps.INSTANCE, var1.get("format")).result().orElse(null);
+            this.scoreboard.addObjective(var4, var3, var5, var6, var7, var8);
         }
 
     }
@@ -195,6 +200,12 @@ public class ScoreboardSaveData extends SavedData {
             var3.putString("CriteriaName", var2.getCriteria().getName());
             var3.putString("DisplayName", Component.Serializer.toJson(var2.getDisplayName()));
             var3.putString("RenderType", var2.getRenderType().getId());
+            var3.putBoolean("display_auto_update", var2.displayAutoUpdate());
+            NumberFormat var4 = var2.numberFormat();
+            if (var4 != null) {
+                NumberFormatTypes.CODEC.encodeStart(NbtOps.INSTANCE, var4).result().ifPresent(param1 -> var3.put("format", param1));
+            }
+
             var0.add(var3);
         }
 

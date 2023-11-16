@@ -835,22 +835,41 @@ public class Util {
         }
     }
 
+    public static <T, E extends Throwable> T getPartialOrThrow(DataResult<T> param0, Function<String, E> param1) throws E {
+        Optional<PartialResult<T>> var0 = param0.error();
+        if (var0.isPresent()) {
+            Optional<T> var1 = param0.resultOrPartial(param0x -> {
+            });
+            if (var1.isPresent()) {
+                return var1.get();
+            } else {
+                throw param1.apply(var0.get().message());
+            }
+        } else {
+            return param0.result().orElseThrow();
+        }
+    }
+
     public static <A, B> Typed<B> writeAndReadTypedOrThrow(Typed<A> param0, Type<B> param1, UnaryOperator<Dynamic<?>> param2) {
         Dynamic<?> var0 = getOrThrow(param0.write(), IllegalStateException::new);
-        return readTypedOrThrow(param1, param2.apply(var0));
+        return readTypedOrThrow(param1, param2.apply(var0), true);
     }
 
     public static <T> Typed<T> readTypedOrThrow(Type<T> param0, Dynamic<?> param1) {
+        return readTypedOrThrow(param0, param1, false);
+    }
+
+    public static <T> Typed<T> readTypedOrThrow(Type<T> param0, Dynamic<?> param1, boolean param2) {
         DataResult<Typed<T>> var0 = param0.readTyped(param1).map(Pair::getFirst);
-        Optional<PartialResult<Typed<T>>> var1 = var0.error();
-        if (var1.isPresent()) {
-            CrashReport var2 = CrashReport.forThrowable(new IllegalStateException(var1.get().message()), "Reading type");
+
+        try {
+            return param2 ? getPartialOrThrow(var0, IllegalStateException::new) : getOrThrow(var0, IllegalStateException::new);
+        } catch (IllegalStateException var7) {
+            CrashReport var2 = CrashReport.forThrowable(var7, "Reading type");
             CrashReportCategory var3 = var2.addCategory("Info");
             var3.setDetail("Data", param1);
             var3.setDetail("Type", param0);
             throw new ReportedException(var2);
-        } else {
-            return var0.result().orElseThrow();
         }
     }
 

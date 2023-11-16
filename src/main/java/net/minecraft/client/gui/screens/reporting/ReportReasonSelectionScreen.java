@@ -42,8 +42,7 @@ public class ReportReasonSelectionScreen extends Screen {
 
     @Override
     protected void init() {
-        this.reasonSelectionList = new ReportReasonSelectionScreen.ReasonSelectionList(this.minecraft);
-        this.addWidget(this.reasonSelectionList);
+        this.reasonSelectionList = this.addRenderableWidget(new ReportReasonSelectionScreen.ReasonSelectionList(this.minecraft));
         ReportReasonSelectionScreen.ReasonSelectionList.Entry var0 = Optionull.map(this.currentlySelectedReason, this.reasonSelectionList::findEntry);
         this.reasonSelectionList.setSelected(var0);
         int var1 = this.width / 2 - 150 - 5;
@@ -67,7 +66,6 @@ public class ReportReasonSelectionScreen extends Screen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
-        this.reasonSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
         param0.fill(this.contentLeft(), this.descriptionTop(), this.contentRight(), this.descriptionBottom(), 2130706432);
         param0.drawString(this.font, REASON_DESCRIPTION, this.contentLeft() + 4, this.descriptionTop() + 4, -8421505);
@@ -118,7 +116,7 @@ public class ReportReasonSelectionScreen extends Screen {
     @OnlyIn(Dist.CLIENT)
     public class ReasonSelectionList extends ObjectSelectionList<ReportReasonSelectionScreen.ReasonSelectionList.Entry> {
         public ReasonSelectionList(Minecraft param1) {
-            super(param1, ReportReasonSelectionScreen.this.width, ReportReasonSelectionScreen.this.height, 40, ReportReasonSelectionScreen.this.height - 95, 18);
+            super(param1, ReportReasonSelectionScreen.this.width, ReportReasonSelectionScreen.this.height - 95 - 40, 40, 18);
 
             for(ReportReason var0 : ReportReason.values()) {
                 this.addEntry(new ReportReasonSelectionScreen.ReasonSelectionList.Entry(var0));

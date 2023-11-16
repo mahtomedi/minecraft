@@ -1,6 +1,8 @@
 package net.minecraft.gametest.framework;
 
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Either;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.List;
 import java.util.Locale;
@@ -15,9 +17,12 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.commands.FillBiomeCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -36,6 +41,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ButtonBlock;
@@ -726,6 +732,26 @@ public class GameTestHelper {
         var1.getBlockState(var0).randomTick(var1, var0, var1.random);
     }
 
+    public void tickPrecipitation(BlockPos param0) {
+        BlockPos var0 = this.absolutePos(param0);
+        ServerLevel var1 = this.getLevel();
+        var1.tickPrecipitation(var0);
+    }
+
+    public void tickPrecipitation() {
+        AABB var0 = this.getRelativeBounds();
+        int var1 = (int)Math.floor(var0.maxX);
+        int var2 = (int)Math.floor(var0.maxZ);
+        int var3 = (int)Math.floor(var0.maxY);
+
+        for(int var4 = (int)Math.floor(var0.minX); var4 < var1; ++var4) {
+            for(int var5 = (int)Math.floor(var0.minZ); var5 < var2; ++var5) {
+                this.tickPrecipitation(new BlockPos(var4, var3, var5));
+            }
+        }
+
+    }
+
     public int getHeight(Heightmap.Types param0, int param1, int param2) {
         BlockPos var0 = this.absolutePos(new BlockPos(param1, 0, param2));
         return this.relativePos(this.getLevel().getHeightmapPos(param0, var0)).getY();
@@ -817,5 +843,18 @@ public class GameTestHelper {
         BlockHitResult var1 = new BlockHitResult(Vec3.atCenterOf(var0), param3, var0, false);
         UseOnContext var2 = new UseOnContext(param0, InteractionHand.MAIN_HAND, var1);
         param1.useOn(var2);
+    }
+
+    public void setBiome(ResourceKey<Biome> param0) {
+        AABB var0 = this.getBounds();
+        BlockPos var1 = BlockPos.containing(var0.minX, var0.minY, var0.minZ);
+        BlockPos var2 = BlockPos.containing(var0.maxX, var0.maxY, var0.maxZ);
+        Either<Integer, CommandSyntaxException> var3 = FillBiomeCommand.fill(
+            this.getLevel(), var1, var2, this.getLevel().registryAccess().registryOrThrow(Registries.BIOME).getHolderOrThrow(param0)
+        );
+        if (var3.right().isPresent()) {
+            this.fail("Failed to set biome for test");
+        }
+
     }
 }

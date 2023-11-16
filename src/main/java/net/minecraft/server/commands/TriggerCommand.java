@@ -15,9 +15,10 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ObjectiveArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ReadOnlyScoreInfo;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.criteria.ObjectiveCriteria;
 
@@ -37,8 +38,7 @@ public class TriggerCommand {
                         .suggests((param0x, param1) -> suggestObjectives(param0x.getSource(), param1))
                         .executes(
                             param0x -> simpleTrigger(
-                                    param0x.getSource(),
-                                    getScore(param0x.getSource().getPlayerOrException(), ObjectiveArgument.getObjective(param0x, "objective"))
+                                    param0x.getSource(), param0x.getSource().getPlayerOrException(), ObjectiveArgument.getObjective(param0x, "objective")
                                 )
                         )
                         .then(
@@ -48,7 +48,8 @@ public class TriggerCommand {
                                         .executes(
                                             param0x -> addValue(
                                                     param0x.getSource(),
-                                                    getScore(param0x.getSource().getPlayerOrException(), ObjectiveArgument.getObjective(param0x, "objective")),
+                                                    param0x.getSource().getPlayerOrException(),
+                                                    ObjectiveArgument.getObjective(param0x, "objective"),
                                                     IntegerArgumentType.getInteger(param0x, "value")
                                                 )
                                         )
@@ -61,7 +62,8 @@ public class TriggerCommand {
                                         .executes(
                                             param0x -> setValue(
                                                     param0x.getSource(),
-                                                    getScore(param0x.getSource().getPlayerOrException(), ObjectiveArgument.getObjective(param0x, "objective")),
+                                                    param0x.getSource().getPlayerOrException(),
+                                                    ObjectiveArgument.getObjective(param0x, "objective"),
                                                     IntegerArgumentType.getInteger(param0x, "value")
                                                 )
                                         )
@@ -72,17 +74,16 @@ public class TriggerCommand {
     }
 
     public static CompletableFuture<Suggestions> suggestObjectives(CommandSourceStack param0, SuggestionsBuilder param1) {
-        Entity var0 = param0.getEntity();
+        ScoreHolder var0 = param0.getEntity();
         List<String> var1 = Lists.newArrayList();
         if (var0 != null) {
             Scoreboard var2 = param0.getServer().getScoreboard();
-            String var3 = var0.getScoreboardName();
 
-            for(Objective var4 : var2.getObjectives()) {
-                if (var4.getCriteria() == ObjectiveCriteria.TRIGGER && var2.hasPlayerScore(var3, var4)) {
-                    Score var5 = var2.getOrCreatePlayerScore(var3, var4);
-                    if (!var5.isLocked()) {
-                        var1.add(var4.getName());
+            for(Objective var3 : var2.getObjectives()) {
+                if (var3.getCriteria() == ObjectiveCriteria.TRIGGER) {
+                    ReadOnlyScoreInfo var4 = var2.getPlayerScoreInfo(var0, var3);
+                    if (var4 != null && !var4.isLocked()) {
+                        var1.add(var3.getName());
                     }
                 }
             }
@@ -91,40 +92,38 @@ public class TriggerCommand {
         return SharedSuggestionProvider.suggest(var1, param1);
     }
 
-    private static int addValue(CommandSourceStack param0, Score param1, int param2) {
-        param1.add(param2);
-        param0.sendSuccess(() -> Component.translatable("commands.trigger.add.success", param1.getObjective().getFormattedDisplayName(), param2), true);
-        return param1.getScore();
+    private static int addValue(CommandSourceStack param0, ServerPlayer param1, Objective param2, int param3) throws CommandSyntaxException {
+        ScoreAccess var0 = getScore(param0.getServer().getScoreboard(), param1, param2);
+        int var1 = var0.add(param3);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.add.success", param2.getFormattedDisplayName(), param3), true);
+        return var1;
     }
 
-    private static int setValue(CommandSourceStack param0, Score param1, int param2) {
-        param1.setScore(param2);
-        param0.sendSuccess(() -> Component.translatable("commands.trigger.set.success", param1.getObjective().getFormattedDisplayName(), param2), true);
-        return param2;
+    private static int setValue(CommandSourceStack param0, ServerPlayer param1, Objective param2, int param3) throws CommandSyntaxException {
+        ScoreAccess var0 = getScore(param0.getServer().getScoreboard(), param1, param2);
+        var0.set(param3);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.set.success", param2.getFormattedDisplayName(), param3), true);
+        return param3;
     }
 
-    private static int simpleTrigger(CommandSourceStack param0, Score param1) {
-        param1.add(1);
-        param0.sendSuccess(() -> Component.translatable("commands.trigger.simple.success", param1.getObjective().getFormattedDisplayName()), true);
-        return param1.getScore();
+    private static int simpleTrigger(CommandSourceStack param0, ServerPlayer param1, Objective param2) throws CommandSyntaxException {
+        ScoreAccess var0 = getScore(param0.getServer().getScoreboard(), param1, param2);
+        int var1 = var0.add(1);
+        param0.sendSuccess(() -> Component.translatable("commands.trigger.simple.success", param2.getFormattedDisplayName()), true);
+        return var1;
     }
 
-    private static Score getScore(ServerPlayer param0, Objective param1) throws CommandSyntaxException {
-        if (param1.getCriteria() != ObjectiveCriteria.TRIGGER) {
+    private static ScoreAccess getScore(Scoreboard param0, ScoreHolder param1, Objective param2) throws CommandSyntaxException {
+        if (param2.getCriteria() != ObjectiveCriteria.TRIGGER) {
             throw ERROR_INVALID_OBJECTIVE.create();
         } else {
-            Scoreboard var0 = param0.getScoreboard();
-            String var1 = param0.getScoreboardName();
-            if (!var0.hasPlayerScore(var1, param1)) {
-                throw ERROR_NOT_PRIMED.create();
+            ReadOnlyScoreInfo var0 = param0.getPlayerScoreInfo(param1, param2);
+            if (var0 != null && !var0.isLocked()) {
+                ScoreAccess var1 = param0.getOrCreatePlayerScore(param1, param2);
+                var1.lock();
+                return var1;
             } else {
-                Score var2 = var0.getOrCreatePlayerScore(var1, param1);
-                if (var2.isLocked()) {
-                    throw ERROR_NOT_PRIMED.create();
-                } else {
-                    var2.setLocked(true);
-                    return var2;
-                }
+                throw ERROR_NOT_PRIMED.create();
             }
         }
     }

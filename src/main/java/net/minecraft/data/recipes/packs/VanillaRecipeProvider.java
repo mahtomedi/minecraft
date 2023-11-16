@@ -684,7 +684,7 @@ public class VanillaRecipeProvider extends RecipeProvider {
             .group(getItemName(Items.COPPER_INGOT))
             .unlockedBy(getHasName(Blocks.WAXED_COPPER_BLOCK), has(Blocks.WAXED_COPPER_BLOCK))
             .save(param0, getConversionRecipeName(Items.COPPER_INGOT, Blocks.WAXED_COPPER_BLOCK));
-        waxRecipes(param0);
+        waxRecipes(param0, FeatureFlagSet.of(FeatureFlags.VANILLA));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.CYAN_DYE, 2)
             .requires(Items.BLUE_DYE)
             .requires(Items.GREEN_DYE)

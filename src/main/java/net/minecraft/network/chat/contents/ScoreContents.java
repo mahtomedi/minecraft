@@ -14,14 +14,15 @@ import net.minecraft.commands.arguments.selector.EntitySelectorParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ReadOnlyScoreInfo;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ScoreContents implements ComponentContents {
-    private static final String SCORER_PLACEHOLDER = "*";
     public static final MapCodec<ScoreContents> INNER_CODEC = RecordCodecBuilder.mapCodec(
         param0 -> param0.group(
                     Codec.STRING.fieldOf("name").forGetter(ScoreContents::getName), Codec.STRING.fieldOf("objective").forGetter(ScoreContents::getObjective)
@@ -68,7 +69,7 @@ public class ScoreContents implements ComponentContents {
         return this.objective;
     }
 
-    private String findTargetName(CommandSourceStack param0) throws CommandSyntaxException {
+    private ScoreHolder findTargetName(CommandSourceStack param0) throws CommandSyntaxException {
         if (this.selector != null) {
             List<? extends Entity> var0 = this.selector.findEntities(param0);
             if (!var0.isEmpty()) {
@@ -76,25 +77,27 @@ public class ScoreContents implements ComponentContents {
                     throw EntityArgument.ERROR_NOT_SINGLE_ENTITY.create();
                 }
 
-                return var0.get(0).getScoreboardName();
+                return var0.get(0);
             }
         }
 
-        return this.name;
+        return ScoreHolder.forNameOnly(this.name);
     }
 
-    private String getScore(String param0, CommandSourceStack param1) {
+    private MutableComponent getScore(ScoreHolder param0, CommandSourceStack param1) {
         MinecraftServer var0 = param1.getServer();
         if (var0 != null) {
             Scoreboard var1 = var0.getScoreboard();
             Objective var2 = var1.getObjective(this.objective);
-            if (var2 != null && var1.hasPlayerScore(param0, var2)) {
-                Score var3 = var1.getOrCreatePlayerScore(param0, var2);
-                return Integer.toString(var3.getScore());
+            if (var2 != null) {
+                ReadOnlyScoreInfo var3 = var1.getPlayerScoreInfo(param0, var2);
+                if (var3 != null) {
+                    return var3.formatValue(var2.numberFormatOrDefault(StyledFormat.NO_STYLE));
+                }
             }
         }
 
-        return "";
+        return Component.empty();
     }
 
     @Override
@@ -102,9 +105,9 @@ public class ScoreContents implements ComponentContents {
         if (param0 == null) {
             return Component.empty();
         } else {
-            String var0 = this.findTargetName(param0);
-            String var1 = param1 != null && var0.equals("*") ? param1.getScoreboardName() : var0;
-            return Component.literal(this.getScore(var1, param0));
+            ScoreHolder var0 = this.findTargetName(param0);
+            ScoreHolder var1 = (ScoreHolder)(param1 != null && var0.equals(ScoreHolder.WILDCARD) ? param1 : var0);
+            return this.getScore(var1, param0);
         }
     }
 

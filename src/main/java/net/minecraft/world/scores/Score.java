@@ -1,77 +1,88 @@
 package net.minecraft.world.scores;
 
-import java.util.Comparator;
+import javax.annotation.Nullable;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.numbers.NumberFormat;
+import net.minecraft.network.chat.numbers.NumberFormatTypes;
 
-public class Score {
-    public static final Comparator<Score> SCORE_COMPARATOR = (param0, param1) -> {
-        if (param0.getScore() > param1.getScore()) {
-            return 1;
-        } else {
-            return param0.getScore() < param1.getScore() ? -1 : param1.getOwner().compareToIgnoreCase(param0.getOwner());
-        }
-    };
-    private final Scoreboard scoreboard;
-    private final Objective objective;
-    private final String owner;
-    private int count;
-    private boolean locked;
-    private boolean forceUpdate;
+public class Score implements ReadOnlyScoreInfo {
+    private static final String TAG_SCORE = "Score";
+    private static final String TAG_LOCKED = "Locked";
+    private static final String TAG_DISPLAY = "display";
+    private static final String TAG_FORMAT = "format";
+    private int value;
+    private boolean locked = true;
+    @Nullable
+    private Component display;
+    @Nullable
+    private NumberFormat numberFormat;
 
-    public Score(Scoreboard param0, Objective param1, String param2) {
-        this.scoreboard = param0;
-        this.objective = param1;
-        this.owner = param2;
-        this.locked = true;
-        this.forceUpdate = true;
+    @Override
+    public int value() {
+        return this.value;
     }
 
-    public void add(int param0) {
-        if (this.objective.getCriteria().isReadOnly()) {
-            throw new IllegalStateException("Cannot modify read-only score");
-        } else {
-            this.setScore(this.getScore() + param0);
-        }
+    public void value(int param0) {
+        this.value = param0;
     }
 
-    public void increment() {
-        this.add(1);
-    }
-
-    public int getScore() {
-        return this.count;
-    }
-
-    public void reset() {
-        this.setScore(0);
-    }
-
-    public void setScore(int param0) {
-        int var0 = this.count;
-        this.count = param0;
-        if (var0 != param0 || this.forceUpdate) {
-            this.forceUpdate = false;
-            this.getScoreboard().onScoreChanged(this);
-        }
-
-    }
-
-    public Objective getObjective() {
-        return this.objective;
-    }
-
-    public String getOwner() {
-        return this.owner;
-    }
-
-    public Scoreboard getScoreboard() {
-        return this.scoreboard;
-    }
-
+    @Override
     public boolean isLocked() {
         return this.locked;
     }
 
     public void setLocked(boolean param0) {
         this.locked = param0;
+    }
+
+    @Nullable
+    public Component display() {
+        return this.display;
+    }
+
+    public void display(@Nullable Component param0) {
+        this.display = param0;
+    }
+
+    @Nullable
+    @Override
+    public NumberFormat numberFormat() {
+        return this.numberFormat;
+    }
+
+    public void numberFormat(@Nullable NumberFormat param0) {
+        this.numberFormat = param0;
+    }
+
+    public CompoundTag write() {
+        CompoundTag var0 = new CompoundTag();
+        var0.putInt("Score", this.value);
+        var0.putBoolean("Locked", this.locked);
+        if (this.display != null) {
+            var0.putString("display", Component.Serializer.toJson(this.display));
+        }
+
+        if (this.numberFormat != null) {
+            NumberFormatTypes.CODEC.encodeStart(NbtOps.INSTANCE, this.numberFormat).result().ifPresent(param1 -> var0.put("format", param1));
+        }
+
+        return var0;
+    }
+
+    public static Score read(CompoundTag param0) {
+        Score var0 = new Score();
+        var0.value = param0.getInt("Score");
+        var0.locked = param0.getBoolean("Locked");
+        if (param0.contains("display", 8)) {
+            var0.display = Component.Serializer.fromJson(param0.getString("display"));
+        }
+
+        if (param0.contains("format", 10)) {
+            NumberFormatTypes.CODEC.parse(NbtOps.INSTANCE, param0.get("format")).result().ifPresent(param1 -> var0.numberFormat = param1);
+        }
+
+        return var0;
     }
 }

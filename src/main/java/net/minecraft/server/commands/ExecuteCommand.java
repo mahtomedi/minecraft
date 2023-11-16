@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.IntPredicate;
@@ -106,7 +105,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Objective;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ReadOnlyScoreInfo;
+import net.minecraft.world.scores.ScoreAccess;
+import net.minecraft.world.scores.ScoreHolder;
 import net.minecraft.world.scores.Scoreboard;
 
 public class ExecuteCommand {
@@ -426,13 +427,13 @@ public class ExecuteCommand {
         return param1;
     }
 
-    private static CommandSourceStack storeValue(CommandSourceStack param0, Collection<String> param1, Objective param2, boolean param3) {
+    private static CommandSourceStack storeValue(CommandSourceStack param0, Collection<ScoreHolder> param1, Objective param2, boolean param3) {
         Scoreboard var0 = param0.getServer().getScoreboard();
         return param0.withCallback((param4, param5) -> {
-            for(String var0x : param1) {
-                Score var1x = var0.getOrCreatePlayerScore(var0x, param2);
+            for(ScoreHolder var0x : param1) {
+                ScoreAccess var1x = var0.getOrCreatePlayerScore(var0x, param2);
                 int var2x = param3 ? param5 : (param4 ? 1 : 0);
-                var1x.setScore(var2x);
+                var1x.set(var2x);
             }
 
         }, CommandResultCallback::chain);
@@ -547,7 +548,7 @@ public class ExecuteCommand {
                                                             param0,
                                                             Commands.argument("sourceObjective", ObjectiveArgument.objective()),
                                                             param2,
-                                                            param0x -> checkScore(param0x, Integer::equals)
+                                                            param0x -> checkScore(param0x, (param0xx, param1x) -> param0xx == param1x)
                                                         )
                                                     )
                                             )
@@ -715,26 +716,23 @@ public class ExecuteCommand {
         return param1.countMatching(param0.getData());
     }
 
-    private static boolean checkScore(CommandContext<CommandSourceStack> param0, BiPredicate<Integer, Integer> param1) throws CommandSyntaxException {
-        String var0 = ScoreHolderArgument.getName(param0, "target");
+    private static boolean checkScore(CommandContext<CommandSourceStack> param0, ExecuteCommand.IntBiPredicate param1) throws CommandSyntaxException {
+        ScoreHolder var0 = ScoreHolderArgument.getName(param0, "target");
         Objective var1 = ObjectiveArgument.getObjective(param0, "targetObjective");
-        String var2 = ScoreHolderArgument.getName(param0, "source");
+        ScoreHolder var2 = ScoreHolderArgument.getName(param0, "source");
         Objective var3 = ObjectiveArgument.getObjective(param0, "sourceObjective");
         Scoreboard var4 = param0.getSource().getServer().getScoreboard();
-        if (var4.hasPlayerScore(var0, var1) && var4.hasPlayerScore(var2, var3)) {
-            Score var5 = var4.getOrCreatePlayerScore(var0, var1);
-            Score var6 = var4.getOrCreatePlayerScore(var2, var3);
-            return param1.test(var5.getScore(), var6.getScore());
-        } else {
-            return false;
-        }
+        ReadOnlyScoreInfo var5 = var4.getPlayerScoreInfo(var0, var1);
+        ReadOnlyScoreInfo var6 = var4.getPlayerScoreInfo(var2, var3);
+        return var5 != null && var6 != null ? param1.test(var5.value(), var6.value()) : false;
     }
 
     private static boolean checkScore(CommandContext<CommandSourceStack> param0, MinMaxBounds.Ints param1) throws CommandSyntaxException {
-        String var0 = ScoreHolderArgument.getName(param0, "target");
+        ScoreHolder var0 = ScoreHolderArgument.getName(param0, "target");
         Objective var1 = ObjectiveArgument.getObjective(param0, "targetObjective");
         Scoreboard var2 = param0.getSource().getServer().getScoreboard();
-        return !var2.hasPlayerScore(var0, var1) ? false : param1.matches(var2.getOrCreatePlayerScore(var0, var1).getScore());
+        ReadOnlyScoreInfo var3 = var2.getPlayerScoreInfo(var0, var1);
+        return var3 == null ? false : param1.matches(var3.value());
     }
 
     private static boolean checkCustomPredicate(CommandSourceStack param0, LootItemCondition param1) {
@@ -1024,5 +1022,10 @@ public class ExecuteCommand {
                 param3
             );
         }
+    }
+
+    @FunctionalInterface
+    interface IntBiPredicate {
+        boolean test(int var1, int var2);
     }
 }

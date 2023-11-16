@@ -26,12 +26,11 @@ public class SoundOptionsScreen extends OptionsSubScreen {
 
     @Override
     protected void init() {
-        this.list = new OptionsList(this.minecraft, this.width, this.height, 32, this.height - 32, 25);
+        this.list = this.addRenderableWidget(new OptionsList(this.minecraft, this.width, this.height - 64, 32, 25));
         this.list.addBig(this.options.getSoundSourceOptionInstance(SoundSource.MASTER));
         this.list.addSmall(this.getAllSoundOptionsExceptMaster());
         this.list.addBig(this.options.soundDevice());
         this.list.addSmall(buttonOptions(this.options));
-        this.addWidget(this.list);
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, param0 -> {
             this.minecraft.options.save();
             this.minecraft.setScreen(this.lastScreen);
@@ -47,7 +46,8 @@ public class SoundOptionsScreen extends OptionsSubScreen {
 
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
-        this.basicListRender(param0, this.list, param1, param2, param3);
+        super.render(param0, param1, param2, param3);
+        param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
     }
 
     @Override

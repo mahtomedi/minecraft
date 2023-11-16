@@ -14,7 +14,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.scores.Score;
+import net.minecraft.world.scores.ScoreAccess;
 
 public class OperationArgument implements ArgumentType<OperationArgument.Operation> {
     private static final Collection<String> EXAMPLES = Arrays.asList("=", ">", "<");
@@ -57,50 +57,41 @@ public class OperationArgument implements ArgumentType<OperationArgument.Operati
 
     private static OperationArgument.Operation getOperation(String param0) throws CommandSyntaxException {
         return (OperationArgument.Operation)(param0.equals("><") ? (param0x, param1) -> {
-            int var0x = param0x.getScore();
-            param0x.setScore(param1.getScore());
-            param1.setScore(var0x);
+            int var0x = param0x.get();
+            param0x.set(param1.get());
+            param1.set(var0x);
         } : getSimpleOperation(param0));
     }
 
     private static OperationArgument.SimpleOperation getSimpleOperation(String param0) throws CommandSyntaxException {
-        switch(param0) {
-            case "=":
-                return (param0x, param1) -> param1;
-            case "+=":
-                return (param0x, param1) -> param0x + param1;
-            case "-=":
-                return (param0x, param1) -> param0x - param1;
-            case "*=":
-                return (param0x, param1) -> param0x * param1;
-            case "/=":
-                return (param0x, param1) -> {
-                    if (param1 == 0) {
-                        throw ERROR_DIVIDE_BY_ZERO.create();
-                    } else {
-                        return Mth.floorDiv(param0x, param1);
-                    }
-                };
-            case "%=":
-                return (param0x, param1) -> {
-                    if (param1 == 0) {
-                        throw ERROR_DIVIDE_BY_ZERO.create();
-                    } else {
-                        return Mth.positiveModulo(param0x, param1);
-                    }
-                };
-            case "<":
-                return Math::min;
-            case ">":
-                return Math::max;
-            default:
-                throw ERROR_INVALID_OPERATION.create();
-        }
+        return switch(param0) {
+            case "=" -> (param0x, param1) -> param1;
+            case "+=" -> Integer::sum;
+            case "-=" -> (param0x, param1) -> param0x - param1;
+            case "*=" -> (param0x, param1) -> param0x * param1;
+            case "/=" -> (param0x, param1) -> {
+            if (param1 == 0) {
+                throw ERROR_DIVIDE_BY_ZERO.create();
+            } else {
+                return Mth.floorDiv(param0x, param1);
+            }
+        };
+            case "%=" -> (param0x, param1) -> {
+            if (param1 == 0) {
+                throw ERROR_DIVIDE_BY_ZERO.create();
+            } else {
+                return Mth.positiveModulo(param0x, param1);
+            }
+        };
+            case "<" -> Math::min;
+            case ">" -> Math::max;
+            default -> throw ERROR_INVALID_OPERATION.create();
+        };
     }
 
     @FunctionalInterface
     public interface Operation {
-        void apply(Score var1, Score var2) throws CommandSyntaxException;
+        void apply(ScoreAccess var1, ScoreAccess var2) throws CommandSyntaxException;
     }
 
     @FunctionalInterface
@@ -108,8 +99,8 @@ public class OperationArgument implements ArgumentType<OperationArgument.Operati
         int apply(int var1, int var2) throws CommandSyntaxException;
 
         @Override
-        default void apply(Score param0, Score param1) throws CommandSyntaxException {
-            param0.setScore(this.apply(param0.getScore(), param1.getScore()));
+        default void apply(ScoreAccess param0, ScoreAccess param1) throws CommandSyntaxException {
+            param0.set(this.apply(param0.get(), param1.get()));
         }
     }
 }

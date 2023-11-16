@@ -58,7 +58,7 @@ public class JoinMultiplayerScreen extends Screen {
     @Override
     protected void init() {
         if (this.initedOnce) {
-            this.serverSelectionList.updateSize(this.width, this.height, 32, this.height - 64);
+            this.serverSelectionList.setRectangle(this.width, this.height - 64 - 32, 0, 32);
         } else {
             this.initedOnce = true;
             this.servers = new ServerList(this.minecraft);
@@ -72,11 +72,11 @@ public class JoinMultiplayerScreen extends Screen {
                 LOGGER.warn("Unable to start LAN server detection: {}", var8.getMessage());
             }
 
-            this.serverSelectionList = new ServerSelectionList(this, this.minecraft, this.width, this.height, 32, this.height - 64, 36);
+            this.serverSelectionList = new ServerSelectionList(this, this.minecraft, this.width, this.height - 64 - 32, 32, 36);
             this.serverSelectionList.updateOnlineServers(this.servers);
         }
 
-        this.addWidget(this.serverSelectionList);
+        this.addRenderableWidget(this.serverSelectionList);
         this.selectButton = this.addRenderableWidget(
             Button.builder(Component.translatable("selectServer.select"), param0 -> this.joinSelectedServer()).width(100).build()
         );
@@ -241,7 +241,6 @@ public class JoinMultiplayerScreen extends Screen {
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
         this.toolTip = null;
-        this.serverSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
         if (this.toolTip != null) {
             param0.renderComponentTooltip(this.font, this.toolTip, param1, param2);

@@ -56,8 +56,7 @@ public class CreateFlatWorldScreen extends Screen {
     protected void init() {
         this.columnType = Component.translatable("createWorld.customize.flat.tile");
         this.columnHeight = Component.translatable("createWorld.customize.flat.height");
-        this.list = new CreateFlatWorldScreen.DetailsList();
-        this.addWidget(this.list);
+        this.list = this.addRenderableWidget(new CreateFlatWorldScreen.DetailsList());
         this.deleteLayerButton = this.addRenderableWidget(Button.builder(Component.translatable("createWorld.customize.flat.removeLayer"), param0 -> {
             if (this.hasValidSelection()) {
                 List<FlatLayerInfo> var0 = this.generator.getLayersInfo();
@@ -104,7 +103,6 @@ public class CreateFlatWorldScreen extends Screen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
-        this.list.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
         int var0 = this.width / 2 - 92 - 16;
         param0.drawString(this.font, this.columnType, var0, 32, 16777215);
@@ -113,17 +111,8 @@ public class CreateFlatWorldScreen extends Screen {
 
     @OnlyIn(Dist.CLIENT)
     class DetailsList extends ObjectSelectionList<CreateFlatWorldScreen.DetailsList.Entry> {
-        private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
-
         public DetailsList() {
-            super(
-                CreateFlatWorldScreen.this.minecraft,
-                CreateFlatWorldScreen.this.width,
-                CreateFlatWorldScreen.this.height,
-                43,
-                CreateFlatWorldScreen.this.height - 60,
-                24
-            );
+            super(CreateFlatWorldScreen.this.minecraft, CreateFlatWorldScreen.this.width, CreateFlatWorldScreen.this.height - 103, 43, 24);
 
             for(int param0 = 0; param0 < CreateFlatWorldScreen.this.generator.getLayersInfo().size(); ++param0) {
                 this.addEntry(new CreateFlatWorldScreen.DetailsList.Entry());

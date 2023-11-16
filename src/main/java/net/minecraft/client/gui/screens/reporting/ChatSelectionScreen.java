@@ -63,8 +63,9 @@ public class ChatSelectionScreen extends Screen {
     protected void init() {
         this.chatLogFiller = new ChatSelectionLogFiller(this.reportingContext, this::canReport);
         this.contextInfoLabel = MultiLineLabel.create(this.font, CONTEXT_INFO, this.width - 16);
-        this.chatSelectionList = new ChatSelectionScreen.ChatSelectionList(this.minecraft, (this.contextInfoLabel.getLineCount() + 1) * 9);
-        this.addWidget(this.chatSelectionList);
+        this.chatSelectionList = this.addRenderableWidget(
+            new ChatSelectionScreen.ChatSelectionList(this.minecraft, (this.contextInfoLabel.getLineCount() + 1) * 9)
+        );
         this.addRenderableWidget(
             Button.builder(CommonComponents.GUI_BACK, param0 -> this.onClose()).bounds(this.width / 2 - 155, this.height - 32, 150, 20).build()
         );
@@ -97,7 +98,6 @@ public class ChatSelectionScreen extends Screen {
     @Override
     public void render(GuiGraphics param0, int param1, int param2, float param3) {
         super.render(param0, param1, param2, param3);
-        this.chatSelectionList.render(param0, param1, param2, param3);
         param0.drawCenteredString(this.font, this.title, this.width / 2, 16, 16777215);
         AbuseReportLimits var0 = this.reportingContext.sender().reportLimits();
         int var1 = this.report.reportedMessages().size();
@@ -128,7 +128,7 @@ public class ChatSelectionScreen extends Screen {
         private ChatSelectionScreen.ChatSelectionList.Heading previousHeading;
 
         public ChatSelectionList(Minecraft param1, int param2) {
-            super(param1, ChatSelectionScreen.this.width, ChatSelectionScreen.this.height, 40, ChatSelectionScreen.this.height - 40 - param2, 16);
+            super(param1, ChatSelectionScreen.this.width, ChatSelectionScreen.this.height - param2 - 80, 40, 16);
         }
 
         @Override
@@ -185,7 +185,7 @@ public class ChatSelectionScreen extends Screen {
         }
 
         public int getMaxVisibleEntries() {
-            return Mth.positiveCeilDiv(this.y1 - this.y0, this.itemHeight);
+            return Mth.positiveCeilDiv(this.height, this.itemHeight);
         }
 
         @Override
@@ -232,7 +232,7 @@ public class ChatSelectionScreen extends Screen {
         }
 
         public int getFooterTop() {
-            return this.y1 + 9;
+            return this.getBottom() + 9;
         }
 
         @OnlyIn(Dist.CLIENT)

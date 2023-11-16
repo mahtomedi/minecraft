@@ -5,9 +5,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
 import javax.annotation.Nullable;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
+import net.minecraft.world.scores.ScoreHolder;
 
 public record ContextScoreboardNameProvider(LootContext.EntityTarget target) implements ScoreboardNameProvider {
     public static final Codec<ContextScoreboardNameProvider> CODEC = RecordCodecBuilder.create(
@@ -28,9 +28,8 @@ public record ContextScoreboardNameProvider(LootContext.EntityTarget target) imp
 
     @Nullable
     @Override
-    public String getScoreboardName(LootContext param0) {
-        Entity var0 = param0.getParamOrNull(this.target.getParam());
-        return var0 != null ? var0.getScoreboardName() : null;
+    public ScoreHolder getScoreHolder(LootContext param0) {
+        return param0.getParamOrNull(this.target.getParam());
     }
 
     @Override

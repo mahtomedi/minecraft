@@ -20,8 +20,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class ContainerObjectSelectionList<E extends ContainerObjectSelectionList.Entry<E>> extends AbstractSelectionList<E> {
-    public ContainerObjectSelectionList(Minecraft param0, int param1, int param2, int param3, int param4, int param5) {
-        super(param0, param1, param2, param3, param4, param5);
+    public ContainerObjectSelectionList(Minecraft param0, int param1, int param2, int param3, int param4) {
+        super(param0, param1, param2, param3, param4);
     }
 
     @Nullable
@@ -95,7 +95,7 @@ public abstract class ContainerObjectSelectionList<E extends ContainerObjectSele
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput param0) {
+    public void updateWidgetNarration(NarrationElementOutput param0) {
         E var0 = this.getHovered();
         if (var0 != null) {
             var0.updateNarration(param0.nest());
