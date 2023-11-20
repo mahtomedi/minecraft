@@ -385,52 +385,65 @@ public class KeyboardHandler {
             }
 
             if (this.minecraft.getNarrator().isActive() && this.minecraft.options.narratorHotkey().get()) {
-                boolean var2 = var1 == null || !(var1.getFocused() instanceof EditBox) || !((EditBox)var1.getFocused()).canConsumeInput();
-                if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var2) {
-                    boolean var3 = this.minecraft.options.narrator().get() == NarratorStatus.OFF;
+                boolean var10000;
+                label136: {
+                    if (var1 != null) {
+                        GuiEventListener var9 = var1.getFocused();
+                        if (var9 instanceof EditBox var2 && var2.canConsumeInput()) {
+                            var10000 = false;
+                            break label136;
+                        }
+                    }
+
+                    var10000 = true;
+                }
+
+                boolean var4 = var10000;
+                if (param3 != 0 && param1 == 66 && Screen.hasControlDown() && var4) {
+                    boolean var5 = this.minecraft.options.narrator().get() == NarratorStatus.OFF;
                     this.minecraft.options.narrator().set(NarratorStatus.byId(this.minecraft.options.narrator().get().getId() + 1));
                     this.minecraft.options.save();
                     if (var1 instanceof SimpleOptionsSubScreen) {
                         ((SimpleOptionsSubScreen)var1).updateNarratorButton();
                     }
 
-                    if (var3 && var1 != null) {
+                    if (var5 && var1 != null) {
                         var1.narrationEnabled();
                     }
                 }
             }
 
             if (var1 != null) {
-                boolean[] var4 = new boolean[]{false};
+                boolean[] var6 = new boolean[]{false};
                 Screen.wrapScreenError(() -> {
                     if (param3 == 1 || param3 == 2) {
                         var1.afterKeyboardAction();
-                        var4[0] = var1.keyPressed(param1, param2, param4);
+                        var6[0] = var1.keyPressed(param1, param2, param4);
                     } else if (param3 == 0) {
-                        var4[0] = var1.keyReleased(param1, param2, param4);
+                        var6[0] = var1.keyReleased(param1, param2, param4);
                     }
 
                 }, "keyPressed event handler", var1.getClass().getCanonicalName());
-                if (var4[0]) {
+                if (var6[0]) {
                     return;
                 }
             }
 
             if (this.minecraft.screen != null) {
-                Screen var14 = this.minecraft.screen;
-                if (!(var14 instanceof PauseScreen)) {
+                Screen var15 = this.minecraft.screen;
+                if (!(var15 instanceof PauseScreen)) {
                     return;
                 }
 
-                PauseScreen var5 = (PauseScreen)var14;
-                if (var5.showsPauseMenu()) {
+                PauseScreen var7 = (PauseScreen)var15;
+                if (var7.showsPauseMenu()) {
                     return;
                 }
             }
 
-            InputConstants.Key var6 = InputConstants.getKey(param1, param2);
+            InputConstants.Key var8 = InputConstants.getKey(param1, param2);
             if (param3 == 0) {
-                KeyMapping.set(var6, false);
+                KeyMapping.set(var8, false);
                 if (param1 == 292) {
                     if (this.handledDebugKey) {
                         this.handledDebugKey = false;
@@ -443,23 +456,23 @@ public class KeyboardHandler {
                     this.minecraft.gameRenderer.togglePostEffect();
                 }
 
-                boolean var7 = false;
+                boolean var9 = false;
                 if (param1 == 256) {
                     this.minecraft.pauseGame(var0);
-                    var7 |= var0;
+                    var9 |= var0;
                 }
 
-                var7 |= var0 && this.handleDebugKeys(param1);
-                this.handledDebugKey |= var7;
+                var9 |= var0 && this.handleDebugKeys(param1);
+                this.handledDebugKey |= var9;
                 if (param1 == 290) {
                     this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
                 }
 
-                if (var7) {
-                    KeyMapping.set(var6, false);
+                if (var9) {
+                    KeyMapping.set(var8, false);
                 } else {
-                    KeyMapping.set(var6, true);
-                    KeyMapping.click(var6);
+                    KeyMapping.set(var8, true);
+                    KeyMapping.click(var8);
                 }
 
                 if (this.minecraft.getDebugOverlay().showProfilerChart() && !var0 && param1 >= 48 && param1 <= 57) {

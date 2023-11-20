@@ -1,161 +1,189 @@
 package net.minecraft.util;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.common.hash.Funnels;
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
 import com.mojang.logging.LogUtils;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
+import java.util.OptionalLong;
 import javax.annotation.Nullable;
-import net.minecraft.DefaultUncaughtExceptionHandler;
-import net.minecraft.network.chat.Component;
-import org.apache.commons.io.FileUtils;
+import net.minecraft.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 public class HttpUtil {
     private static final Logger LOGGER = LogUtils.getLogger();
-    public static final ListeningExecutorService DOWNLOAD_EXECUTOR = MoreExecutors.listeningDecorator(
-        Executors.newCachedThreadPool(
-            new ThreadFactoryBuilder()
-                .setDaemon(true)
-                .setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER))
-                .setNameFormat("Downloader %d")
-                .build()
-        )
-    );
 
     private HttpUtil() {
     }
 
-    public static CompletableFuture<?> downloadTo(
-        File param0, URL param1, Map<String, String> param2, int param3, @Nullable ProgressListener param4, Proxy param5
+    public static Path downloadFile(
+        Path param0,
+        URL param1,
+        Map<String, String> param2,
+        HashFunction param3,
+        @Nullable HashCode param4,
+        int param5,
+        Proxy param6,
+        HttpUtil.DownloadProgressListener param7
     ) {
-        return CompletableFuture.supplyAsync(() -> {
-            HttpURLConnection var0x = null;
-            InputStream var1x = null;
-            OutputStream var2x = null;
-            if (param4 != null) {
-                param4.progressStart(Component.translatable("resourcepack.downloading"));
-                param4.progressStage(Component.translatable("resourcepack.requesting"));
+        HttpURLConnection var0 = null;
+        InputStream var1 = null;
+        param7.requestStart();
+        Path var2;
+        if (param4 != null) {
+            var2 = cachedFilePath(param0, param4);
+
+            try {
+                if (checkExistingFile(var2, param3, param4)) {
+                    LOGGER.info("Returning cached file since actual hash matches requested");
+                    param7.requestFinished();
+                    return var2;
+                }
+            } catch (IOException var34) {
+                LOGGER.warn("Failed to check cached file {}", var2, var34);
             }
 
             try {
+                LOGGER.warn("Existing file {} not found or had mismatched hash", var2);
+                Files.deleteIfExists(var2);
+            } catch (IOException var33) {
+                param7.requestFinished();
+                throw new UncheckedIOException("Failed to remove existing file " + var2, var33);
+            }
+        } else {
+            var2 = null;
+        }
+
+        Path var10;
+        try {
+            var0 = (HttpURLConnection)param1.openConnection(param6);
+            var0.setInstanceFollowRedirects(true);
+            param2.forEach(var0::setRequestProperty);
+            var1 = var0.getInputStream();
+            long var6 = var0.getContentLengthLong();
+            OptionalLong var7 = var6 != -1L ? OptionalLong.of(var6) : OptionalLong.empty();
+            FileUtil.createDirectoriesSafe(param0);
+            param7.downloadStart(var7);
+            if (var7.isPresent() && var7.getAsLong() > (long)param5) {
+                throw new IOException("Filesize is bigger than maximum allowed (file is " + var7 + ", limit is " + param5 + ")");
+            }
+
+            if (var2 == null) {
+                Path var9 = Files.createTempFile(param0, "download", ".tmp");
+
                 try {
-                    byte[] var3 = new byte[4096];
-                    var0x = (HttpURLConnection)param1.openConnection(param5);
-                    var0x.setInstanceFollowRedirects(true);
-                    float var4 = 0.0F;
-                    float var5 = (float)param2.entrySet().size();
-
-                    for(Entry<String, String> var6 : param2.entrySet()) {
-                        var0x.setRequestProperty(var6.getKey(), var6.getValue());
-                        if (param4 != null) {
-                            param4.progressStagePercentage((int)(++var4 / var5 * 100.0F));
-                        }
+                    HashCode var10 = downloadAndHash(param3, param5, param7, var1, var9);
+                    Path var11 = cachedFilePath(param0, var10);
+                    if (!checkExistingFile(var11, param3, var10)) {
+                        Files.move(var9, var11, StandardCopyOption.REPLACE_EXISTING);
                     }
 
-                    var1x = var0x.getInputStream();
-                    var5 = (float)var0x.getContentLength();
-                    int var7 = var0x.getContentLength();
-                    if (param4 != null) {
-                        param4.progressStage(Component.translatable("resourcepack.progress", String.format(Locale.ROOT, "%.2f", var5 / 1000.0F / 1000.0F)));
-                    }
+                    return var11;
+                } finally {
+                    Files.deleteIfExists(var9);
+                }
+            }
 
-                    if (param0.exists()) {
-                        long var8 = param0.length();
-                        if (var8 == (long)var7) {
-                            if (param4 != null) {
-                                param4.stop();
-                            }
+            HashCode var8 = downloadAndHash(param3, param5, param7, var1, var2);
+            if (!var8.equals(param4)) {
+                throw new IOException("Hash of downloaded file (" + var8 + ") did not match requested (" + param4 + ")");
+            }
 
-                            return null;
-                        }
-
-                        LOGGER.warn("Deleting {} as it does not match what we currently have ({} vs our {}).", param0, var7, var8);
-                        FileUtils.deleteQuietly(param0);
-                    } else if (param0.getParentFile() != null) {
-                        param0.getParentFile().mkdirs();
-                    }
-
-                    var2x = new DataOutputStream(new FileOutputStream(param0));
-                    if (param3 > 0 && var5 > (float)param3) {
-                        if (param4 != null) {
-                            param4.stop();
-                        }
-
-                        throw new IOException("Filesize is bigger than maximum allowed (file is " + var4 + ", limit is " + param3 + ")");
-                    }
-
-                    int var9;
-                    while((var9 = var1x.read(var3)) >= 0) {
-                        var4 += (float)var9;
-                        if (param4 != null) {
-                            param4.progressStagePercentage((int)(var4 / var5 * 100.0F));
-                        }
-
-                        if (param3 > 0 && var4 > (float)param3) {
-                            if (param4 != null) {
-                                param4.stop();
-                            }
-
-                            throw new IOException("Filesize was bigger than maximum allowed (got >= " + var4 + ", limit was " + param3 + ")");
-                        }
-
-                        if (Thread.interrupted()) {
-                            LOGGER.error("INTERRUPTED");
-                            if (param4 != null) {
-                                param4.stop();
-                            }
-
-                            return null;
-                        }
-
-                        var2x.write(var3, 0, var9);
-                    }
-
-                    if (param4 != null) {
-                        param4.stop();
-                        return null;
-                    }
-                } catch (Throwable var21) {
-                    LOGGER.error("Failed to download file", var21);
-                    if (var0x != null) {
-                        InputStream var11 = var0x.getErrorStream();
-
-                        try {
-                            LOGGER.error("HTTP response error: {}", IOUtils.toString(var11, StandardCharsets.UTF_8));
-                        } catch (IOException var20) {
-                            LOGGER.error("Failed to read response from server");
-                        }
-                    }
-
-                    if (param4 != null) {
-                        param4.stop();
-                        return null;
+            var10 = var2;
+        } catch (Throwable var36) {
+            if (var0 != null) {
+                InputStream var13 = var0.getErrorStream();
+                if (var13 != null) {
+                    try {
+                        LOGGER.error("HTTP response error: {}", IOUtils.toString(var13, StandardCharsets.UTF_8));
+                    } catch (Exception var32) {
+                        LOGGER.error("Failed to read response from server");
                     }
                 }
-
-                return null;
-            } finally {
-                IOUtils.closeQuietly(var1x);
-                IOUtils.closeQuietly(var2x);
             }
-        }, DOWNLOAD_EXECUTOR);
+
+            throw new IllegalStateException("Failed to download file " + param1, var36);
+        } finally {
+            param7.requestFinished();
+            IOUtils.closeQuietly(var1);
+        }
+
+        return var10;
+    }
+
+    private static HashCode hashFile(Path param0, HashFunction param1) throws IOException {
+        Hasher var0 = param1.newHasher();
+
+        try (
+            OutputStream var1 = Funnels.asOutputStream(var0);
+            InputStream var2 = Files.newInputStream(param0);
+        ) {
+            var2.transferTo(var1);
+        }
+
+        return var0.hash();
+    }
+
+    private static boolean checkExistingFile(Path param0, HashFunction param1, HashCode param2) throws IOException {
+        if (Files.exists(param0)) {
+            HashCode var0 = hashFile(param0, param1);
+            if (var0.equals(param2)) {
+                return true;
+            }
+
+            LOGGER.warn("Mismatched hash of file {}, expected {} but found {}", param0, param2, var0);
+        }
+
+        return false;
+    }
+
+    private static Path cachedFilePath(Path param0, HashCode param1) {
+        return param0.resolve(param1.toString());
+    }
+
+    private static HashCode downloadAndHash(HashFunction param0, int param1, HttpUtil.DownloadProgressListener param2, InputStream param3, Path param4) throws IOException {
+        HashCode var11;
+        try (OutputStream var0 = Files.newOutputStream(param4, StandardOpenOption.CREATE)) {
+            Hasher var1 = param0.newHasher();
+            byte[] var2 = new byte[8196];
+            long var3 = 0L;
+
+            int var4;
+            while((var4 = param3.read(var2)) >= 0) {
+                var3 += (long)var4;
+                param2.downloadedBytes(var3);
+                if (var3 > (long)param1) {
+                    throw new IOException("Filesize was bigger than maximum allowed (got >= " + var3 + ", limit was " + param1 + ")");
+                }
+
+                if (Thread.interrupted()) {
+                    LOGGER.error("INTERRUPTED");
+                    throw new IOException("Download interrupted");
+                }
+
+                var0.write(var2, 0, var4);
+                var1.putBytes(var2, 0, var4);
+            }
+
+            var11 = var1.hash();
+        }
+
+        return var11;
     }
 
     public static int getAvailablePort() {
@@ -186,5 +214,15 @@ public class HttpUtil {
         } else {
             return false;
         }
+    }
+
+    public interface DownloadProgressListener {
+        void requestStart();
+
+        void downloadStart(OptionalLong var1);
+
+        void downloadedBytes(long var1);
+
+        void requestFinished();
     }
 }

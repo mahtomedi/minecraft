@@ -141,7 +141,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.ClientPackSource;
-import net.minecraft.client.resources.DownloadedPackSource;
 import net.minecraft.client.resources.FoliageColorReloadListener;
 import net.minecraft.client.resources.GrassColorReloadListener;
 import net.minecraft.client.resources.MobEffectTextureManager;
@@ -152,6 +151,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
+import net.minecraft.client.resources.server.DownloadedPackSource;
 import net.minecraft.client.searchtree.FullTextSearchTree;
 import net.minecraft.client.searchtree.IdSearchTree;
 import net.minecraft.client.searchtree.SearchRegistry;
@@ -413,9 +413,9 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         Path var1 = this.gameDirectory.toPath();
         this.directoryValidator = LevelStorageSource.parseValidator(var1.resolve("allowed_symlinks.txt"));
         ClientPackSource var2 = new ClientPackSource(param0.location.getExternalAssetSource(), this.directoryValidator);
-        this.downloadedPackSource = new DownloadedPackSource(new File(this.gameDirectory, "server-resource-packs"));
+        this.downloadedPackSource = new DownloadedPackSource(this, var1.resolve("downloads"), param0.user);
         RepositorySource var3 = new FolderRepositorySource(this.resourcePackDirectory, PackType.CLIENT_RESOURCES, PackSource.DEFAULT, this.directoryValidator);
-        this.resourcePackRepository = new PackRepository(var2, this.downloadedPackSource, var3);
+        this.resourcePackRepository = new PackRepository(var2, this.downloadedPackSource.createRepositorySource(), var3);
         this.vanillaPackResources = var2.getVanillaPack();
         this.proxy = param0.user.proxy;
         this.authenticationService = new YggdrasilAuthenticationService(this.proxy);
@@ -743,6 +743,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
     public void clearResourcePacksOnError(Throwable param0, @Nullable Component param1, @Nullable Minecraft.GameLoadCookie param2) {
         LOGGER.info("Caught error loading resourcepacks, removing all selected resourcepacks", param0);
         this.reloadStateTracker.startRecovery(param0);
+        this.downloadedPackSource.onRecovery();
         this.resourcePackRepository.setSelected(Collections.emptyList());
         this.options.resourcePacks.clear();
         this.options.incompatibleResourcePacks.clear();
@@ -763,7 +764,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
 
     private void addResourcePackLoadFailToast(@Nullable Component param0) {
         ToastComponent var0 = this.getToasts();
-        SystemToast.addOrUpdate(var0, SystemToast.SystemToastIds.PACK_LOAD_FAILURE, Component.translatable("resourcePack.load_fail"), param0);
+        SystemToast.addOrUpdate(var0, SystemToast.SystemToastId.PACK_LOAD_FAILURE, Component.translatable("resourcePack.load_fail"), param0);
     }
 
     public void run() {
@@ -952,6 +953,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                         this.resourceManager.createReload(Util.backgroundExecutor(), this, RESOURCE_RELOAD_INITIAL_TASK, var1),
                         param3 -> Util.ifElse(param3, param2x -> {
                                 if (param0) {
+                                    this.downloadedPackSource.onRecoveryFailure();
                                     this.abortResourcePackRecovery();
                                 } else {
                                     this.rollbackResourcePacks(param2x, param1);
@@ -960,6 +962,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                             }, () -> {
                                 this.levelRenderer.allChanged();
                                 this.reloadStateTracker.finishReload();
+                                this.downloadedPackSource.onReloadSuccess();
                                 var0.complete(null);
                                 this.onResourceLoadFinished(param1);
                             }),
@@ -1248,7 +1251,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
             && (this.screen != null && this.screen.isPauseScreen() || this.overlay != null && this.overlay.isPauseScreen())
             && !this.singleplayerServer.isPublished();
         if (this.pause != var10) {
-            if (this.pause) {
+            if (var10) {
                 this.pausePartialTick = this.timer.partialTick;
             } else {
                 this.timer.partialTick = this.pausePartialTick;
@@ -2096,7 +2099,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         this.setScreen(var5);
         this.profiler.push("waitForServer");
 
-        for(; !this.singleplayerServer.isReady(); this.handleDelayedCrash()) {
+        for(; !this.singleplayerServer.isReady() || this.overlay != null; this.handleDelayedCrash()) {
             var5.tick();
             this.runTick(false);
 
@@ -2140,6 +2143,7 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         if (var0 != null) {
             this.dropAllTasks();
             var0.close();
+            this.clearDownloadedResourcePacks();
         }
 
         this.playerSocialManager.stopOnlineMode();
@@ -2167,7 +2171,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
                     this.profiler.pop();
                 }
 
-                this.downloadedPackSource.clearServerPack();
                 this.gui.onDisconnected();
                 this.isLocalServer = false;
             }
@@ -2180,6 +2183,11 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         }
 
         SkullBlockEntity.clear();
+    }
+
+    public void clearDownloadedResourcePacks() {
+        this.downloadedPackSource.cleanupAfterDisconnect();
+        this.runAllTasks();
     }
 
     public void clearClientLevel(Screen param0) {
@@ -2200,7 +2208,6 @@ public class Minecraft extends ReentrantBlockableEventLoop<Runnable> implements 
         try {
             this.updateScreenAndTick(param0);
             this.gui.onDisconnected();
-            this.downloadedPackSource.clearServerPack();
             this.level = null;
             this.updateLevelInEngines(null);
             this.player = null;

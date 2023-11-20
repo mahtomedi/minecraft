@@ -78,7 +78,7 @@ public class ItemColors {
                 return param0.getColor(var0x, null, null, param2);
             },
             Blocks.GRASS_BLOCK,
-            Blocks.GRASS,
+            Blocks.SHORT_GRASS,
             Blocks.FERN,
             Blocks.VINE,
             Blocks.OAK_LEAVES,

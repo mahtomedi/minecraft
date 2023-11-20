@@ -10,6 +10,7 @@ import net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl;
 import net.minecraft.client.multiplayer.chat.report.ReportEnvironment;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.quickplay.QuickPlayLog;
+import net.minecraft.client.resources.server.ServerPackManager;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -74,8 +75,9 @@ public class RealmsConnect {
                         RealmsConnect.this.connection.send(new ServerboundHelloPacket(var0.getUser().getName(), var0.getUser().getProfileId()));
                         var0.updateReportEnvironment(ReportEnvironment.realm(param0));
                         var0.quickPlayLog().setWorldData(QuickPlayLog.Type.REALMS, String.valueOf(param0.id), param0.name);
+                        var0.getDownloadedPackSource().configureForServerControl(RealmsConnect.this.connection, ServerPackManager.PackPromptStatus.ALLOWED);
                     } catch (Exception var51) {
-                        var0.getDownloadedPackSource().clearServerPack();
+                        var0.getDownloadedPackSource().cleanupAfterDisconnect();
                         if (RealmsConnect.this.aborted) {
                             return;
                         }

@@ -518,7 +518,7 @@ public class TestCommand {
 
     private static int exportTestStructure(CommandSourceStack param0, String param1) {
         Path var0 = Paths.get(StructureUtils.testStructuresDir);
-        ResourceLocation var1 = new ResourceLocation("minecraft", param1);
+        ResourceLocation var1 = new ResourceLocation(param1);
         Path var2 = param0.getLevel().getStructureManager().getPathToGeneratedStructure(var1, ".nbt");
         Path var3 = NbtToSnbt.convertStructure(CachedOutput.NO_CACHE, var2, param1, var0);
         if (var3 == null) {
@@ -540,7 +540,7 @@ public class TestCommand {
 
     private static int importTestStructure(CommandSourceStack param0, String param1) {
         Path var0 = Paths.get(StructureUtils.testStructuresDir, param1 + ".snbt");
-        ResourceLocation var1 = new ResourceLocation("minecraft", param1);
+        ResourceLocation var1 = new ResourceLocation(param1);
         Path var2 = param0.getLevel().getStructureManager().getPathToGeneratedStructure(var1, ".nbt");
 
         try {

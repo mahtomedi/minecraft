@@ -42,7 +42,7 @@ public class GrassBlock extends SpreadingSnowyDirtBlock implements BonemealableB
     @Override
     public void performBonemeal(ServerLevel param0, RandomSource param1, BlockPos param2, BlockState param3) {
         BlockPos var0 = param2.above();
-        BlockState var1 = Blocks.GRASS.defaultBlockState();
+        BlockState var1 = Blocks.SHORT_GRASS.defaultBlockState();
         Optional<Holder.Reference<PlacedFeature>> var2 = param0.registryAccess()
             .registryOrThrow(Registries.PLACED_FEATURE)
             .getHolder(VegetationPlacements.GRASS_BONEMEAL);

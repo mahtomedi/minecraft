@@ -18,14 +18,15 @@ public class SystemToast implements Toast {
     private static final int MAX_LINE_SIZE = 200;
     private static final int LINE_SPACING = 12;
     private static final int MARGIN = 10;
-    private final SystemToast.SystemToastIds id;
+    private final SystemToast.SystemToastId id;
     private Component title;
     private List<FormattedCharSequence> messageLines;
     private long lastChanged;
     private boolean changed;
     private final int width;
+    private boolean forceHide;
 
-    public SystemToast(SystemToast.SystemToastIds param0, Component param1, @Nullable Component param2) {
+    public SystemToast(SystemToast.SystemToastId param0, Component param1, @Nullable Component param2) {
         this(
             param0,
             param1,
@@ -34,14 +35,14 @@ public class SystemToast implements Toast {
         );
     }
 
-    public static SystemToast multiline(Minecraft param0, SystemToast.SystemToastIds param1, Component param2, Component param3) {
+    public static SystemToast multiline(Minecraft param0, SystemToast.SystemToastId param1, Component param2, Component param3) {
         Font var0 = param0.font;
         List<FormattedCharSequence> var1 = var0.split(param3, 200);
         int var2 = Math.max(200, var1.stream().mapToInt(var0::width).max().orElse(200));
         return new SystemToast(param1, param2, var1, var2 + 30);
     }
 
-    private SystemToast(SystemToast.SystemToastIds param0, Component param1, List<FormattedCharSequence> param2, int param3) {
+    private SystemToast(SystemToast.SystemToastId param0, Component param1, List<FormattedCharSequence> param2, int param3) {
         this.id = param0;
         this.title = param1;
         this.messageLines = param2;
@@ -60,6 +61,10 @@ public class SystemToast implements Toast {
     @Override
     public int height() {
         return 20 + Math.max(this.messageLines.size(), 1) * 12;
+    }
+
+    public void forceHide() {
+        this.forceHide = true;
     }
 
     @Override
@@ -85,7 +90,7 @@ public class SystemToast implements Toast {
             this.renderBackgroundRow(param0, var0, 32 - var3, var1 - var3, var3);
         }
 
-        if (this.messageLines == null) {
+        if (this.messageLines.isEmpty()) {
             param0.drawString(param1.getMinecraft().font, this.title, 18, 12, -256, false);
         } else {
             param0.drawString(param1.getMinecraft().font, this.title, 18, 7, -256, false);
@@ -95,9 +100,9 @@ public class SystemToast implements Toast {
             }
         }
 
-        return (double)(param2 - this.lastChanged) < (double)this.id.displayTime * param1.getNotificationDisplayTimeMultiplier()
-            ? Toast.Visibility.SHOW
-            : Toast.Visibility.HIDE;
+        double var6 = (double)this.id.displayTime * param1.getNotificationDisplayTimeMultiplier();
+        long var7 = param2 - this.lastChanged;
+        return !this.forceHide && (double)var7 < var6 ? Toast.Visibility.SHOW : Toast.Visibility.HIDE;
     }
 
     private void renderBackgroundRow(GuiGraphics param0, int param1, int param2, int param3, int param4) {
@@ -119,15 +124,15 @@ public class SystemToast implements Toast {
         this.changed = true;
     }
 
-    public SystemToast.SystemToastIds getToken() {
+    public SystemToast.SystemToastId getToken() {
         return this.id;
     }
 
-    public static void add(ToastComponent param0, SystemToast.SystemToastIds param1, Component param2, @Nullable Component param3) {
+    public static void add(ToastComponent param0, SystemToast.SystemToastId param1, Component param2, @Nullable Component param3) {
         param0.addToast(new SystemToast(param1, param2, param3));
     }
 
-    public static void addOrUpdate(ToastComponent param0, SystemToast.SystemToastIds param1, Component param2, @Nullable Component param3) {
+    public static void addOrUpdate(ToastComponent param0, SystemToast.SystemToastId param1, Component param2, @Nullable Component param3) {
         SystemToast var0 = param0.getToast(SystemToast.class, param1);
         if (var0 == null) {
             add(param0, param1, param2, param3);
@@ -137,46 +142,42 @@ public class SystemToast implements Toast {
 
     }
 
+    public static void forceHide(ToastComponent param0, SystemToast.SystemToastId param1) {
+        SystemToast var0 = param0.getToast(SystemToast.class, param1);
+        if (var0 != null) {
+            var0.forceHide();
+        }
+
+    }
+
     public static void onWorldAccessFailure(Minecraft param0, String param1) {
-        add(
-            param0.getToasts(),
-            SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
-            Component.translatable("selectWorld.access_failure"),
-            Component.literal(param1)
-        );
+        add(param0.getToasts(), SystemToast.SystemToastId.WORLD_ACCESS_FAILURE, Component.translatable("selectWorld.access_failure"), Component.literal(param1));
     }
 
     public static void onWorldDeleteFailure(Minecraft param0, String param1) {
-        add(
-            param0.getToasts(),
-            SystemToast.SystemToastIds.WORLD_ACCESS_FAILURE,
-            Component.translatable("selectWorld.delete_failure"),
-            Component.literal(param1)
-        );
+        add(param0.getToasts(), SystemToast.SystemToastId.WORLD_ACCESS_FAILURE, Component.translatable("selectWorld.delete_failure"), Component.literal(param1));
     }
 
     public static void onPackCopyFailure(Minecraft param0, String param1) {
-        add(param0.getToasts(), SystemToast.SystemToastIds.PACK_COPY_FAILURE, Component.translatable("pack.copyFailure"), Component.literal(param1));
+        add(param0.getToasts(), SystemToast.SystemToastId.PACK_COPY_FAILURE, Component.translatable("pack.copyFailure"), Component.literal(param1));
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static enum SystemToastIds {
-        TUTORIAL_HINT,
-        NARRATOR_TOGGLE,
-        WORLD_BACKUP,
-        PACK_LOAD_FAILURE,
-        WORLD_ACCESS_FAILURE,
-        PACK_COPY_FAILURE,
-        PERIODIC_NOTIFICATION,
-        UNSECURE_SERVER_WARNING(10000L);
-
+    public static class SystemToastId {
+        public static final SystemToast.SystemToastId NARRATOR_TOGGLE = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId WORLD_BACKUP = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId PACK_LOAD_FAILURE = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId WORLD_ACCESS_FAILURE = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId PACK_COPY_FAILURE = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId PERIODIC_NOTIFICATION = new SystemToast.SystemToastId();
+        public static final SystemToast.SystemToastId UNSECURE_SERVER_WARNING = new SystemToast.SystemToastId(10000L);
         final long displayTime;
 
-        private SystemToastIds(long param0) {
+        public SystemToastId(long param0) {
             this.displayTime = param0;
         }
 
-        private SystemToastIds() {
+        public SystemToastId() {
             this(5000L);
         }
     }

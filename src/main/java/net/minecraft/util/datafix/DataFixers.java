@@ -1196,6 +1196,8 @@ public class DataFixers {
         Schema var202 = param0.addSchema(3689, V3689::new);
         param0.addFixer(new AddNewChoices(var202, "Added Breeze", References.ENTITY));
         param0.addFixer(new AddNewChoices(var202, "Added Trial Spawner", References.BLOCK_ENTITY));
+        Schema var203 = param0.addSchema(3692, SAME_NAMESPACED);
+        param0.addFixer(BlockRenameFix.create(var203, "Rename grass to short_grass", createRenamer(Map.of("minecraft:grass", "minecraft:short_grass"))));
     }
 
     private static UnaryOperator<String> createRenamer(Map<String, String> param0) {

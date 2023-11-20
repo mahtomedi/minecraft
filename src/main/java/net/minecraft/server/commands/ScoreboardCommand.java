@@ -438,7 +438,7 @@ public class ScoreboardCommand {
         Scoreboard var0 = param0.getServer().getScoreboard();
         ReadOnlyScoreInfo var1 = var0.getPlayerScoreInfo(param1, param2);
         if (var1 == null) {
-            throw ERROR_NO_VALUE.create(param2.getName(), param1);
+            throw ERROR_NO_VALUE.create(param2.getName(), param1.getFeedbackDisplayName());
         } else {
             param0.sendSuccess(
                 () -> Component.translatable(

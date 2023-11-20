@@ -7,15 +7,16 @@ import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -29,8 +30,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.WorldDataConfiguration;
@@ -113,6 +112,7 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
             this.get("level-type", param0x -> param0x.toLowerCase(Locale.ROOT), WorldPresets.NORMAL.location().toString())
         );
         this.serverResourcePackInfo = getServerPackInfo(
+            this.get("resource-pack-id", ""),
             this.get("resource-pack", ""),
             this.get("resource-pack-sha1", ""),
             this.getLegacyString("resource-pack-hash"),
@@ -147,20 +147,20 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
     }
 
     private static Optional<MinecraftServer.ServerResourcePackInfo> getServerPackInfo(
-        String param0, String param1, @Nullable String param2, boolean param3, String param4
+        String param0, String param1, String param2, @Nullable String param3, boolean param4, String param5
     ) {
-        if (param0.isEmpty()) {
+        if (param1.isEmpty()) {
             return Optional.empty();
         } else {
             String var0;
-            if (!param1.isEmpty()) {
-                var0 = param1;
-                if (!Strings.isNullOrEmpty(param2)) {
+            if (!param2.isEmpty()) {
+                var0 = param2;
+                if (!Strings.isNullOrEmpty(param3)) {
                     LOGGER.warn("resource-pack-hash is deprecated and found along side resource-pack-sha1. resource-pack-hash will be ignored.");
                 }
-            } else if (!Strings.isNullOrEmpty(param2)) {
+            } else if (!Strings.isNullOrEmpty(param3)) {
                 LOGGER.warn("resource-pack-hash is deprecated. Please use resource-pack-sha1 instead.");
-                var0 = param2;
+                var0 = param3;
             } else {
                 var0 = "";
             }
@@ -173,8 +173,21 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
                 LOGGER.warn("Invalid sha1 for resource-pack-sha1");
             }
 
-            Component var3 = parseResourcePackPrompt(param4);
-            return Optional.of(new MinecraftServer.ServerResourcePackInfo(param0, var0, param3, var3));
+            Component var3 = parseResourcePackPrompt(param5);
+            UUID var4;
+            if (param0.isEmpty()) {
+                var4 = UUID.nameUUIDFromBytes(param1.getBytes(StandardCharsets.UTF_8));
+                LOGGER.warn("resource-pack-id missing, using default of {}", var4);
+            } else {
+                try {
+                    var4 = UUID.fromString(param0);
+                } catch (IllegalArgumentException var10) {
+                    LOGGER.warn("Failed to parse '{}' into UUID", param0);
+                    return Optional.empty();
+                }
+            }
+
+            return Optional.of(new MinecraftServer.ServerResourcePackInfo(var4, param1, var0, param4, var3));
         }
     }
 
@@ -182,18 +195,6 @@ public class DedicatedServerProperties extends Settings<DedicatedServerPropertie
         List<String> var0 = COMMA_SPLITTER.splitToList(param0);
         List<String> var1 = COMMA_SPLITTER.splitToList(param1);
         return new DataPackConfig(var0, var1);
-    }
-
-    private static FeatureFlagSet getFeatures(String param0) {
-        return FeatureFlags.REGISTRY.fromNames(COMMA_SPLITTER.splitToStream(param0).mapMulti((param0x, param1) -> {
-            ResourceLocation var0x = ResourceLocation.tryParse(param0x);
-            if (var0x == null) {
-                LOGGER.warn("Invalid resource location {}, ignoring", param0x);
-            } else {
-                param1.accept(var0x);
-            }
-
-        }).collect(Collectors.toList()));
     }
 
     public WorldDimensions createDimensions(RegistryAccess param0) {

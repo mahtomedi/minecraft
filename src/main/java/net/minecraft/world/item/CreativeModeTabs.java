@@ -807,7 +807,7 @@ public class CreativeModeTabs {
                     param1.accept(Items.RED_MUSHROOM);
                     param1.accept(Items.CRIMSON_FUNGUS);
                     param1.accept(Items.WARPED_FUNGUS);
-                    param1.accept(Items.GRASS);
+                    param1.accept(Items.SHORT_GRASS);
                     param1.accept(Items.FERN);
                     param1.accept(Items.DEAD_BUSH);
                     param1.accept(Items.DANDELION);

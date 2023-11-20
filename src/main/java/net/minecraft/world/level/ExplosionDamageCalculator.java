@@ -18,6 +18,10 @@ public class ExplosionDamageCalculator {
         return true;
     }
 
+    public boolean shouldDamageEntity(Explosion param0, Entity param1) {
+        return true;
+    }
+
     public float getEntityDamageAmount(Explosion param0, Entity param1) {
         float var0 = param0.radius() * 2.0F;
         Vec3 var1 = param0.center();

@@ -169,12 +169,12 @@ public class VegetationFeatures {
             Feature.RANDOM_PATCH,
             grassPatch(
                 new WeightedStateProvider(
-                    SimpleWeightedRandomList.<BlockState>builder().add(Blocks.GRASS.defaultBlockState(), 1).add(Blocks.FERN.defaultBlockState(), 4)
+                    SimpleWeightedRandomList.<BlockState>builder().add(Blocks.SHORT_GRASS.defaultBlockState(), 1).add(Blocks.FERN.defaultBlockState(), 4)
                 ),
                 32
             )
         );
-        FeatureUtils.register(param0, PATCH_GRASS, Feature.RANDOM_PATCH, grassPatch(BlockStateProvider.simple(Blocks.GRASS), 32));
+        FeatureUtils.register(param0, PATCH_GRASS, Feature.RANDOM_PATCH, grassPatch(BlockStateProvider.simple(Blocks.SHORT_GRASS), 32));
         FeatureUtils.register(
             param0,
             PATCH_GRASS_JUNGLE,
@@ -187,7 +187,9 @@ public class VegetationFeatures {
                     Feature.SIMPLE_BLOCK,
                     new SimpleBlockConfiguration(
                         new WeightedStateProvider(
-                            SimpleWeightedRandomList.<BlockState>builder().add(Blocks.GRASS.defaultBlockState(), 3).add(Blocks.FERN.defaultBlockState(), 1)
+                            SimpleWeightedRandomList.<BlockState>builder()
+                                .add(Blocks.SHORT_GRASS.defaultBlockState(), 3)
+                                .add(Blocks.FERN.defaultBlockState(), 1)
                         )
                     ),
                     BlockPredicate.allOf(
@@ -197,7 +199,10 @@ public class VegetationFeatures {
             )
         );
         FeatureUtils.register(
-            param0, SINGLE_PIECE_OF_GRASS, Feature.SIMPLE_BLOCK, new SimpleBlockConfiguration(BlockStateProvider.simple(Blocks.GRASS.defaultBlockState()))
+            param0,
+            SINGLE_PIECE_OF_GRASS,
+            Feature.SIMPLE_BLOCK,
+            new SimpleBlockConfiguration(BlockStateProvider.simple(Blocks.SHORT_GRASS.defaultBlockState()))
         );
         FeatureUtils.register(param0, PATCH_DEAD_BUSH, Feature.RANDOM_PATCH, grassPatch(BlockStateProvider.simple(Blocks.DEAD_BUSH), 4));
         FeatureUtils.register(
@@ -393,7 +398,7 @@ public class VegetationFeatures {
                                 Blocks.DANDELION.defaultBlockState(),
                                 Blocks.CORNFLOWER.defaultBlockState(),
                                 Blocks.OXEYE_DAISY.defaultBlockState(),
-                                Blocks.GRASS.defaultBlockState()
+                                Blocks.SHORT_GRASS.defaultBlockState()
                             )
                         )
                     )

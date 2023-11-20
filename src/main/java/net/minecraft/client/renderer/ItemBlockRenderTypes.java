@@ -68,7 +68,7 @@ public class ItemBlockRenderTypes {
         param0.put(Blocks.POWERED_RAIL, var2);
         param0.put(Blocks.DETECTOR_RAIL, var2);
         param0.put(Blocks.COBWEB, var2);
-        param0.put(Blocks.GRASS, var2);
+        param0.put(Blocks.SHORT_GRASS, var2);
         param0.put(Blocks.FERN, var2);
         param0.put(Blocks.DEAD_BUSH, var2);
         param0.put(Blocks.SEAGRASS, var2);

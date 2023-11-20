@@ -50,7 +50,6 @@ public class Explosion {
     @Nullable
     private final Entity source;
     private final float radius;
-    @Nullable
     private final DamageSource damageSource;
     private final ExplosionDamageCalculator damageCalculator;
     private final ParticleOptions smallExplosionParticles;
@@ -138,7 +137,7 @@ public class Explosion {
         this.z = param6;
         this.fire = param8;
         this.blockInteraction = param9;
-        this.damageSource = param2;
+        this.damageSource = param2 == null ? param0.damageSources().explosion(this) : param2;
         this.damageCalculator = param3 == null ? this.makeDamageCalculator(param1) : param3;
         this.smallExplosionParticles = param10;
         this.largeExplosionParticles = param11;
@@ -262,7 +261,7 @@ public class Explosion {
                         var29 /= var32;
                         var30 /= var32;
                         var31 /= var32;
-                        if (this.damageSource != null) {
+                        if (this.damageCalculator.shouldDamageEntity(this, var27)) {
                             var27.hurt(this.damageSource, this.damageCalculator.getEntityDamageAmount(this, var27));
                         }
 
@@ -349,8 +348,10 @@ public class Explosion {
             Pair<ItemStack, BlockPos> var1 = param0.get(var0);
             ItemStack var2 = var1.getFirst();
             if (ItemEntity.areMergable(var2, param1)) {
-                param0.set(var0, Pair.of(ItemEntity.merge(param1, var2, 16), var1.getSecond()));
-                return;
+                param0.set(var0, Pair.of(ItemEntity.merge(var2, param1, 16), var1.getSecond()));
+                if (param1.isEmpty()) {
+                    return;
+                }
             }
         }
 

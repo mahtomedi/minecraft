@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import net.minecraft.Util;
 import net.minecraft.client.ClientBrandRetriever;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
@@ -40,7 +41,6 @@ import net.minecraft.network.protocol.login.ServerboundKeyPacket;
 import net.minecraft.network.protocol.login.ServerboundLoginAcknowledgedPacket;
 import net.minecraft.realms.DisconnectedRealmsScreen;
 import net.minecraft.util.Crypt;
-import net.minecraft.util.HttpUtil;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -112,7 +112,7 @@ public class ClientHandshakePacketListenerImpl implements ClientLoginPacketListe
             throw new IllegalStateException("Protocol error", var91);
         }
 
-        HttpUtil.DOWNLOAD_EXECUTOR.submit(() -> {
+        Util.ioPool().submit(() -> {
             Component var0x = this.authenticateServer(var2);
             if (var0x != null) {
                 if (this.serverData == null || !this.serverData.isLan()) {

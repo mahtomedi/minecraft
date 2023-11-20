@@ -15,6 +15,7 @@ import net.minecraft.Util;
 import net.minecraft.WorldVersion;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.data.advancements.packs.UpdateOneTwentyOneAdvancementProvider;
 import net.minecraft.data.advancements.packs.VanillaAdvancementProvider;
 import net.minecraft.data.info.BiomeParametersDumpReport;
 import net.minecraft.data.info.BlockListReport;
@@ -186,6 +187,7 @@ public class Main {
         );
         var15.addProvider(bindRegistries(UpdateOneTwentyOneEntityTypeTagsProvider::new, var13));
         var15.addProvider(bindRegistries(UpdateOneTwentyOneDamageTypeTagsProvider::new, var13));
+        var15.addProvider(bindRegistries(UpdateOneTwentyOneAdvancementProvider::create, var13));
         return var0;
     }
 }

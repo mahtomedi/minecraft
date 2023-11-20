@@ -12,6 +12,8 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.monster.breeze.Breeze;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -19,6 +21,8 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class WindCharge extends AbstractHurtingProjectile implements ItemSupplier {
+    public static final WindCharge.WindChargeExplosionDamageCalculator EXPLOSION_DAMAGE_CALCULATOR = new WindCharge.WindChargeExplosionDamageCalculator();
+
     public WindCharge(EntityType<? extends WindCharge> param0, Level param1) {
         super(param0, param1);
     }
@@ -74,7 +78,7 @@ public class WindCharge extends AbstractHurtingProjectile implements ItemSupplie
             .explode(
                 this,
                 null,
-                null,
+                EXPLOSION_DAMAGE_CALCULATOR,
                 this.getX(),
                 this.getY(),
                 this.getZ(),
@@ -127,5 +131,12 @@ public class WindCharge extends AbstractHurtingProjectile implements ItemSupplie
     @Override
     protected ClipContext.Block getClipType() {
         return ClipContext.Block.OUTLINE;
+    }
+
+    public static final class WindChargeExplosionDamageCalculator extends ExplosionDamageCalculator {
+        @Override
+        public boolean shouldDamageEntity(Explosion param0, Entity param1) {
+            return false;
+        }
     }
 }

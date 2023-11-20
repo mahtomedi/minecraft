@@ -1,21 +1,17 @@
 package net.minecraft.network.protocol.common;
 
+import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
-public class ServerboundResourcePackPacket implements Packet<ServerCommonPacketListener> {
-    private final ServerboundResourcePackPacket.Action action;
-
-    public ServerboundResourcePackPacket(ServerboundResourcePackPacket.Action param0) {
-        this.action = param0;
-    }
-
+public record ServerboundResourcePackPacket(UUID id, ServerboundResourcePackPacket.Action action) implements Packet<ServerCommonPacketListener> {
     public ServerboundResourcePackPacket(FriendlyByteBuf param0) {
-        this.action = param0.readEnum(ServerboundResourcePackPacket.Action.class);
+        this(param0.readUUID(), param0.readEnum(ServerboundResourcePackPacket.Action.class));
     }
 
     @Override
     public void write(FriendlyByteBuf param0) {
+        param0.writeUUID(this.id);
         param0.writeEnum(this.action);
     }
 
@@ -23,14 +19,13 @@ public class ServerboundResourcePackPacket implements Packet<ServerCommonPacketL
         param0.handleResourcePackResponse(this);
     }
 
-    public ServerboundResourcePackPacket.Action getAction() {
-        return this.action;
-    }
-
     public static enum Action {
         SUCCESSFULLY_LOADED,
         DECLINED,
         FAILED_DOWNLOAD,
-        ACCEPTED;
+        ACCEPTED,
+        INVALID_URL,
+        FAILED_RELOAD,
+        DISCARDED;
     }
 }

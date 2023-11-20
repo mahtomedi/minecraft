@@ -16,6 +16,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
@@ -682,15 +683,17 @@ public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
     @Override
     protected void positionRider(Entity param0, Entity.MoveFunction param1) {
         super.positionRider(param0, param1);
-        param0.setYRot(param0.getYRot() + this.deltaRotation);
-        param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
-        this.clampRotation(param0);
-        if (param0 instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
-            int var0 = param0.getId() % 2 == 0 ? 90 : 270;
-            param0.setYBodyRot(((Animal)param0).yBodyRot + (float)var0);
-            param0.setYHeadRot(param0.getYHeadRot() + (float)var0);
-        }
+        if (!param0.getType().is(EntityTypeTags.CAN_TURN_IN_BOATS)) {
+            param0.setYRot(param0.getYRot() + this.deltaRotation);
+            param0.setYHeadRot(param0.getYHeadRot() + this.deltaRotation);
+            this.clampRotation(param0);
+            if (param0 instanceof Animal && this.getPassengers().size() == this.getMaxPassengers()) {
+                int var0 = param0.getId() % 2 == 0 ? 90 : 270;
+                param0.setYBodyRot(((Animal)param0).yBodyRot + (float)var0);
+                param0.setYHeadRot(param0.getYHeadRot() + (float)var0);
+            }
 
+        }
     }
 
     @Override

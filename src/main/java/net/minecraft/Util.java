@@ -88,9 +88,9 @@ public class Util {
     private static final int DEFAULT_MAX_THREADS = 255;
     private static final int DEFAULT_SAFE_FILE_OPERATION_RETRIES = 10;
     private static final String MAX_THREADS_SYSTEM_PROPERTY = "max.bg.threads";
-    private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
     private static final ExecutorService BACKGROUND_EXECUTOR = makeExecutor("Main");
-    private static final ExecutorService IO_POOL = makeIoExecutor();
+    private static final ExecutorService IO_POOL = makeIoExecutor("IO-Worker-", false);
+    private static final ExecutorService DOWNLOAD_POOL = makeIoExecutor("Download-", true);
     private static final DateTimeFormatter FILENAME_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH.mm.ss", Locale.ROOT);
     private static final int LINEAR_LOOKUP_THRESHOLD = 8;
     public static final long NANOS_PER_MILLI = 1000000L;
@@ -144,8 +144,9 @@ public class Util {
         if (var0 <= 0) {
             var1 = MoreExecutors.newDirectExecutorService();
         } else {
-            var1 = new ForkJoinPool(var0, param1 -> {
-                ForkJoinWorkerThread var0x = new ForkJoinWorkerThread(param1) {
+            AtomicInteger var2 = new AtomicInteger(1);
+            var1 = new ForkJoinPool(var0, param2 -> {
+                ForkJoinWorkerThread var0x = new ForkJoinWorkerThread(param2) {
                     @Override
                     protected void onTermination(Throwable param0) {
                         if (param0 != null) {
@@ -157,7 +158,7 @@ public class Util {
                         super.onTermination(param0);
                     }
                 };
-                var0x.setName("Worker-" + param0 + "-" + WORKER_COUNT.getAndIncrement());
+                var0x.setName("Worker-" + param0 + "-" + var2.getAndIncrement());
                 return var0x;
             }, Util::onThreadException, true);
         }
@@ -191,6 +192,10 @@ public class Util {
         return IO_POOL;
     }
 
+    public static ExecutorService nonCriticalIoPool() {
+        return DOWNLOAD_POOL;
+    }
+
     public static void shutdownExecutors() {
         shutdownExecutor(BACKGROUND_EXECUTOR);
         shutdownExecutor(IO_POOL);
@@ -212,12 +217,14 @@ public class Util {
 
     }
 
-    private static ExecutorService makeIoExecutor() {
-        return Executors.newCachedThreadPool(param0 -> {
-            Thread var0 = new Thread(param0);
-            var0.setName("IO-Worker-" + WORKER_COUNT.getAndIncrement());
-            var0.setUncaughtExceptionHandler(Util::onThreadException);
-            return var0;
+    private static ExecutorService makeIoExecutor(String param0, boolean param1) {
+        AtomicInteger var0 = new AtomicInteger(1);
+        return Executors.newCachedThreadPool(param3 -> {
+            Thread var0x = new Thread(param3);
+            var0x.setName(param0 + var0.getAndIncrement());
+            var0x.setDaemon(param1);
+            var0x.setUncaughtExceptionHandler(Util::onThreadException);
+            return var0x;
         });
     }
 

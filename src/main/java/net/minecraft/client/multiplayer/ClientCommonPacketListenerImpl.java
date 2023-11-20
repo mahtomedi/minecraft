@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import javax.annotation.Nullable;
 import net.minecraft.ChatFormatting;
@@ -22,6 +22,7 @@ import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.resources.server.DownloadedPackSource;
 import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -37,7 +38,8 @@ import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
 import net.minecraft.network.protocol.common.ClientboundKeepAlivePacket;
 import net.minecraft.network.protocol.common.ClientboundPingPacket;
-import net.minecraft.network.protocol.common.ClientboundResourcePackPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
 import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
 import net.minecraft.network.protocol.common.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
@@ -108,47 +110,51 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
     protected abstract RegistryAccess.Frozen registryAccess();
 
     @Override
-    public void handleResourcePack(ClientboundResourcePackPacket param0) {
-        URL var0 = parseResourcePackUrl(param0.getUrl());
-        if (var0 == null) {
-            this.send(ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD);
+    public void handleResourcePackPush(ClientboundResourcePackPushPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        UUID var0 = param0.id();
+        URL var1 = parseResourcePackUrl(param0.url());
+        if (var1 == null) {
+            this.connection.send(new ServerboundResourcePackPacket(var0, ServerboundResourcePackPacket.Action.INVALID_URL));
         } else {
-            String var1 = param0.getHash();
-            boolean var2 = param0.isRequired();
-            if (this.serverData != null && this.serverData.getResourcePackStatus() == ServerData.ServerPackStatus.ENABLED) {
-                this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                this.packApplicationCallback(this.minecraft.getDownloadedPackSource().downloadAndSelectResourcePack(var0, var1, true));
-            } else if (this.serverData != null
+            String var2 = param0.hash();
+            boolean var3 = param0.required();
+            if (this.serverData != null
                 && this.serverData.getResourcePackStatus() != ServerData.ServerPackStatus.PROMPT
-                && (!var2 || this.serverData.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
-                this.send(ServerboundResourcePackPacket.Action.DECLINED);
-                if (var2) {
-                    this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
-                }
+                && (!var3 || this.serverData.getResourcePackStatus() != ServerData.ServerPackStatus.DISABLED)) {
+                this.minecraft.getDownloadedPackSource().pushPack(var0, var1, var2);
             } else {
-                this.minecraft.execute(() -> this.showServerPackPrompt(var0, var1, var2, param0.getPrompt()));
+                this.showServerPackPrompt(var0, var1, var2, var3, param0.prompt());
             }
 
         }
     }
 
-    private void showServerPackPrompt(URL param0, String param1, boolean param2, @Nullable Component param3) {
+    @Override
+    public void handleResourcePackPop(ClientboundResourcePackPopPacket param0) {
+        PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
+        param0.id()
+            .ifPresentOrElse(param0x -> this.minecraft.getDownloadedPackSource().popPack(param0x), () -> this.minecraft.getDownloadedPackSource().popAll());
+    }
+
+    private void showServerPackPrompt(UUID param0, URL param1, String param2, boolean param3, @Nullable Component param4) {
         Screen var0 = this.minecraft.screen;
         this.minecraft
             .setScreen(
                 new ConfirmScreen(
-                    param4 -> {
+                    param5 -> {
                         this.minecraft.setScreen(var0);
-                        if (param4) {
+                        DownloadedPackSource var0x = this.minecraft.getDownloadedPackSource();
+                        var0x.pushPack(param0, param1, param2);
+                        if (param5) {
                             if (this.serverData != null) {
                                 this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.ENABLED);
                             }
             
-                            this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-                            this.packApplicationCallback(this.minecraft.getDownloadedPackSource().downloadAndSelectResourcePack(param0, param1, true));
+                            var0x.allowServerPacks();
                         } else {
-                            this.send(ServerboundResourcePackPacket.Action.DECLINED);
-                            if (param2) {
+                            var0x.rejectServerPacks();
+                            if (param3) {
                                 this.connection.disconnect(Component.translatable("multiplayer.requiredTexturePrompt.disconnect"));
                             } else if (this.serverData != null) {
                                 this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
@@ -160,15 +166,15 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
                         }
             
                     },
-                    param2 ? Component.translatable("multiplayer.requiredTexturePrompt.line1") : Component.translatable("multiplayer.texturePrompt.line1"),
+                    param3 ? Component.translatable("multiplayer.requiredTexturePrompt.line1") : Component.translatable("multiplayer.texturePrompt.line1"),
                     preparePackPrompt(
-                        param2
+                        param3
                             ? Component.translatable("multiplayer.requiredTexturePrompt.line2").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)
                             : Component.translatable("multiplayer.texturePrompt.line2"),
-                        param3
+                        param4
                     ),
-                    param2 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
-                    (Component)(param2 ? Component.translatable("menu.disconnect") : CommonComponents.GUI_NO)
+                    param3 ? CommonComponents.GUI_PROCEED : CommonComponents.GUI_YES,
+                    (Component)(param3 ? Component.translatable("menu.disconnect") : CommonComponents.GUI_NO)
                 )
             );
     }
@@ -188,13 +194,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
         }
     }
 
-    private void packApplicationCallback(CompletableFuture<?> param0) {
-        param0.thenRun(() -> this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED)).exceptionally(param0x -> {
-            this.send(ServerboundResourcePackPacket.Action.FAILED_DOWNLOAD);
-            return null;
-        });
-    }
-
     @Override
     public void handleUpdateTags(ClientboundUpdateTagsPacket param0) {
         PacketUtils.ensureRunningOnSameThread(param0, this, this.minecraft);
@@ -208,10 +207,6 @@ public abstract class ClientCommonPacketListenerImpl implements ClientCommonPack
             TagNetworkSerialization.deserializeTagsFromNetwork(param0x, var0, param1, var2::put);
             var0.bindTags(var2);
         }
-    }
-
-    private void send(ServerboundResourcePackPacket.Action param0) {
-        this.connection.send(new ServerboundResourcePackPacket(param0));
     }
 
     @Override

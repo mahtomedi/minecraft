@@ -1167,7 +1167,7 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
         this.add(Blocks.MANGROVE_LEAVES, param1 -> this.createMangroveLeavesDrops(param1));
         this.add(Blocks.TALL_SEAGRASS, createDoublePlantShearsDrop(Blocks.SEAGRASS));
         this.add(Blocks.LARGE_FERN, param0 -> this.createDoublePlantWithSeedDrops(param0, Blocks.FERN));
-        this.add(Blocks.TALL_GRASS, param0 -> this.createDoublePlantWithSeedDrops(param0, Blocks.GRASS));
+        this.add(Blocks.TALL_GRASS, param0 -> this.createDoublePlantWithSeedDrops(param0, Blocks.SHORT_GRASS));
         this.add(Blocks.MELON_STEM, param0 -> this.createStemDrops(param0, Items.MELON_SEEDS));
         this.add(Blocks.ATTACHED_MELON_STEM, param0 -> this.createAttachedStemDrops(param0, Items.MELON_SEEDS));
         this.add(Blocks.PUMPKIN_STEM, param0 -> this.createStemDrops(param0, Items.PUMPKIN_SEEDS));
@@ -1185,7 +1185,7 @@ public class VanillaBlockLoot extends BlockLootSubProvider {
                     )
         );
         this.add(Blocks.FERN, param1 -> this.createGrassDrops(param1));
-        this.add(Blocks.GRASS, param1 -> this.createGrassDrops(param1));
+        this.add(Blocks.SHORT_GRASS, param1 -> this.createGrassDrops(param1));
         this.add(
             Blocks.GLOWSTONE,
             param0 -> createSilkTouchDispatchTable(

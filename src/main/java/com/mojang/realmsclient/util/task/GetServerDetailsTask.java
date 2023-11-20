@@ -14,12 +14,15 @@ import com.mojang.realmsclient.gui.screens.RealmsLongRunningMcoTickTaskScreen;
 import com.mojang.realmsclient.gui.screens.RealmsTermsScreen;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import java.net.URL;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.GenericDirtMessageScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.server.DownloadedPackSource;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,6 +30,8 @@ import org.slf4j.Logger;
 
 @OnlyIn(Dist.CLIENT)
 public class GetServerDetailsTask extends LongRunningTask {
+    private static final Component APPLYING_PACK_TEXT = Component.translatable("multiplayer.applyingPack");
+    private static final UUID REALMS_PACK_UUID = UUID.fromString("08c3b151-90fb-4c09-b6cf-0548364671bb");
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Component TITLE = Component.translatable("mco.connect.connecting");
     private final RealmsServer server;
@@ -113,8 +118,9 @@ public class GetServerDetailsTask extends LongRunningTask {
             if (!param2) {
                 setScreen(this.lastScreen);
             } else {
+                setScreen(new GenericDirtMessageScreen(APPLYING_PACK_TEXT));
                 this.scheduleResourcePackDownload(param0).thenRun(() -> setScreen(param1.apply(param0))).exceptionally(param1x -> {
-                    Minecraft.getInstance().getDownloadedPackSource().clearServerPack();
+                    Minecraft.getInstance().getDownloadedPackSource().cleanupAfterDisconnect();
                     LOGGER.error("Failed to download resource pack from {}", param0, param1x);
                     setScreen(new RealmsGenericErrorScreen(Component.translatable("mco.download.resourcePack.fail"), this.lastScreen));
                     return null;
@@ -132,13 +138,15 @@ public class GetServerDetailsTask extends LongRunningTask {
 
     private CompletableFuture<?> scheduleResourcePackDownload(RealmsServerAddress param0) {
         try {
-            return Minecraft.getInstance()
-                .getDownloadedPackSource()
-                .downloadAndSelectResourcePack(new URL(param0.resourcePackUrl), param0.resourcePackHash, false);
-        } catch (Exception var4) {
-            CompletableFuture<Void> var1 = new CompletableFuture<>();
-            var1.completeExceptionally(var4);
+            DownloadedPackSource var0 = Minecraft.getInstance().getDownloadedPackSource();
+            CompletableFuture<Void> var1 = var0.waitForPackFeedback(REALMS_PACK_UUID);
+            var0.allowServerPacks();
+            var0.pushPack(REALMS_PACK_UUID, new URL(param0.resourcePackUrl), param0.resourcePackHash);
             return var1;
+        } catch (Exception var4) {
+            CompletableFuture<Void> var3 = new CompletableFuture<>();
+            var3.completeExceptionally(var4);
+            return var3;
         }
     }
 }

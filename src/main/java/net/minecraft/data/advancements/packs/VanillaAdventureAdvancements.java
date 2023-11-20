@@ -1,6 +1,7 @@
 package net.minecraft.data.advancements.packs;
 
 import com.mojang.datafixers.util.Pair;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,9 +78,8 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
     private static final int Y_COORDINATE_AT_TOP = 320;
     private static final int Y_COORDINATE_AT_BOTTOM = -64;
     private static final int BEDROCK_THICKNESS = 5;
-    private static final EntityType<?>[] MOBS_TO_KILL = new EntityType[]{
+    protected static final List<EntityType<?>> MOBS_TO_KILL = Arrays.asList(
         EntityType.BLAZE,
-        EntityType.BREEZE,
         EntityType.CAVE_SPIDER,
         EntityType.CREEPER,
         EntityType.DROWNED,
@@ -113,7 +113,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
         EntityType.ZOMBIE_VILLAGER,
         EntityType.ZOMBIE,
         EntityType.ZOMBIFIED_PIGLIN
-    };
+    );
 
     private static Criterion<LightningStrikeTrigger.TriggerInstance> fireCountAndBystander(MinMaxBounds.Ints param0, Optional<EntityPredicate> param1) {
         return LightningStrikeTrigger.TriggerInstance.lightningStrike(
@@ -199,34 +199,7 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
                 )
             )
             .save(param1, "adventure/trade_at_world_height");
-        AdvancementHolder var3 = addMobsToKill(Advancement.Builder.advancement())
-            .parent(var0)
-            .display(
-                Items.IRON_SWORD,
-                Component.translatable("advancements.adventure.kill_a_mob.title"),
-                Component.translatable("advancements.adventure.kill_a_mob.description"),
-                null,
-                AdvancementType.TASK,
-                true,
-                true,
-                false
-            )
-            .requirements(AdvancementRequirements.Strategy.OR)
-            .save(param1, "adventure/kill_a_mob");
-        addMobsToKill(Advancement.Builder.advancement())
-            .parent(var3)
-            .display(
-                Items.DIAMOND_SWORD,
-                Component.translatable("advancements.adventure.kill_all_mobs.title"),
-                Component.translatable("advancements.adventure.kill_all_mobs.description"),
-                null,
-                AdvancementType.CHALLENGE,
-                true,
-                true,
-                false
-            )
-            .rewards(AdvancementRewards.Builder.experience(100))
-            .save(param1, "adventure/kill_all_mobs");
+        AdvancementHolder var3 = createMonsterHunterAdvancement(var0, param1, MOBS_TO_KILL);
         AdvancementHolder var4 = Advancement.Builder.advancement()
             .parent(var3)
             .display(
@@ -703,6 +676,38 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .save(param1, "adventure/read_power_of_chiseled_bookshelf");
     }
 
+    public static AdvancementHolder createMonsterHunterAdvancement(AdvancementHolder param0, Consumer<AdvancementHolder> param1, List<EntityType<?>> param2) {
+        AdvancementHolder var0 = addMobsToKill(Advancement.Builder.advancement(), param2)
+            .parent(param0)
+            .display(
+                Items.IRON_SWORD,
+                Component.translatable("advancements.adventure.kill_a_mob.title"),
+                Component.translatable("advancements.adventure.kill_a_mob.description"),
+                null,
+                AdvancementType.TASK,
+                true,
+                true,
+                false
+            )
+            .requirements(AdvancementRequirements.Strategy.OR)
+            .save(param1, "adventure/kill_a_mob");
+        addMobsToKill(Advancement.Builder.advancement(), param2)
+            .parent(var0)
+            .display(
+                Items.DIAMOND_SWORD,
+                Component.translatable("advancements.adventure.kill_all_mobs.title"),
+                Component.translatable("advancements.adventure.kill_all_mobs.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .rewards(AdvancementRewards.Builder.experience(100))
+            .save(param1, "adventure/kill_all_mobs");
+        return var0;
+    }
+
     private static Criterion<ItemUsedOnLocationTrigger.TriggerInstance> placedBlockReadByComparator(Block param0) {
         LootItemCondition.Builder[] var0 = ComparatorBlock.FACING.getPossibleValues().stream().map(param0x -> {
             StatePropertiesPredicate.Builder var0x = StatePropertiesPredicate.Builder.properties().hasProperty(ComparatorBlock.FACING, param0x);
@@ -791,14 +796,13 @@ public class VanillaAdventureAdvancements implements AdvancementSubProvider {
             .save(param0, "adventure/adventuring_time");
     }
 
-    private static Advancement.Builder addMobsToKill(Advancement.Builder param0) {
-        for(EntityType<?> var0 : MOBS_TO_KILL) {
-            param0.addCriterion(
-                BuiltInRegistries.ENTITY_TYPE.getKey(var0).toString(),
-                KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(var0))
-            );
-        }
-
+    private static Advancement.Builder addMobsToKill(Advancement.Builder param0, List<EntityType<?>> param1) {
+        param1.forEach(
+            param1x -> param0.addCriterion(
+                    BuiltInRegistries.ENTITY_TYPE.getKey(param1x).toString(),
+                    KilledTrigger.TriggerInstance.playerKilledEntity(EntityPredicate.Builder.entity().of(param1x))
+                )
+        );
         return param0;
     }
 

@@ -25,7 +25,7 @@ class PlayerScores {
     }
 
     public boolean remove(Objective param0) {
-        return this.scores.get(param0) != null;
+        return this.scores.remove(param0) != null;
     }
 
     public boolean hasScores() {
